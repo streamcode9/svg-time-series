@@ -7,9 +7,20 @@ function f(x) {
 function animate(id, yOffset) {
 	let x = 0, y = 0, delta = 0, scale = 0.2
 	
-	const path: any = document.getElementById(id)	
-	path.pathSegList.appendItem(path.createSVGPathSegMovetoAbs(0, 100))
-	for (x = 0; x < 5000; x++) path.pathSegList.appendItem(path.createSVGPathSegLinetoAbs(x, f(x)))	
+	const path: any = document.getElementById(id)
+
+	if (path.pathSegList) {
+		path.pathSegList.appendItem(path.createSVGPathSegMovetoAbs(0, 100))
+		for (x = 0; x < 5000; x++) path.pathSegList.appendItem(path.createSVGPathSegLinetoAbs(x, f(x)))	
+	}
+	else {
+		var descriptions = path.getAttribute('d')
+		for (x = 0; x < 5000; x++) {
+			y = f(x)
+			descriptions += ` L ${x} ${y}`
+		}
+		path.setAttribute('d', descriptions)
+	}
 	
 	const transformations = path.transform.baseVal
 	const translateTransform = svg.createSVGTransform()
