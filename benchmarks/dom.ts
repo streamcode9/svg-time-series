@@ -1,35 +1,44 @@
-﻿function f(x) {
+﻿const svg: any = document.getElementById('svg-container')
+
+function f(x) {
 	return Math.sin(x / 100) / 4.0 + 0.5 + Math.sin(x / 10) / 15.0
 }
 
 function animate(id, yOffset) {
-	var path: any = document.getElementById(id)
-	var descriptions = path.getAttribute('d')
-	var x = 0, y = 0
-	var delta = 0
-	var scale = 0.2
-	for (x = 0; x < 5000; x++) {
-		y = f(x)
-		descriptions += ` L ${x} ${y}`
-	}
-	path.setAttribute('d', descriptions)
+	let x = 0, y = 0, delta = 0, scale = 0.2
+	
+	const path: any = document.getElementById(id)	
+	path.pathSegList.appendItem(path.createSVGPathSegMovetoAbs(0, 100))
+	for (x = 0; x < 5000; x++) path.pathSegList.appendItem(path.createSVGPathSegLinetoAbs(x, f(x)))	
+	
+	const transformations = path.transform.baseVal
+	const translateTransform = svg.createSVGTransform()
+	translateTransform.setTranslate(-delta, yOffset)
+	transformations.appendItem(translateTransform)	
+	const scaleTransform = svg.createSVGTransform()
+	scaleTransform.setScale(scale, 100)
+	transformations.appendItem(scaleTransform)
+		
+	let time = null
+	let start = null
+	let stepsCount = 100
+	function render(timestamp) {
+		if (!start) start = timestamp
+		if (time) console.log(timestamp - time)
+		time = timestamp
 
-	setInterval(function () {
-		var t = new Date().getTime() 
-		path.setAttribute('transform', 'translate(' + (- delta) + ', ' + yOffset + ') scale(' + scale + ', 100)')
-		delta += 2 / 5
-		scale = 1 + 0.8 * Math.sin(delta / 50)		
-		console.log(new Date().getTime() - t)
-	}, 1000 / 50)
+		const translateTransform = svg.createSVGTransform()
+		translateTransform.setTranslate(-delta, yOffset)
+		transformations.replaceItem(translateTransform, 0)			
+		const scaleTransform = svg.createSVGTransform()
+		scaleTransform.setScale(scale, 100)
+		transformations.replaceItem(scaleTransform, 1)
+
+		delta = (timestamp - start) / 20 * (2 / 5)
+		scale = 1 + 0.8 * Math.sin(delta / 50)
+		if (--stepsCount > 0) window.requestAnimationFrame(render)		
+	}
+	window.requestAnimationFrame(render)
 }
 
-animate('g0', 50)
-animate('g1', 100)
-animate('g2', 150)
-animate('g3', 200)
-animate('g4', 250)
-animate('g5', 300)
-animate('g6', 350)
-animate('g7', 400)
-animate('g8', 450)
-animate('g9', 500)
+for (let i = 0; i < 9; i++) animate('g' + i, 50 + i * 50)
