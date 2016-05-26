@@ -1,0 +1,19 @@
+{
+  "name": "svg-time-series",
+  "homepage": "https://github.com/streamcode9/svg-time-series",
+  "authors": [
+    "andy.melnikov@gmail.com <andy.melnikov@gmail.com>",
+    "streamcode9@gmail.com <streamcode9@gmail.com>"
+  ],
+  "description": "",
+  "main": "app.js",
+  "license": "WTFPL",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": { }
+}

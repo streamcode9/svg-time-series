@@ -28,6 +28,9 @@
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="benchmarks\dom.ts" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="bower.json" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>

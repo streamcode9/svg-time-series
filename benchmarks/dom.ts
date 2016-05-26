@@ -6,30 +6,20 @@ function f(x) {
 
 function animate(id, yOffset) {
 	let x = 0, y = 0, delta = 0, scale = 0.2
-	
-	const path: any = document.getElementById(id)
 
-	if (path.pathSegList) {
-		path.pathSegList.appendItem(path.createSVGPathSegMovetoAbs(0, 100))
-		for (x = 0; x < 5000; x++) path.pathSegList.appendItem(path.createSVGPathSegLinetoAbs(x, f(x)))	
-	}
-	else {
-		var descriptions = path.getAttribute('d')
-		for (x = 0; x < 5000; x++) {
-			y = f(x)
-			descriptions += ` L ${x} ${y}`
-		}
-		path.setAttribute('d', descriptions)
-	}
-	
+	const path: any = document.getElementById(id)
+	let pathData = [{ type: "M", values: [0, 100] }]
+	for (x = 0; x < 5000; x++) pathData.push({ type: 'L', values: [x, f(x)] })
+	path.setPathData(pathData);
+
 	const transformations = path.transform.baseVal
 	const translateTransform = svg.createSVGTransform()
 	translateTransform.setTranslate(-delta, yOffset)
-	transformations.appendItem(translateTransform)	
+	transformations.appendItem(translateTransform)
 	const scaleTransform = svg.createSVGTransform()
 	scaleTransform.setScale(scale, 100)
 	transformations.appendItem(scaleTransform)
-		
+
 	let time = null
 	let start = null
 	let stepsCount = 100
@@ -40,14 +30,14 @@ function animate(id, yOffset) {
 
 		const translateTransform = svg.createSVGTransform()
 		translateTransform.setTranslate(-delta, yOffset)
-		transformations.replaceItem(translateTransform, 0)			
+		transformations.replaceItem(translateTransform, 0)
 		const scaleTransform = svg.createSVGTransform()
 		scaleTransform.setScale(scale, 100)
 		transformations.replaceItem(scaleTransform, 1)
 
 		delta = (timestamp - start) / 20 * (2 / 5)
 		scale = 1 + 0.8 * Math.sin(delta / 50)
-		if (--stepsCount > 0) window.requestAnimationFrame(render)		
+		if (--stepsCount > 0) window.requestAnimationFrame(render)
 	}
 	window.requestAnimationFrame(render)
 }
