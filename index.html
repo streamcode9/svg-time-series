@@ -5,7 +5,7 @@
 	<title>svg-time-series</title>
 </head>
 <body>
-	<svg id="svg-container" width="1200px" height="1300px" xmlns="http://www.w3.org/2000/svg" version="1.1">
+	<!--<svg id="svg-container" width="1200px" height="1300px" xmlns="http://www.w3.org/2000/svg" version="1.1">
 		<path d="M 0 100" fill="none" stroke="black" stroke-width="0.01" id="g0" />
 		<path d="M 0 100" fill="none" stroke="black" stroke-width="0.01" id="g1" />
 		<path d="M 0 100" fill="none" stroke="black" stroke-width="0.01" id="g2" />
@@ -16,10 +16,12 @@
 		<path d="M 0 100" fill="none" stroke="black" stroke-width="0.01" id="g7" />
 		<path d="M 0 100" fill="none" stroke="black" stroke-width="0.01" id="g8" />
 		<path d="M 0 100" fill="none" stroke="black" stroke-width="0.01" id="g9" />
-	</svg>
+	</svg>-->
+	<div id="plotly-container"></div>
 	<script type="text/javascript" src="node_modules/d3/d3.min.js"></script>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 	<script type="text/javascript" src="path-data-polyfill.js"></script>
 	<script type="text/javascript" src="benchmarks/common.js"></script>
-	<script type="text/javascript" src="benchmarks/dom.js"></script>
+	<script type="text/javascript" src="benchmarks/dom-d3-plotly.js"></script>
 </body>
 </html>

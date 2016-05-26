@@ -28,6 +28,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="benchmarks\common.ts" />
+    <TypeScriptCompile Include="benchmarks\dom-d3-plotly.ts" />
     <TypeScriptCompile Include="benchmarks\dom-d3.ts" />
     <TypeScriptCompile Include="benchmarks\dom.ts" />
   </ItemGroup>
