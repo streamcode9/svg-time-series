@@ -236,7 +236,6 @@ FakesAssemblies/
 .ntvs_analysis.dat
 
 # Typescript
-*.js
 *.map
 
 # Visual Studio 6 build log
