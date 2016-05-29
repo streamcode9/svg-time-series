@@ -22,16 +22,22 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="index-plotly.html" />
-    <Content Include="index.html" />
+    <Content Include="benchmarks\d3-axes-grad\index.html" />
+    <Content Include="benchmarks\d3-axes-grad\index.js" />
+    <Content Include="benchmarks\d3-myaxis\index.html" />
+    <Content Include="benchmarks\d3-myaxis\index.js" />
+    <Content Include="benchmarks\d3-pan-zoom\index.html" />
+    <Content Include="benchmarks\d3-pan-zoom\index.js" />
+    <Content Include="benchmarks\index-dom-d3.html" />
+    <Content Include="benchmarks\index-dom-first-rendering.html" />
+    <Content Include="benchmarks\index-plotly.html" />
+    <Content Include="benchmarks\index-dom.html" />
     <Content Include="path-data-polyfill.js" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="benchmarks\common.ts" />
     <TypeScriptCompile Include="benchmarks\dom-d3-plotly.ts" />
-    <TypeScriptCompile Include="benchmarks\dom-d3.ts" />
-    <TypeScriptCompile Include="benchmarks\dom.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="bower.json" />
