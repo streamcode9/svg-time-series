@@ -74,7 +74,7 @@ function drawProc(f) {
         if (!requested)
         {
             requested = true
-            requestAnimationFrame(function (time)
+            d3.timeout(function (time)
             {
                 requested = false
                 f(time)
@@ -91,7 +91,7 @@ function measureFPS(sec, drawFPS)
         ctr++
     })
 
-    setInterval(function () {
+    d3.interval(function () {
         drawFPS((ctr / sec).toPrecision(3))
         ctr = 0
     }, 1000 * sec)

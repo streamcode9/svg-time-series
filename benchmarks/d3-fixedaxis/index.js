@@ -45,11 +45,15 @@ function myAxis(orient, scale) {
 
     line = line.merge(tickEnter.append("line")
         .attr("stroke", "#000")
-        .attr(x + "2", k * tickSizeInner));
+        .attr(x + "2", k * tickSizeInner)
+        .attr(y + "1", 0.5)
+        .attr(y + "2", 0.5));
 
     text = text.merge(tickEnter.append("text")
         .attr("fill", "#000")
-        .attr(x, k * spacing));
+        .attr(x, k * spacing)
+        .attr(y, 0.5)
+        .attr("dy", orient === top ? "0em" : orient === bottom ? ".71em" : ".32em"));
 
     if (context !== selection) {
       path = path.transition(context);
@@ -71,28 +75,27 @@ function myAxis(orient, scale) {
     path
         .attr("d", orient === left || orient == right
             ? "M" + k * tickSizeOuter + "," + range0 + "H0.5V" + range1 + "H" + k * tickSizeOuter
-            : "M" + range0 + "," + k * tickSizeOuter + "V0.5H" + range1 + "V" + k * tickSizeOuter)
+            : "M" + range0 + "," + k * tickSizeOuter + "V0.5H" + range1 + "V" + k * tickSizeOuter);
 
     tick
         .attr("opacity", 1)
         .attr("transform", function(d) { return transform(position, position, d); });
 
     line
-        .attr(x + "2", k * tickSizeInner)
-        .attr(y + "1", 0.5)
-        .attr(y + "2", 0.5);
+        .attr(x + "2", k * tickSizeInner);
 
     text
         .attr(x, k * spacing)
-        .attr(y, 0.5)
-        .attr("dy", orient === top ? "0em" : orient === bottom ? ".71em" : ".32em")
         .text(format);
 
     selection
+      .filter(function() { return !this.__axis; })
         .attr("fill", "none")
         .attr("font-size", 10)
         .attr("font-family", "sans-serif")
-        .attr("text-anchor", orient === right ? "start" : orient === left ? "end" : "middle")
+        .attr("text-anchor", orient === right ? "start" : orient === left ? "end" : "middle");
+
+    selection
         .each(function() { this.__axis = position; });
   }
 
