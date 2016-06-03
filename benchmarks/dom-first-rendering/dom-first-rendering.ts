@@ -1,11 +1,13 @@
-﻿function createTranslate (x, y) {
-	const translateTransform = svg.createSVGTransform()
+﻿import common = require('../common')
+
+function createTranslate (x, y) {
+	const translateTransform = common.svg.createSVGTransform()
 	translateTransform.setTranslate(x, y)
 	return translateTransform
 }
 
 function createScale (x, y) {
-	const scaleTransform = svg.createSVGTransform()
+	const scaleTransform = common.svg.createSVGTransform()
 	scaleTransform.setScale(x, y)
 	return scaleTransform
 }
@@ -15,7 +17,7 @@ function animate(id, yOffset) {
 
 	const path: any = document.getElementById(id)
 	let pathData = [{ type: "M", values: [0, 100] }]
-	for (let x = 0; x < 5000; x++) pathData.push({ type: 'L', values: [x, f(x)] })
+	for (let x = 0; x < 5000; x++) pathData.push({ type: 'L', values: [x, common.f(x)] })
 	path.setPathData(pathData);
 
 	const transformations = path.transform.baseVal

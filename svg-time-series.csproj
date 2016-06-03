@@ -30,8 +30,8 @@
     <Content Include="benchmarks\d3-myaxis\index.js" />
     <Content Include="benchmarks\d3-pan-zoom\index.html" />
     <Content Include="benchmarks\d3-pan-zoom\index.js" />
-    <Content Include="benchmarks\index-dom-d3.html" />
-    <Content Include="benchmarks\index-dom-first-rendering.html" />
+    <Content Include="benchmarks\d3\index-dom-d3.html" />
+    <Content Include="benchmarks\dom-first-rendering\index-dom-first-rendering.html" />
     <Content Include="benchmarks\d3-plotly\index-plotly.html" />
     <Content Include="benchmarks\dom\index-dom.html" />
     <Content Include="benchmarks\path-data-polyfill.js" />
@@ -40,6 +40,8 @@
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="benchmarks\common.ts" />
     <TypeScriptCompile Include="benchmarks\d3-plotly\dom-d3-plotly.ts" />
+    <TypeScriptCompile Include="benchmarks\d3\dom-d3.ts" />
+    <TypeScriptCompile Include="benchmarks\dom-first-rendering\dom-first-rendering.ts" />
     <TypeScriptCompile Include="benchmarks\dom\dom.ts" />
   </ItemGroup>
   <ItemGroup>

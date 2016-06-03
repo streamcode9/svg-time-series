@@ -239,6 +239,8 @@ FakesAssemblies/
 *.map
 benchmarks/common.js
 benchmarks/dom/*.js
+benchmarks/dom-first-rendering/*.js
+benchmarks/d3/*.js
 benchmarks/d3-plotly/*.js
 
 # Visual Studio 6 build log
