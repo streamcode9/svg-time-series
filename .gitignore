@@ -237,6 +237,9 @@ FakesAssemblies/
 
 # Typescript
 *.map
+benchmarks/common.js
+benchmarks/dom/*.js
+benchmarks/d3-plotly/*.js
 
 # Visual Studio 6 build log
 *.plg

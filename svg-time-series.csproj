@@ -24,20 +24,23 @@
   <ItemGroup>
     <Content Include="benchmarks\d3-axes-grad\index.html" />
     <Content Include="benchmarks\d3-axes-grad\index.js" />
+    <Content Include="benchmarks\d3-fixedaxis\index.html" />
+    <Content Include="benchmarks\d3-fixedaxis\index.js" />
     <Content Include="benchmarks\d3-myaxis\index.html" />
     <Content Include="benchmarks\d3-myaxis\index.js" />
     <Content Include="benchmarks\d3-pan-zoom\index.html" />
     <Content Include="benchmarks\d3-pan-zoom\index.js" />
     <Content Include="benchmarks\index-dom-d3.html" />
     <Content Include="benchmarks\index-dom-first-rendering.html" />
-    <Content Include="benchmarks\index-plotly.html" />
-    <Content Include="benchmarks\index-dom.html" />
-    <Content Include="path-data-polyfill.js" />
+    <Content Include="benchmarks\d3-plotly\index-plotly.html" />
+    <Content Include="benchmarks\dom\index-dom.html" />
+    <Content Include="benchmarks\path-data-polyfill.js" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="benchmarks\common.ts" />
-    <TypeScriptCompile Include="benchmarks\dom-d3-plotly.ts" />
+    <TypeScriptCompile Include="benchmarks\d3-plotly\dom-d3-plotly.ts" />
+    <TypeScriptCompile Include="benchmarks\dom\dom.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="bower.json" />
