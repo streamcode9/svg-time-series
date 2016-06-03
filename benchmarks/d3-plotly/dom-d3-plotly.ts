@@ -1,4 +1,6 @@
-﻿declare var Plotly: any
+﻿import common = require('../common')
+declare var require: Function
+var Plotly = require('plotly.js')
 
 function generateData() {
 	let lines = []
@@ -6,7 +8,7 @@ function generateData() {
 		var xs = [], ys = []
 		for (let x = 0; x < 5000; x++) {
 			xs.push(x * 0.2)
-			ys.push(f(x) * 100 + 50 * i)
+			ys.push(common.f(x) * 100 + 50 * i)
 		}
 		lines.push({ y: ys, x: xs, line: { width: 1 }, showlegend: false })
 	}

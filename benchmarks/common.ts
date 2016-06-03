@@ -1,10 +1,10 @@
-﻿const svg: any = document.getElementById('svg-container')
+﻿export const svg: any = document.getElementById('svg-container')
 
-function f(x) {
+export function f(x) {
 	return Math.sin(x / 100) / 4.0 + 0.5 + Math.sin(x / 10) / 15.0
 }
 
-function run(stepsCount: number = 100, delta: number = 0, scale: number = 0.2, fnRender: (delta: number, scale: number) => void) {
+export function run(stepsCount: number = 100, delta: number = 0, scale: number = 0.2, fnRender: (delta: number, scale: number) => void) {
 	let time = null
 	let start = null
 	function render(timestamp) {
