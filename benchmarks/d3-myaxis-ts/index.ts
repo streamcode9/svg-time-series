@@ -113,40 +113,6 @@ namespace Chart {
 				.each(function () { this.__axis = position })
 		}
 
-		setScale(_: any) { return this.scale = _, this }
-
-		ticks(...args: any[]) {
-			return this.tickArguments = slice.call(args), this
-		}
-
-		tickArgumentsField(_: any) {
-			return arguments.length ? (this.tickArguments = _ == null ? [] : slice.call(_), this) : this.tickArguments.slice()
-		}
-
-		tickValuesField(_: any) {
-			return arguments.length ? (this.tickValues = _ == null ? null : slice.call(_), this) : this.tickValues && this.tickValues.slice()
-		}
-
-		tickFormatField(_: any) {
-			return arguments.length ? (this.tickFormat = _, this) : this.tickFormat
-		}
-
-		setTickSize(_: number): MyAxis {
-			return this.tickSizeInner = this.tickSizeOuter = +_, this
-		}
-
-		setTickSizeInner(_: number) {
-			return this.tickSizeInner = +_, this
-		}
-
-		setTickSizeOuter(_: number) {
-			return this.tickSizeOuter = +_, this
-		}
-
-		setTickPadding(_: number) {
-			return this.tickPadding = +_, this
-		}
-
 		axisUp(context: any) {
 			let values = this.tickValues == null ? (this.scale.ticks ? this.scale.ticks.apply(this.scale, this.tickArguments) : this.scale.domain()) : this.tickValues,
 				format = this.tickFormat == null ? (this.scale.tickFormat ? this.scale.tickFormat.apply(this.scale, this.tickArguments) : identity) : this.tickFormat,
@@ -192,6 +158,40 @@ namespace Chart {
 			tickExit.remove()
 			tick.attr('transform', (d: any) => transform(position, position, d))
 		}
+
+		setScale(_: any) { return this.scale = _, this }
+
+		ticks(...args: any[]) {
+			return this.tickArguments = slice.call(args), this
+		}
+
+		setTickArguments(_: any) {
+			return this.tickArguments = _ == null ? [] : slice.call(_), this
+		}
+
+		setTickValues(_: any) {
+			return this.tickValues = _ == null ? null : slice.call(_), this
+		}
+
+		setTickFormat(_: any) {
+			return this.tickFormat = _, this
+		}
+
+		setTickSize(_: number): MyAxis {
+			return this.tickSizeInner = this.tickSizeOuter = +_, this
+		}
+
+		setTickSizeInner(_: number) {
+			return this.tickSizeInner = +_, this
+		}
+
+		setTickSizeOuter(_: number) {
+			return this.tickSizeOuter = +_, this
+		}
+
+		setTickPadding(_: number) {
+			return this.tickPadding = +_, this
+		}
 	}
 
 	function translateX(scale0: any, scale1: any, d: any) {
@@ -235,11 +235,11 @@ namespace Chart {
 
 	var gX = svg.append('g')
 		.attr('class', 'axis axis--x')
-		.call(xAxis)
+		.call(xAxis.axis.bind(xAxis))
 
 	var gY = svg.append('g')
 		.attr('class', 'axis axis--y')
-		.call(yAxis)
+		.call(yAxis.axis.bind(yAxis))
 
 	svg.append('rect')
 		.attr('class', 'zoom')
@@ -254,11 +254,11 @@ namespace Chart {
 	let rx: any = null
 	let ry: any = null
 
-	function draw() {
+	let draw = drawProc(function () {
 		view.attr('transform', newZoom)
-		xAxis.scale(rx).axisUp(gX)
-		yAxis.scale(ry).axisUp(gY)
-	}
+		xAxis.setScale(rx).axisUp(gX)
+		yAxis.setScale(ry).axisUp(gY)		
+	})
 
 	function zoomed() {
 		let z = d3.event.transform.toString()
