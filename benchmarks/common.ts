@@ -1,13 +1,13 @@
 ﻿export const svg: any = document.getElementById('svg-container')
 
-export function f(x) {
+export function f(x: any) {
 	return Math.sin(x / 100) / 4.0 + 0.5 + Math.sin(x / 10) / 15.0
 }
 
 export function run(stepsCount: number = 100, delta: number = 0, scale: number = 0.2, fnRender: (delta: number, scale: number) => void) {
-	let time = null
-	let start = null
-	function render(timestamp) {
+	let time: any = null
+	let start: any = null
+	function render(timestamp: number) {
 		if (!start) start = timestamp
 		if (time) console.log(timestamp - time)
 		time = timestamp

@@ -237,11 +237,13 @@ FakesAssemblies/
 
 # Typescript
 *.map
+app.js
 benchmarks/common.js
 benchmarks/dom/*.js
 benchmarks/dom-first-rendering/*.js
 benchmarks/d3/*.js
 benchmarks/d3-plotly/*.js
+benchmarks/d3-myaxis-ts/*.js
 
 # Visual Studio 6 build log
 *.plg

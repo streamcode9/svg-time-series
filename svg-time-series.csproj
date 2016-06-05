@@ -26,23 +26,17 @@
     <Content Include="benchmarks\d3-axes-grad\index.js" />
     <Content Include="benchmarks\d3-fixedaxis\index.html" />
     <Content Include="benchmarks\d3-fixedaxis\index.js" />
+    <Content Include="benchmarks\d3-myaxis-ts\index.html" />
     <Content Include="benchmarks\d3-myaxis\index.html" />
     <Content Include="benchmarks\d3-myaxis\index.js" />
     <Content Include="benchmarks\d3-pan-zoom\index.html" />
     <Content Include="benchmarks\d3-pan-zoom\index.js" />
-    <Content Include="benchmarks\d3\index-dom-d3.html" />
-    <Content Include="benchmarks\dom-first-rendering\index-dom-first-rendering.html" />
-    <Content Include="benchmarks\d3-plotly\index-plotly.html" />
-    <Content Include="benchmarks\dom\index-dom.html" />
     <Content Include="benchmarks\path-data-polyfill.js" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="benchmarks\common.ts" />
-    <TypeScriptCompile Include="benchmarks\d3-plotly\dom-d3-plotly.ts" />
-    <TypeScriptCompile Include="benchmarks\d3\dom-d3.ts" />
-    <TypeScriptCompile Include="benchmarks\dom-first-rendering\dom-first-rendering.ts" />
-    <TypeScriptCompile Include="benchmarks\dom\dom.ts" />
+    <TypeScriptCompile Include="benchmarks\d3-myaxis-ts\index.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="bower.json" />
@@ -79,6 +73,17 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>True</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
