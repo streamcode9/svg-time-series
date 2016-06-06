@@ -23,7 +23,7 @@ namespace Chart {
 		tickSizeInner: number
 		tickSizeOuter: number
 		tickPadding: number
-		orient: any
+		orient: number
 		scale: any
 		constructor(orient: any, scale: any) {
 			this.orient = orient
@@ -226,63 +226,75 @@ namespace Chart {
 		.setTickSize(width)
 		.setTickPadding(8 - width)
 
-	var view = svg.append('rect')
-		.attr('class', 'view')
-		.attr('x', 0.5)
-		.attr('y', 0.5)
-		.attr('width', width - 1)
-		.attr('height', height - 1)
+	let lineX = d3.scaleTime().range([0, width])
+	let lineY = d3.scaleLinear().range([height, 0])
 
-	var gX = svg.append('g')
-		.attr('class', 'axis axis--x')
-		.call(xAxis.axis.bind(xAxis))
+	let line = d3.line()
+		.x((d: any) => lineX(d.date))
+		.y((d: any) => lineY(d.value))
 
-	var gY = svg.append('g')
-		.attr('class', 'axis axis--y')
-		.call(yAxis.axis.bind(yAxis))
+	d3.csv('ny-vs-sf.csv',
+		(d: any) => ({ date: new Date(d.Date), value: parseFloat(d.NY.split(';')[0]) }),
+		(data: any) => {
+			lineX.domain(d3.extent(data, (d: any) => d.date))
+			lineY.domain(d3.extent(data, (d: any) => d.value))
 
-	svg.append('rect')
-		.attr('class', 'zoom')
-		.attr('width', width)
-		.attr('height', height)
-		.call(d3.zoom()
-			.scaleExtent([1, 40])
-			.translateExtent([[-100, -100], [width + 90, height + 100]])
-			.on('zoom', zoomed))
+			var view = svg.append('path')
+				.datum(data)
+				.attr('class', 'view')
+				.attr('d', line)
 
-	let newZoom: any = null
-	let rx: any = null
-	let ry: any = null
+			var gX = svg.append('g')
+				.attr('class', 'axis axis--x')
+				.call(xAxis.axis.bind(xAxis))
 
-	let draw = drawProc(function () {
-		view.attr('transform', newZoom)
-		xAxis.setScale(rx).axisUp(gX)
-		yAxis.setScale(ry).axisUp(gY)		
-	})
+			var gY = svg.append('g')
+				.attr('class', 'axis axis--y')
+				.call(yAxis.axis.bind(yAxis))
 
-	function zoomed() {
-		let z = d3.event.transform.toString()
-		if (z != newZoom) {
-			rx = d3.event.transform.rescaleX(x)
-			ry = d3.event.transform.rescaleY(y)
-			newZoom = z
-			draw()
-		}
-	}
+			svg.append('rect')
+				.attr('class', 'zoom')
+				.attr('width', width)
+				.attr('height', height)
+				.call(d3.zoom()
+					.scaleExtent([1, 40])
+					.translateExtent([[-100, -100], [width + 90, height + 100]])
+					.on('zoom', zoomed))
 
-	function drawProc(f: any) {
-		let requested = false
+			let newZoom: any = null
+			let rx: any = null
+			let ry: any = null
 
-		return function () {
-			if (!requested) {
-				requested = true
-				d3.timeout(function (time: any) {
-					requested = false
-					f(time)
-				})
+			let draw = drawProc(function () {
+				view.attr('transform', newZoom)
+				xAxis.setScale(rx).axisUp(gX)
+				yAxis.setScale(ry).axisUp(gY)
+			})
+
+			function zoomed() {
+				let z = d3.event.transform.toString()
+				if (z != newZoom) {
+					rx = d3.event.transform.rescaleX(x)
+					ry = d3.event.transform.rescaleY(y)
+					newZoom = z
+					draw()
+				}
 			}
-		}
-	}
+
+			function drawProc(f: any) {
+				let requested = false
+
+				return function () {
+					if (!requested) {
+						requested = true
+						d3.timeout(function (time: any) {
+							requested = false
+							f(time)
+						})
+					}
+				}
+			}
+		})
 
 	function measureFPS(sec: any, drawFPS: any) {
 		var ctr = 0

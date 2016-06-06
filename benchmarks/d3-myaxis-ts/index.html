@@ -9,19 +9,20 @@
 		stroke-opacity: 0.3;
 		shape-rendering: crispEdges;
 	}
-
+	
 	.zoom {
 		fill: none;
 		pointer-events: all;
 	}
 
 	.view {
-		fill: url(#gradient);
-		stroke: #000;
+		fill: none;
+		stroke: steelblue;
+		stroke-width: 1.5px;
 	}
 </style>
 <div id="fps">n/a</div>
-<svg width="960" height="500">
+<svg width="1960" height="500">
 	<defs>
 		<linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
 			<stop offset="0.0%" stop-color="#2c7bb6"></stop>
@@ -37,4 +38,4 @@
 	</defs>
 </svg>
 <script src="http://d3js.org/d3.v4.0.0-alpha.44.min.js"></script>
-<script type="application/ecmascript" src="bundle.js"></script>
+<script type="application/ecmascript" src="index.js"></script>
