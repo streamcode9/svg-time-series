@@ -233,9 +233,14 @@ namespace Chart {
 		.x((d: any) => lineX(d.date))
 		.y((d: any) => lineY(d.value))
 
-	d3.csv('ny-vs-sf.csv',
-		(d: any) => ({ date: new Date(d.Date), value: parseFloat(d.NY.split(';')[0]) }),
-		(data: any) => {
+	d3
+		.csv('ny-vs-sf.csv')
+		.row((d: any) => ({ date: new Date(d.Date), value: parseFloat(d.NY.split(';')[0]) }))
+		.get((error: any, data: any) => {
+			if (error != null) {
+				alert('Data can\'t be downloaded or parsed')
+				return
+			}
 			lineX.domain(d3.extent(data, (d: any) => d.date))
 			lineY.domain(d3.extent(data, (d: any) => d.value))
 
