@@ -44,8 +44,7 @@ namespace Chart {
 				range0 = range[0] + 0.5,
 				range1 = range[range.length - 1] + 0.5,
 				position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
-				selection = context.selection ? context.selection() : context,
-				tick = selection.selectAll('.tick').data(values, this.scale).order(),
+				tick = context.selectAll('.tick').data(values, this.scale).order(),
 				tickExit = tick.exit(),
 				tickEnter = tick.enter().append('g').attr('class', 'tick'),
 				line = tick.select('line'),
@@ -62,20 +61,6 @@ namespace Chart {
 			text = text.merge(tickEnter.append('text')
 				.attr('fill', '#000')
 				.attr(x, k * spacing))
-
-			if (context !== selection) {
-				tick = tick.transition(context)
-				line = line.transition(context)
-				text = text.transition(context)
-
-				tickExit = tickExit.transition(context)
-					.attr('opacity', epsilon)
-					.attr('transform', function (d: any) { return transform(position, this.parentNode.__axis || position, d) })
-
-				tickEnter
-					.attr('opacity', epsilon)
-					.attr('transform', function (d: any) { return transform(this.parentNode.__axis || position, position, d) })
-			}
 
 			tickExit.remove()
 
@@ -94,7 +79,7 @@ namespace Chart {
 				.attr('dy', this.orient === top ? '0em' : this.orient === bottom ? '.71em' : '.32em')
 				.text(format)
 
-			selection
+			context
 				.attr('fill', 'none')
 				.attr('font-size', 10)
 				.attr('font-family', 'sans-serif')
@@ -111,9 +96,8 @@ namespace Chart {
 				range0 = range[0] + 0.5,
 				range1 = range[range.length - 1] + 0.5,
 				position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
-
-				selection = context.selection ? context.selection() : context,
-				tick = selection.selectAll('.tick').data(values, this.scale).order(),
+								
+				tick = context.selectAll('.tick').data(values, this.scale).order(),
 
 				tickExit = tick.exit(),
 				tickEnter = tick.enter().append('g').attr('class', 'tick'),
