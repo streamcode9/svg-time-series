@@ -45,18 +45,13 @@ namespace Chart {
 				range1 = range[range.length - 1] + 0.5,
 				position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
 				selection = context.selection ? context.selection() : context,
-				path = selection.selectAll('.domain').data([null]),
 				tick = selection.selectAll('.tick').data(values, this.scale).order(),
 				tickExit = tick.exit(),
-				tickEnter = tick.enter().append('g', '.domain').attr('class', 'tick'),
+				tickEnter = tick.enter().append('g').attr('class', 'tick'),
 				line = tick.select('line'),
 				text = tick.select('text'),
 				k = this.orient === top || this.orient === left ? -1 : 1,
 				x = '', y = this.orient === left || this.orient === right ? (x = 'x', 'y') : (x = 'y', 'x')
-
-			path = path.merge(path.enter().append('path')
-				.attr('class', 'domain')
-				.attr('stroke', '#000'))
 
 			tick = tick.merge(tickEnter)
 
@@ -69,7 +64,6 @@ namespace Chart {
 				.attr(x, k * spacing))
 
 			if (context !== selection) {
-				path = path.transition(context)
 				tick = tick.transition(context)
 				line = line.transition(context)
 				text = text.transition(context)
@@ -84,11 +78,6 @@ namespace Chart {
 			}
 
 			tickExit.remove()
-
-			path
-				.attr('d', this.orient === left || this.orient == right
-					? 'M' + k * this.tickSizeOuter + ',' + range0 + 'H0.5V' + range1 + 'H' + k * this.tickSizeOuter
-					: 'M' + range0 + ',' + k * this.tickSizeOuter + 'V0.5H' + range1 + 'V' + k * this.tickSizeOuter)
 
 			tick
 				.attr('opacity', 1)
@@ -124,21 +113,12 @@ namespace Chart {
 				position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
 
 				selection = context.selection ? context.selection() : context,
-				path = selection.selectAll('.domain').data([null]),
 				tick = selection.selectAll('.tick').data(values, this.scale).order(),
 
 				tickExit = tick.exit(),
-				tickEnter = tick.enter().append('g', '.domain').attr('class', 'tick'),
+				tickEnter = tick.enter().append('g').attr('class', 'tick'),
 				k = this.orient === top || this.orient === left ? -1 : 1,
 				x = '', y = this.orient === left || this.orient === right ? (x = 'x', 'y') : (x = 'y', 'x')
-
-			path = path.merge(path.enter().append('path')
-				.attr('class', 'domain')
-				.attr('stroke', '#000')
-				.attr('d', this.orient === left || this.orient == right
-					? 'M' + k * this.tickSizeOuter + ',' + range0 + 'H0.5V' + range1 + 'H' + k * this.tickSizeOuter
-					: 'M' + range0 + ',' + k * this.tickSizeOuter + 'V0.5H' + range1 + 'V' + k * this.tickSizeOuter)
-			)
 
 			tickEnter.append('line')
 				.attr('stroke', '#000')
@@ -153,7 +133,6 @@ namespace Chart {
 				.attr(y, 0.5)
 				.attr('dy', this.orient === top ? '0em' : this.orient === bottom ? '.71em' : '.32em')
 				.text(format)
-
 
 			tickExit.remove()
 			tick.attr('transform', (d: any) => transform(position, position, d))
