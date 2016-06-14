@@ -96,7 +96,7 @@ namespace Chart {
 				range0 = range[0] + 0.5,
 				range1 = range[range.length - 1] + 0.5,
 				position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
-								
+
 				tick = context.selectAll('.tick').data(values, this.scale).order(),
 
 				tickExit = tick.exit(),
@@ -170,10 +170,13 @@ namespace Chart {
 	var svg = d3.select('svg'),
 		width = +svg.attr('width'),
 		height = +svg.attr('height')
-
 	d3
 		.csv('ny-vs-sf.csv')
-		.row((d: any) => ({ date: new Date(d.Date), value: parseFloat(d.NY.split(';')[0]) }))
+		.row((d: any) => ({
+			date: new Date(d.Date),
+			NY: parseFloat(d.NY.split(';')[0]),
+			SF: parseFloat(d.SF.split(';')[0])
+		}))
 		.get((error: any, data: any) => {
 			if (error != null) {
 				alert('Data can\'t be downloaded or parsed')
@@ -182,6 +185,7 @@ namespace Chart {
 
 			let x = d3.scaleTime().range([0, width])
 			let y = d3.scaleLinear().range([height, 0])
+			let color = d3.scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
 
 			var xAxis = new MyAxis(bottom, x)
 				.ticks((width + 2) / (height + 2) * 10)
@@ -197,13 +201,28 @@ namespace Chart {
 				.x((d: any) => x(d.date))
 				.y((d: any) => y(d.value))
 
-			x.domain(d3.extent(data, (d: any) => d.date))
-			y.domain(d3.extent(data, (d: any) => d.value))
+			var cities = color.domain()
+				.map((name: string) => {
+					return ({
+						name: name,
+						values: data.filter((d: any) => !isNaN(d[name])).map((d: any) => ({ date: d.date, value: +d[name] }))
+					})
+				})
 
-			var view = svg.append('path')
-				.datum(data)
+			x.domain(d3.extent(data, (d: any) => d.date))
+			y.domain([
+				d3.min(cities, (c: any) => d3.min(c.values, (v: any) => v.value)),
+				d3.max(cities, (c: any) => d3.max(c.values, (v: any) => v.value))
+			])
+
+			var view = svg.selectAll('.view')
+				.data(cities)
+				.enter().append('g')
 				.attr('class', 'view')
-				.attr('d', line)
+
+			view.append('path')
+				.attr('d', (d: any) => line(d.values))
+				.attr('stroke', (d: any) => color(d.name))
 
 			var gX = svg.append('g')
 				.attr('class', 'axis axis--x')
