@@ -1,4 +1,5 @@
-declare var d3: any
+declare var require: Function
+var d3 = require('./d3.v4.0.0-alpha.44.min')
 
 namespace Chart {
 	let top = 1,
