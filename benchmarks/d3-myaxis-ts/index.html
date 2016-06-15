@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <meta charset="utf-8">
 <style>
+	.axis { fill: none; font-size: 10px; font-family: sans-serif }
 	.axis line {
 		stroke-opacity: 0.3;
 		shape-rendering: crispEdges;
@@ -14,6 +15,9 @@
 	.view {
 		fill: none;
 	}
+
+	.tick line { stroke: #000; opacity: 1 }
+	.tick text { fill: #000 }
 </style>
 <div id="fps">n/a</div>
 <svg width="960" height="500"></svg>

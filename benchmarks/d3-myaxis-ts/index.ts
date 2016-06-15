@@ -4,8 +4,7 @@ namespace Chart {
 	let top = 1,
 		right = 2,
 		bottom = 3,
-		left = 4,
-		epsilon = 1e-6
+		left = 4
 
 	let slice = Array.prototype.slice
 
@@ -53,20 +52,12 @@ namespace Chart {
 				x = '', y = this.orient === left || this.orient === right ? (x = 'x', 'y') : (x = 'y', 'x')
 
 			tick = tick.merge(tickEnter)
-
-			line = line.merge(tickEnter.append('line')
-				.attr('stroke', '#000')
-				.attr(x + '2', k * this.tickSizeInner))
-
-			text = text.merge(tickEnter.append('text')
-				.attr('fill', '#000')
-				.attr(x, k * spacing))
+			line = line.merge(tickEnter.append('line').attr(x + '2', k * this.tickSizeInner))
+			text = text.merge(tickEnter.append('text').attr(x, k * spacing))
 
 			tickExit.remove()
 
-			tick
-				.attr('opacity', 1)
-				.attr('transform', (d: any) => transform(position, position, d))
+			tick.attr('transform', (d: any) => transform(position, position, d))
 
 			line
 				.attr(x + '2', k * this.tickSizeInner)
@@ -80,9 +71,6 @@ namespace Chart {
 				.text(format)
 
 			context
-				.attr('fill', 'none')
-				.attr('font-size', 10)
-				.attr('font-family', 'sans-serif')
 				.attr('text-anchor', this.orient === right ? 'start' : this.orient === left ? 'end' : 'middle')
 				.each(function () { this.__axis = position })
 		}
@@ -105,14 +93,11 @@ namespace Chart {
 				x = '', y = this.orient === left || this.orient === right ? (x = 'x', 'y') : (x = 'y', 'x')
 
 			tickEnter.append('line')
-				.attr('stroke', '#000')
 				.attr(x + '2', k * this.tickSizeInner)
 				.attr(y + '1', 0.5)
 				.attr(y + '2', 0.5)
-				.attr('opacity', 1)
 
 			tickEnter.append('text')
-				.attr('fill', '#000')
 				.attr(x, k * spacing)
 				.attr(y, 0.5)
 				.attr('dy', this.orient === top ? '0em' : this.orient === bottom ? '.71em' : '.32em')
@@ -225,11 +210,11 @@ namespace Chart {
 				.attr('stroke', (d: any) => color(d.name))
 
 			var gX = svg.append('g')
-				.attr('class', 'axis axis--x')
+				.attr('class', 'axis')
 				.call(xAxis.axis.bind(xAxis))
 
 			var gY = svg.append('g')
-				.attr('class', 'axis axis--y')
+				.attr('class', 'axis')
 				.call(yAxis.axis.bind(yAxis))
 
 			svg.append('rect')
