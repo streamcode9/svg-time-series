@@ -40,9 +40,6 @@ namespace Chart {
 				format: any = this.tickFormat == null ? (this.scale.tickFormat ? this.scale.tickFormat.apply(this.scale, this.tickArguments) : identity) : this.tickFormat,
 				spacing: any = Math.max(this.tickSizeInner, 0) + this.tickPadding,
 				transform: any = this.orient === top || this.orient === bottom ? translateX : translateY,
-				range: any = this.scale.range(),
-				range0 = range[0] + 0.5,
-				range1 = range[range.length - 1] + 0.5,
 				position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
 				tick = context.selectAll('.tick').data(values, this.scale).order(),
 				tickExit = tick.exit(),
@@ -81,13 +78,8 @@ namespace Chart {
 				format = this.tickFormat == null ? (this.scale.tickFormat ? this.scale.tickFormat.apply(this.scale, this.tickArguments) : identity) : this.tickFormat,
 				spacing = Math.max(this.tickSizeInner, 0) + this.tickPadding,
 				transform = this.orient === top || this.orient === bottom ? translateX : translateY,
-				range = this.scale.range(),
-				range0 = range[0] + 0.5,
-				range1 = range[range.length - 1] + 0.5,
 				position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
-
 				tick = context.selectAll('.tick').data(values, this.scale).order(),
-
 				tickExit = tick.exit(),
 				tickEnter = tick.enter().append('g').attr('class', 'tick'),
 				k = this.orient === top || this.orient === left ? -1 : 1,
