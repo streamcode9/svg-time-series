@@ -147,6 +147,8 @@ namespace Chart {
 		}
 	}
 
+	let axes: any = []
+
 	function drawChart(id: number, data: any) {
 		let svg = d3.select('#chart-' + id),
 			width = +svg.attr('width'),
@@ -210,37 +212,42 @@ namespace Chart {
 				.translateExtent([[-100, -100], [width + 90, height + 100]])
 				.on('zoom', zoomed))
 
-		let newZoom: any = null
-		let rx: any = null
-		let ry: any = null
+		axes.push({ x: x, y: y, xAxis: xAxis, yAxis: yAxis, gX: gX, gY: gY, view: view })
+	}
 
-		let draw = drawProc(function () {
-			view.attr('transform', newZoom)
-			xAxis.setScale(rx).axisUp(gX)
-			yAxis.setScale(ry).axisUp(gY)
+	let newZoom: any = null	
+
+	let draw = drawProc(function () {
+		axes.forEach((axis: any) => {
+			axis.view.attr('transform', newZoom)
+			axis.xAxis.setScale(axis.rx).axisUp(axis.gX)
+			axis.yAxis.setScale(axis.ry).axisUp(axis.gY)
 		})
+	})
 
-		function zoomed() {
-			let z = d3.event.transform.toString()
-			if (z != newZoom) {
-				rx = d3.event.transform.rescaleX(x)
-				ry = d3.event.transform.rescaleY(y)
-				newZoom = z
-				draw()
-			}
+	function zoomed() {
+		let z = d3.event.transform.toString()
+		if (z != newZoom) {
+			axes = axes.map((axis: any) => {
+				axis.rx = d3.event.transform.rescaleX(axis.x)
+				axis.ry = d3.event.transform.rescaleY(axis.y)
+				return axis
+			})
+			newZoom = z
+			draw()
 		}
+	}
 
-		function drawProc(f: any) {
-			let requested = false
+	function drawProc(f: any) {
+		let requested = false
 
-			return function () {
-				if (!requested) {
-					requested = true
-					d3.timeout(function (time: any) {
-						requested = false
-						f(time)
-					})
-				}
+		return function () {
+			if (!requested) {
+				requested = true
+				d3.timeout(function (time: any) {
+					requested = false
+					f(time)
+				})
 			}
 		}
 	}
