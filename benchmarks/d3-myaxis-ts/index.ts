@@ -1,5 +1,7 @@
 declare var require: Function
-var d3 = require('./d3.v4.0.0-alpha.44.min')
+var d3 = require('../../d3.v4.0.0-alpha.50.min')
+var drasProc = require('../../draw')
+var measureFPS = require('../../measure')
 
 namespace Chart {
 	let top = 1,
@@ -217,7 +219,7 @@ namespace Chart {
 
 	let newZoom: any = null	
 
-	let draw = drawProc(function () {
+	let draw = drasProc.draw(function () {
 		axes.forEach((axis: any) => {
 			axis.view.attr('transform', newZoom)
 			axis.xAxis.setScale(axis.rx).axisUp(axis.gX)
@@ -238,20 +240,6 @@ namespace Chart {
 		}
 	}
 
-	function drawProc(f: any) {
-		let requested = false
-
-		return function () {
-			if (!requested) {
-				requested = true
-				d3.timeout(function (time: any) {
-					requested = false
-					f(time)
-				})
-			}
-		}
-	}
-
 	d3
 		.csv('ny-vs-sf.csv')
 		.row((d: any) => ({
@@ -264,21 +252,7 @@ namespace Chart {
 			else[0, 1, 2, 3, 4].forEach(i => drawChart(i, data))
 		})
 
-	function measureFPS(sec: any, drawFPS: any) {
-		var ctr = 0
-
-		d3.timer(function () {
-			ctr++
-		})
-
-		d3.interval(function () {
-			drawFPS((ctr / sec).toPrecision(3))
-			ctr = 0
-		}, 1000 * sec)
-
-	}
-
-	measureFPS(3, function (fps: any) {
+	measureFPS.measure(3, function (fps: any) {
 		document.getElementById('fps').textContent = fps
 	})
 }

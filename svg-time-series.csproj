@@ -37,6 +37,8 @@
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="benchmarks\common.ts" />
     <TypeScriptCompile Include="benchmarks\d3-myaxis-ts\index.ts" />
+    <TypeScriptCompile Include="draw.ts" />
+    <TypeScriptCompile Include="measure.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="bower.json" />
