@@ -2,153 +2,9 @@ declare var require: Function
 var d3 = require('../../d3.v4.0.0-alpha.50.min')
 var drasProc = require('../../draw')
 var measureFPS = require('../../measure')
+var axis = require('../../axis')
 
 namespace Chart {
-	let top = 1,
-		right = 2,
-		bottom = 3,
-		left = 4
-
-	let slice = Array.prototype.slice
-
-	let identity = (x: any) => x
-
-	function center(scale: any) {
-		let width = scale.bandwidth() / 2
-		return (d: any) => scale(d) + width
-	}
-
-	function translateX(scale0: any, scale1: any, d: any) {
-		var x = scale0(d)
-		return 'translate(' + (isFinite(x) ? x : scale1(d)) + ',0)'
-	}
-
-	function translateY(scale0: any, scale1: any, d: any) {
-		var y = scale0(d)
-		return 'translate(0,' + (isFinite(y) ? y : scale1(d)) + ')'
-	}
-
-	class MyAxis {
-		tickArguments: any[]
-		tickValues: any
-		tickFormat: any
-		tickSizeInner: number
-		tickSizeOuter: number
-		tickPadding: number
-		orient: number
-		scale: any
-
-		constructor(orient: any, scale: any) {
-			this.orient = orient
-			this.scale = scale
-			this.tickArguments = []
-			this.tickValues = null
-			this.tickFormat = null
-			this.tickSizeInner = 6
-			this.tickSizeOuter = 6
-			this.tickPadding = 3
-		}
-
-		axis(context: any) {
-			let values: any = this.tickValues == null ? (this.scale.ticks ? this.scale.ticks.apply(this.scale, this.tickArguments) : this.scale.domain()) : this.tickValues,
-				format: any = this.tickFormat == null ? (this.scale.tickFormat ? this.scale.tickFormat.apply(this.scale, this.tickArguments) : identity) : this.tickFormat,
-				spacing: any = Math.max(this.tickSizeInner, 0) + this.tickPadding,
-				transform: any = this.orient === top || this.orient === bottom ? translateX : translateY,
-				position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
-				tick = context.selectAll('.tick').data(values, this.scale).order(),
-				tickExit = tick.exit(),
-				tickEnter = tick.enter().append('g').attr('class', 'tick'),
-				line = tick.select('line'),
-				text = tick.select('text'),
-				k = this.orient === top || this.orient === left ? -1 : 1,
-				x = '', y = this.orient === left || this.orient === right ? (x = 'x', 'y') : (x = 'y', 'x')
-
-			tick = tick.merge(tickEnter)
-			line = line.merge(tickEnter.append('line').attr(x + '2', k * this.tickSizeInner))
-			text = text.merge(tickEnter.append('text').attr(x, k * spacing))
-
-			tickExit.remove()
-
-			tick.attr('transform', (d: any) => transform(position, position, d))
-
-			line
-				.attr(x + '2', k * this.tickSizeInner)
-				.attr(y + '1', 0.5)
-				.attr(y + '2', 0.5)
-
-			text
-				.attr(x, k * spacing)
-				.attr(y, 0.5)
-				.attr('dy', this.orient === top ? '0em' : this.orient === bottom ? '.71em' : '.32em')
-				.text(format)
-
-			context
-				.attr('text-anchor', this.orient === right ? 'start' : this.orient === left ? 'end' : 'middle')
-				.each(function () { this.__axis = position })
-		}
-
-		axisUp(context: any) {
-			let values = this.tickValues == null ? (this.scale.ticks ? this.scale.ticks.apply(this.scale, this.tickArguments) : this.scale.domain()) : this.tickValues,
-				format = this.tickFormat == null ? (this.scale.tickFormat ? this.scale.tickFormat.apply(this.scale, this.tickArguments) : identity) : this.tickFormat,
-				spacing = Math.max(this.tickSizeInner, 0) + this.tickPadding,
-				transform = this.orient === top || this.orient === bottom ? translateX : translateY,
-				position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
-				tick = context.selectAll('.tick').data(values, this.scale).order(),
-				tickExit = tick.exit(),
-				tickEnter = tick.enter().append('g').attr('class', 'tick'),
-				k = this.orient === top || this.orient === left ? -1 : 1,
-				x = '', y = this.orient === left || this.orient === right ? (x = 'x', 'y') : (x = 'y', 'x')
-
-			tickEnter.append('line')
-				.attr(x + '2', k * this.tickSizeInner)
-				.attr(y + '1', 0.5)
-				.attr(y + '2', 0.5)
-
-			tickEnter.append('text')
-				.attr(x, k * spacing)
-				.attr(y, 0.5)
-				.attr('dy', this.orient === top ? '0em' : this.orient === bottom ? '.71em' : '.32em')
-				.text(format)
-
-			tickExit.remove()
-			tick.attr('transform', (d: any) => transform(position, position, d))
-		}
-
-		setScale(_: any) { return this.scale = _, this }
-
-		ticks(...args: any[]) {
-			return this.tickArguments = slice.call(args), this
-		}
-
-		setTickArguments(_: any) {
-			return this.tickArguments = _ == null ? [] : slice.call(_), this
-		}
-
-		setTickValues(_: any) {
-			return this.tickValues = _ == null ? null : slice.call(_), this
-		}
-
-		setTickFormat(_: any) {
-			return this.tickFormat = _, this
-		}
-
-		setTickSize(_: number): MyAxis {
-			return this.tickSizeInner = this.tickSizeOuter = +_, this
-		}
-
-		setTickSizeInner(_: number) {
-			return this.tickSizeInner = +_, this
-		}
-
-		setTickSizeOuter(_: number) {
-			return this.tickSizeOuter = +_, this
-		}
-
-		setTickPadding(_: number) {
-			return this.tickPadding = +_, this
-		}
-	}
-
 	let axes: any = []
 
 	function drawChart(id: number, data: any) {
@@ -160,12 +16,12 @@ namespace Chart {
 		let y = d3.scaleLinear().range([height, 0])
 		let color = d3.scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
 
-		var xAxis = new MyAxis(bottom, x)
+		var xAxis = new axis.MyAxis(axis.Orientation.Bottom, x)
 			.ticks((width + 2) / (height + 2) * 10)
 			.setTickSize(height)
 			.setTickPadding(8 - height)
 
-		var yAxis = new MyAxis(right, y)
+		var yAxis = new axis.MyAxis(axis.Orientation.Right, y)
 			.ticks(10)
 			.setTickSize(width)
 			.setTickPadding(8 - width)
