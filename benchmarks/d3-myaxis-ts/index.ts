@@ -1,8 +1,8 @@
 declare var require: Function
 var d3 = require('../../d3.v4.0.0-alpha.50.min')
-var drasProc = require('../../draw')
-var measureFPS = require('../../measure')
-var axis = require('../../axis')
+import drasProc = require('../../draw')
+import measureFPS = require('../../measure')
+import axis = require('../../axis')
 
 namespace Chart {
 	let axes: any = []
