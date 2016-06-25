@@ -5,7 +5,7 @@ import measureFPS = require('../../measure')
 import axis = require('../../axis')
 
 namespace Chart {
-	let axes: any = []
+	let charts: any = []
 
 	function drawChart(id: number, data: any) {
 		let svg = d3.select('#chart-' + id),
@@ -70,26 +70,38 @@ namespace Chart {
 				.translateExtent([[-100, -100], [width + 90, height + 100]])
 				.on('zoom', zoomed))
 
-		axes.push({ x: x, y: y, xAxis: xAxis, yAxis: yAxis, gX: gX, gY: gY, view: view })
+		charts.push({ x: x, y: y, xAxis: xAxis, yAxis: yAxis, gX: gX, gY: gY, view: view, data: cities })
 	}
 
-	let newZoom: any = null	
+	let newZoom: any = null
 
 	let draw = drasProc.draw(function () {
-		axes.forEach((axis: any) => {
-			axis.view.attr('transform', newZoom)
-			axis.xAxis.setScale(axis.rx).axisUp(axis.gX)
-			axis.yAxis.setScale(axis.ry).axisUp(axis.gY)
+		charts.forEach((chart: any) => {
+			chart.view.attr('transform', chart.transform)
+			//axis.xAxis.setScale(axis.rx).axisUp(axis.gX)
+			//axis.yAxis.setScale(axis.ry).axisUp(axis.gY)
 		})
 	})
 
 	function zoomed() {
 		let z = d3.event.transform.toString()
 		if (z != newZoom) {
-			axes = axes.map((axis: any) => {
-				axis.rx = d3.event.transform.rescaleX(axis.x)
-				axis.ry = d3.event.transform.rescaleY(axis.y)
-				return axis
+			let translateX = d3.event.transform.x
+			let scaleX = d3.event.transform.k
+			charts = charts.map((chart: any) => {
+				let rx = d3.event.transform.rescaleX(chart.x)
+				let domainX = rx.domain()
+				let dataY = chart.data
+					.map((d: any) => d.values
+						.filter((v: any) => v.date.getTime() >= domainX[0].getTime() && v.date.getTime() <= domainX[1].getTime())
+						.map((v: any) => v.value))
+				let domainY = d3.extent(d3.merge(dataY))
+				let newRangeY = [chart.y(domainY[0]), chart.y(domainY[1])]
+				let oldRangeY = chart.y.range()
+				let scaleY = oldRangeY[0] / (newRangeY[0] - newRangeY[1])
+				let translateY = scaleY * (oldRangeY[1] - newRangeY[1])
+				chart.transform = `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`
+				return chart
 			})
 			newZoom = z
 			draw()
