@@ -70,7 +70,7 @@ namespace Chart {
 				.translateExtent([[-100, -100], [width + 90, height + 100]])
 				.on('zoom', zoomed))
 
-		charts.push({ x: x, y: y, xAxis: xAxis, yAxis: yAxis, gX: gX, gY: gY, view: view, data: cities })
+		charts.push({ x: x, y: y, xAxis: xAxis, yAxis: yAxis, gX: gX, gY: gY, view: view, data: cities, height: height })
 	}
 
 	let newZoom: any = null
@@ -78,8 +78,8 @@ namespace Chart {
 	let draw = drasProc.draw(function () {
 		charts.forEach((chart: any) => {
 			chart.view.attr('transform', chart.transform)
-			//axis.xAxis.setScale(axis.rx).axisUp(axis.gX)
-			//axis.yAxis.setScale(axis.ry).axisUp(axis.gY)
+			chart.xAxis.setScale(chart.rx).axisUp(chart.gX)
+			chart.yAxis.setScale(chart.ry).axisUp(chart.gY)
 		})
 	})
 
@@ -89,8 +89,8 @@ namespace Chart {
 			let translateX = d3.event.transform.x
 			let scaleX = d3.event.transform.k
 			charts = charts.map((chart: any) => {
-				let rx = d3.event.transform.rescaleX(chart.x)
-				let domainX = rx.domain()
+				chart.rx = d3.event.transform.rescaleX(chart.x)
+				let domainX = chart.rx.domain()
 				let dataY = chart.data
 					.map((d: any) => d.values
 						.filter((v: any) => v.date.getTime() >= domainX[0].getTime() && v.date.getTime() <= domainX[1].getTime())
@@ -101,6 +101,7 @@ namespace Chart {
 				let scaleY = oldRangeY[0] / (newRangeY[0] - newRangeY[1])
 				let translateY = scaleY * (oldRangeY[1] - newRangeY[1])
 				chart.transform = `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`
+				chart.ry = d3.scaleLinear().range([chart.height, 0]).domain(domainY)
 				return chart
 			})
 			newZoom = z
