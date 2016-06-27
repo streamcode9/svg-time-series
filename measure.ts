@@ -1,5 +1,5 @@
 ﻿declare var require: Function
-var d3 = require('./d3.v4.0.0-alpha.50.min')
+var d3 = require('./d3.v4.0.0-rc.2.min')
 
 export function measure(sec: any, drawFPS: any) {
 	let ctr = 0
