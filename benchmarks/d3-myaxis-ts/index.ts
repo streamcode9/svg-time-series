@@ -17,7 +17,7 @@ namespace Chart {
 		let color = d3.scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
 
 		var xAxis = new axis.MyAxis(axis.Orientation.Bottom, x)
-			.ticks((width + 2) / (height + 2) * 10)
+			.ticks((width + 2) / (height + 2) * 5)
 			.setTickSize(height)
 			.setTickPadding(8 - height)
 
