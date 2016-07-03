@@ -6,6 +6,9 @@ import axis = require('../../axis')
 
 namespace Chart {
 	let charts: any = []
+	const stepX: number = 90000000
+	let minX: Date
+	let maxX: Date
 
 	function drawChart(id: number, data: any) {
 		let svg = d3.select('#chart-' + id),
@@ -17,7 +20,7 @@ namespace Chart {
 		let color = d3.scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
 
 		var xAxis = new axis.MyAxis(axis.Orientation.Bottom, x)
-			.ticks((width + 2) / (height + 2) * 5)
+			.ticks((width + 2) / (height + 2) * 2)
 			.setTickSize(height)
 			.setTickPadding(8 - height)
 
@@ -27,24 +30,24 @@ namespace Chart {
 			.setTickPadding(8 - width)
 
 		let line = d3.line()
-			.x((d: any) => x(d.date))
+			.x((d: any, i: number) => x(calcDate(i)))
 			.y((d: any) => y(d.value))
 
 		let cities = color.domain()
 			.map((name: string) => {
 				return ({
 					name: name,
-					values: data.filter((d: any) => !isNaN(d[name])).map((d: any) => ({ date: d.date, value: +d[name] }))
+					values: data.filter((d: any) => !isNaN(d[name])).map((d: any) => ({ value: +d[name] }))
 				})
 			})
 
-		x.domain(d3.extent(data, (d: any) => d.date))
+		x.domain([minX, maxX])
 		y.domain([
 			d3.min(cities, (c: any) => d3.min(c.values, (v: any) => v.value)),
 			d3.max(cities, (c: any) => d3.max(c.values, (v: any) => v.value))
 		])
 
-		const clipWidth = x(cities[0].values[1].date)
+		const clipWidth = x(calcDate(1))
 		svg.append('defs').append('clipPath').attr('id', 'clip').append('rect').attr('width', width - clipWidth).attr('height', height)
 
 		var view = svg.append('g').attr('clip-path', 'url(#clip)')
@@ -97,7 +100,7 @@ namespace Chart {
 				let domainX = chart.rx.domain()
 				let dataY = chart.data
 					.map((d: any) => d.values
-						.filter((v: any) => v.date.getTime() >= domainX[0].getTime() && v.date.getTime() <= domainX[1].getTime())
+						.filter((v: any, i: number) => calcDate(i) >= domainX[0].getTime() && calcDate(i) <= domainX[1].getTime())
 						.map((v: any) => v.value))
 				let domainY = d3.extent(d3.merge(dataY))
 				let newRangeY = [chart.y(domainY[0]), chart.y(domainY[1])]
@@ -117,11 +120,12 @@ namespace Chart {
 		if (acc > cnt) return
 
 		charts.forEach((chart: any) => {
-			var newDate = new Date(chart.data[0].values[chart.data[0].values.length - 1].date.getTime() + 90000000)
-			chart.data[0].values.push({value: chart.data[0].values[0].value, date: newDate })
-			chart.data[1].values.push({value: chart.data[1].values[0].value, date: newDate })
+			minX = new Date(minX.getTime() + stepX)
+			maxX = calcDate(chart.data[0].values.length)
+			chart.data[0].values.push({value: chart.data[0].values[0].value })
+			chart.data[1].values.push({value: chart.data[1].values[0].value })
 
-			chart.x.domain([chart.data[0].values[1].date, newDate])
+			chart.x.domain([minX, maxX])
 			chart.view.selectAll('path')
 				.attr('d', (d: any) => chart.line(d.values))
 				.attr('stroke', (d: any) => chart.color(d.name))
@@ -143,17 +147,22 @@ namespace Chart {
 	d3
 		.csv('ny-vs-sf.csv')
 		.row((d: any) => ({
-			date: new Date(d.Date),
 			NY: parseFloat(d.NY.split(';')[0]),
 			SF: parseFloat(d.SF.split(';')[0])
 		}))
 		.get((error: any, data: any) => {
+			minX = new Date()
+			maxX = calcDate(data.length - 1)
 			if (error != null) alert('Data can\'t be downloaded or parsed')
 			else {
 				[0, 1, 2, 3, 4].forEach((i: any) => drawChart(i, data))
 				updateChartWithNewData(1, 1000)
 			}
 		})
+
+	function calcDate(index: number) {
+		return new Date(index*stepX + minX.getTime())
+	}
 
 	measureFPS.measure(3, function (fps: any) {
 		document.getElementById('fps').textContent = fps
