@@ -30,7 +30,7 @@ namespace Chart {
 			.x((d: any) => x(d.date))
 			.y((d: any) => y(d.value))
 
-		var cities = color.domain()
+		let cities = color.domain()
 			.map((name: string) => {
 				return ({
 					name: name,
@@ -70,7 +70,7 @@ namespace Chart {
 				.translateExtent([[-100, -100], [width + 90, height + 100]])
 				.on('zoom', zoomed))
 
-		charts.push({ x: x, y: y, xAxis: xAxis, yAxis: yAxis, gX: gX, gY: gY, view: view, data: cities, height: height })
+		charts.push({ x: x, y: y, xAxis: xAxis, yAxis: yAxis, gX: gX, gY: gY, view: view, data: cities, height: height, line: line, color: color })
 	}
 
 	let newZoom: any = null
@@ -108,6 +108,33 @@ namespace Chart {
 			draw()
 		}
 	}
+	
+	function updateChartWithNewData(acc: number, cnt: number) {
+		if (acc > cnt) return
+
+		charts.forEach((chart: any) => {
+			var newDate = new Date(chart.data[0].values[chart.data[0].values.length - 1].date.getTime() + 90000000)
+			chart.data[0].values.push({value: chart.data[0].values[0].value, date: newDate })
+			chart.data[1].values.push({value: chart.data[1].values[0].value, date: newDate })
+
+			chart.x.domain([chart.data[0].values[1].date, newDate])
+			chart.view.selectAll('path')
+				.attr('d', (d: any) => chart.line(d.values))
+				.attr('stroke', (d: any) => chart.color(d.name))
+				.attr('class', (d: any) => d.name)
+				.attr('transform', null)
+			var t = d3.transition().duration(100).ease(d3.easeLinear)
+			chart.view.selectAll('path').transition(t).attr('transform', 'translate(-' + chart.x(chart.data[0].values[1].date) + ', 0)')
+		})
+		
+		d3.timeout(() => {
+			charts.forEach((chart: any) => {
+				chart.data[0].values.shift()
+				chart.data[1].values.shift()
+			})
+			updateChartWithNewData(acc+1, cnt)
+		}, 200)
+	}
 
 	d3
 		.csv('ny-vs-sf.csv')
@@ -118,7 +145,10 @@ namespace Chart {
 		}))
 		.get((error: any, data: any) => {
 			if (error != null) alert('Data can\'t be downloaded or parsed')
-			else[0, 1, 2, 3, 4].forEach(i => drawChart(i, data))
+			else {
+				[0, 1, 2, 3, 4].forEach((i: any) => drawChart(i, data))
+				updateChartWithNewData(1, 1000)
+			}
 		})
 
 	measureFPS.measure(3, function (fps: any) {
