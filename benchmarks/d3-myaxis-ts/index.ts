@@ -44,7 +44,11 @@ namespace Chart {
 			d3.max(cities, (c: any) => d3.max(c.values, (v: any) => v.value))
 		])
 
-		var view = svg.selectAll('.view')
+		const clipWidth = x(cities[0].values[1].date)
+		svg.append('defs').append('clipPath').attr('id', 'clip').append('rect').attr('width', width - clipWidth).attr('height', height)
+
+		var view = svg.append('g').attr('clip-path', 'url(#clip)')
+			.selectAll('.view')
 			.data(cities)
 			.enter().append('g')
 			.attr('class', 'view')
