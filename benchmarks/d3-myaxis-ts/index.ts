@@ -30,22 +30,19 @@ namespace Chart {
 			.setTickPadding(8 - width)
 
 		let line = d3.line()
-			.x((d: any, i: number) => x(calcDate(i)))
-			.y((d: any) => y(d.value))
+			.x((d: number, i: number) => x(calcDate(i)))
+			.y((d: number) => y(d))
 
 		let cities = color.domain()
 			.map((name: string) => {
 				return ({
 					name: name,
-					values: data.filter((d: any) => !isNaN(d[name])).map((d: any) => ({ value: +d[name] }))
+					values: data.filter((d: any) => !isNaN(d[name])).map((d: any) => +d[name])
 				})
 			})
 
 		x.domain([minX, maxX])
-		y.domain([
-			d3.min(cities, (c: any) => d3.min(c.values, (v: any) => v.value)),
-			d3.max(cities, (c: any) => d3.max(c.values, (v: any) => v.value))
-		])
+		y.domain(d3.extent(d3.merge(cities.map((v: any) => v.values))))
 
 		const clipWidth = x(calcDate(1))
 		svg.append('defs').append('clipPath').attr('id', 'clip').append('rect').attr('width', width - clipWidth).attr('height', height)
@@ -101,7 +98,7 @@ namespace Chart {
 				let dataY = chart.data
 					.map((d: any) => d.values
 						.filter((v: any, i: number) => calcDate(i) >= domainX[0].getTime() && calcDate(i) <= domainX[1].getTime())
-						.map((v: any) => v.value))
+						.map((v: number) => v))
 				let domainY = d3.extent(d3.merge(dataY))
 				let newRangeY = [chart.y(domainY[0]), chart.y(domainY[1])]
 				let oldRangeY = chart.y.range()
@@ -122,8 +119,8 @@ namespace Chart {
 		charts.forEach((chart: any) => {
 			minX = new Date(minX.getTime() + stepX)
 			maxX = calcDate(chart.data[0].values.length)
-			chart.data[0].values.push({value: chart.data[0].values[0].value })
-			chart.data[1].values.push({value: chart.data[1].values[0].value })
+			chart.data[0].values.push(chart.data[0].values[0])
+			chart.data[1].values.push(chart.data[1].values[0])
 
 			chart.x.domain([minX, maxX])
 			chart.view.selectAll('path')
@@ -132,7 +129,7 @@ namespace Chart {
 				.attr('class', (d: any) => d.name)
 				.attr('transform', null)
 			var t = d3.transition().duration(100).ease(d3.easeLinear)
-			chart.view.selectAll('path').transition(t).attr('transform', 'translate(-' + chart.x(chart.data[0].values[1].date) + ', 0)')
+			chart.view.selectAll('path').transition(t).attr('transform', 'translate(-' + chart.x(minX) + ', 0)')
 		})
 		
 		d3.timeout(() => {
