@@ -1,5 +1,5 @@
 declare var require: Function
-var d3 = require('../../d3.v4.0.0-rc.2.min')
+var d3 = require('../../d3.v4.min')
 import drasProc = require('../../draw')
 import measureFPS = require('../../measure')
 import axis = require('../../axis')
@@ -112,7 +112,7 @@ namespace Chart {
 			draw()
 		}
 	}
-	
+
 	function updateChartWithNewData(acc: number, cnt: number) {
 		if (acc > cnt) return
 
@@ -129,7 +129,7 @@ namespace Chart {
 				.attr('class', (d: any) => d.name)
 				.attr('transform', null)
 			var t = d3.transition().duration(100).ease(d3.easeLinear)
-			chart.view.selectAll('path').transition(t).attr('transform', 'translate(-' + chart.x(minX) + ', 0)')
+			chart.view.selectAll('path').transition(t).attr('transform', 'translate(-' + chart.x(calcDate(1)) + ', 0)')
 		})
 		
 		d3.timeout(() => {
