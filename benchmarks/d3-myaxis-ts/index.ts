@@ -6,7 +6,7 @@ import axis = require('../../axis')
 
 namespace Chart {
 	let charts: any = []
-	const stepX: number = 90000000
+	const stepX: number = 86400000
 	let minX: Date
 	let maxX: Date
 
@@ -114,22 +114,22 @@ namespace Chart {
 	}
 
 	function updateChartWithNewData(acc: number, cnt: number) {
-		if (acc > cnt) return
+		if (acc == cnt) return
+
+		minX = calcDate(1)
+		maxX = calcDate(charts[0].data[0].values.length)
 
 		charts.forEach((chart: any) => {
-			minX = new Date(minX.getTime() + stepX)
-			maxX = calcDate(chart.data[0].values.length)
 			chart.data[0].values.push(chart.data[0].values[0])
 			chart.data[1].values.push(chart.data[1].values[0])
-
 			chart.x.domain([minX, maxX])
 			chart.view.selectAll('path')
 				.attr('d', (d: any) => chart.line(d.values))
 				.attr('stroke', (d: any) => chart.color(d.name))
 				.attr('class', (d: any) => d.name)
 				.attr('transform', null)
-			var t = d3.transition().duration(100).ease(d3.easeLinear)
-			chart.view.selectAll('path').transition(t).attr('transform', 'translate(-' + chart.x(calcDate(1)) + ', 0)')
+			chart.xAxis.axisUp(chart.gX)
+			chart.view.selectAll('path').attr('transform', 'translate(-' + chart.x(calcDate(1)) + ', 0)')
 		})
 		
 		d3.timeout(() => {
@@ -138,7 +138,7 @@ namespace Chart {
 				chart.data[1].values.shift()
 			})
 			updateChartWithNewData(acc+1, cnt)
-		}, 200)
+		}, 300)
 	}
 
 	d3
@@ -153,7 +153,7 @@ namespace Chart {
 			if (error != null) alert('Data can\'t be downloaded or parsed')
 			else {
 				[0, 1, 2, 3, 4].forEach((i: any) => drawChart(i, data))
-				updateChartWithNewData(1, 1000)
+				updateChartWithNewData(1, 30)
 			}
 		})
 
