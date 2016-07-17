@@ -1,6 +1,6 @@
 declare var require: Function
 var d3 = require('../../d3.v4.min')
-import drasProc = require('../../draw')
+import drawProc = require('../../draw')
 import measureFPS = require('../../measure')
 import axis = require('../../axis')
 
@@ -77,39 +77,39 @@ namespace Chart {
 	}
 
 	let newZoom: any = null
+	let newZoomTransform: any = null
 
-	let draw = drasProc.draw(function () {
+	let draw = drawProc.draw(function () {
+		let translateX = newZoomTransform.x
+		let scaleX = newZoomTransform.k
+
 		charts.forEach((chart: any) => {
-			chart.view.attr('transform', chart.transform)
+			chart.rx = newZoomTransform.rescaleX(chart.x)
+			const domainX = chart.rx.domain()
+			const dataY = chart.data
+				.map((d: any) => d.values
+					.filter((v: any, i: number) => calcDate(i, minX) >= domainX[0].getTime() && calcDate(i, minX) <= domainX[1].getTime())
+					.map((v: number) => v))
+			const domainY = d3.extent(d3.merge(dataY))
+			const newRangeY = [chart.y(domainY[0]), chart.y(domainY[1])]
+			const oldRangeY = chart.y.range()
+			const scaleY = oldRangeY[0] / (newRangeY[0] - newRangeY[1])
+			const translateY = scaleY * (oldRangeY[1] - newRangeY[1])
+			const ry = d3.scaleLinear().range([chart.height, 0]).domain(domainY)
+
+			chart.view.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
 			chart.xAxis.setScale(chart.rx).axisUp(chart.gX)
-			chart.yAxis.setScale(chart.ry).axisUp(chart.gY)
+			chart.yAxis.setScale(ry).axisUp(chart.gY)
 		})
 	})
 
 	function zoomed() {
-		let z = d3.event.transform.toString()
-		if (z != newZoom) {
-			let translateX = d3.event.transform.x
-			let scaleX = d3.event.transform.k
-			charts = charts.map((chart: any) => {
-				chart.rx = d3.event.transform.rescaleX(chart.x)
-				let domainX = chart.rx.domain()
-				let dataY = chart.data
-					.map((d: any) => d.values
-						.filter((v: any, i: number) => calcDate(i, minX) >= domainX[0].getTime() && calcDate(i, minX) <= domainX[1].getTime())
-						.map((v: number) => v))
-				let domainY = d3.extent(d3.merge(dataY))
-				let newRangeY = [chart.y(domainY[0]), chart.y(domainY[1])]
-				let oldRangeY = chart.y.range()
-				let scaleY = oldRangeY[0] / (newRangeY[0] - newRangeY[1])
-				let translateY = scaleY * (oldRangeY[1] - newRangeY[1])
-				chart.transform = `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`
-				chart.ry = d3.scaleLinear().range([chart.height, 0]).domain(domainY)
-				return chart
-			})
-			newZoom = z
-			draw()
-		}
+		const z = d3.event.transform.toString()
+		if (z == newZoom) return
+
+		newZoom = z
+		newZoomTransform = d3.event.transform
+		draw()
 	}
 
 	function updateChartWithNewData(acc: number, cnt: number) {
