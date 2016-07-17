@@ -112,9 +112,7 @@ namespace Chart {
 		draw()
 	}
 
-	function updateChartWithNewData(acc: number, cnt: number) {
-		if (acc == cnt) return
-
+	function updateChartWithNewData() {
 		minX = calcDate(1, minX)
 		maxX = calcDate(charts[0].data[0].values.length - 1, minX)
 
@@ -137,7 +135,7 @@ namespace Chart {
 				chart.data[0].values.shift()
 				chart.data[1].values.shift()
 			})
-			updateChartWithNewData(acc+1, cnt)
+			updateChartWithNewData()
 		}, 300)
 	}
 
@@ -154,7 +152,7 @@ namespace Chart {
 				maxX = calcDate(data.length - 1, minX);
 
 				[0, 1, 2, 3, 4].forEach((i: any) => drawChart(i, data))
-				updateChartWithNewData(1, 30)
+				updateChartWithNewData()
 			}
 		})
 
