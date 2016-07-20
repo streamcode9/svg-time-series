@@ -30,6 +30,7 @@ namespace Chart {
 			.setTickPadding(8 - width)
 
 		let line = d3.line()
+			.defined((d: number) => d)
 			.x((d: number, i: number) => x(calcDate(i, minX)))
 			.y((d: number) => y(d))
 
@@ -37,7 +38,7 @@ namespace Chart {
 			.map((name: string) => {
 				return ({
 					name: name,
-					values: data.filter((d: any) => !isNaN(d[name])).map((d: any) => +d[name])
+					values: data.map((d: any) => +d[name])
 				})
 			})
 
