@@ -110,6 +110,7 @@ namespace Chart {
 
 		newZoom = z
 		newZoomTransform = d3.event.transform
+		d3.zoom().transform(d3.selectAll('.zoom'), newZoomTransform)
 		draw()
 	}
 
