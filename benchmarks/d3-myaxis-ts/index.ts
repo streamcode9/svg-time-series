@@ -81,6 +81,7 @@ namespace Chart {
 	let newZoomTransform: any = null
 
 	let draw = drawProc.draw(function () {
+		d3.zoom().transform(d3.selectAll('.zoom'), newZoomTransform)
 		let translateX = newZoomTransform.x
 		let scaleX = newZoomTransform.k
 
@@ -110,7 +111,6 @@ namespace Chart {
 
 		newZoom = z
 		newZoomTransform = d3.event.transform
-		d3.zoom().transform(d3.selectAll('.zoom'), newZoomTransform)
 		draw()
 	}
 
