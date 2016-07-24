@@ -1,40 +1,40 @@
-declare var require: Function
-var d3 = require('../../d3.v4.min')
+declare const require: Function
+const d3 = require('../../d3.v4.min')
 import drawProc = require('../../draw')
 import measureFPS = require('../../measure')
 import axis = require('../../axis')
 
 namespace Chart {
-	let charts: any = []
+	const charts: any = []
 	const stepX: number = 86400000
 	let minX: Date
 	let maxX: Date
 
 	function drawChart(id: number, data: any) {
-		let svg = d3.select('#chart-' + id),
+		const svg = d3.select('#chart-' + id),
 			width = +svg.attr('width'),
 			height = +svg.attr('height')
 
-		let x = d3.scaleTime().range([0, width])
-		let y = d3.scaleLinear().range([height, 0])
-		let color = d3.scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
+		const x = d3.scaleTime().range([0, width])
+		const y = d3.scaleLinear().range([height, 0])
+		const color = d3.scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
 
-		var xAxis = new axis.MyAxis(axis.Orientation.Bottom, x)
+		const xAxis = new axis.MyAxis(axis.Orientation.Bottom, x)
 			.ticks((width + 2) / (height + 2) * 2)
 			.setTickSize(height)
 			.setTickPadding(8 - height)
 
-		var yAxis = new axis.MyAxis(axis.Orientation.Right, y)
+		const yAxis = new axis.MyAxis(axis.Orientation.Right, y)
 			.ticks(10)
 			.setTickSize(width)
 			.setTickPadding(8 - width)
 
-		let line = d3.line()
+		const line = d3.line()
 			.defined((d: number) => d)
 			.x((d: number, i: number) => x(calcDate(i, minX)))
 			.y((d: number) => y(d))
 
-		let cities = color.domain()
+		const cities = color.domain()
 			.map((name: string) => {
 				return ({
 					name: name,
@@ -45,7 +45,7 @@ namespace Chart {
 		x.domain([minX, maxX])
 		y.domain(d3.extent(d3.merge(cities.map((v: any) => v.values))))
 
-		var view = svg.append('g')
+		const view = svg.append('g')
 			.selectAll('.view')
 			.data(cities)
 			.enter().append('g')
@@ -55,11 +55,11 @@ namespace Chart {
 			.attr('d', (d: any) => line(d.values))
 			.attr('stroke', (d: any) => color(d.name))
 
-		var gX = svg.append('g')
+		const gX = svg.append('g')
 			.attr('class', 'axis')
 			.call(xAxis.axis.bind(xAxis))
 
-		var gY = svg.append('g')
+		const gY = svg.append('g')
 			.attr('class', 'axis')
 			.call(yAxis.axis.bind(yAxis))
 
@@ -80,10 +80,10 @@ namespace Chart {
 	let newZoom: any = null
 	let newZoomTransform: any = null
 
-	let draw = drawProc.draw(function () {
+	const draw = drawProc.draw(function () {
 		d3.zoom().transform(d3.selectAll('.zoom'), newZoomTransform)
-		let translateX = newZoomTransform.x
-		let scaleX = newZoomTransform.k
+		const translateX = newZoomTransform.x
+		const scaleX = newZoomTransform.k
 
 		charts.forEach((chart: any) => {
 			chart.rx = newZoomTransform.rescaleX(chart.x)

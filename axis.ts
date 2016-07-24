@@ -5,22 +5,22 @@
 	Left
 }
 
-let slice = Array.prototype.slice
+const slice = Array.prototype.slice
 
-let identity = (x: any) => x
+const identity = (x: any) => x
 
 function center(scale: any) {
-	let width = scale.bandwidth() / 2
+	const width = scale.bandwidth() / 2
 	return (d: any) => scale(d) + width
 }
 
 function translateX(scale0: any, scale1: any, d: any) {
-	var x = scale0(d)
+	const x = scale0(d)
 	return 'translate(' + (isFinite(x) ? x : scale1(d)) + ',0)'
 }
 
 function translateY(scale0: any, scale1: any, d: any) {
-	var y = scale0(d)
+	const y = scale0(d)
 	return 'translate(0,' + (isFinite(y) ? y : scale1(d)) + ')'
 }
 
