@@ -69,7 +69,7 @@ namespace Chart {
 			.attr('height', height)
 			.call(d3.zoom()
 				.scaleExtent([1, 40])
-				.translateExtent([[-100, -100], [width + 90, height + 100]])
+				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', zoomed))
 
 		charts.push({ x: x, y: y, rx: x.copy(), ry: y.copy(),
