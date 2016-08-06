@@ -9,6 +9,7 @@ namespace Chart {
 	const stepX: number = 86400000
 	let minX: Date
 	let maxX: Date
+	let missedStepsCount: number
 
 	function drawChart(id: number, data: any) {
 		const svg = d3.select('#chart-' + id),
@@ -105,6 +106,25 @@ namespace Chart {
 		})
 	})
 
+	const drawNewData = drawProc.draw(function() {
+		const stepsToDraw = missedStepsCount
+		missedStepsCount = 0
+
+		minX = calcDate(stepsToDraw, minX)
+		maxX = calcDate(charts[0].data[0].values.length - 1, minX)
+				
+		const minimumRX = calcDate(stepsToDraw, charts[0].rx.domain()[0])
+		const maximumRX = calcDate(stepsToDraw, charts[0].rx.domain()[1])
+
+		charts.forEach((chart: any) => {
+			chart.x.domain([minX, maxX])
+			chart.view.selectAll('path').attr('d', (d: any) => chart.line(d.values))
+
+			chart.rx.domain([minimumRX, maximumRX])
+			chart.xAxis.setScale(chart.rx).axisUp(chart.gX)
+		})
+	})
+
 	function zoomed() {
 		const z = d3.event.transform.toString()
 		if (z == newZoom) return
@@ -115,30 +135,17 @@ namespace Chart {
 	}
 
 	function updateChartWithNewData() {
-		minX = calcDate(1, minX)
-		maxX = calcDate(charts[0].data[0].values.length - 1, minX)
-
-		const minimumRX = new Date(charts[0].rx.domain()[0].getTime() + stepX)
-		const maximumRX = new Date(charts[0].rx.domain()[1].getTime() + stepX)
-
+		missedStepsCount++
+		
 		charts.forEach((chart: any) => {
 			chart.data[0].values.push(chart.data[0].values[0])
 			chart.data[1].values.push(chart.data[1].values[0])
 
-			chart.x.domain([minX, maxX])
-			chart.view.selectAll('path').attr('d', (d: any) => chart.line(d.values))
-
-			chart.rx.domain([minimumRX, maximumRX])
-			chart.xAxis.setScale(chart.rx).axisUp(chart.gX)
+			chart.data[0].values.shift()
+			chart.data[1].values.shift()
 		})
-		
-		d3.timeout(() => {
-			charts.forEach((chart: any) => {
-				chart.data[0].values.shift()
-				chart.data[1].values.shift()
-			})
-			updateChartWithNewData()
-		}, 300)
+
+		drawNewData()
 	}
 
 	d3
@@ -154,7 +161,8 @@ namespace Chart {
 				maxX = calcDate(data.length - 1, minX);
 
 				[0, 1, 2, 3, 4].forEach((i: any) => drawChart(i, data))
-				updateChartWithNewData()
+				missedStepsCount = 0
+				setInterval(updateChartWithNewData, 300)
 			}
 		})
 
