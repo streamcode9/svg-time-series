@@ -3,6 +3,7 @@ const d3 = require('../../d3.v4.min')
 import drawProc = require('../../draw')
 import measureFPS = require('../../measure')
 import axis = require('../../axis')
+import segmentTree = require('../../segmentTree')
 
 namespace Chart {
 	const charts: any = []
@@ -10,6 +11,7 @@ namespace Chart {
 	let minX: Date
 	let maxX: Date
 	let missedStepsCount: number
+	let tree: segmentTree.SegmentTree
 
 	function drawChart(id: number, data: any) {
 		const svg = d3.select('#chart-' + id),
@@ -44,7 +46,7 @@ namespace Chart {
 			})
 
 		x.domain([minX, maxX])
-		y.domain(d3.extent(d3.merge(cities.map((v: any) => v.values))))
+		y.domain(tree.getMinMax(0, tree.size - 1))
 
 		const view = svg.append('g')
 			.selectAll('.view')
@@ -73,13 +75,27 @@ namespace Chart {
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', zoomed))
 
-		charts.push({ x: x, y: y, rx: x.copy(), ry: y.copy(),
-			xAxis: xAxis, yAxis: yAxis, gX: gX, gY: gY, 
-			view: view, data: cities, height: height, line: line, color: color })
+		charts.push({
+			x: x, y: y, rx: x.copy(), ry: y.copy(),
+			xAxis: xAxis, yAxis: yAxis, gX: gX, gY: gY,
+			view: view, data: cities, height: height, line: line, color: color
+		})
 	}
 
 	let newZoom: any = null
 	let newZoomTransform: any = null
+
+	const newZoomDateInterval = function (xSubInterval: [Date, Date], intervalSize: number): [number, number] {
+		let from = intervalSize
+		let to = 0
+		for (let i = 0; i < intervalSize; i++) {
+			if (calcDate(i, minX) >= xSubInterval[0] && calcDate(i, minX) <= xSubInterval[1]) {
+				if (i > to) to = i
+				if (i < from) from = i
+			}
+		}
+		return [from, to]
+	}
 
 	const draw = drawProc.draw(function () {
 		d3.zoom().transform(d3.selectAll('.zoom'), newZoomTransform)
@@ -89,6 +105,8 @@ namespace Chart {
 		charts.forEach((chart: any) => {
 			chart.rx = newZoomTransform.rescaleX(chart.x)
 			const domainX = chart.rx.domain()
+			const ySubInterval = newZoomDateInterval(domainX, chart.data[0].values.length)
+			const testDomain = tree.getMinMax(ySubInterval[0], ySubInterval[1])
 			const dataY = chart.data
 				.map((d: any) => d.values
 					.filter((v: any, i: number) => calcDate(i, minX) >= domainX[0].getTime() && calcDate(i, minX) <= domainX[1].getTime())
@@ -106,13 +124,13 @@ namespace Chart {
 		})
 	})
 
-	const drawNewData = drawProc.draw(function() {
+	const drawNewData = drawProc.draw(function () {
 		const stepsToDraw = missedStepsCount
 		missedStepsCount = 0
 
 		minX = calcDate(stepsToDraw, minX)
 		maxX = calcDate(charts[0].data[0].values.length - 1, minX)
-				
+
 		const minimumRX = calcDate(stepsToDraw, charts[0].rx.domain()[0])
 		const maximumRX = calcDate(stepsToDraw, charts[0].rx.domain()[1])
 
@@ -136,7 +154,7 @@ namespace Chart {
 
 	function updateChartWithNewData() {
 		missedStepsCount++
-		
+
 		charts.forEach((chart: any) => {
 			chart.data[0].values.push(chart.data[0].values[0])
 			chart.data[1].values.push(chart.data[1].values[0])
@@ -158,7 +176,16 @@ namespace Chart {
 			if (error != null) alert('Data can\'t be downloaded or parsed')
 			else {
 				minX = new Date()
-				maxX = calcDate(data.length - 1, minX);
+				maxX = calcDate(data.length - 1, minX)
+
+				const buildTupleFunction: (element: any) => [number, number] = (element: any) => {
+					const nyMinValue = isNaN(element.NY) ? Infinity : element.NY
+					const nyMaxValue = isNaN(element.NY) ? -Infinity : element.NY
+					const sfMinValue = isNaN(element.SF) ? Infinity : element.SF
+					const sfMaxValue = isNaN(element.SF) ? -Infinity : element.SF
+					return [Math.min(nyMinValue, sfMinValue), Math.max(nyMaxValue, sfMaxValue)]
+				}
+				tree = new segmentTree.SegmentTree(data, buildTupleFunction);
 
 				[0, 1, 2, 3, 4].forEach((i: any) => drawChart(i, data))
 				missedStepsCount = 0
@@ -167,7 +194,7 @@ namespace Chart {
 		})
 
 	function calcDate(index: number, offset: Date) {
-		return new Date(index*stepX + offset.getTime())
+		return new Date(index * stepX + offset.getTime())
 	}
 
 	measureFPS.measure(3, function (fps: any) {

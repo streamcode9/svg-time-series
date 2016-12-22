@@ -4,14 +4,16 @@ function buidMinMaxTuple(fst: [number, number], snd: [number, number]): [number,
 
 export class SegmentTree {
 	size: number
-	tree: [number, number][]
+	tree: any[]
+	buidTupleFunc: (element: any) => [number, number]
 
-	constructor(data: number[]) {
+	constructor(data: number[], buidTupleFunction: (element: any) => [number, number]) {
 		this.size = data.length
 		this.tree = new Array(this.size * 4)
+		this.buidTupleFunc = buidTupleFunction
 		
-		const build = (tree: [number, number][], values: number[], i: number, tl: number, tr: number) => {
-			if (tl == tr) tree[i] = [values[tl], values[tl]]
+		const build = (tree: [number, number][], values: any[], i: number, tl: number, tr: number) => {
+			if (tl == tr) tree[i] = this.buidTupleFunc(values[tl])
 			else {
 				const tm = Math.floor((tl + tr) / 2);
 				build(tree, values, 2 * i, tl, tm)
