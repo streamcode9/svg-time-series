@@ -13,6 +13,14 @@ namespace Chart {
 	let missedStepsCount: number
 	let tree: segmentTree.SegmentTree
 
+	function buildTupleFunction(index: number, elements: any): [number, number] {
+		const nyMinValue = isNaN(elements[0].values[index]) ? Infinity : elements[0].values[index]
+		const nyMaxValue = isNaN(elements[0].values[index]) ? -Infinity : elements[0].values[index]
+		const sfMinValue = isNaN(elements[1].values[index]) ? Infinity : elements[1].values[index]
+		const sfMaxValue = isNaN(elements[1].values[index]) ? -Infinity : elements[1].values[index]
+		return [Math.min(nyMinValue, sfMinValue), Math.max(nyMaxValue, sfMaxValue)]
+	}
+
 	function drawChart(id: number, data: any) {
 		const svg = d3.select('#chart-' + id),
 			width = +svg.attr('width'),
@@ -44,6 +52,8 @@ namespace Chart {
 					values: data.map((d: any) => +d[name])
 				})
 			})
+
+		tree = new segmentTree.SegmentTree(cities, cities[0].values.length, buildTupleFunction)
 
 		x.domain([minX, maxX])
 		y.domain(tree.getMinMax(0, tree.size - 1))
@@ -85,7 +95,7 @@ namespace Chart {
 	let newZoom: any = null
 	let newZoomTransform: any = null
 
-	const newZoomDateInterval = function (xSubInterval: [Date, Date], intervalSize: number): [number, number] {
+	function getZoomIntervalY(xSubInterval: [Date, Date], intervalSize: number): [number, number] {
 		let from = intervalSize
 		let to = 0
 		for (let i = 0; i < intervalSize; i++) {
@@ -105,13 +115,8 @@ namespace Chart {
 		charts.forEach((chart: any) => {
 			chart.rx = newZoomTransform.rescaleX(chart.x)
 			const domainX = chart.rx.domain()
-			const ySubInterval = newZoomDateInterval(domainX, chart.data[0].values.length)
-			const testDomain = tree.getMinMax(ySubInterval[0], ySubInterval[1])
-			const dataY = chart.data
-				.map((d: any) => d.values
-					.filter((v: any, i: number) => calcDate(i, minX) >= domainX[0].getTime() && calcDate(i, minX) <= domainX[1].getTime())
-					.map((v: number) => v))
-			const domainY = d3.extent(d3.merge(dataY))
+			const ySubInterval = getZoomIntervalY(domainX, chart.data[0].values.length)
+			const domainY = tree.getMinMax(ySubInterval[0], ySubInterval[1])
 			const newRangeY = [chart.y(domainY[0]), chart.y(domainY[1])]
 			const oldRangeY = chart.y.range()
 			const scaleY = oldRangeY[0] / (newRangeY[0] - newRangeY[1])
@@ -163,6 +168,8 @@ namespace Chart {
 			chart.data[1].values.shift()
 		})
 
+		tree = new segmentTree.SegmentTree(charts[0].data, charts[0].data[0].values.length, buildTupleFunction)
+
 		drawNewData()
 	}
 
@@ -176,16 +183,7 @@ namespace Chart {
 			if (error != null) alert('Data can\'t be downloaded or parsed')
 			else {
 				minX = new Date()
-				maxX = calcDate(data.length - 1, minX)
-
-				const buildTupleFunction: (element: any) => [number, number] = (element: any) => {
-					const nyMinValue = isNaN(element.NY) ? Infinity : element.NY
-					const nyMaxValue = isNaN(element.NY) ? -Infinity : element.NY
-					const sfMinValue = isNaN(element.SF) ? Infinity : element.SF
-					const sfMaxValue = isNaN(element.SF) ? -Infinity : element.SF
-					return [Math.min(nyMinValue, sfMinValue), Math.max(nyMaxValue, sfMaxValue)]
-				}
-				tree = new segmentTree.SegmentTree(data, buildTupleFunction);
+				maxX = calcDate(data.length - 1, minX);
 
 				[0, 1, 2, 3, 4].forEach((i: any) => drawChart(i, data))
 				missedStepsCount = 0
