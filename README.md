@@ -24,6 +24,6 @@ work is possible. Keep watching!
 
 [d1]: http://bl.ocks.org/nponeccop/raw/69aacea9121e7a181ba72096f08724f4/
 [d2]: http://bl.ocks.org/nponeccop/raw/6952ca1658cd7a61c7bbefab2596c7b8/
-[d3]: https://bl.ocks.org/streamcode9/f9b82b0eb507c91a8b416ec8b4e8e68e/
+[d3]: https://bl.ocks.org/streamcode9/raw/f9b82b0eb507c91a8b416ec8b4e8e68e/
 
 [d3stock]: http://bl.ocks.org/mbostock/db6b4335bf1662b413e7968910104f0f
