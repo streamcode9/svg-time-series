@@ -187,7 +187,7 @@ namespace Chart {
 
 				[0, 1, 2, 3, 4].forEach((i: any) => drawChart(i, data))
 				missedStepsCount = 0
-				setInterval(updateChartWithNewData, 300)
+				setInterval(updateChartWithNewData, 1000)
 			}
 		})
 
