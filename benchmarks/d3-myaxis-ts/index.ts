@@ -23,8 +23,8 @@ namespace Chart {
 
 	function drawChart(id: number, data: any) {
 		const svg = d3.select('#chart-' + id),
-			width = +svg.attr('width'),
-			height = +svg.attr('height')
+			width = 960,
+			height = 170
 
 		const x = d3.scaleTime().range([0, width])
 		const y = d3.scaleLinear().range([height, 0])
