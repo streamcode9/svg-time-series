@@ -6,19 +6,11 @@
 	path { vector-effect: non-scaling-stroke }
 
 	.axis { fill: none; font-size: 10px; font-family: sans-serif }
-	.axis line {
-		stroke-opacity: 0.3;
-		shape-rendering: crispEdges;
-	}
+	.axis line { stroke-opacity: 0.3; shape-rendering: geometricPrecision; }
 	
-	.zoom {
-		fill: none;
-		pointer-events: all;
-	}
+	.zoom { fill: none; pointer-events: all }
 
-	.view {
-		fill: none;
-	}
+	.view { fill: none; }
 
 	.tick line { stroke: #000; opacity: 1 }
 	.tick text { fill: #000 }
