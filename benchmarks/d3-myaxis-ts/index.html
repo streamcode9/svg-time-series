@@ -1,13 +1,14 @@
 ﻿<!DOCTYPE html>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <style>
-	svg { height: 170px }
+	svg { width: 100%; height: 30vmin; margin-bottom: 2vh }
 
 	path { vector-effect: non-scaling-stroke }
 
-	.axis { fill: none; font-size: 10px; font-family: sans-serif }
+	.axis { fill: none; font-size: 3vmin; font-family: sans-serif }
 	.axis line { stroke-opacity: 0.3; shape-rendering: crispEdges }
-	
+
 	.zoom { fill: none; pointer-events: all }
 
 	.view { fill: none; }
@@ -16,9 +17,9 @@
 	.tick text { fill: #000 }
 </style>
 <div id="fps">n/a</div>
-<svg id="chart-0" viewBox="0 0 960 170"></svg>
-<svg id="chart-1" viewBox="0 0 960 170"></svg>
-<svg id="chart-2" viewBox="0 0 960 170"></svg>
-<svg id="chart-3" viewBox="0 0 960 170"></svg>
-<svg id="chart-4" viewBox="0 0 960 170"></svg>
+<svg id="chart-0"></svg>
+<svg id="chart-1"></svg>
+<svg id="chart-2"></svg>
+<svg id="chart-3"></svg>
+<svg id="chart-4"></svg>
 <script type="application/ecmascript" src="bundle.js"></script>
