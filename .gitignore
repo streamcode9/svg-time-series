@@ -244,6 +244,8 @@ benchmarks/dom-first-rendering/*.js
 benchmarks/d3/*.js
 benchmarks/d3-plotly/*.js
 benchmarks/d3-myaxis-ts/*.js
+demos/*.js
+demos/*/*.js
 
 # Visual Studio 6 build log
 *.plg
