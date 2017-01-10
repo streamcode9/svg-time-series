@@ -26,6 +26,7 @@
     <Content Include="benchmarks\d3-axes-grad\index.js" />
     <Content Include="benchmarks\d3-fixedaxis\index.html" />
     <Content Include="benchmarks\d3-fixedaxis\index.js" />
+    <Content Include="demos\demo1\index.html" />
     <Content Include="demos\demo2\index.html" />
     <Content Include="benchmarks\d3-myaxis\index.html" />
     <Content Include="benchmarks\d3-myaxis\index.js" />
@@ -37,6 +38,7 @@
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="axis.ts" />
     <TypeScriptCompile Include="demos\common.ts" />
+    <TypeScriptCompile Include="demos\demo1\index.ts" />
     <TypeScriptCompile Include="demos\demo2\index.ts" />
     <TypeScriptCompile Include="draw.ts" />
     <TypeScriptCompile Include="measure.ts" />
@@ -50,7 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="benchmarks\d3-myaxis-ts\" />
-    <Folder Include="demos\demo1\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
