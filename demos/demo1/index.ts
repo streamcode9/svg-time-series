@@ -12,12 +12,12 @@ d3
 	.get((error: any, data: any) => {
 		if (error != null) alert('Data can\'t be downloaded or parsed')
 		else {
-			new common.TimeSeriesChart(new Date(), data, 1)
+			common.drawCharts(data, 1)
 
 			window.onresize = function() {
 				d3.selectAll('svg').remove()
 				d3.selectAll('.chart').append('svg')
-				new common.TimeSeriesChart(new Date(), data, 1)
+				common.drawCharts(data, 1)
 			}
 		}
 	})
