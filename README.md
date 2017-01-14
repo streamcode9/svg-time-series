@@ -27,3 +27,13 @@ work is possible. Keep watching!
 [d3]: https://bl.ocks.org/streamcode9/raw/f9b82b0eb507c91a8b416ec8b4e8e68e/
 
 [d3stock]: http://bl.ocks.org/mbostock/db6b4335bf1662b413e7968910104f0f
+
+## Build instructions
+### Windows
+1. Install MSVS 2015 community
+2. Install TypeScript for MSVS extension
+3. Build project
+4. Run "browserify index.js -o bundle.js" in CMD
+
+### Unix
+comming soon...
