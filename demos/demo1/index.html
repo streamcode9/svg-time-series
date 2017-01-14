@@ -2,11 +2,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <style>
-	svg { width: 100%; flex-grow: 1 }
-
 	path { vector-effect: non-scaling-stroke }
 
 	.charts { position: absolute; top: 30px; bottom: 0; left: 0; right: 0; display: flex; flex-direction: column }
+	.chart { width: 100%; flex-grow: 1 }
 
 	.axis { fill: none; font-size: 3vmin; font-family: sans-serif }
 	.axis line { stroke-opacity: 0.3; shape-rendering: crispEdges }
@@ -19,5 +18,9 @@
 	.tick text { fill: #000 }
 </style>
 <div id="fps">n/a</div>
-<svg id="chart-0"></svg>
+<div class="charts">
+	<div class="chart">
+		<svg></svg>
+	</div>
+</div>
 <script type="application/ecmascript" src="bundle.js"></script>

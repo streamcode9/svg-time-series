@@ -18,7 +18,7 @@ export class TimeSeriesChart {
 		this.minX = minX
 		this.maxX = this.calcDate(data.length - 1, minX)
 
-		for (let i = 0; i < chartsAmount; i++) this.drawChart(i, data)
+		for (let i = 1; i < chartsAmount + 1; i++) this.drawChart(d3.select(`.chart:nth-child(${i})`).select('svg'), data)
 
 		this.missedStepsCount = 0
 		setInterval(this.updateChartWithNewData.bind(this), 1000)
@@ -32,10 +32,11 @@ export class TimeSeriesChart {
 		return [Math.min(nyMinValue, sfMinValue), Math.max(nyMaxValue, sfMaxValue)]
 	}
 
-	private drawChart(id: number, data: any) {
-		const svg = d3.select('#chart-' + id),
-			width = parseInt(svg.style('width')),
-			height = parseInt(svg.style('height'))
+	private drawChart(svg: any, data: any) {
+		const width = svg.node().parentNode.clientWidth,
+			height = svg.node().parentNode.clientHeight
+		svg.attr('width', width)
+		svg.attr('height', height)
 
 		const x = d3.scaleTime().range([0, width])
 		const y = d3.scaleLinear().range([height, 0])
