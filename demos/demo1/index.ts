@@ -1,5 +1,5 @@
 declare const require: Function
-const d3 = require('../../d3.v4.min')
+const d3 = require('../../node_modules/d3/build/d3.min')
 import measureFPS = require('../../measure')
 import common = require('../common')
 
