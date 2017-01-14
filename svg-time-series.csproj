@@ -28,14 +28,11 @@
     <Content Include="benchmarks\d3-fixedaxis\index.js" />
     <Content Include="demos\demo1\index.html" />
     <Content Include="demos\demo2\index.html" />
-    <Content Include="benchmarks\d3-myaxis\index.html" />
-    <Content Include="benchmarks\d3-myaxis\index.js" />
     <Content Include="benchmarks\d3-pan-zoom\index.html" />
     <Content Include="benchmarks\d3-pan-zoom\index.js" />
     <Content Include="benchmarks\path-data-polyfill.js" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="axis.ts" />
     <TypeScriptCompile Include="demos\common.ts" />
     <TypeScriptCompile Include="demos\demo1\index.ts" />
