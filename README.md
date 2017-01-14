@@ -26,11 +26,11 @@ work is possible. Keep watching!
 ### Windows
 
 1. Install MSVS 2015 community
-2. Install TypeScript for MSVS extension
-3. npm install d3@latest
-4. npm install plotly.js
-4. Build project
-5. browserify index.js -o bundle.js
+2. Install TypeScript extension for MSVS
+3. Install Node.js tools extension for MSVS
+4. package.json -> Restore dependencies
+5. Build project
+6. browserify index.js -o bundle.js
 
 ### Unix
 
