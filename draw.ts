@@ -3,6 +3,27 @@ const d3 = require('./d3.v4.min')
 import axis = require('./axis')
 import segmentTree = require('./segmentTree')
 
+interface IChartData {
+	name: string
+	values: number[]
+}
+
+interface IChartParameters {
+	x: Function
+	y: Function 
+	rx: Function
+	ry: Function
+	xAxis: axis.MyAxis
+	yAxis: axis.MyAxis
+	gX: any
+	gY: any
+	view: any
+	data: IChartData[]
+	height: number
+	line: Function
+	color: Function
+}
+
 function drawProc(f: any) {
 	let requested = false
 
@@ -18,7 +39,7 @@ function drawProc(f: any) {
 }
 
 export class TimeSeriesChart {
-	private chart: any
+	private chart: IChartParameters
 	private minX: Date
 	private maxX: Date
 	private missedStepsCount: number
