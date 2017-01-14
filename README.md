@@ -6,7 +6,6 @@ D3.js-based SVG time series charts done right to reach 60 FPS. Much much faster 
 
 - [demo 1][d1]: 1 grid, 2 series of 1070 points
 - [demo 2][d2]: 5 grids, 10 series of 1070 points
-- [demo 3][d3]: 5 grids, 10 series of 1070 points, segment tree
 
 Demo 1 reaches 60 FPS on desktops, recent iPhones and top Android phones.
 Demo 2 shows 60 FPS on desktops, about 24 FPS on iPhone and about 3 FPS on old and slow LG D90.
@@ -54,6 +53,5 @@ work is possible. Keep watching!
 7. `../../node_modules/.bin/browserify -o bundle.js js/demos/demo2/index.js` (currently requires copying `d3.min.js` from `node_modules/d3/build/` to `js/node_modules/...`)
 
 [d1]: http://bl.ocks.org/nponeccop/raw/69aacea9121e7a181ba72096f08724f4/
-[d2]: http://bl.ocks.org/nponeccop/raw/6952ca1658cd7a61c7bbefab2596c7b8/
-[d3]: https://bl.ocks.org/streamcode9/raw/f9b82b0eb507c91a8b416ec8b4e8e68e/
+[d2]: https://bl.ocks.org/streamcode9/raw/91bd9cac45d6761f52e47e2c95a76205/
 [d3stock]: http://bl.ocks.org/mbostock/db6b4335bf1662b413e7968910104f0f
