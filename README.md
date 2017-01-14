@@ -1,4 +1,4 @@
-# svg-time-series
+cn# svg-time-series
 
 [![Join the chat at https://gitter.im/streamcode9/svg-time-series](https://badges.gitter.im/streamcode9/svg-time-series.svg)](https://gitter.im/streamcode9/svg-time-series?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -7,7 +7,6 @@ D3.js-based SVG time series charts done right to reach 60 FPS. Much much faster 
 - [demo 1][d1]: 1 grid, 2 series of 1070 points
 - [demo 2][d2]: 5 grids, 10 series of 1070 points
 - [demo 3][d3]: 5 grids, 10 series of 1070 points, segment tree
-
 
 Demo 1 reaches 60 FPS on desktops, recent iPhones and top Android phones.
 Demo 2 shows 60 FPS on desktops, about 24 FPS on iPhone and about 3 FPS on old and slow LG D90.
@@ -22,14 +21,10 @@ D3.js seem slow: [stock D3 panning][d3stock]. But it turns out the SVG rasteriza
 In the demos above, SVG DOM manipulations during grid updates seem to consume at least 20% of drawing time, so further optimization
 work is possible. Keep watching!
 
-[d1]: http://bl.ocks.org/nponeccop/raw/69aacea9121e7a181ba72096f08724f4/
-[d2]: http://bl.ocks.org/nponeccop/raw/6952ca1658cd7a61c7bbefab2596c7b8/
-[d3]: https://bl.ocks.org/streamcode9/raw/f9b82b0eb507c91a8b416ec8b4e8e68e/
-
-[d3stock]: http://bl.ocks.org/mbostock/db6b4335bf1662b413e7968910104f0f
-
 ## Build instructions
+
 ### Windows
+
 1. Install MSVS 2015 community
 2. Install TypeScript for MSVS extension
 3. npm install d3@latest
@@ -38,4 +33,16 @@ work is possible. Keep watching!
 5. browserify index.js -o bundle.js
 
 ### Unix
-comming soon...
+
+1. Install `npm` (node.js is installed as a dependency)
+2. In project root `npm install`. This installs d3 and plotly.js
+3. `npm install typescript browserify` (build tools, ideally should be devDependencies in `package.json`)
+4. `cd demos/demo2`
+5. `../../node_modules/.bin/tsc --outDir js index.ts` (to avoid pollution of source tree with .js)
+6. `../../node_modules/.bin/browserify -o bundle.js js/index.js
+7. `../../node_modules/.bin/browserify -o bundle.js js/demos/demo2/index.js` (currently requires copying `d3.min.js` from `node_modules/d3/build/` to `js/node_modules/...`)
+
+[d1]: http://bl.ocks.org/nponeccop/raw/69aacea9121e7a181ba72096f08724f4/
+[d2]: http://bl.ocks.org/nponeccop/raw/6952ca1658cd7a61c7bbefab2596c7b8/
+[d3]: https://bl.ocks.org/streamcode9/raw/f9b82b0eb507c91a8b416ec8b4e8e68e/
+[d3stock]: http://bl.ocks.org/mbostock/db6b4335bf1662b413e7968910104f0f
