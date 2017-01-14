@@ -1,4 +1,4 @@
-cn# svg-time-series
+ ## svg-time-series
 
 [![Join the chat at https://gitter.im/streamcode9/svg-time-series](https://badges.gitter.im/streamcode9/svg-time-series.svg)](https://gitter.im/streamcode9/svg-time-series?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -20,6 +20,17 @@ D3.js seem slow: [stock D3 panning][d3stock]. But it turns out the SVG rasteriza
 
 In the demos above, SVG DOM manipulations during grid updates seem to consume at least 20% of drawing time, so further optimization
 work is possible. Keep watching!
+
+## Secrets of Speed
+
+- No legacy
+- Very basic features
+- Rasterizer-side coordinate transformations (No JS multiplication loops)
+- A Range Minimum Query index for O(log(N)) autoscale (No JS minmax loops)
+- No drawing or heavy CPU work in mouse handlers
+- Don't change anything more often than once per screen screen refresh
+- Only calculate and apply coordinate transformations in `requestAnimationFrame`
+- Take care of `requestAnimationFrame` not firing in background. Don't redraw when in background to save battery.
 
 ## Build instructions
 
