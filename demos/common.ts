@@ -24,11 +24,10 @@ export function drawCharts (data: any, chartsAmount: number) {
 		charts.forEach(c => c.zoom(d3.event.transform))
 	}
 
-	for (let i = 1; i < chartsAmount + 1; i++) {
-		let svg = d3.select(`.chart:nth-child(${i})`).select('svg')
-		let chart = new draw.TimeSeriesChart(svg, minX, data, buildSegmentTreeTuple, onZoom)
+	d3.selectAll('svg').select(function() {
+		let chart = new draw.TimeSeriesChart(d3.select(this), minX, data, buildSegmentTreeTuple, onZoom)
 		charts.push(chart)
-	}
+	})
 
 	setInterval(function() {
 		let newData = data[j % data.length]

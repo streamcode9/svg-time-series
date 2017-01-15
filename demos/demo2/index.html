@@ -5,7 +5,7 @@
 	path { vector-effect: non-scaling-stroke }
 
 	.charts { position: absolute; top: 30px; bottom: 0; left: 0; right: 0; display: flex; flex-direction: column }
-	.chart { width: 100%; flex-grow: 1 }
+	.charts > div { width: 100%; flex-grow: 1 }
 
 	.axis { fill: none; font-size: 3vmin; font-family: sans-serif }
 	.axis line { stroke-opacity: 0.3; shape-rendering: crispEdges }
@@ -19,19 +19,19 @@
 </style>
 <div id="fps">n/a</div>
 <div class="charts">
-	<div class="chart">
+	<div>
 		<svg></svg>
 	</div>
-	<div class="chart">
+	<div>
 		<svg></svg>
 	</div>
-	<div class="chart">
+	<div>
 		<svg></svg>
 	</div>
-	<div class="chart">
+	<div>
 		<svg></svg>
 	</div>
-	<div class="chart">
+	<div>
 		<svg></svg>
 	</div>
 </div>

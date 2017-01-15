@@ -16,7 +16,7 @@ d3
 
 			window.onresize = function() {
 				d3.selectAll('svg').remove()
-				d3.selectAll('.chart').append('svg')
+				d3.select('.charts').selectAll('div').append('svg')
 				common.drawCharts(data, 5)
 			}
 		}
