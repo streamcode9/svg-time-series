@@ -1,13 +1,14 @@
 ﻿declare const require: Function
 const d3 = require('d3')
 import draw = require('../draw')
+import segmentTree = require('../segmentTree')
 
-function buildSegmentTreeTuple(index: number, elements: any): [number, number] {
+function buildSegmentTreeTuple(index: number, elements: any): segmentTree.IMinMax {
 	const nyMinValue = isNaN(elements[0].values[index]) ? Infinity : elements[0].values[index]
 	const nyMaxValue = isNaN(elements[0].values[index]) ? -Infinity : elements[0].values[index]
 	const sfMinValue = isNaN(elements[1].values[index]) ? Infinity : elements[1].values[index]
 	const sfMaxValue = isNaN(elements[1].values[index]) ? -Infinity : elements[1].values[index]
-	return [Math.min(nyMinValue, sfMinValue), Math.max(nyMaxValue, sfMaxValue)]
+	return { min: Math.min(nyMinValue, sfMinValue), max: Math.max(nyMaxValue, sfMaxValue) }
 }
 
 export function drawCharts (data: any, chartsAmount: number) {

@@ -45,10 +45,10 @@ export class TimeSeriesChart {
 	private missedStepsCount: number
 	private stepX: number = 86400000
 	private tree: segmentTree.SegmentTree
-	private buildSegmentTreeTuple: (index: number, elements: any) => [number, number]
+	private buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax
 	private zoomHandler: () => void
 
-	constructor(svg: any, minX: Date, data: any, buildSegmentTreeTuple: (index: number, elements: any) => [number, number], zoomHandler: () => void) {
+	constructor(svg: any, minX: Date, data: any, buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax, zoomHandler: () => void) {
 		this.minX = minX
 		this.maxX = this.calcDate(data.length - 1, minX)
 		this.buildSegmentTreeTuple = buildSegmentTreeTuple
@@ -82,7 +82,8 @@ export class TimeSeriesChart {
 		this.chart.rx = zoomTransform.rescaleX(this.chart.x)
 		const domainX = this.chart.rx.domain()
 		const ySubInterval = this.getZoomIntervalY(domainX, this.chart.data[0].values.length)
-		const domainY = this.tree.getMinMax(ySubInterval[0], ySubInterval[1])
+		const minMax = this.tree.getMinMax(ySubInterval[0], ySubInterval[1])
+		const domainY = [minMax.min, minMax.max]
 		const newRangeY = [this.chart.y(domainY[0]), this.chart.y(domainY[1])]
 		const oldRangeY = this.chart.y.range()
 		const scaleY = oldRangeY[0] / (newRangeY[0] - newRangeY[1])
@@ -130,7 +131,8 @@ export class TimeSeriesChart {
 		this.tree = new segmentTree.SegmentTree(cities, cities[0].values.length, this.buildSegmentTreeTuple)
 
 		x.domain([this.minX, this.maxX])
-		y.domain(this.tree.getMinMax(0, this.tree.size - 1))
+		const minMax = this.tree.getMinMax(0, this.tree.size - 1)
+		y.domain([minMax.min, minMax.max])
 
 		const view = svg.append('g')
 			.selectAll('.view')

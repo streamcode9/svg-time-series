@@ -1,45 +1,50 @@
-function buidMinMaxTuple(fst: [number, number], snd: [number, number]): [number, number] {
-	return [Math.min(fst[0], snd[0]), Math.max(fst[1], snd[1])]
+export interface IMinMax {
+	min: number
+	max: number
+}
+
+function buidMinMax(fst: IMinMax, snd: IMinMax): IMinMax {
+	return { min: Math.min(fst.min, snd.min), max: Math.max(fst.max, snd.max) }
 }
 
 export class SegmentTree {
 	size: number
-	tree: any[]
-	buidTupleFunc: (elementIndex: number, elements: any) => [number, number]
+	tree: IMinMax[]
+	buidTuple: (elementIndex: number, elements: any) => IMinMax
 
-	constructor(data: any, dataSize: number, buidTupleFunction: (elementIndex: number, elements: any) => [number, number]) {
+	constructor(data: any, dataSize: number, buidTuple: (elementIndex: number, elements: any) => IMinMax) {
 		this.size = dataSize
 		this.tree = new Array(this.size * 4)
-		this.buidTupleFunc = buidTupleFunction
+		this.buidTuple = buidTuple
 		
-		const build = (tree: [number, number][], values: any, i: number, tl: number, tr: number) => {
-			if (tl == tr) tree[i] = this.buidTupleFunc(tl, values)
+		const build = (tree: IMinMax[], values: any, i: number, tl: number, tr: number) => {
+			if (tl == tr) tree[i] = this.buidTuple(tl, values)
 			else {
 				const tm = Math.floor((tl + tr) / 2);
 				build(tree, values, 2 * i, tl, tm)
 				build(tree, values, 2 * i + 1, tm + 1, tr)
-				tree[i] = buidMinMaxTuple(tree[2 * i], tree[2 * i + 1])
+				tree[i] = buidMinMax(tree[2 * i], tree[2 * i + 1])
 			}
 		}
 		build(this.tree, data, 1, 0, this.size - 1)
 	}
 
 	getMinMax(from: number, to: number) {
-		const min = (tree: [number, number][], i: number, tl: number, tr: number, l: number, r: number): [number, number] => {
-			if (l > r) return [Infinity, -Infinity]
+		const minMax = (tree: IMinMax[], i: number, tl: number, tr: number, l: number, r: number): IMinMax => {
+			if (l > r) return { min: Infinity, max: -Infinity }
 
 			if (l == tl && r == tr) return tree[i]
 
 			const tm = Math.floor((tl + tr) / 2);
-			return buidMinMaxTuple(
-				min(tree, i * 2, tl, tm, l, Math.min(r, tm)),
-				min(tree, i * 2 + 1, tm + 1, tr, Math.max(l, tm + 1), r))
+			return buidMinMax(
+				minMax(tree, i * 2, tl, tm, l, Math.min(r, tm)),
+				minMax(tree, i * 2 + 1, tm + 1, tr, Math.max(l, tm + 1), r))
 		}
-		return min(this.tree, 1, 0, this.size - 1, from, to)
+		return minMax(this.tree, 1, 0, this.size - 1, from, to)
 	}
 
-	update(position: number, newValue: [number, number]) {
-		const update = (tree: [number, number][], i: number, tl: number, tr: number, pos: number, newTuple: [number, number]) => {
+	update(position: number, newValue: IMinMax) {
+		const update = (tree: IMinMax[], i: number, tl: number, tr: number, pos: number, newTuple: IMinMax) => {
 			if (tl == tr) {
 				tree[i] = newTuple
 				return
@@ -48,7 +53,7 @@ export class SegmentTree {
 			const tm = Math.floor((tl + tr) / 2);
 			if (pos <= tm) update(tree, i * 2, tl, tm, pos, newTuple)
 			else update(tree, i * 2 + 1, tm + 1, tr, pos, newTuple)
-			tree[i] = buidMinMaxTuple(tree[i * 2], tree[i * 2 + 1])
+			tree[i] = buidMinMax(tree[i * 2], tree[i * 2 + 1])
 		}
 		update(this.tree, 1, 0, this.size - 1, position, newValue)
 	}
