@@ -10,7 +10,7 @@ d3
 		NY: parseFloat(d.NY.split(';')[0]),
 		SF: parseFloat(d.SF.split(';')[0])
 	}))
-	.get((error: any, data: any) => {
+	.get((error: any, data: any[]) => {
 		if (error != null) alert('Data can\'t be downloaded or parsed')
 		else {
 			common.drawCharts(data, 5)

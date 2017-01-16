@@ -11,7 +11,7 @@ function buildSegmentTreeTuple(index: number, elements: any): segmentTree.IMinMa
 	return { min: Math.min(nyMinValue, sfMinValue), max: Math.max(nyMaxValue, sfMaxValue) }
 }
 
-export function drawCharts (data: any, chartsAmount: number) {
+export function drawCharts (data: any[], chartsAmount: number) {
 	let charts: draw.TimeSeriesChart[] = []
 	let newZoom: any = null
 	let minX = new Date()
@@ -26,7 +26,7 @@ export function drawCharts (data: any, chartsAmount: number) {
 	}
 
 	d3.selectAll('svg').select(function() {
-		let chart = new draw.TimeSeriesChart(d3.select(this), minX, data, buildSegmentTreeTuple, onZoom)
+		let chart = new draw.TimeSeriesChart(d3.select(this), minX, 86400000, data, buildSegmentTreeTuple, onZoom)
 		charts.push(chart)
 	})
 

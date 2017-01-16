@@ -43,12 +43,13 @@ export class TimeSeriesChart {
 	private minX: Date
 	private maxX: Date
 	private missedStepsCount: number
-	private stepX: number = 86400000
+	private stepX: number
 	private tree: segmentTree.SegmentTree
 	private buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax
 	private zoomHandler: () => void
 
-	constructor(svg: any, minX: Date, data: any, buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax, zoomHandler: () => void) {
+	constructor(svg: any, minX: Date, stepX: number, data: any[], buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax, zoomHandler: () => void) {
+		this.stepX = stepX
 		this.minX = minX
 		this.maxX = this.calcDate(data.length - 1, minX)
 		this.buildSegmentTreeTuple = buildSegmentTreeTuple
@@ -95,7 +96,7 @@ export class TimeSeriesChart {
 		this.chart.yAxis.setScale(ry).axisUp(this.chart.gY)
 	}.bind(this))
 
-	private drawChart(svg: any, data: any) {
+	private drawChart(svg: any, data: any[]) {
 		const width = svg.node().parentNode.clientWidth,
 			height = svg.node().parentNode.clientHeight
 		svg.attr('width', width)
