@@ -2,6 +2,7 @@ declare const require: Function
 const d3 = require('d3')
 import measureFPS = require('../../measure')
 import common = require('../common')
+let resize: any = { interval: 60 }
 
 d3
 	.csv('ny-vs-sf.csv')
@@ -14,11 +15,16 @@ d3
 		else {
 			common.drawCharts(data, 5)
 
-			window.onresize = function() {
+			resize.request = function() {
+				resize.timer && clearTimeout(resize.timer)
+				resize.timer = setTimeout(resize.eval, resize.interval)
+			}
+			resize.eval = function() {
 				d3.selectAll('svg').remove()
 				d3.select('.charts').selectAll('div').append('svg')
 				common.drawCharts(data, 5)
 			}
+			window.addEventListener('resize', resize.request, false)
 		}
 	})
 

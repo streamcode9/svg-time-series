@@ -1,0 +1,16 @@
+body { margin: 0px }
+
+path { vector-effect: non-scaling-stroke }
+
+.axis, .view, .zoom { fill: none }
+.axis line { stroke-opacity: 0.3; shape-rendering: crispEdges }
+.zoom { pointer-events: all }
+.view path[stroke='blue'] { stroke: rgb(96, 77, 196) }
+.view path[stroke='green'] { stroke: rgb(136, 204, 91) }
+.tick line { stroke: #a6a6a6; opacity: 1 }
+.tick text { fill: #454545; font-size: 0.7rem }
+
+#fps { position: fixed; background-color: #444; color: #fff; right: 0rem; padding: 0.2rem }
+
+.charts { height: calc(100vh - 2rem); display: flex; flex-direction: column }
+.charts > div { flex-grow: 1; overflow: hidden; border: 1px #ddd solid; margin: 1rem }

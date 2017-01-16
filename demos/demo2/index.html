@@ -1,22 +1,6 @@
 ﻿<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<style>
-	path { vector-effect: non-scaling-stroke }
-
-	.charts { position: absolute; top: 30px; bottom: 0; left: 0; right: 0; display: flex; flex-direction: column }
-	.charts > div { width: 100%; flex-grow: 1 }
-
-	.axis { fill: none; font-size: 3vmin; font-family: sans-serif }
-	.axis line { stroke-opacity: 0.3; shape-rendering: crispEdges }
-
-	.zoom { fill: none; pointer-events: all }
-
-	.view { fill: none }
-
-	.tick line { stroke: #000; opacity: 1 }
-	.tick text { fill: #000 }
-</style>
 <div id="fps">n/a</div>
 <div class="charts">
 	<div>
@@ -36,3 +20,4 @@
 	</div>
 </div>
 <script type="application/ecmascript" src="bundle.js"></script>
+<link href="index.css" type="text/css" rel="stylesheet">

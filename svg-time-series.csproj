@@ -26,7 +26,9 @@
     <Content Include="benchmarks\d3-axes-grad\index.js" />
     <Content Include="benchmarks\d3-fixedaxis\index.html" />
     <Content Include="benchmarks\d3-fixedaxis\index.js" />
+    <Content Include="demos\demo1\index.css" />
     <Content Include="demos\demo1\index.html" />
+    <Content Include="demos\demo2\index.css" />
     <Content Include="demos\demo2\index.html" />
     <Content Include="benchmarks\d3-pan-zoom\index.html" />
     <Content Include="benchmarks\d3-pan-zoom\index.js" />
