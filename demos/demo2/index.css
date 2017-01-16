@@ -13,4 +13,4 @@ path { vector-effect: non-scaling-stroke }
 #fps { position: fixed; background-color: #444; color: #fff; right: 0rem; padding: 0.2rem }
 
 .charts { height: calc(100vh - 2rem); display: flex; flex-direction: column }
-.charts > div { flex-grow: 1; overflow: hidden; border: 1px #ddd solid; margin: 1rem }
+.charts > div { height: calc(20% - 1rem); overflow: hidden; border: 1px #ddd solid; margin: 0.5rem }
