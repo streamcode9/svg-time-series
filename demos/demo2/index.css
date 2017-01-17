@@ -16,6 +16,10 @@ path { vector-effect: non-scaling-stroke }
 .charts > div { height: calc(20% - 1rem); overflow: hidden; border: 1px #ddd solid; margin: 0.5rem }
 
 /* Small mobile devices ----------- */
+@media only screen and (min-device-width: 320px) and (max-device-height: 960px) and (orientation : landscape) {
+	.charts > div { height: calc(20% - 0.4rem); margin: 0.2rem }
+}
+
 @media only screen and (min-device-width: 320px) and (max-device-height: 960px) and (orientation : portrait) {
 	.charts > div { height: calc(20% - 0.4rem); margin: 0.2rem }
 }
