@@ -107,12 +107,12 @@ export class TimeSeriesChart {
 		const color = d3.scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
 
 		const xAxis = new axis.MyAxis(axis.Orientation.Bottom, x)
-			.ticks((width + 2) / (height + 2) * 2)
+			.ticks(4)
 			.setTickSize(height)
 			.setTickPadding(8 - height)
 
 		const yAxis = new axis.MyAxis(axis.Orientation.Right, y)
-			.ticks(10)
+			.ticks(4)
 			.setTickSize(width)
 			.setTickPadding(8 - width)
 
