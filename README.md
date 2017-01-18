@@ -53,5 +53,5 @@ work is possible. Keep watching!
 7. `../../node_modules/.bin/browserify -o bundle.js js/demos/demo2/index.js` (currently requires copying `d3.min.js` from `node_modules/d3/build/` to `js/node_modules/...`)
 
 [d1]: https://bl.ocks.org/streamcode9/raw/0ad51c8422d1b0238f0f8ecce03eea60/
-[d2]: https://bl.ocks.org/streamcode9/raw/dd4ff9d87b2857ca36ecd21971b3dae2/
+[d2]: https://bl.ocks.org/streamcode9/raw/f891101c17d67e8a293a91b606b7df69/
 [d3stock]: http://bl.ocks.org/mbostock/db6b4335bf1662b413e7968910104f0f
