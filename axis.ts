@@ -74,8 +74,8 @@ export class MyAxis {
 
 		text
 			.attr(x, k * spacing)
-			.attr(y, 0.5)
-			.attr('dy', this.orient === Orientation.Top ? '0em' : this.orient === Orientation.Bottom ? '.71em' : '.32em')
+			.attr(y, 3)
+			.attr('dy', this.orient === Orientation.Top ? '0em' : this.orient === Orientation.Bottom ? '.21em' : '.62em')
 			.text(format)
 
 		context
@@ -103,7 +103,7 @@ export class MyAxis {
 		tickEnter.append('text')
 			.attr(x, k * spacing)
 			.attr(y, 0.5)
-			.attr('dy', this.orient === Orientation.Top ? '0em' : this.orient === Orientation.Bottom ? '.71em' : '.32em')
+			.attr('dy', this.orient === Orientation.Top ? '0em' : this.orient === Orientation.Bottom ? '.21em' : '.62em')
 			.text(format)
 
 		tickExit.remove()

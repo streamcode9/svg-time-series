@@ -114,7 +114,7 @@ export class TimeSeriesChart {
 		const yAxis = new axis.MyAxis(axis.Orientation.Right, y)
 			.ticks(4)
 			.setTickSize(width)
-			.setTickPadding(8 - width)
+			.setTickPadding(2 - width)
 
 		const line = d3.line()
 			.defined((d: number) => d)
