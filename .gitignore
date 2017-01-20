@@ -248,6 +248,7 @@ benchmarks/d3-plotly/*.js
 benchmarks/d3-myaxis-ts/*.js
 benchmarks/path-draw-transform-d3/*.js
 benchmarks/segment-tree-reindexing/*.js
+benchmarks/svg-path-recreation-d3/*.js
 demos/*.js
 demos/*/*.js
 
