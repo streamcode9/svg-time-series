@@ -26,6 +26,8 @@
     <Content Include="benchmarks\d3-axes-grad\index.js" />
     <Content Include="benchmarks\d3-fixedaxis\index.html" />
     <Content Include="benchmarks\d3-fixedaxis\index.js" />
+    <Content Include="benchmarks\demo2-without-grid\index.css" />
+    <Content Include="benchmarks\demo2-without-grid\index.html" />
     <Content Include="benchmarks\path-draw-transform-d3\index.css" />
     <Content Include="benchmarks\path-draw-transform-d3\index.html" />
     <Content Include="benchmarks\segment-tree-reindexing\index.html" />
@@ -39,6 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="axis.ts" />
+    <TypeScriptCompile Include="benchmarks\demo2-without-grid\common.ts" />
+    <TypeScriptCompile Include="benchmarks\demo2-without-grid\draw.ts" />
+    <TypeScriptCompile Include="benchmarks\demo2-without-grid\index.ts" />
     <TypeScriptCompile Include="benchmarks\path-draw-transform-d3\draw.ts" />
     <TypeScriptCompile Include="benchmarks\path-draw-transform-d3\index.ts" />
     <TypeScriptCompile Include="benchmarks\segment-tree-reindexing\index.ts" />

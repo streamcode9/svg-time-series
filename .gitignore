@@ -241,6 +241,7 @@ FakesAssemblies/
 benchmarks/common.js
 benchmarks/dom/*.js
 benchmarks/dom-first-rendering/*.js
+benchmarks/demo2-without-grid/*.js
 benchmarks/d3/*.js
 benchmarks/d3-plotly/*.js
 benchmarks/d3-myaxis-ts/*.js
