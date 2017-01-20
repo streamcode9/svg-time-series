@@ -33,11 +33,14 @@ work is possible. Keep watching!
 
 ## Benchmarks
 
-| Description | Model | Browser | FPS/Time | Resolution | CPU | GPU |
+| Description | Model | Browser | FPS      | Resolution | CPU | GPU |
 | ------------|:-----:|:-------:| --------:|:----------:|:---:|:---:|
-| SegmentTree reindexing |Desktop|Chrome|94ms||i5-4670|NVIDIA GeForce GTX 660|
-| SegmentTree reindexing |Desktop|Firefox|861ms||i5-4670|NVIDIA GeForce GTX 660|
-| SegmentTree reindexing |Desktop|Edge|1255ms||i5-4670|NVIDIA GeForce GTX 660|
+|SegmentTree reindexing|Desktop|Chrome|94ms for 1000 repeats||i5-4670|NVIDIA GeForce GTX 660|
+|SegmentTree reindexing|Desktop|Firefox|861ms for 1000 repeats||i5-4670|NVIDIA GeForce GTX 660|
+|SegmentTree reindexing|Desktop|Edge|1255ms for 1000 repeats||i5-4670|NVIDIA GeForce GTX 660|
+|Path drawing and transformation|Desktop|Chrome|60|i5-4670|NVIDIA GeForce GTX 660|
+|Path drawing and transformation|Desktop|Firefox|30|i5-4670|NVIDIA GeForce GTX 660|
+|Path drawing and transformation|Desktop|Edge|60|i5-4670|NVIDIA GeForce GTX 660|
 
 ## Build instructions
 
