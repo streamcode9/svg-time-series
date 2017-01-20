@@ -41,6 +41,9 @@ work is possible. Keep watching!
 |Path drawing and transformation|Desktop|Chrome|60|1680×917|i5-4670|NVIDIA GeForce GTX 660|
 |Path drawing and transformation|Desktop|Firefox|30|1680×917|i5-4670|NVIDIA GeForce GTX 660|
 |Path drawing and transformation|Desktop|Edge|60|1680×917|i5-4670|NVIDIA GeForce GTX 660|
+|Grid drawing and transformation|Desktop|Chrome|59.7|1680×917|i5-4670|NVIDIA GeForce GTX 660|
+|Grid drawing and transformation|Desktop|Firefox|47|1680×917|i5-4670|NVIDIA GeForce GTX 660|
+|Grid drawing and transformation|Desktop|Edge|59.7|1680×917|i5-4670|NVIDIA GeForce GTX 660|
 
 ## Build instructions
 
