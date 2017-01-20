@@ -31,6 +31,12 @@ work is possible. Keep watching!
 - Only calculate and apply coordinate transformations in `requestAnimationFrame`
 - Take care of `requestAnimationFrame` not firing in background. Don't redraw when in background to save battery.
 
+## Benchmarks
+
+| Description | Model | Browser | FPS/Time | Resolution | CPU | GPU |
+| ------------|:-----:|:-------:| --------:|:----------:|:---:|:---:|
+| SegmentTree reindexing |Desktop|Chrome|110ms||i5-4670|NVIDIA GeForce GTX 660|
+
 ## Build instructions
 
 ### Windows
