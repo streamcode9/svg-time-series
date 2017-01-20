@@ -50,6 +50,9 @@ work is possible. Keep watching!
 |SVG path recreation|Desktop|Chrome|52|1680×917|i5-4670|NVIDIA GeForce GTX 660|
 |SVG path recreation|Desktop|Firefox|22.7|1680×917|i5-4670|NVIDIA GeForce GTX 660|
 |SVG path recreation|Desktop|Edge|20.3|1680×917|i5-4670|NVIDIA GeForce GTX 660|
+|SegmentTree Queries|Desktop|Chrome|59.7|1680×917|i5-4670|NVIDIA GeForce GTX 660|
+|SegmentTree Queries|Desktop|Firefox|27.3|1680×917|i5-4670|NVIDIA GeForce GTX 660|
+|SegmentTree Queries|Desktop|Edge|60|1680×917|i5-4670|NVIDIA GeForce GTX 660|
 
 ## Build instructions
 
