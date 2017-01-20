@@ -26,10 +26,10 @@ function drawCharts(data: any[]) {
 		charts.push(chart)
 	})
 
-	setInterval(() => {
+	d3.interval(() => {
 		var t = d3.zoomIdentity.translate(getRandom(-500, 500), getRandom(-500, 500)).scale(getRandom(1, 40))
 		charts.forEach(c => c.zoom(t))
-	}, 500)
+	})
 }
 
 d3
