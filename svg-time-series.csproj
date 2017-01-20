@@ -22,6 +22,8 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="benchmarks\axis-draw-transform\index.css" />
+    <Content Include="benchmarks\axis-draw-transform\index.html" />
     <Content Include="benchmarks\d3-axes-grad\index.html" />
     <Content Include="benchmarks\d3-axes-grad\index.js" />
     <Content Include="benchmarks\d3-fixedaxis\index.html" />
@@ -41,6 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="axis.ts" />
+    <TypeScriptCompile Include="benchmarks\axis-draw-transform\draw.ts" />
+    <TypeScriptCompile Include="benchmarks\axis-draw-transform\index.ts" />
     <TypeScriptCompile Include="benchmarks\demo2-without-grid\common.ts" />
     <TypeScriptCompile Include="benchmarks\demo2-without-grid\draw.ts" />
     <TypeScriptCompile Include="benchmarks\demo2-without-grid\index.ts" />

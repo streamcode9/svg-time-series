@@ -239,6 +239,7 @@ FakesAssemblies/
 *.map
 /*.js
 benchmarks/common.js
+benchmarks/axis-draw-transform/*.js
 benchmarks/dom/*.js
 benchmarks/dom-first-rendering/*.js
 benchmarks/demo2-without-grid/*.js
