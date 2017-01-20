@@ -26,6 +26,7 @@
     <Content Include="benchmarks\d3-axes-grad\index.js" />
     <Content Include="benchmarks\d3-fixedaxis\index.html" />
     <Content Include="benchmarks\d3-fixedaxis\index.js" />
+    <Content Include="benchmarks\segment-tree-reindexing\index.html" />
     <Content Include="demos\demo1\index.css" />
     <Content Include="demos\demo1\index.html" />
     <Content Include="demos\demo2\index.css" />
@@ -36,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="axis.ts" />
+    <TypeScriptCompile Include="benchmarks\segment-tree-reindexing\index.ts" />
     <TypeScriptCompile Include="demos\common.ts" />
     <TypeScriptCompile Include="demos\demo1\index.ts" />
     <TypeScriptCompile Include="demos\demo2\index.ts" />
