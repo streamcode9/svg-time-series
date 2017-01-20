@@ -47,6 +47,9 @@ work is possible. Keep watching!
 |Demo2 without grid|Desktop|Chrome|59|1680×917|i5-4670|NVIDIA GeForce GTX 660|
 |Demo2 without grid|Desktop|Firefox|30|1680×917|i5-4670|NVIDIA GeForce GTX 660|
 |Demo2 without grid|Desktop|Edge|59|1680×917|i5-4670|NVIDIA GeForce GTX 660|
+|SVG path recreation|Desktop|Chrome|52|1680×917|i5-4670|NVIDIA GeForce GTX 660|
+|SVG path recreation|Desktop|Firefox|22.7|1680×917|i5-4670|NVIDIA GeForce GTX 660|
+|SVG path recreation|Desktop|Edge|20.3|1680×917|i5-4670|NVIDIA GeForce GTX 660|
 
 ## Build instructions
 
