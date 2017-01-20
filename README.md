@@ -35,7 +35,9 @@ work is possible. Keep watching!
 
 | Description | Model | Browser | FPS/Time | Resolution | CPU | GPU |
 | ------------|:-----:|:-------:| --------:|:----------:|:---:|:---:|
-| SegmentTree reindexing |Desktop|Chrome|110ms||i5-4670|NVIDIA GeForce GTX 660|
+| SegmentTree reindexing |Desktop|Chrome|94ms||i5-4670|NVIDIA GeForce GTX 660|
+| SegmentTree reindexing |Desktop|Firefox|861ms||i5-4670|NVIDIA GeForce GTX 660|
+| SegmentTree reindexing |Desktop|Edge|1255ms||i5-4670|NVIDIA GeForce GTX 660|
 
 ## Build instructions
 
