@@ -4,6 +4,8 @@ import measureFPS = require('../../measure')
 import draw = require('./draw')
 import segmentTree = require('../../segmentTree')
 
+let avgFps: number = -1
+
 function getRandom(min: number, max: number) {
 	min = Math.ceil(min);
 	max = Math.floor(max);
@@ -26,8 +28,12 @@ function drawCharts(data: any[]) {
 		charts.push(chart)
 	})
 
-	d3.interval(() => {
-		var t = d3.zoomIdentity.translate(getRandom(-500, 500), getRandom(-500, 500)).scale(getRandom(1, 40))
+	let timer = d3.interval((elapsed: number) => {
+		if (elapsed > 60 * 1000) {
+			alert(`FPS = ${avgFps}`)
+			timer.stop()
+		}
+		let t = d3.zoomIdentity.translate(Math.sin(elapsed) * 50, 1).scale(8)
 		charts.forEach(c => c.zoom(t))
 	})
 }
@@ -45,4 +51,5 @@ d3
 
 measureFPS.measure(3, (fps: any) => {
 	document.getElementById('fps').textContent = fps
+	avgFps = avgFps == -1 ? fps : (avgFps + fps) / 2
 })
