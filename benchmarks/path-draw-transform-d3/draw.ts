@@ -54,21 +54,10 @@ export class TimeSeriesChart {
 	}
 
 	public zoom = drawProc(function (param: any[]) {
-		const zoomTransform = param[0]
-		d3.zoom().transform(d3.selectAll('.zoom'), zoomTransform)
-		const translateX = zoomTransform.x
-		const scaleX = zoomTransform.k
-
-		this.chart.rx = zoomTransform.rescaleX(this.chart.x)
-		const domainX = this.chart.rx.domain()
-		const ySubInterval = this.getZoomIntervalY(domainX, this.chart.data[0].values.length)
-		const minMax = this.tree.getMinMax(ySubInterval[0], ySubInterval[1])
-		const domainY = [minMax.min, minMax.max]
-		const newRangeY = [this.chart.y(domainY[0]), this.chart.y(domainY[1])]
-		const oldRangeY = this.chart.y.range()
-		const scaleY = oldRangeY[0] / (newRangeY[0] - newRangeY[1])
-		const translateY = scaleY * (oldRangeY[1] - newRangeY[1])
-
+		const translateX = param[0]
+		const translateY = param[1]
+		const scaleX = param[2]
+		const scaleY = param[3]
 		this.chart.view.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
 	}.bind(this))
 

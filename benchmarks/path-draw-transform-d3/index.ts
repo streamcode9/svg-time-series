@@ -33,8 +33,9 @@ function drawCharts(data: any[]) {
 			alert(`FPS = ${avgFps}`)
 			timer.stop()
 		}
-		let t = d3.zoomIdentity.translate(Math.sin(elapsed) * 50, 1).scale(8)
-		charts.forEach(c => c.zoom(t))
+
+		let scaleX =  Math.ceil((document.body.clientWidth + 550) / document.body.clientWidth)
+		charts.forEach(c => c.zoom(Math.sin(elapsed / 1500) * 50 - 500, 1, scaleX, 1))
 	})
 }
 
