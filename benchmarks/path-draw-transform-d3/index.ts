@@ -29,11 +29,7 @@ function drawCharts(data: any[]) {
 	})
 
 	let timer = d3.interval((elapsed: number) => {
-		if (elapsed > 60 * 1000) {
-			alert(`FPS = ${avgFps}`)
-			timer.stop()
-		}
-
+		if (elapsed > 60 * 1000) timer.stop()
 		let scaleX =  Math.ceil((document.body.clientWidth + 550) / document.body.clientWidth)
 		charts.forEach(c => c.zoom(Math.sin(elapsed / 1500) * 50 - 500, 1, scaleX, 1))
 	})
@@ -54,3 +50,5 @@ measureFPS.measure(3, (fps: any) => {
 	document.getElementById('fps').textContent = fps
 	avgFps = avgFps == -1 ? fps : (avgFps + fps) / 2
 })
+
+measureFPS.measureOnce(60, (fps: any) => { alert(`FPS = ${fps}`) })

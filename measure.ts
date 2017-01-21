@@ -13,3 +13,16 @@ export function measure(sec: any, drawFPS: any) {
 		ctr = 0
 	}, 1000 * sec)
 }
+
+export function measureOnce(sec: any, drawFPS: any) {
+	let ctr = 0
+
+	d3.timer(function () {
+		ctr++
+	})
+
+	d3.timeout(function () {
+		drawFPS((ctr / sec).toPrecision(3))
+		ctr = 0
+	}, 1000 * sec)
+}
