@@ -1,6 +1,5 @@
 ﻿declare const require: Function
 const d3 = require('d3')
-import segmentTree = require('../../segmentTree')
 
 interface IChartData {
 	name: string
@@ -39,14 +38,11 @@ export class TimeSeriesChart {
 	private maxX: Date
 	private missedStepsCount: number
 	private stepX: number
-	private tree: segmentTree.SegmentTree
-	private buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax
 
-	constructor(svg: any, minX: Date, stepX: number, data: any[], buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax) {
+	constructor(svg: any, minX: Date, stepX: number, data: any[]) {
 		this.stepX = stepX
 		this.minX = minX
 		this.maxX = this.calcDate(data.length - 1, minX)
-		this.buildSegmentTreeTuple = buildSegmentTreeTuple
 
 		this.drawChart(svg, data)
 
@@ -84,11 +80,8 @@ export class TimeSeriesChart {
 				})
 			})
 
-		this.tree = new segmentTree.SegmentTree(cities, cities[0].values.length, this.buildSegmentTreeTuple)
-
 		x.domain([this.minX, this.maxX])
-		const minMax = this.tree.getMinMax(0, this.tree.size - 1)
-		y.domain([minMax.min, minMax.max])
+		y.domain([5, 85])
 
 		const view = svg.append('g')
 			.selectAll('.view')

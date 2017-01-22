@@ -15,7 +15,7 @@ path { vector-effect: non-scaling-stroke }
 .charts { height: calc(100vh - 2rem); display: flex; flex-direction: column }
 .charts > div { height: calc(20% - 0.4rem); overflow: hidden; border: 1px #ddd solid; margin: 0.2rem }
 
-/* Mobile 1080õ1920 */
+/* Mobile 1080x1920 */
 @media only screen and (max-device-width: 1080px) and (min-device-height: 1920px) and (orientation: portrait) {
 	.tick text { font-size: 1.5rem }
 }
