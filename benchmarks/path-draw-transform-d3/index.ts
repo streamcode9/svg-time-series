@@ -15,8 +15,27 @@ d3
 			alert('Data can\'t be downloaded or parsed')
 			return
 		}
+
+		const color = d3.scaleOrdinal()
+			.domain(['NY', 'SF'])
+			.range(['green', 'blue'])
+
+		const cities = color.domain()
+			.map((name: string) => {
+				return ({
+					name: name,
+					color: color(name),
+					values: data.map((d: any) => +d[name])
+				})
+			})
+
+		const line = d3.line()
+			.defined((d: number) => d)
+			.x((d: number, i: number) => i)
+			.y((d: number) => d)
+
 		d3.selectAll('svg').select(function () {
-			new draw.TimeSeriesChart(d3.select(this), new Date(), 86400000, data)
+			new draw.TimeSeriesChart(d3.select(this), new Date(), 86400000, cities, line)
 		})
 	})
 

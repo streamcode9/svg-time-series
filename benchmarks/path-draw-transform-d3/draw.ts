@@ -2,27 +2,12 @@
 const d3 = require('d3')
 
 export class TimeSeriesChart {
-	constructor(svg: any, minX: Date, stepX: number, data: any[]) {
+	constructor(svg: any, minX: Date, stepX: number, cities: any, line: any) {
 		const width = svg.node().parentNode.clientWidth,
 			height = svg.node().parentNode.clientHeight
 		svg.attr('width', width)
 		svg.attr('height', height)
-
-		const color = d3.scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
-
-		const line = d3.line()
-			.defined((d: number) => d)
-			.x((d: number, i: number) => i)
-			.y((d: number) => d)
-
-		const cities = color.domain()
-			.map((name: string) => {
-				return ({
-					name: name,
-					values: data.map((d: any) => +d[name])
-				})
-			})
-
+		
 		const view = svg.append('g')
 			.selectAll('.view')
 			.data(cities)
@@ -31,7 +16,7 @@ export class TimeSeriesChart {
 
 		view.append('path')
 			.attr('d', (d: any) => line(d.values))
-			.attr('stroke', (d: any) => color(d.name))
+			.attr('stroke', (d: any) => d.color)
 
 		let timer = d3.timer((elapsed: number) => {
 			const minY = -5
@@ -42,6 +27,7 @@ export class TimeSeriesChart {
 
 			// actually it's better to explain what's going on
 			// with compositions of rangeTransform(inMin, inMax, outMin, outMax)
+			const data = cities[0].values
 			const a = -k
 			const b = maxY * k
 			const scaleX = width / data.length * 2
