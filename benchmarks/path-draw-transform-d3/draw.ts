@@ -49,14 +49,6 @@ export class TimeSeriesChart {
 		this.missedStepsCount = 0
 	}
 
-	public zoom = drawProc(function (param: any[]) {
-		const translateX = param[0]
-		const translateY = param[1]
-		const scaleX = param[2]
-		const scaleY = param[3]
-		this.chart.view.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
-	}.bind(this))
-
 	private drawChart(svg: any, data: any[]) {
 		const width = svg.node().parentNode.clientWidth,
 			height = svg.node().parentNode.clientHeight
@@ -66,11 +58,11 @@ export class TimeSeriesChart {
 		const x = d3.scaleTime().range([0, width])
 		const y = d3.scaleLinear().range([height, 0])
 		const color = d3.scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
-		
+
 		const line = d3.line()
 			.defined((d: number) => d)
 			.x((d: number, i: number) => x(this.calcDate(i, this.minX)))
-			.y((d: number) => y(d))
+			.y((d: number) => d)
 
 		const cities = color.domain()
 			.map((name: string) => {
@@ -93,33 +85,40 @@ export class TimeSeriesChart {
 			.attr('d', (d: any) => line(d.values))
 			.attr('stroke', (d: any) => color(d.name))
 
-		svg.append('rect')
-			.attr('class', 'zoom')
-			.attr('width', width)
-			.attr('height', height)
-			.call(d3.zoom()
-				.scaleExtent([1, 40])
-				.translateExtent([[0, 0], [width, height]]))
+		let timer = d3.timer((elapsed: number) => {
+			const minY = -5
+			const maxY = 85	
+			const k = height / (maxY - minY)
+			// conceptually y = a * temperature + b
+			const a = -k
+			const b = maxY * k
+			
+			const scaleX = 2
+			const scaleY = a
+			const translateX = (Math.cos(elapsed / 6500) - 1) * width / 4
+			const translateY = b
 
-		this.chart = {
-			x: x, y: y, rx: x.copy(), ry: y.copy(),
-			view: view, data: cities, height: height, line: line, color: color
-		}
+			this.chart.view.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
+		})
+
 	}
 
-	private getZoomIntervalY(xSubInterval: [Date, Date], intervalSize: number): [number, number] {
-		let from = intervalSize
-		let to = 0
-		for (let i = 0; i < intervalSize; i++) {
-			if (this.calcDate(i, this.minX) >= xSubInterval[0] && this.calcDate(i, this.minX) <= xSubInterval[1]) {
-				if (i > to) to = i
-				if (i < from) from = i
-			}
-		}
-		return [from, to]
-	}
 
 	private calcDate(index: number, offset: Date) {
 		return new Date(index * this.stepX + offset.getTime())
 	}
 }
+
+
+export function drawCharts(data: any[]) {
+	const charts: TimeSeriesChart[] = []
+
+	d3.selectAll('svg').select(function () {
+		const chart = new TimeSeriesChart(d3.select(this), new Date(), 86400000, data)
+		charts.push(chart)
+	})
+
+
+}
+
+
