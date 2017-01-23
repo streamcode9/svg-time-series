@@ -34,8 +34,8 @@ d3
 			document.getElementById('fps').textContent = fps
 		})
 
-		measureFPS.measureOnce(60, (fps: any) => {
-			alert(`FPS = ${fps}`)
+		measureFPS.measureOnce(60, (fps: number) => {
+			alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`)
 		})
 	})
 
