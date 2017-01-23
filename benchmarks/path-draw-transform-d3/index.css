@@ -5,8 +5,8 @@ path { vector-effect: non-scaling-stroke }
 .axis, .view, .zoom { fill: none }
 .axis line { stroke-opacity: 0.3; shape-rendering: crispEdges; stroke-width: 2px }
 .zoom { pointer-events: all }
-.view path[stroke='blue'] { stroke: rgb(96, 77, 196) }
-.view path[stroke='green'] { stroke: rgb(136, 204, 91) }
+.view:last-child { stroke: rgb(96, 77, 196) }
+.view:first-child { stroke: rgb(136, 204, 91) }
 .tick line { stroke: #a6a6a6; opacity: 1 }
 .tick text { fill: #454545; font-size: 0.7rem }
 

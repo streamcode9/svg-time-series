@@ -2,7 +2,7 @@
 const d3 = require('d3')
 
 export class TimeSeriesChart {
-	constructor(svg: any, minX: Date, stepX: number, cities: any, line: any) {
+	constructor(svg: any, minX: Date, stepX: number, cities: any, onPath: Function) {
 		const width = svg.node().parentNode.clientWidth,
 			height = svg.node().parentNode.clientHeight
 		svg.attr('width', width)
@@ -14,9 +14,7 @@ export class TimeSeriesChart {
 			.enter().append('g')
 			.attr('class', 'view')
 
-		view.append('path')
-			.attr('d', (d: any) => line(d.values))
-			.attr('stroke', (d: any) => d.color)
+		onPath(view.append('path'))
 
 		let timer = d3.timer((elapsed: number) => {
 			const minY = -5

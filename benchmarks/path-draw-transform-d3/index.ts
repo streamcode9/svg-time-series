@@ -16,15 +16,10 @@ d3
 			return
 		}
 
-		const color = d3.scaleOrdinal()
-			.domain(['NY', 'SF'])
-			.range(['green', 'blue'])
-
-		const cities = color.domain()
+		const cities = ['NY', 'SF']
 			.map((name: string) => {
 				return ({
 					name: name,
-					color: color(name),
 					values: data.map((d: any) => +d[name])
 				})
 			})
@@ -34,8 +29,12 @@ d3
 			.x((d: number, i: number) => i)
 			.y((d: number) => d)
 
+		const onPath = (path: any) => {
+			 path.attr('d', (d: any) => line(d.values))
+		}
+
 		d3.selectAll('svg').select(function () {
-			new draw.TimeSeriesChart(d3.select(this), new Date(), 86400000, cities, line)
+			new draw.TimeSeriesChart(d3.select(this), new Date(), 86400000, cities, onPath)
 		})
 	})
 
