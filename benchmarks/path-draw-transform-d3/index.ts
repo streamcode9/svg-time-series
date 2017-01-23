@@ -5,10 +5,10 @@ import draw = require('./draw')
 
 d3
 	.csv('ny-vs-sf.csv')
-	.row((d: any) => ({
-		NY: parseFloat(d.NY.split(';')[0]),
-		SF: parseFloat(d.SF.split(';')[0])
-	}))
+	.row((d: any) => [
+		parseFloat(d.NY.split(';')[0]),
+		parseFloat(d.SF.split(';')[0])
+	])
 	.get((error: any, data: any[]) => {
 		if (error != null)
 		{
@@ -16,13 +16,8 @@ d3
 			return
 		}
 
-		const cities = ['NY', 'SF']
-			.map((name: string) => {
-				return ({
-					name: name,
-					values: data.map((d: any) => +d[name])
-				})
-			})
+		const cities = [0, 1]
+			.map((name: number) => data.map((d: any) => +d[name]))
 
 		const onPath = (path: any) => {
 			const line = d3.line()
@@ -30,7 +25,7 @@ d3
 				.x((d: number, i: number) => i)
 				.y((d: number) => d)
 
-			 path.attr('d', (d: any) => line(d.values))
+			 path.attr('d', (d: any) => line(d))
 		}
 
 		d3.selectAll('svg').select(function () {
