@@ -24,17 +24,17 @@ d3
 				})
 			})
 
-		const line = d3.line()
-			.defined((d: number) => d)
-			.x((d: number, i: number) => i)
-			.y((d: number) => d)
-
 		const onPath = (path: any) => {
+			const line = d3.line()
+				.defined((d: number) => d)
+				.x((d: number, i: number) => i)
+				.y((d: number) => d)
+
 			 path.attr('d', (d: any) => line(d.values))
 		}
 
 		d3.selectAll('svg').select(function () {
-			new draw.TimeSeriesChart(d3.select(this), new Date(), 86400000, cities, onPath)
+			new draw.TimeSeriesChart(d3.select(this), new Date(), 86400000, cities, onPath, data.length)
 		})
 	})
 

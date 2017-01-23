@@ -2,7 +2,7 @@
 const d3 = require('d3')
 
 export class TimeSeriesChart {
-	constructor(svg: any, minX: Date, stepX: number, cities: any, onPath: Function) {
+	constructor(svg: any, minX: Date, stepX: number, cities: any, onPath: Function, dataLength: number) {
 		const width = svg.node().parentNode.clientWidth,
 			height = svg.node().parentNode.clientHeight
 		svg.attr('width', width)
@@ -25,10 +25,9 @@ export class TimeSeriesChart {
 
 			// actually it's better to explain what's going on
 			// with compositions of rangeTransform(inMin, inMax, outMin, outMax)
-			const data = cities[0].values
 			const a = -k
 			const b = maxY * k
-			const scaleX = width / data.length * 2
+			const scaleX = width / dataLength * 2
 			const scaleY = a
 			const translateX = (Math.cos(elapsed / 6500) - 1) * width / 4
 			const translateY = b
