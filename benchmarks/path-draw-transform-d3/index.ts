@@ -10,13 +10,18 @@ d3
 		SF: parseFloat(d.SF.split(';')[0])
 	}))
 	.get((error: any, data: any[]) => {
-		if (error != null) alert('Data can\'t be downloaded or parsed')
-		else drawCharts(data)
+		if (error != null)
+		{
+			alert('Data can\'t be downloaded or parsed')
+			return
+		}
+		d3.selectAll('svg').select(function () {
+			new draw.TimeSeriesChart(d3.select(this), new Date(), 86400000, data)
+		})
 	})
 
 measureFPS.measure(3, (fps: any) => {
 	document.getElementById('fps').textContent = fps
-	avgFps = avgFps == -1 ? fps : (avgFps + fps) / 2
 })
 
 measureFPS.measureOnce(60, (fps: any) => { alert(`FPS = ${fps}`) })
