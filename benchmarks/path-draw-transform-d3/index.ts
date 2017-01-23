@@ -17,14 +17,13 @@ d3
 		}
 
 		const onPath = (path: any) => {
-			 path.attr('d', (cityIdx: number) => {
-				const line = d3.line()
+			 path.attr('d', (cityIdx: number) =>
+				d3.line()
 					.defined((d: number[]) => d[cityIdx])
 					.x((d: number[], i: number) => i)
 					.y((d: number[]) => d[cityIdx])
-
-				 return line(data)
-			})
+					.call(null, data)
+			)
 		}
 
 		d3.selectAll('svg').select(function () {
