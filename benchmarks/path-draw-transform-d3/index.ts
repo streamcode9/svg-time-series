@@ -16,25 +16,28 @@ d3
 			return
 		}
 
-		const cities = [0, 1]
-			.map((name: number) => data.map((d: any) => +d[name]))
-
 		const onPath = (path: any) => {
-			const line = d3.line()
-				.defined((d: number) => d)
-				.x((d: number, i: number) => i)
-				.y((d: number) => d)
+			 path.attr('d', (cityIdx: number) => {
+				const line = d3.line()
+					.defined((d: number[]) => d[cityIdx])
+					.x((d: number[], i: number) => i)
+					.y((d: number[]) => d[cityIdx])
 
-			 path.attr('d', (d: any) => line(d))
+				 return line(data)
+			})
 		}
 
 		d3.selectAll('svg').select(function () {
-			new draw.TimeSeriesChart(d3.select(this), new Date(), 86400000, cities, onPath, data.length)
+			new draw.TimeSeriesChart(d3.select(this), new Date(), 86400000, [0, 1], onPath, data.length)
+		})
+
+		measureFPS.measure(3, (fps: any) => {
+			document.getElementById('fps').textContent = fps
+		})
+
+		measureFPS.measureOnce(60, (fps: any) => {
+			alert(`FPS = ${fps}`)
 		})
 	})
 
-measureFPS.measure(3, (fps: any) => {
-	document.getElementById('fps').textContent = fps
-})
 
-measureFPS.measureOnce(60, (fps: any) => { alert(`FPS = ${fps}`) })
