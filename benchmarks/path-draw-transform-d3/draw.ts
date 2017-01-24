@@ -1,5 +1,5 @@
 ﻿declare const require: Function
-const d3 = require('d3')
+const d3timer = require('d3-timer')
 
 export class TimeSeriesChart {
 	constructor(svg: any, minX: Date, stepX: number, cities: any, onPath: Function, dataLength: number) {
@@ -16,7 +16,7 @@ export class TimeSeriesChart {
 
 		onPath(view.append('path'))
 
-		let timer = d3.timer((elapsed: number) => {
+		let timer = d3timer.timer((elapsed: number) => {
 			const minY = -5
 			const maxY = 85	
 			const k = height / (maxY - minY)

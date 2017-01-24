@@ -1,9 +1,11 @@
 ﻿declare const require: Function
-const d3 = require('d3')
+const d3request = require('d3-request')
+const d3shape = require('d3-shape')
+const d3selection = require('d3-selection')
 import measureFPS = require('../../measure')
 import draw = require('./draw')
 
-d3
+d3request
 	.csv('ny-vs-sf.csv')
 	.row((d: any) => [
 		parseFloat(d.NY.split(';')[0]),
@@ -18,7 +20,7 @@ d3
 
 		const onPath = (path: any) => {
 			 path.attr('d', (cityIdx: number) =>
-				d3.line()
+				d3shape.line()
 					.defined((d: number[]) => d[cityIdx])
 					.x((d: number[], i: number) => i)
 					.y((d: number[]) => d[cityIdx])
@@ -26,8 +28,8 @@ d3
 			)
 		}
 
-		d3.selectAll('svg').select(function () {
-			new draw.TimeSeriesChart(d3.select(this), new Date(), 86400000, [0, 1], onPath, data.length)
+		d3selection.selectAll('svg').select(function () {
+			new draw.TimeSeriesChart(d3selection.select(this), new Date(), 86400000, [0, 1], onPath, data.length)
 		})
 
 		measureFPS.measure(3, (fps: any) => {
