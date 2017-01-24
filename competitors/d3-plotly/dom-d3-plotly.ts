@@ -1,4 +1,4 @@
-﻿import common = require('../common')
+﻿import common = require('../../benchmarks/common')
 declare var require: Function
 var Plotly = require('plotly.js')
 

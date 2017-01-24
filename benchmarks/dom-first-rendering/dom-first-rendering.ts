@@ -1,18 +1,18 @@
 ﻿import common = require('../common')
 
-function createTranslate (x, y) {
+function createTranslate (x: number, y: number) {
 	const translateTransform = common.svg.createSVGTransform()
 	translateTransform.setTranslate(x, y)
 	return translateTransform
 }
 
-function createScale (x, y) {
+function createScale (x: number, y: number) {
 	const scaleTransform = common.svg.createSVGTransform()
 	scaleTransform.setScale(x, y)
 	return scaleTransform
 }
 
-function animate(id, yOffset) {
+function animate(id: string, yOffset: number) {
 	let delta = 0, scale = 0.2
 
 	const path: any = document.getElementById(id)
