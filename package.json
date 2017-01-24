@@ -13,6 +13,6 @@
 	},
 	"scripts": {
 		"browserify": "browserify ./demos/demo2/index.js -o ./demos/demo2/bundle.js --debug",
-		"tsify": "browserify ./demos/demo2/index.ts -p [ tsify --noImplicitAny ] > ./demos/demo2/bundle.js --debug"
+		"tsify": "browserify ./demos/demo2/index.ts -p [ tsify --noImplicitAny ./demos/demo2/index.ts ] -o ./demos/demo2/bundle.js --debug"
 	}
 }
