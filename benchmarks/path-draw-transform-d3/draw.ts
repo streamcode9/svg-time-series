@@ -18,12 +18,12 @@ export class TimeSeriesChart {
 		svg.attr('height', height)
 		
 		const view = svg.append('g')
+			.attr('class', 'view')	
 			.selectAll('path')
 			.data(cities)
-			.enter().append('g')
-			.attr('class', 'view')
+			.enter().append('path')
 
-		onPath(view.append('path'))
+		onPath(view)
 
 		let timer = d3timer.timer((elapsed: number) => {
 			const minY = -5
