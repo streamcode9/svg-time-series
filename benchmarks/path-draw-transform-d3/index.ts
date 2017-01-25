@@ -21,7 +21,7 @@ d3request
 		const onPath = (path: any) => {
 			 path.attr('d', (cityIdx: number) =>
 				d3shape.line()
-					.defined((d: number[]) => d[cityIdx] != undefined)
+					.defined((d: any[]) => d[cityIdx])
 					.x((d: number[], i: number) => i)
 					.y((d: number[]) => d[cityIdx])
 					.call(null, data)
