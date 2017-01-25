@@ -71,6 +71,9 @@
   <ItemGroup>
     <Folder Include="benchmarks\d3-myaxis-ts\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="tsconfig.json" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>

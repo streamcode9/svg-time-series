@@ -1,4 +1,17 @@
 {
+  "name": "svg-time-series",
+  "version": "0.1.0",
+  "description": "D3.js-based SVG time series charts done right to reach 60 FPS",
+  "keywords": [
+    "svg",
+    "time-series"
+  ],
+  "repository": "streamcode9/svg-time-series",
+  "license": "WTFPL",
+  "files": [
+    "lib/*.js"
+  ],
+  "main": "lib/app.js",
   "dependencies": {
     "@types/d3-request": "^1.0.1",
     "@types/d3-selection": "^1.0.9",
