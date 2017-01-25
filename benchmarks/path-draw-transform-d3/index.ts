@@ -1,7 +1,7 @@
 ﻿declare const require: Function
-const d3request = require('d3-request')
-const d3shape = require('d3-shape')
-const d3selection = require('d3-selection')
+import d3request = require('d3-request')
+import d3shape = require('d3-shape')
+import d3selection = require('d3-selection')
 import measureFPS = require('../../measure')
 import draw = require('./draw')
 
@@ -21,7 +21,7 @@ d3request
 		const onPath = (path: any) => {
 			 path.attr('d', (cityIdx: number) =>
 				d3shape.line()
-					.defined((d: number[]) => d[cityIdx])
+					.defined((d: number[]) => d[cityIdx] != undefined)
 					.x((d: number[], i: number) => i)
 					.y((d: number[]) => d[cityIdx])
 					.call(null, data)
@@ -30,6 +30,7 @@ d3request
 
 		d3selection.selectAll('svg').select(function () {
 			new draw.TimeSeriesChart(d3selection.select(this), new Date(), 86400000, [0, 1], onPath, data.length)
+			return this
 		})
 
 		measureFPS.measure(3, (fps: any) => {

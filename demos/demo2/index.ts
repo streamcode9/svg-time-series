@@ -1,16 +1,25 @@
-declare const require: Function
-const d3 = require('d3')
+import d3request = require('d3-request')
+import d3selection = require('d3-selection')
+import d3shape = require('d3-shape')
 import measureFPS = require('../../measure')
 import common = require('../common')
-let resize: any = { interval: 60 }
 
-d3
+interface Resize
+{ interval: number
+, request: () => void
+, timer: number
+, eval: () => void
+}
+
+let resize : Resize = { interval: 60, request : null, timer: null, eval: null }
+
+d3request
 	.csv('ny-vs-sf.csv')
-	.row((d: any) => ({
+	.row((d: { NY: string, SF:string }) => ({
 		NY: parseFloat(d.NY.split(';')[0]),
 		SF: parseFloat(d.SF.split(';')[0])
 	}))
-	.get((error: any, data: any[]) => {
+	.get((error: null, data: any[]) => {
 		if (error != null) alert('Data can\'t be downloaded or parsed')
 		else {
 			common.drawCharts(data, 5)
@@ -20,14 +29,14 @@ d3
 				resize.timer = setTimeout(resize.eval, resize.interval)
 			}
 			resize.eval = function() {
-				d3.selectAll('svg').remove()
-				d3.select('.charts').selectAll('div').append('svg')
+				d3selection.selectAll('svg').remove()
+				d3selection.select('.charts').selectAll('div').append('svg')
 				common.drawCharts(data, 5)
 			}
 			window.addEventListener('resize', resize.request, false)
 		}
 	})
 
-measureFPS.measure(3, function (fps: any) {
+measureFPS.measure(3, function (fps: string) {
 	document.getElementById('fps').textContent = fps
 })

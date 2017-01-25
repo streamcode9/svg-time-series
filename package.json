@@ -1,18 +1,24 @@
 {
-	"dependencies": {
-		"d3": "^4.4.1",
-		"d3-request": "^1.0.3",
-		"d3-selection": "^1.0.3",
-		"d3-shape": "^1.0.4",
-		"d3-timer": "^1.0.4"
-	},
-	"devDependencies": {
-		"browserify": "^13.3.0",
-		"typescript": "^2.1.5",
-		"tsify": "^3.0.0"
-	},
-	"scripts": {
-		"browserify": "browserify ./demos/demo2/index.js -o ./demos/demo2/bundle.js --debug",
-		"tsify": "browserify ./demos/demo2/index.ts -p [ tsify --noImplicitAny ./demos/demo2/index.ts ] -o ./demos/demo2/bundle.js --debug"
-	}
+  "dependencies": {
+    "@types/d3-request": "^1.0.1",
+    "@types/d3-selection": "^1.0.9",
+    "@types/d3-shape": "^1.0.7",
+    "@types/d3-timer": "^1.0.5",
+    "d3": "^4.4.1",
+    "d3-request": "^1.0.3",
+    "d3-selection": "^1.0.3",
+    "d3-shape": "^1.0.4",
+    "d3-timer": "^1.0.4"
+  },
+  "devDependencies": {
+    "browserify": "^13.3.0",
+    "typescript": "^2.1.5",
+    "tsify": "^3.0.0"
+  },
+  "scripts": {
+    "browserify": "browserify ./demos/demo2/index.js -o ./demos/demo2/bundle.js --debug",
+    "tsify": "browserify ./demos/demo2/index.ts -p [ tsify --noImplicitAny ./demos/demo2/index.ts ] -o ./demos/demo2/bundle.js --debug",
+    "tsify-dom": "browserify ./benchmarks/dom/dom.ts -p [ tsify --noImplicitAny ./benchmarks/dom/dom.ts ] -o ./benchmarks/dom/bundle.js --debug",
+    "tsify-pdt": "browserify ./benchmarks/path-draw-transform-d3/index.ts -p [ tsify --noImplicitAny ./benchmarks/path-draw-transform-d3/index.ts ] -o ./benchmarks/path-draw-transform-d3/bundle.js --debug"
+  }
 }
