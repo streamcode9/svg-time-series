@@ -8,15 +8,12 @@ export class TimeSeriesChart {
 		onPath: (a: any) => void,
 		dataLength: number)
 	{
-
 		const node: SVGSVGElement = <SVGSVGElement>svg.node()
 		const div: HTMLElement = <HTMLElement>node.parentNode
 
 		const width = div.clientWidth,
 			height = div.clientHeight
-		svg.attr('width', width)
-		svg.attr('height', height)
-		
+
 		const view = svg.append('g')
 			.attr('class', 'view')	
 			.selectAll('path')
@@ -27,7 +24,7 @@ export class TimeSeriesChart {
 
 		let timer = d3timer.timer((elapsed: number) => {
 			const minY = -5
-			const maxY = 85	
+			const maxY = 83	
 			const k = height / (maxY - minY)
 			// conceptually viewPortY = a * temperature + b
 			// and actually viewPortY = scaleY * lineY + translateY
