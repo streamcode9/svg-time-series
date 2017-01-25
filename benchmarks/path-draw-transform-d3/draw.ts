@@ -2,7 +2,12 @@
 import { Selection, BaseType } from 'd3-selection'
 
 export class TimeSeriesChart {
-	constructor(svg: Selection<BaseType, {}, HTMLElement, any>, minX: Date, stepX: number, cities: any, onPath: Function, dataLength: number) {
+	constructor(
+		svg: Selection<BaseType, {}, HTMLElement, any>,
+		cities: [number, number],
+		onPath: (a: any) => void,
+		dataLength: number)
+	{
 
 		const node: SVGSVGElement = <SVGSVGElement>svg.node()
 		const div: HTMLElement = <HTMLElement>node.parentNode
@@ -13,7 +18,7 @@ export class TimeSeriesChart {
 		svg.attr('height', height)
 		
 		const view = svg.append('g')
-			.selectAll('.view')
+			.selectAll('path')
 			.data(cities)
 			.enter().append('g')
 			.attr('class', 'view')

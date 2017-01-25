@@ -22,15 +22,15 @@ d3request
 		const onPath = (path: any) => {
 			 path.attr('d', (cityIdx: number) =>
 				d3shape.line()
-					.defined((d: any[]) => d[cityIdx])
+					.defined((d: number[]) => !isNaN(d[cityIdx]))
 					.x((d: number[], i: number) => i)
 					.y((d: number[]) => d[cityIdx])
 					.call(null, data)
 			)
 		}
 
-		d3selection.selectAll('svg').select(function () {
-			new draw.TimeSeriesChart(d3selection.select(this), new Date(), 86400000, [0, 1], onPath, data.length)
+		d3selection.selectAll('svg').each(function () {
+			new draw.TimeSeriesChart(d3selection.select(this), [0, 1], onPath, data.length)
 			return this
 		})
 
