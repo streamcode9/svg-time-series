@@ -4,6 +4,7 @@ import d3shape = require('d3-shape')
 import d3selection = require('d3-selection')
 import measureFPS = require('../../measure')
 import draw = require('./draw')
+import { Selection, BaseType } from 'd3-selection'
 
 d3request
 	.csv('ny-vs-sf.csv')
@@ -11,7 +12,7 @@ d3request
 		parseFloat(d.NY.split(';')[0]),
 		parseFloat(d.SF.split(';')[0])
 	])
-	.get((error: any, data: any[]) => {
+	.get((error: null, data: [number, number]) => {
 		if (error != null)
 		{
 			alert('Data can\'t be downloaded or parsed')

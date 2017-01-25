@@ -1,10 +1,14 @@
-﻿declare const require: Function
-const d3timer = require('d3-timer')
+﻿import d3timer = require('d3-timer')
+import { Selection, BaseType } from 'd3-selection'
 
 export class TimeSeriesChart {
-	constructor(svg: any, minX: Date, stepX: number, cities: any, onPath: Function, dataLength: number) {
-		const width = svg.node().parentNode.clientWidth,
-			height = svg.node().parentNode.clientHeight
+	constructor(svg: Selection<BaseType, {}, HTMLElement, any>, minX: Date, stepX: number, cities: any, onPath: Function, dataLength: number) {
+
+		const node: SVGSVGElement = <SVGSVGElement>svg.node()
+		const div: HTMLElement = <HTMLElement>node.parentNode
+
+		const width = div.clientWidth,
+			height = div.clientHeight
 		svg.attr('width', width)
 		svg.attr('height', height)
 		
