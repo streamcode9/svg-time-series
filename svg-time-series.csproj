@@ -66,9 +66,6 @@
     <TypeScriptCompile Include="segmentTree.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="bower.json" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="package.json" />
   </ItemGroup>
   <ItemGroup>
