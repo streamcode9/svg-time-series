@@ -19,18 +19,20 @@ d3request
 			return
 		}
 
-		const onPath = (path: any) => {
-			 path.attr('d', (cityIdx: number) =>
+		const path = d3selection.selectAll('g.view')
+			.selectAll('path')
+			.data([0, 1])
+			.enter().append('path')
+			.attr('d', (cityIdx: number) =>
 				d3shape.line()
 					.defined((d: number[]) => !isNaN(d[cityIdx]))
 					.x((d: number[], i: number) => i)
 					.y((d: number[]) => d[cityIdx])
 					.call(null, data)
 			)
-		}
 
 		d3selection.selectAll('svg').each(function () {
-			new draw.TimeSeriesChart(d3selection.select(this), [0, 1], onPath, data.length)
+			new draw.TimeSeriesChart(d3selection.select(this), data.length)
 			return this
 		})
 

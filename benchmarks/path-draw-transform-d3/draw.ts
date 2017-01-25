@@ -4,8 +4,6 @@ import { Selection, BaseType } from 'd3-selection'
 export class TimeSeriesChart {
 	constructor(
 		svg: Selection<BaseType, {}, HTMLElement, any>,
-		cities: [number, number],
-		onPath: (a: any) => void,
 		dataLength: number)
 	{
 		const node: SVGSVGElement = <SVGSVGElement>svg.node()
@@ -14,13 +12,7 @@ export class TimeSeriesChart {
 		const width = div.clientWidth,
 			height = div.clientHeight
 
-		const view = svg.append('g')
-			.attr('class', 'view')	
-			.selectAll('path')
-			.data(cities)
-			.enter().append('path')
-
-		onPath(view)
+		const view = svg.select('g')
 
 		let timer = d3timer.timer((elapsed: number) => {
 			const minY = -5
