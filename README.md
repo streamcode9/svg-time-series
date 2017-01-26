@@ -58,12 +58,12 @@ work is possible. Keep watching!
 
 ### Windows
 
-1. Install MSVS 2015 community
-2. Install TypeScript extension for MSVS
-3. Install Node.js tools extension for MSVS
-4. package.json -> Restore dependencies
-5. Build project
-6. browserify index.js -o bundle.js
+1. Install MSVS 2015 community (make sure you have Update 3 installed)
+2. Install Microsoft ASP.NET and Web Tools (if it has not been installed with MSVS 2015)
+3. Install latest TypeScript tools for MSVS 2015 2.x.x
+4. Install nodejs (npm will be also installed)
+5. Open project in VS -> package.json -> Right click -> Restore dependencies
+6. Build project
 
 ### Unix
 
