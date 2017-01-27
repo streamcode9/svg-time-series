@@ -17,11 +17,15 @@
     "@types/d3-selection": "^1.0.9",
     "@types/d3-shape": "^1.0.7",
     "@types/d3-timer": "^1.0.5",
+    "@types/d3-scale": "^1.0.6",
+    "@types/d3-zoom": "^1.1.0",
     "d3": "^4.4.1",
     "d3-request": "^1.0.3",
     "d3-selection": "^1.0.3",
     "d3-shape": "^1.0.4",
-    "d3-timer": "^1.0.4"
+    "d3-timer": "^1.0.4",
+    "d3-scale": "^1.0.4",
+    "d3-zoom": "^1.1.1"
   },
   "devDependencies": {
     "browserify": "^13.3.0",
