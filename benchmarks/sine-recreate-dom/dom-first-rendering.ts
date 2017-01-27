@@ -21,8 +21,8 @@ function animate(id: string, yOffset: number) {
 	path.setPathData(pathData);
 
 	const transformations = path.transform.baseVal
-	transformations.appendItem(createTranslate(-delta, yOffset))	
-	transformations.appendItem(createScale(scale, 100))	
+	transformations.appendItem(createTranslate(-delta, yOffset))
+	transformations.appendItem(createScale(scale, 100))
 }
 
 let start = Date.now()

@@ -26,7 +26,7 @@ function drawCharts(data: any[]) {
 	function onZoom() {
 		const z = d3.event.transform.toString()
 		if (z == newZoom) return
-	
+
 		newZoom = z
 		charts.forEach(c => c.zoom(d3.event.transform))
 	}

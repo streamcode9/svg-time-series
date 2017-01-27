@@ -9,7 +9,7 @@ interface IChartData {
 
 interface IChartParameters {
 	x: Function
-	y: Function 
+	y: Function
 	rx: Function
 	ry: Function
 	view: any

@@ -21,7 +21,7 @@ function animate(id: string, yOffset: number) {
 	path.setPathData(pathData);
 
 	const transformations = path.transform.baseVal
-	transformations.appendItem(createTranslate(-delta, yOffset))	
+	transformations.appendItem(createTranslate(-delta, yOffset))
 	transformations.appendItem(createScale(scale, 100))
 
 	common.run(100, delta, scale, (delt, scal) => {

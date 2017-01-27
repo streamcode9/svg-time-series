@@ -43,7 +43,7 @@ export class TimeSeriesChart {
 
 		let timer = d3timer.timer((elapsed: number) => {
 			const minY = -5
-			const maxY = 83	
+			const maxY = 83
 			const k = height / (maxY - minY)
 			const a = -k
 			const b = maxY * k
@@ -51,7 +51,7 @@ export class TimeSeriesChart {
 			const scaleY = a
 			const translateX = (Math.cos(elapsed / 6500) - 1) * width / 4
 			const translateY = b
-			
+
 			const zoomTransform = d3.zoomIdentity.translate(translateX, translateY).scale(Math.max(scaleX, scaleY))
 			d3.zoom().transform(d3.selectAll('.zoom'), zoomTransform)
 			const rx = zoomTransform.rescaleX(x)

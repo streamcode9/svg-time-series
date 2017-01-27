@@ -16,7 +16,7 @@ export class SegmentTree {
 		this.size = dataSize
 		this.tree = new Array(this.size * 4)
 		this.buidTuple = buidTuple
-		
+
 		const build = (tree: IMinMax[], values: any, i: number, left: number, right: number) => {
 			if (left == right) tree[i] = this.buidTuple(left, values)
 			else {

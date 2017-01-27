@@ -16,7 +16,7 @@ export class TimeSeriesChart {
 
 		let timer = d3timer.timer((elapsed: number) => {
 			const minY = -5
-			const maxY = 83	
+			const maxY = 83
 			const k = height / (maxY - minY)
 			// conceptually viewPortY = a * temperature + b
 			// and actually viewPortY = scaleY * lineY + translateY

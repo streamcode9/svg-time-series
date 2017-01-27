@@ -30,6 +30,7 @@
   },
   "scripts": {
     "browserify": "browserify ./demos/demo2/index.js -o ./demos/demo2/bundle.js --debug",
+    "tslint" : "tslint --project .",
     "tsify": "browserify ./demos/demo2/index.ts -p [ tsify --noImplicitAny ./demos/demo2/index.ts ] -o ./demos/demo2/bundle.js --debug",
     "tsify-dom": "browserify ./benchmarks/dom/dom.ts -p [ tsify --noImplicitAny ./benchmarks/dom/dom.ts ] -o ./benchmarks/dom/bundle.js --debug",
     "tsify-pdt": "browserify ./benchmarks/path-draw-transform-d3/index.ts -p [ tsify --noImplicitAny ./benchmarks/path-draw-transform-d3/index.ts ] -o ./benchmarks/path-draw-transform-d3/bundle.js --debug",
