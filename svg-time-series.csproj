@@ -57,6 +57,7 @@
     <TypeScriptCompile Include="benchmarks\segment-tree-queries\draw.ts" />
     <TypeScriptCompile Include="benchmarks\segment-tree-queries\index.ts" />
     <TypeScriptCompile Include="benchmarks\segment-tree-reindexing\index.ts" />
+    <TypeScriptCompile Include="benchmarks\svg-path-recreation-d3\draw.ts" />
     <TypeScriptCompile Include="benchmarks\svg-path-recreation-d3\index.ts" />
     <TypeScriptCompile Include="demos\common.ts" />
     <TypeScriptCompile Include="demos\demo1\index.ts" />
@@ -121,6 +122,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>npm run tsify-adt</PostBuildEvent>
+    <PostBuildEvent>npm run tsify-spr</PostBuildEvent>
   </PropertyGroup>
 </Project>

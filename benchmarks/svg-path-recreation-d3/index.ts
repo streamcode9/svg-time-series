@@ -1,16 +1,11 @@
-﻿declare const require: Function
-const d3 = require('d3')
-import measureFPS = require('../../measure')
-import draw = require('../../draw')
-import segmentTree = require('../../segmentTree')
+﻿import { select, selectAll } from 'd3-selection'
+import { interval as runInterval } from 'd3-timer'
+import { csv } from 'd3-request'
+import { measure, measureOnce } from '../../measure'
+import { TimeSeriesChart } from './draw'
+import { IMinMax } from '../../segmentTree'
 
-function getRandom(min: number, max: number) {
-	min = Math.ceil(min);
-	max = Math.floor(max);
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function buildSegmentTreeTuple(index: number, elements: any): segmentTree.IMinMax {
+function buildSegmentTreeTuple(index: number, elements: any): IMinMax {
 	const nyMinValue = isNaN(elements[0].values[index]) ? Infinity : elements[0].values[index]
 	const nyMaxValue = isNaN(elements[0].values[index]) ? -Infinity : elements[0].values[index]
 	const sfMinValue = isNaN(elements[1].values[index]) ? Infinity : elements[1].values[index]
@@ -19,32 +14,22 @@ function buildSegmentTreeTuple(index: number, elements: any): segmentTree.IMinMa
 }
 
 function drawCharts(data: any[]) {
-	const charts: draw.TimeSeriesChart[] = []
-	let newZoom: any = null
+	const charts: TimeSeriesChart[] = []
 	let j = 0
 
-	function onZoom() {
-		const z = d3.event.transform.toString()
-		if (z == newZoom) return
-
-		newZoom = z
-		charts.forEach(c => c.zoom(d3.event.transform))
-	}
-
-	d3.selectAll('svg').select(function () {
-		const chart = new draw.TimeSeriesChart(d3.select(this), new Date(), 86400000, data, buildSegmentTreeTuple, onZoom)
+	selectAll('svg').each(function () {
+		const chart = new TimeSeriesChart(select(this), new Date(), 86400000, data, buildSegmentTreeTuple)
 		charts.push(chart)
 	})
 
-	d3.interval(function() {
+	runInterval(function() {
 		let newData = data[j % data.length]
 		charts.forEach(c => c.updateChartWithNewData([newData == undefined ? undefined : newData.NY, newData == undefined ? undefined : newData.SF]))
 		j++
 	})
 }
 
-d3
-	.csv('ny-vs-sf.csv')
+csv('ny-vs-sf.csv')
 	.row((d: any) => ({
 		NY: parseFloat(d.NY.split(';')[0]),
 		SF: parseFloat(d.SF.split(';')[0])
@@ -54,6 +39,10 @@ d3
 		else drawCharts(data)
 	})
 
-measureFPS.measure(3, (fps: any) => {
+measure(3, (fps: any) => {
 	document.getElementById('fps').textContent = fps
+})
+
+measureOnce(60, (fps: number) => {
+	alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`)
 })

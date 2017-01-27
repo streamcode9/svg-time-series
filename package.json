@@ -19,13 +19,15 @@
     "@types/d3-timer": "^1.0.5",
     "@types/d3-scale": "^1.0.6",
     "@types/d3-zoom": "^1.1.0",
+    "@types/d3-dsv": "^1.0.29",
     "d3": "^4.4.1",
     "d3-request": "^1.0.3",
     "d3-selection": "^1.0.3",
     "d3-shape": "^1.0.4",
     "d3-timer": "^1.0.4",
     "d3-scale": "^1.0.4",
-    "d3-zoom": "^1.1.1"
+    "d3-zoom": "^1.1.1",
+    "d3-dsv": "^1.0.3"
   },
   "devDependencies": {
     "browserify": "^13.3.0",
@@ -34,10 +36,11 @@
   },
   "scripts": {
     "browserify": "browserify ./demos/demo2/index.js -o ./demos/demo2/bundle.js --debug",
-    "tslint" : "tslint --project .",
+    "tslint": "tslint --project .",
     "tsify": "browserify ./demos/demo2/index.ts -p [ tsify --noImplicitAny ./demos/demo2/index.ts ] -o ./demos/demo2/bundle.js --debug",
     "tsify-dom": "browserify ./benchmarks/dom/dom.ts -p [ tsify --noImplicitAny ./benchmarks/dom/dom.ts ] -o ./benchmarks/dom/bundle.js --debug",
     "tsify-pdt": "browserify ./benchmarks/path-draw-transform-d3/index.ts -p [ tsify --noImplicitAny ./benchmarks/path-draw-transform-d3/index.ts ] -o ./benchmarks/path-draw-transform-d3/bundle.js --debug",
-    "tsify-adt": "browserify ./benchmarks/axis-draw-transform/index.ts -p [ tsify --noImplicitAny ./benchmarks/axis-draw-transform/index.ts ] -o ./benchmarks/axis-draw-transform/bundle.js --debug"
+    "tsify-adt": "browserify ./benchmarks/axis-draw-transform/index.ts -p [ tsify --noImplicitAny ./benchmarks/axis-draw-transform/index.ts ] -o ./benchmarks/axis-draw-transform/bundle.js --debug",
+    "tsify-spr": "browserify ./benchmarks/svg-path-recreation-d3/index.ts -p [ tsify --noImplicitAny ./benchmarks/svg-path-recreation-d3/index.ts ] -o ./benchmarks/svg-path-recreation-d3/bundle.js --debug"
   }
 }
