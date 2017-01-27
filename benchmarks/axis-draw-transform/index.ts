@@ -11,8 +11,7 @@ d3request
 		parseFloat(d.SF.split(';')[0])
 	])
 	.get((error: null, data: [number, number]) => {
-		if (error != null)
-		{
+		if (error != null) {
 			alert('Data can\'t be downloaded or parsed')
 			return
 		}
