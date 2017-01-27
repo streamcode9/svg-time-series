@@ -75,6 +75,24 @@ work is possible. Keep watching!
 6. `../../node_modules/.bin/browserify -o bundle.js js/index.js
 7. `../../node_modules/.bin/browserify -o bundle.js js/demos/demo2/index.js` (currently requires copying `d3.min.js` from `node_modules/d3/build/` to `js/node_modules/...`)
 
+## Improvements over Stock D3 examples
+
+### competitors/d3-axes-grad
+
+Stock axes panning example and:
+- No drawing or heavy CPU work in mouse handlers
+- Don't change anything more often than once per screen refresh
+
+### competitors/d3-axes
+
+d3-axes grad and performance improvements of axis not accepted by the upstream
+
+### competitors/d3-zoom-pan
+
+Stock d3 phyllotaxis pan-zoom example plus:
+- No drawing or heavy CPU work in mouse handlers
+- Don't change anything more often than once per screen refresh
+
 [d1]: https://bl.ocks.org/streamcode9/raw/0ad51c8422d1b0238f0f8ecce03eea60/
 [d2]: https://bl.ocks.org/streamcode9/raw/7b93868bc25de626a847bd0c540e4330/
 [d3stock]: http://bl.ocks.org/mbostock/db6b4335bf1662b413e7968910104f0f
