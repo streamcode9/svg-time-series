@@ -3,7 +3,7 @@ export interface IMinMax {
 	max: number
 }
 
-function buidMinMax(fst: IMinMax, snd: IMinMax): IMinMax {
+function buidMinMax(fst: IMinMax, snd: IMinMax) : IMinMax {
 	return { min: Math.min(fst.min, snd.min), max: Math.max(fst.max, snd.max) }
 }
 
@@ -30,7 +30,7 @@ export class SegmentTree {
 	}
 
 	getMinMax(fromPosition: number, toPosition: number) {
-		const getMinMax = (tree: IMinMax[], i: number, left: number, right: number, from: number, to: number): IMinMax => {
+		const getMinMax = (tree: IMinMax[], i: number, left: number, right: number, from: number, to: number) : IMinMax => {
 			if (from > to) return { min: Infinity, max: -Infinity }
 
 			if (from == left && to == right) return tree[i]

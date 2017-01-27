@@ -3,7 +3,7 @@ const d3 = require('d3')
 import draw = require('./draw')
 import segmentTree = require('../../segmentTree')
 
-function buildSegmentTreeTuple(index: number, elements: any): segmentTree.IMinMax {
+function buildSegmentTreeTuple(index: number, elements: any) : segmentTree.IMinMax {
 	const nyMinValue = isNaN(elements[0].values[index]) ? Infinity : elements[0].values[index]
 	const nyMaxValue = isNaN(elements[0].values[index]) ? -Infinity : elements[0].values[index]
 	const sfMinValue = isNaN(elements[1].values[index]) ? Infinity : elements[1].values[index]

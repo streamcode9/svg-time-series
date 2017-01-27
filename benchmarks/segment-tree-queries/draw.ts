@@ -163,7 +163,7 @@ export class TimeSeriesChart {
 		}
 	}
 
-	private getZoomIntervalY(xSubInterval: [Date, Date], intervalSize: number): [number, number] {
+	private getZoomIntervalY(xSubInterval: [Date, Date], intervalSize: number) : [number, number] {
 		let from = intervalSize
 		let to = 0
 		for (let i = 0; i < intervalSize; i++) {

@@ -4,14 +4,14 @@ import d3shape = require('d3-shape')
 import measureFPS = require('../../measure')
 import common = require('../common')
 
-interface Resize
-{ interval: number
+interface Resize {
+  interval: number
 , request: () => void
 , timer: number
 , eval: () => void
 }
 
-let resize : Resize = { interval: 60, request : null, timer: null, eval: null }
+let resize: Resize = { interval: 60, request : null, timer: null, eval: null }
 
 d3request
 	.csv('ny-vs-sf.csv')
