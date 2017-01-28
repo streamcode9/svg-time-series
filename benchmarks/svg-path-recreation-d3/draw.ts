@@ -1,5 +1,4 @@
-﻿import { scaleLinear, scaleTime } from 'd3-scale'
-import { BaseType, selectAll, Selection } from 'd3-selection'
+﻿import { BaseType, selectAll, Selection } from 'd3-selection'
 import { Line, line } from 'd3-shape'
 import { timer as runTimer } from 'd3-timer'
 
@@ -14,12 +13,26 @@ export class TimeSeriesChart {
 		const width = div.clientWidth
 		const height = div.clientHeight
 
-		const x: any = scaleTime().range([0, width])
-		const y = scaleLinear().range([height, 0])
+		const dataLength = data.length
+		const elapsed = 0
+		const paths = svg.select('g.view').selectAll('path')
 
-		let minX = Date.now()
-		x.domain([minX, (data.length - 1) * 86400000 + minX])
-		y.domain([-5, 83])
+		const minY = -5
+		const maxY = 83
+		const k = height / (maxY - minY)
+		// conceptually viewPortY = a * temperature + b
+		// and actually viewPortY = scaleY * lineY + translateY
+
+		// actually it's better to explain what's going on
+		// with compositions of rangeTransform(inMin, inMax, outMin, outMax)
+		const a = -k
+		const b = maxY * k
+		const scaleX = width / dataLength * 2
+		const scaleY = a
+		const translateX = (Math.cos(elapsed / 6500) - 1) * width / 4
+		const translateY = b
+
+		paths.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
 
 		const timer = runTimer((elapsed: number) => {
 			// Push new data point
@@ -27,11 +40,8 @@ export class TimeSeriesChart {
 			data.push(newData)
 			data.shift()
 
-			minX += 86400000
-			x.domain([minX, (data.length - 1) * 86400000 + minX])
-
 			// Redraw path
-			svg.select('.view').selectAll('path').attr('d', (cityIdx: number) => drawLine(cityIdx).call(null, data))
+			paths.attr('d', (cityIdx: number) => drawLine(cityIdx).call(null, data))
 
 			if (elapsed > 60 * 1000) {
 				timer.stop()
