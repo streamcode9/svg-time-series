@@ -39,10 +39,10 @@ csv('ny-vs-sf.csv')
 		else drawCharts(data)
 	})
 
-measure(3, (fps: any) => {
+measure(3, (fps) => {
 	document.getElementById('fps').textContent = fps
 })
 
-measureOnce(60, (fps: number) => {
+measureOnce(60, (fps) => {
 	alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`)
 })

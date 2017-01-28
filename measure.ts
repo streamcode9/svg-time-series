@@ -1,23 +1,22 @@
-﻿declare const require: Function
-const d3timer = require('d3-timer')
+﻿import { interval, timer, timeout } from 'd3-timer'
 
-export function measure(sec: any, drawFPS: any) {
+export function measure(sec: number, drawFPS: (fps: string) => void) : void {
 	let ctr = 0
 
-	d3timer.timer(() => ctr++)
+	timer(() => ctr++)
 
-	d3timer.interval(() => {
+	interval(() => {
 		drawFPS((ctr / sec).toPrecision(3))
 		ctr = 0
 	}, 1000 * sec)
 }
 
-export function measureOnce(sec: any, drawFPS: any) {
+export function measureOnce(sec: number, drawFPS: (fps: string) => void) : void {
 	let ctr = 0
 
-	d3timer.timer(() => ctr++)
+	timer(() => ctr++)
 
-	d3timer.timeout(() => {
+	timeout(() => {
 		drawFPS((ctr / sec).toPrecision(3))
 		ctr = 0
 	}, 1000 * sec)
