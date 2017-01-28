@@ -50,8 +50,6 @@ export class TimeSeriesChart {
 			const translateY = b
 
 			const zoomTransform: ZoomTransform = zoomIdentity.translate(translateX, translateY).scale(Math.max(scaleX, scaleY))
-			const zoomElement: Selection<any, any, any, any> = selectAll('.zoom')
-			zoom().transform(zoomElement, zoomTransform)
 			const rx = zoomTransform.rescaleX(x)
 			const ry = scaleLinear().range([height, 0]).domain(y.domain())
 			xAxis.setScale(rx).axisUp(gX)

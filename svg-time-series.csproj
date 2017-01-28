@@ -49,6 +49,8 @@
     <TypeScriptCompile Include="axis.ts" />
     <TypeScriptCompile Include="benchmarks\axis-draw-transform\draw.ts" />
     <TypeScriptCompile Include="benchmarks\axis-draw-transform\index.ts" />
+    <TypeScriptCompile Include="benchmarks\bench.ts" />
+    <TypeScriptCompile Include="benchmarks\common.ts" />
     <TypeScriptCompile Include="benchmarks\demo2-without-grid\common.ts" />
     <TypeScriptCompile Include="benchmarks\demo2-without-grid\draw.ts" />
     <TypeScriptCompile Include="benchmarks\demo2-without-grid\index.ts" />
@@ -74,6 +76,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="tsconfig.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="tslint.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
