@@ -1,5 +1,4 @@
 ﻿import { select, selectAll } from 'd3-selection'
-import { interval as runInterval } from 'd3-timer'
 import { line } from 'd3-shape'
 import { measureAll, onCsv } from '../bench'
 import { TimeSeriesChart } from './draw'
