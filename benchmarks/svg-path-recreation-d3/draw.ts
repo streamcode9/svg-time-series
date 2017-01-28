@@ -1,10 +1,13 @@
 ﻿import { scaleLinear, scaleTime } from 'd3-scale'
-import { timer as runTimer } from 'd3-timer'
 import { BaseType, selectAll, Selection } from 'd3-selection'
 import { Line, line } from 'd3-shape'
+import { timer as runTimer } from 'd3-timer'
 
 export class TimeSeriesChart {
-	constructor(svg: Selection<BaseType, {}, HTMLElement, any>, data: number[][], drawLine: (idx: number) => Line<any>) {
+	constructor(
+		svg: Selection<BaseType, {}, HTMLElement, any>,
+		data: number[][],
+		drawLine: (idx: number) => Line<[number, number]>) {
 		const node: SVGSVGElement = svg.node() as SVGSVGElement
 		const div: HTMLElement = node.parentNode as HTMLElement
 
@@ -14,13 +17,13 @@ export class TimeSeriesChart {
 		const x: any = scaleTime().range([0, width])
 		const y = scaleLinear().range([height, 0])
 
-		let minX = Date.now() 
+		let minX = Date.now()
 		x.domain([minX, (data.length - 1) * 86400000 + minX])
 		y.domain([-5, 83])
 
 		const timer = runTimer((elapsed: number) => {
 			// Push new data point
-			let newData: number[] = data[0]
+			const newData = data[0]
 			data.push(newData)
 			data.shift()
 

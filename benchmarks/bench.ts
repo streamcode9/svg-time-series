@@ -1,5 +1,6 @@
-import { measure, measureOnce } from '../measure'
 import { csv } from 'd3-request'
+
+import { measure, measureOnce } from '../measure'
 
 export function measureAll() : void {
 	measure(3, (fps) => {
