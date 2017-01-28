@@ -41,6 +41,8 @@
     "tsify-dom": "browserify ./benchmarks/dom/dom.ts -p [ tsify --noImplicitAny ./benchmarks/dom/dom.ts ] -o ./benchmarks/dom/bundle.js --debug",
     "tsify-pdt": "browserify ./benchmarks/path-draw-transform-d3/index.ts -p [ tsify --noImplicitAny ./benchmarks/path-draw-transform-d3/index.ts ] -o ./benchmarks/path-draw-transform-d3/bundle.js --debug",
     "tsify-adt": "browserify ./benchmarks/axis-draw-transform/index.ts -p [ tsify --noImplicitAny ./benchmarks/axis-draw-transform/index.ts ] -o ./benchmarks/axis-draw-transform/bundle.js --debug",
-    "tsify-spr": "browserify ./benchmarks/svg-path-recreation-d3/index.ts -p [ tsify --noImplicitAny ./benchmarks/svg-path-recreation-d3/index.ts ] -o ./benchmarks/svg-path-recreation-d3/bundle.js --debug"
+    "tsify-spr": "browserify ./benchmarks/svg-path-recreation-d3/index.ts -p [ tsify --noImplicitAny ./benchmarks/svg-path-recreation-d3/index.ts ] -o ./benchmarks/svg-path-recreation-d3/bundle.js --debug",
+    "tsify-std": "browserify ./benchmarks/sine-transform-d3/dom-d3.ts -p [ tsify --noImplicitAny ./benchmarks/sine-transform-d3/dom-d3.ts ] -o ./benchmarks/sine-transform-d3/bundle.js --debug"
+	
   }
 }
