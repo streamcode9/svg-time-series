@@ -1,5 +1,5 @@
 ﻿import d3request = require('d3-request')
-import d3shape = require('d3-shape')
+import { line } from 'd3-shape'
 import d3selection = require('d3-selection')
 import draw = require('./draw')
 import measureFPS = require('../../measure')
@@ -7,7 +7,7 @@ import { BaseType, Selection } from 'd3-selection'
 
 d3request
 	.csv('ny-vs-sf.csv')
-	.row((d: any) => [
+	.row((d: {NY: string, SF: string}) => [
 		parseFloat(d.NY.split(';')[0]),
 		parseFloat(d.SF.split(';')[0]),
 	])
@@ -22,7 +22,7 @@ d3request
 			.data([0, 1])
 			.enter().append('path')
 			.attr('d', (cityIdx: number) =>
-				d3shape.line()
+				line()
 					.defined((d: number[]) => !isNaN(d[cityIdx]))
 					.x((d: number[], i: number) => i)
 					.y((d: number[]) => d[cityIdx])
@@ -30,11 +30,11 @@ d3request
 			)
 
 		d3selection.selectAll('svg').each(function() {
-			new draw.TimeSeriesChart(d3selection.select(this), data.length)
+			return new draw.TimeSeriesChart(d3selection.select(this), data.length)
 		})
 
-		measureFPS.measure(3, (fps: any) => {
-			document.getElementById('fps').textContent = fps
+		measureFPS.measure(3, (fps: number) => {
+			document.getElementById('fps').textContent = `${fps}`
 		})
 
 		measureFPS.measureOnce(60, (fps: number) => {
