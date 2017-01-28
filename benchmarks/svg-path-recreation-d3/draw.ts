@@ -14,7 +14,6 @@ export class TimeSeriesChart {
 		const height = div.clientHeight
 
 		const dataLength = data.length
-		const elapsed = 0
 		const paths = svg.select('g.view').selectAll('path')
 
 		const minY = -5
@@ -29,7 +28,7 @@ export class TimeSeriesChart {
 		const b = maxY * k
 		const scaleX = width / dataLength * 2
 		const scaleY = a
-		const translateX = (Math.cos(elapsed / 6500) - 1) * width / 4
+		const translateX = (Math.cos(0 / 6500) - 1) * width / 4
 		const translateY = b
 
 		paths.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
