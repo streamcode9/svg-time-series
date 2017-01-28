@@ -1,5 +1,6 @@
 import { select, selectAll } from 'd3-selection'
-import { measure, measureOnce } from '../../measure'
+
+import { measureAll } from '../bench'
 import { TimeSeriesChart } from './draw'
 
 function makeChart() {
@@ -7,11 +8,4 @@ function makeChart() {
 }
 
 selectAll('svg').each(makeChart)
-
-measure(3, (fps: number) => {
-	document.getElementById('fps').textContent = `${fps}`
-})
-
-measureOnce(60, (fps: number) => {
-	alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`)
-})
+measureAll()
