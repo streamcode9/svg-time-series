@@ -2,12 +2,15 @@
  * SegmentTree reindexing (time to rebuild index 1000 times)
  */
 
-declare const require: Function
-import segmentTree = require('../../segmentTree')
+import { IMinMax, SegmentTree } from '../../segmentTree'
+
+interface IElement {
+	values: number[]
+}
 
 const serieLength = 1070
 
-function buildSegmentTreeTuple(index: number, elements: any): segmentTree.IMinMax {
+function buildSegmentTreeTuple(index: number, elements: IElement[]) : IMinMax {
 	const nyMinValue = isNaN(elements[0].values[index]) ? Infinity : elements[0].values[index]
 	const nyMaxValue = isNaN(elements[0].values[index]) ? -Infinity : elements[0].values[index]
 	const sfMinValue = isNaN(elements[1].values[index]) ? Infinity : elements[1].values[index]
@@ -15,30 +18,30 @@ function buildSegmentTreeTuple(index: number, elements: any): segmentTree.IMinMa
 	return { min: Math.min(nyMinValue, sfMinValue), max: Math.max(nyMaxValue, sfMaxValue) }
 }
 
-function generateData(): any[] {
-	const data: any[] = []
+function generateData() : IElement[] {
+	const data = []
 
 	for (let j = 0; j < 2; j++) {
-		const serie: any = { values: [] }
+		const values = []
 		for (let i = 0; i < serieLength; i++) {
-			serie.values.push(Math.random())
+			values.push(Math.random())
 		}
-		data[j] = serie
+		data[j] = { values }
 	}
-
 	return data
 }
 
-let data = generateData()
-let times: number[] = []
+const data = generateData()
+const times = []
 
 for (let n = 0; n < 100; n++) {
 	const t0 = performance.now()
 	for (let k = 0; k < 1000; k++) {
-		let tree = new segmentTree.SegmentTree(data, serieLength, buildSegmentTreeTuple)
+		const tree = new SegmentTree(data, serieLength, buildSegmentTreeTuple)
 	}
 	const t1 = performance.now()
 	times.push(t1 - t0)
 }
 
-console.log(`${times.reduce((sum, next) => sum + next, 0) / 100} ms`)
+const avgTimeMs = times.reduce((sum, next) => sum + next, 0) / 100
+console.log(`${avgTimeMs} ms`)
