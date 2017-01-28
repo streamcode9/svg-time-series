@@ -1,25 +1,23 @@
-﻿import { ZoomedElementBaseType, ZoomTransform, zoom, zoomIdentity } from 'd3-zoom'
-import { ScaleTime, scaleTime, scaleLinear } from 'd3-scale'
+﻿import { scaleLinear, scaleTime, ScaleTime } from 'd3-scale'
+import { BaseType, selectAll, Selection } from 'd3-selection'
 import { timer as runTimer } from 'd3-timer'
-import { Selection, BaseType, selectAll } from 'd3-selection'
-import { Orientation, MyAxis } from '../../axis'
+import { zoom, ZoomedElementBaseType, zoomIdentity, ZoomTransform } from 'd3-zoom'
+
+import { MyAxis, Orientation } from '../../axis'
 
 export class TimeSeriesChart {
-	constructor(
-		svg: Selection<BaseType, {}, HTMLElement, any>,
-		dataLength: number)
-	{
-		const node: SVGSVGElement = <SVGSVGElement>svg.node()
-		const div: HTMLElement = <HTMLElement>node.parentNode
+	constructor( svg: Selection<BaseType, {}, HTMLElement, any>, dataLength: number) {
+		const node: SVGSVGElement = svg.node() as SVGSVGElement
+		const div: HTMLElement = node.parentNode as HTMLElement
 
-		const width = div.clientWidth,
-			height = div.clientHeight
+		const width = div.clientWidth
+		const height = div.clientHeight
 
 		const x: any = scaleTime().range([0, width])
 		const y = scaleLinear().range([height, 0])
 
-		const minX = new Date()
-		x.domain([minX, new Date((dataLength - 1) * 86400000 + minX.getTime())])
+		const minX = Date.now()
+		x.domain([minX, (dataLength - 1) * 86400000 + minX])
 		y.domain([-5, 83])
 
 		const xAxis = new MyAxis(Orientation.Bottom, x)
@@ -40,7 +38,7 @@ export class TimeSeriesChart {
 			.attr('class', 'axis')
 			.call(yAxis.axis.bind(yAxis))
 
-		let timer = runTimer((elapsed: number) => {
+		const timer = runTimer((elapsed: number) => {
 			const minY = -5
 			const maxY = 83
 			const k = height / (maxY - minY)
@@ -59,7 +57,9 @@ export class TimeSeriesChart {
 			xAxis.setScale(rx).axisUp(gX)
 			yAxis.setScale(ry).axisUp(gY)
 
-			if (elapsed > 60 * 1000) timer.stop()
+			if (elapsed > 60 * 1000) {
+				timer.stop()
+			}
 		})
 	}
 }
