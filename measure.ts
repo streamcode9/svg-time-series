@@ -4,11 +4,9 @@ const d3timer = require('d3-timer')
 export function measure(sec: any, drawFPS: any) {
 	let ctr = 0
 
-	d3timer.timer(function () {
-		ctr++
-	})
+	d3timer.timer(() => ctr++)
 
-	d3timer.interval(function () {
+	d3timer.interval(() => {
 		drawFPS((ctr / sec).toPrecision(3))
 		ctr = 0
 	}, 1000 * sec)
@@ -17,11 +15,9 @@ export function measure(sec: any, drawFPS: any) {
 export function measureOnce(sec: any, drawFPS: any) {
 	let ctr = 0
 
-	d3timer.timer(function () {
-		ctr++
-	})
+	d3timer.timer(() => ctr++)
 
-	d3timer.timeout(function () {
+	d3timer.timeout(() => {
 		drawFPS((ctr / sec).toPrecision(3))
 		ctr = 0
 	}, 1000 * sec)

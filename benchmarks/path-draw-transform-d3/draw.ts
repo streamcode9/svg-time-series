@@ -1,20 +1,17 @@
 ﻿import d3timer = require('d3-timer')
-import { Selection, BaseType } from 'd3-selection'
+import { BaseType, Selection } from 'd3-selection'
 
 export class TimeSeriesChart {
-	constructor(
-		svg: Selection<BaseType, {}, HTMLElement, any>,
-		dataLength: number)
-	{
-		const node: SVGSVGElement = <SVGSVGElement>svg.node()
-		const div: HTMLElement = <HTMLElement>node.parentNode
+	constructor( svg: Selection<BaseType, {}, HTMLElement, any>, dataLength: number) {
+		const node: SVGSVGElement = svg.node() as SVGSVGElement
+		const div: HTMLElement = node.parentNode as HTMLElement
 
-		const width = div.clientWidth,
-			height = div.clientHeight
+		const width = div.clientWidth
+		const height = div.clientHeight
 
 		const view = svg.select('g')
 
-		let timer = d3timer.timer((elapsed: number) => {
+		const timer = d3timer.timer((elapsed: number) => {
 			const minY = -5
 			const maxY = 83
 			const k = height / (maxY - minY)
@@ -32,11 +29,9 @@ export class TimeSeriesChart {
 
 			view.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
 
-			if (elapsed > 60 * 1000) timer.stop()
+			if (elapsed > 60 * 1000) {
+				timer.stop()
+			}
 		})
 	}
 }
-
-
-
-

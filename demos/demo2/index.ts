@@ -11,7 +11,7 @@ interface Resize {
 , eval: () => void
 }
 
-let resize: Resize = { interval: 60, request : null, timer: null, eval: null }
+const resize: Resize = { interval: 60, request : null, timer: null, eval: null }
 
 d3request
 	.csv('ny-vs-sf.csv')
@@ -37,6 +37,6 @@ d3request
 		}
 	})
 
-measureFPS.measure(3, function (fps: string) {
+measureFPS.measure(3, function(fps: string) {
 	document.getElementById('fps').textContent = fps
 })
