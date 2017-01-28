@@ -1,48 +1,26 @@
 ﻿import { select, selectAll } from 'd3-selection'
 import { interval as runInterval } from 'd3-timer'
-import { csv } from 'd3-request'
-import { measure, measureOnce } from '../../measure'
+import { line } from 'd3-shape'
+import { measureAll, onCsv } from '../bench'
 import { TimeSeriesChart } from './draw'
-import { IMinMax } from '../../segmentTree'
 
-function buildSegmentTreeTuple(index: number, elements: any): IMinMax {
-	const nyMinValue = isNaN(elements[0].values[index]) ? Infinity : elements[0].values[index]
-	const nyMaxValue = isNaN(elements[0].values[index]) ? -Infinity : elements[0].values[index]
-	const sfMinValue = isNaN(elements[1].values[index]) ? Infinity : elements[1].values[index]
-	const sfMaxValue = isNaN(elements[1].values[index]) ? -Infinity : elements[1].values[index]
-	return { min: Math.min(nyMinValue, sfMinValue), max: Math.max(nyMaxValue, sfMaxValue) }
-}
+onCsv((data) => {
+	const drawLine = (cityIdx: number) => {
+		return line()
+			.defined((d) => !isNaN(d[cityIdx]))
+			.x((d, i) => i)
+			.y((d) => d[cityIdx])
+	}
 
-function drawCharts(data: any[]) {
-	const charts: TimeSeriesChart[] = []
-	let j = 0
+	const path = selectAll('g.view')
+		.selectAll('path')
+		.data([0, 1])
+		.enter().append('path')
+		.attr('d', (cityIdx) => drawLine(cityIdx).call(null, data))
 
-	selectAll('svg').each(function () {
-		const chart = new TimeSeriesChart(select(this), new Date(), 86400000, data, buildSegmentTreeTuple)
-		charts.push(chart)
+	selectAll('svg').each(function() {
+		return new TimeSeriesChart(select(this), data, drawLine)
 	})
 
-	runInterval(function() {
-		let newData = data[j % data.length]
-		charts.forEach(c => c.updateChartWithNewData([newData == undefined ? undefined : newData.NY, newData == undefined ? undefined : newData.SF]))
-		j++
-	})
-}
-
-csv('ny-vs-sf.csv')
-	.row((d: any) => ({
-		NY: parseFloat(d.NY.split(';')[0]),
-		SF: parseFloat(d.SF.split(';')[0])
-	}))
-	.get((error: any, data: any[]) => {
-		if (error != null) alert('Data can\'t be downloaded or parsed')
-		else drawCharts(data)
-	})
-
-measure(3, (fps) => {
-	document.getElementById('fps').textContent = fps
-})
-
-measureOnce(60, (fps) => {
-	alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`)
+	measureAll()
 })

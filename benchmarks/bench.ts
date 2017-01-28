@@ -11,13 +11,13 @@ export function measureAll() : void {
 	})
 }
 
-export function onCsv(f: (csv: [number, number]) => void) : void {
+export function onCsv(f: (csv: number[][]) => void) : void {
 	csv('ny-vs-sf.csv')
 	.row((d: {NY: string, SF: string}) => [
 		parseFloat(d.NY.split(';')[0]),
 		parseFloat(d.SF.split(';')[0]),
 	])
-	.get((error: null, data: [number, number]) => {
+	.get((error: null, data: number[][]) => {
 		if (error != null) {
 			alert('Data can\'t be downloaded or parsed')
 			return
