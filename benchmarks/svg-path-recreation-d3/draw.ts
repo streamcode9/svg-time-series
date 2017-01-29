@@ -1,6 +1,7 @@
 ﻿import { BaseType, selectAll, Selection } from 'd3-selection'
 import { Line, line } from 'd3-shape'
-import { timer as runTimer } from 'd3-timer'
+
+import { animateBench } from '../bench'
 
 export class TimeSeriesChart {
 	constructor(
@@ -33,15 +34,10 @@ export class TimeSeriesChart {
 
 		paths.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
 
-		const timer = runTimer((elapsed: number) => {
+		animateBench((elapsed: number) => {
 			// Redraw path
 			paths.attr('d', (cityIdx: number) => drawLine(cityIdx, off))
-
 			off += 1
-
-			if (elapsed > 60 * 1000) {
-				timer.stop()
-			}
 		})
 	}
 }

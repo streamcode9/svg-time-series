@@ -1,5 +1,6 @@
-﻿import d3timer = require('d3-timer')
-import { BaseType, Selection } from 'd3-selection'
+﻿import { BaseType, Selection } from 'd3-selection'
+
+import { animateBench } from '../bench'
 
 export class TimeSeriesChart {
 	constructor( svg: Selection<BaseType, {}, HTMLElement, any>, dataLength: number) {
@@ -11,7 +12,7 @@ export class TimeSeriesChart {
 
 		const view = svg.select('g')
 
-		const timer = d3timer.timer((elapsed: number) => {
+		animateBench((elapsed: number) => {
 			const minY = -5
 			const maxY = 83
 			const k = height / (maxY - minY)
@@ -28,10 +29,6 @@ export class TimeSeriesChart {
 			const translateY = b
 
 			view.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
-
-			if (elapsed > 60 * 1000) {
-				timer.stop()
-			}
 		})
 	}
 }

@@ -1,4 +1,5 @@
 import { csv } from 'd3-request'
+import { timer as runTimer } from 'd3-timer'
 
 import { measure, measureOnce } from '../measure'
 
@@ -24,5 +25,14 @@ export function onCsv(f: (csv: number[][]) => void) : void {
 			return
 		}
 		f(data)
+	})
+}
+
+export function animateBench(f: (elapsed: number) => void) : void {
+	const timer = runTimer((elapsed: number) => {
+		f(elapsed)
+		if (elapsed > 60 * 1000) {
+			timer.stop()
+		}
 	})
 }
