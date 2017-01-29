@@ -4,18 +4,22 @@ import { measureAll, onCsv } from '../bench'
 import { TimeSeriesChart } from './draw'
 
 onCsv((data) => {
-	const drawLine = (cityIdx: number) => {
+	const dataLength = data.length
+
+	const drawLine = (cityIdx: number, off: number) => {
+		const idx = (i: number) => (i + off) % dataLength
+
 		return line()
-			.defined((d) => !isNaN(d[cityIdx]))
+			.defined((d, i, arr) => !isNaN(arr[idx(i)][cityIdx]))
 			.x((d, i) => i)
-			.y((d) => d[cityIdx])
+			.y((d, i, arr) => arr[idx(i)][cityIdx])
 	}
 
 	const path = selectAll('g.view')
 		.selectAll('path')
 		.data([0, 1])
 		.enter().append('path')
-		.attr('d', (cityIdx) => drawLine(cityIdx).call(null, data))
+		.attr('d', (cityIdx) => drawLine(cityIdx, 0).call(null, data))
 
 	selectAll('svg').each(function() {
 		return new TimeSeriesChart(select(this), data, drawLine)
