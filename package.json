@@ -35,7 +35,6 @@
     "tsify": "^3.0.0"
   },
   "scripts": {
-    "browserify": "browserify ./demos/demo2/index.js -o ./demos/demo2/bundle.js --debug",
     "tslint": "tslint --project .",
     "tsify": "browserify ./demos/demo2/index.ts -p [ tsify --noImplicitAny ./demos/demo2/index.ts ] -o ./demos/demo2/bundle.js --debug",
     "tsify-dom": "browserify ./benchmarks/dom/dom.ts -p [ tsify --noImplicitAny ./benchmarks/dom/dom.ts ] -o ./benchmarks/dom/bundle.js --debug",

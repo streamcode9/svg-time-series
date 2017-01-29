@@ -1,7 +1,7 @@
 import d3request = require('d3-request')
 import d3selection = require('d3-selection')
 import d3shape = require('d3-shape')
-import measureFPS = require('../../measure')
+import { measure } from '../../measure'
 import common = require('../common')
 
 interface Resize {
@@ -37,6 +37,6 @@ d3request
 		}
 	})
 
-measureFPS.measure(3, function(fps: string) {
+measure(3, (fps) => {
 	document.getElementById('fps').textContent = fps
 })
