@@ -1,12 +1,9 @@
 ﻿declare const require: Function
 const d3 = require('d3')
+import { line } from 'd3-shape'
+import { BaseType, Selection } from 'd3-selection'
 import axis = require('./axis')
-import segmentTree = require('./segmentTree')
-
-interface IChartData {
-	name: string
-	values: number[]
-}
+import { IMinMax, SegmentTree } from './segmentTree'
 
 interface IChartParameters {
 	x: Function
@@ -18,10 +15,9 @@ interface IChartParameters {
 	gX: any
 	gY: any
 	view: any
-	data: IChartData[]
+	data: number[][]
 	height: number
 	line: Function
-	color: Function
 }
 
 function drawProc(f: any) {
@@ -44,11 +40,11 @@ export class TimeSeriesChart {
 	private maxX: Date
 	private missedStepsCount: number
 	private stepX: number
-	private tree: segmentTree.SegmentTree
-	private buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax
+	private tree: SegmentTree
+	private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax
 	private zoomHandler: () => void
 
-	constructor(svg: any, minX: Date, stepX: number, data: any[], buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax, zoomHandler: () => void) {
+	constructor(svg: Selection<BaseType, {}, HTMLElement, any>, minX: Date, stepX: number, data: number[][], buildSegmentTreeTuple: (index: number, elements: any) => IMinMax, zoomHandler: () => void) {
 		this.stepX = stepX
 		this.minX = minX
 		this.maxX = this.calcDate(data.length - 1, minX)
@@ -60,16 +56,14 @@ export class TimeSeriesChart {
 		this.missedStepsCount = 0
 	}
 
-	public updateChartWithNewData(values: [number, number]) {
+	public updateChartWithNewData(newData: number[]) {
 		this.missedStepsCount++
 
-		this.chart.data[0].values.push(values[0])
-		this.chart.data[1].values.push(values[1])
+		this.chart.data.push(newData)
 
-		this.chart.data[0].values.shift()
-		this.chart.data[1].values.shift()
+		this.chart.data.shift()
 
-		this.tree = new segmentTree.SegmentTree(this.chart.data, this.chart.data[0].values.length, this.buildSegmentTreeTuple)
+		this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
 
 		this.drawNewData()
 	}
@@ -82,7 +76,7 @@ export class TimeSeriesChart {
 
 		this.chart.rx = zoomTransform.rescaleX(this.chart.x)
 		const domainX = this.chart.rx.domain()
-		const ySubInterval = this.getZoomIntervalY(domainX, this.chart.data[0].values.length)
+		const ySubInterval = this.getZoomIntervalY(domainX, this.chart.data.length)
 		const minMax = this.tree.getMinMax(ySubInterval[0], ySubInterval[1])
 		const domainY = [minMax.min, minMax.max]
 		const newRangeY = [this.chart.y(domainY[0]), this.chart.y(domainY[1])]
@@ -96,15 +90,18 @@ export class TimeSeriesChart {
 		this.chart.yAxis.setScale(ry).axisUp(this.chart.gY)
 	}.bind(this))
 
-	private drawChart(svg: any, data: any[]) {
-		const width = svg.node().parentNode.clientWidth,
-			height = svg.node().parentNode.clientHeight
+	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: number[][]) {
+		const node: SVGSVGElement = svg.node() as SVGSVGElement
+		const div: HTMLElement = node.parentNode as HTMLElement
+
+		const width = div.clientWidth
+		const height = div.clientHeight
+
 		svg.attr('width', width)
 		svg.attr('height', height)
 
 		const x = d3.scaleTime().range([0, width])
 		const y = d3.scaleLinear().range([height, 0])
-		const color = d3.scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
 
 		const xAxis = new axis.MyAxis(axis.Orientation.Bottom, x)
 			.ticks(4)
@@ -116,34 +113,25 @@ export class TimeSeriesChart {
 			.setTickSize(width)
 			.setTickPadding(2 - width)
 
-		const line = d3.line()
-			.defined((d: number) => d)
-			.x((d: number, i: number) => x(this.calcDate(i, this.minX)))
-			.y((d: number) => y(d))
-
-		const cities = color.domain()
-			.map((name: string) => {
-				return ({
-					name: name,
-					values: data.map((d: any) => +d[name])
-				})
+		const drawLine = (cityIdx: number) => d3.line()
+			.defined((d: [number, number]) => { 
+				return !(isNaN(d[cityIdx]) || d[cityIdx] == null)
 			})
+			.x((d: number, i: number) => x(this.calcDate(i, this.minX)))
+			.y((d: [number, number]) => y(d[cityIdx]))
 
-		this.tree = new segmentTree.SegmentTree(cities, cities[0].values.length, this.buildSegmentTreeTuple)
+		this.tree = new SegmentTree(data, data.length, this.buildSegmentTreeTuple)
 
 		x.domain([this.minX, this.maxX])
 		const minMax = this.tree.getMinMax(0, this.tree.size - 1)
 		y.domain([minMax.min, minMax.max])
 
-		const view = svg.append('g')
-			.selectAll('.view')
-			.data(cities)
-			.enter().append('g')
-			.attr('class', 'view')
-
-		view.append('path')
-			.attr('d', (d: any) => line(d.values))
-			.attr('stroke', (d: any) => color(d.name))
+		const view = svg.select('g.view')
+		const path = view
+			.selectAll('path')
+			.data([0, 1])
+			.enter().append('path')
+			.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, data))
 
 		const gX = svg.append('g')
 			.attr('class', 'axis')
@@ -165,7 +153,7 @@ export class TimeSeriesChart {
 		this.chart = {
 			x: x, y: y, rx: x.copy(), ry: y.copy(),
 			xAxis: xAxis, yAxis: yAxis, gX: gX, gY: gY,
-			view: view, data: cities, height: height, line: line, color: color
+			view: view, data: data, height: height, line: drawLine
 		}
 	}
 
@@ -186,13 +174,13 @@ export class TimeSeriesChart {
 		this.missedStepsCount = 0
 
 		this.minX = this.calcDate(stepsToDraw, this.minX)
-		this.maxX = this.calcDate(this.chart.data[0].values.length - 1, this.minX)
+		this.maxX = this.calcDate(this.chart.data.length - 1, this.minX)
 
 		const minimumRX = this.calcDate(stepsToDraw, this.chart.rx.domain()[0])
 		const maximumRX = this.calcDate(stepsToDraw, this.chart.rx.domain()[1])
 
 		this.chart.x.domain([this.minX, this.maxX])
-		this.chart.view.selectAll('path').attr('d', (d: any) => this.chart.line(d.values))
+		this.chart.view.selectAll('path').attr('d', (cityIndex: number) => this.chart.line(cityIndex).call(null, this.chart.data))
 
 		this.chart.rx.domain([minimumRX, maximumRX])
 		this.chart.xAxis.setScale(this.chart.rx).axisUp(this.chart.gX)

@@ -13,7 +13,7 @@ d3
 	.get((error: any, data: any) => {
 		if (error != null) alert('Data can\'t be downloaded or parsed')
 		else {
-			common.drawCharts(data, 1)
+			common.drawCharts(data)
 
 			resize.request = function() {
 				resize.timer && clearTimeout(resize.timer)
@@ -22,7 +22,7 @@ d3
 			resize.eval = function() {
 				d3.selectAll('svg').remove()
 				d3.select('.charts').selectAll('div').append('svg')
-				common.drawCharts(data, 1)
+				common.drawCharts(data)
 			}
 			window.addEventListener('resize', resize.request, false)
 		}

@@ -1,17 +1,19 @@
 ﻿declare const require: Function
 const d3 = require('d3')
+import { ValueFn, select, selectAll } from 'd3-selection'
 import draw = require('../draw')
-import segmentTree = require('../segmentTree')
+import { IMinMax } from '../segmentTree'
 
-function buildSegmentTreeTuple(index: number, elements: any): segmentTree.IMinMax {
-	const nyMinValue = isNaN(elements[0].values[index]) ? Infinity : elements[0].values[index]
-	const nyMaxValue = isNaN(elements[0].values[index]) ? -Infinity : elements[0].values[index]
-	const sfMinValue = isNaN(elements[1].values[index]) ? Infinity : elements[1].values[index]
-	const sfMaxValue = isNaN(elements[1].values[index]) ? -Infinity : elements[1].values[index]
+
+function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
+	const nyMinValue = isNaN(elements[index][0]) ? Infinity : elements[index][0]
+	const nyMaxValue = isNaN(elements[index][0]) ? -Infinity : elements[index][0]
+	const sfMinValue = isNaN(elements[index][1]) ? Infinity : elements[index][1]
+	const sfMaxValue = isNaN(elements[index][1]) ? -Infinity : elements[index][1]
 	return { min: Math.min(nyMinValue, sfMinValue), max: Math.max(nyMaxValue, sfMaxValue) }
 }
 
-export function drawCharts (data: any[], chartsAmount: number) {
+export function drawCharts (data: number[][]) {
 	let charts: draw.TimeSeriesChart[] = []
 	let newZoom: any = null
 	let minX = new Date()
@@ -26,13 +28,13 @@ export function drawCharts (data: any[], chartsAmount: number) {
 	}
 
 	d3.selectAll('svg').select(function() {
-		let chart = new draw.TimeSeriesChart(d3.select(this), minX, 86400000, data, buildSegmentTreeTuple, onZoom)
+		let chart = new draw.TimeSeriesChart(d3.select(this), minX, 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom)
 		charts.push(chart)
 	})
 
 	setInterval(function() {
 		let newData = data[j % data.length]
-		charts.forEach(c => c.updateChartWithNewData([newData == undefined ? undefined : newData.NY, newData == undefined ? undefined : newData.SF]))
+		charts.forEach(c => c.updateChartWithNewData(newData))
 		j++
 	}, 1000)
 }
