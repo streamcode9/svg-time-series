@@ -36,3 +36,11 @@ export function animateBench(f: (elapsed: number) => void) : void {
 		}
 	})
 }
+
+function raisedCos(elapsed: number) {
+	return -(Math.cos(elapsed / 6500) - 1) / 2
+}
+
+export function animateCosDown(maxX: number, minX: number, elapsed: number) {
+	return maxX - (maxX - minX) * raisedCos(elapsed)
+}
