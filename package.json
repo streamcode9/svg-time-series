@@ -42,7 +42,7 @@
     "tsify-adt": "browserify ./benchmarks/axis-draw-transform/index.ts -p [ tsify --noImplicitAny ./benchmarks/axis-draw-transform/index.ts ] -o ./benchmarks/axis-draw-transform/bundle.js --debug",
     "tsify-spr": "browserify ./benchmarks/svg-path-recreation-d3/index.ts -p [ tsify --noImplicitAny ./benchmarks/svg-path-recreation-d3/index.ts ] -o ./benchmarks/svg-path-recreation-d3/bundle.js --debug",
     "tsify-std": "browserify ./benchmarks/sine-transform-d3/dom-d3.ts -p [ tsify --noImplicitAny ./benchmarks/sine-transform-d3/dom-d3.ts ] -o ./benchmarks/sine-transform-d3/bundle.js --debug",
-    "tsify-str": "browserify ./benchmarks/segment-tree-queries/index.ts -p [ tsify --noImplicitAny ./benchmarks/segment-tree-queries/index.ts ] -o ./benchmarks/segment-tree-queries/bundle.js --debug",
+    "tsify-stq": "browserify ./benchmarks/segment-tree-queries/index.ts -p [ tsify --noImplicitAny ./benchmarks/segment-tree-queries/index.ts ] -o ./benchmarks/segment-tree-queries/bundle.js --debug",
     "tsify-viewing-pipeline": "browserify ./benchmarks/viewing-pipeline-transformations/index.ts -p [tsify --noImplicitAny ./benchmarks/viewing-pipeline-transformations/index.ts ] -o ./benchmarks/viewing-pipeline-transformations/bundle.js --debug"
   }
 }
