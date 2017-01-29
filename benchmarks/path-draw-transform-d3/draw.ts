@@ -1,6 +1,15 @@
 ﻿import { BaseType, Selection } from 'd3-selection'
 
 import { animateBench } from '../bench'
+import { ViewWindowTransform } from '../viewing-pipeline-transformations/ViewWindowTransform'
+
+function raisedCos(elapsed: number) {
+	return -(Math.cos(elapsed / 6500) - 1) / 2
+}
+
+function animateCosDown(maxX: number, minX: number, elapsed: number) {
+	return maxX - (maxX - minX) * raisedCos(elapsed)
+}
 
 export class TimeSeriesChart {
 	constructor( svg: Selection<BaseType, {}, HTMLElement, any>, dataLength: number) {
@@ -12,23 +21,17 @@ export class TimeSeriesChart {
 
 		const view = svg.select('g')
 
+		const viewNode: SVGGElement = view.node() as SVGGElement
+		const t = new ViewWindowTransform(viewNode.transform.baseVal)
+
+		t.setViewPort(width, height)
+
 		animateBench((elapsed: number) => {
 			const minY = -5
 			const maxY = 83
-			const k = height / (maxY - minY)
-			// conceptually viewPortY = a * temperature + b
-			// and actually viewPortY = scaleY * lineY + translateY
-
-			// actually it's better to explain what's going on
-			// with compositions of rangeTransform(inMin, inMax, outMin, outMax)
-			const a = -k
-			const b = maxY * k
-			const scaleX = width / dataLength * 2
-			const scaleY = a
-			const translateX = (Math.cos(elapsed / 6500) - 1) * width / 4
-			const translateY = b
-
-			view.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
+			const minX = animateCosDown(dataLength / 2, 0, elapsed)
+			const maxX = minX + dataLength / 2
+			t.setViewWindow(minX, maxX, minY, maxY)
 		})
 	}
 }
