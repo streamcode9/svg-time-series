@@ -1,7 +1,8 @@
 ﻿import { BaseType, selectAll, Selection } from 'd3-selection'
 import { Line, line } from 'd3-shape'
 
-import { animateBench } from '../bench'
+import { animateBench, animateCosDown } from '../bench'
+import { ViewWindowTransform } from '../viewing-pipeline-transformations/ViewWindowTransform'
 
 export class TimeSeriesChart {
 	constructor(
@@ -10,30 +11,19 @@ export class TimeSeriesChart {
 		drawLine: (idx: number, off: number) => string) {
 		const node: SVGSVGElement = svg.node() as SVGSVGElement
 		const div: HTMLElement = node.parentNode as HTMLElement
-
-		const width = div.clientWidth
-		const height = div.clientHeight
-
-		const paths = svg.select('g.view').selectAll('path')
+		const viewNode: SVGGElement = svg.select('g').node() as SVGGElement
+		const t = new ViewWindowTransform(viewNode.transform.baseVal)
+		t.setViewPort(div.clientWidth, div.clientHeight)
 
 		const minY = -5
 		const maxY = 83
-		const k = height / (maxY - minY)
-		// conceptually viewPortY = a * temperature + b
-		// and actually viewPortY = scaleY * lineY + translateY
+		const minX = animateCosDown(dataLength / 2, 0, 0)
+		const maxX = minX + dataLength / 2
+		t.setViewWindow(minX, maxX, minY, maxY)
 
-		// actually it's better to explain what's going on
-		// with compositions of rangeTransform(inMin, inMax, outMin, outMax)
-		const a = -k
-		const b = maxY * k
-		const scaleX = width / dataLength * 2
-		const scaleY = a
-		const translateX = (Math.cos(0 / 6500) - 1) * width / 4
-		const translateY = b
+		const paths = svg.select('g.view').selectAll('path')
+
 		let off = 0
-
-		paths.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
-
 		animateBench((elapsed: number) => {
 			// Redraw path
 			paths.attr('d', (cityIdx: number) => drawLine(cityIdx, off))
