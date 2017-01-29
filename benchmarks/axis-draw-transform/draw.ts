@@ -4,6 +4,7 @@ import { timer as runTimer } from 'd3-timer'
 import { zoom, ZoomedElementBaseType, zoomIdentity, ZoomTransform } from 'd3-zoom'
 
 import { MyAxis, Orientation } from '../../axis'
+import { animateBench, animateCosDown } from '../bench'
 
 export class TimeSeriesChart {
 	constructor( svg: Selection<BaseType, {}, HTMLElement, any>, dataLength: number) {
@@ -13,22 +14,23 @@ export class TimeSeriesChart {
 		const width = div.clientWidth
 		const height = div.clientHeight
 
-		const x: any = scaleTime().range([0, width])
+		const x = scaleTime().range([0, width])
 		const y = scaleLinear().range([height, 0])
 
-		const minX = Date.now()
-		x.domain([minX, (dataLength - 1) * 86400000 + minX])
-		y.domain([-5, 83])
+		const minModelX = Date.now()
 
+		const idxToTime = (idx: number) => minModelX + idx * 86400 * 1000
 		const xAxis = new MyAxis(Orientation.Bottom, x)
 			.ticks(4)
 			.setTickSize(height)
 			.setTickPadding(8 - height)
+			.setScale(x)
 
 		const yAxis = new MyAxis(Orientation.Right, y)
 			.ticks(4)
 			.setTickSize(width)
 			.setTickPadding(2 - width)
+			.setScale(y)
 
 		const gX = svg.append('g')
 			.attr('class', 'axis')
@@ -38,26 +40,17 @@ export class TimeSeriesChart {
 			.attr('class', 'axis')
 			.call(yAxis.axis.bind(yAxis))
 
-		const timer = runTimer((elapsed: number) => {
+		animateBench((elapsed: number) => {
 			const minY = -5
 			const maxY = 83
-			const k = height / (maxY - minY)
-			const a = -k
-			const b = maxY * k
-			const scaleX = width / dataLength * 2
-			const scaleY = a
-			const translateX = (Math.cos(elapsed / 6500) - 1) * width / 4
-			const translateY = b
+			const minX = animateCosDown(dataLength / 2, 0, elapsed)
+			const maxX = minX + dataLength / 2
 
-			const zoomTransform: ZoomTransform = zoomIdentity.translate(translateX, translateY).scale(Math.max(scaleX, scaleY))
-			const rx = zoomTransform.rescaleX(x)
-			const ry = scaleLinear().range([height, 0]).domain(y.domain())
-			xAxis.setScale(rx).axisUp(gX)
-			yAxis.setScale(ry).axisUp(gY)
+			x.domain([minX, maxX].map(idxToTime))
+			y.domain([minY, maxY])
 
-			if (elapsed > 60 * 1000) {
-				timer.stop()
-			}
+			xAxis.axisUp(gX)
+			yAxis.axisUp(gY)
 		})
 	}
 }
