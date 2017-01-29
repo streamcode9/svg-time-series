@@ -5,15 +5,14 @@ import { timer as runTimer } from 'd3-timer'
 export class TimeSeriesChart {
 	constructor(
 		svg: Selection<BaseType, {}, HTMLElement, any>,
-		data: number[][],
-		drawLine: (idx: number, off: number) => Line<[number, number]>) {
+		dataLength: number,
+		drawLine: (idx: number, off: number) => string) {
 		const node: SVGSVGElement = svg.node() as SVGSVGElement
 		const div: HTMLElement = node.parentNode as HTMLElement
 
 		const width = div.clientWidth
 		const height = div.clientHeight
 
-		const dataLength = data.length
 		const paths = svg.select('g.view').selectAll('path')
 
 		const minY = -5
@@ -36,7 +35,8 @@ export class TimeSeriesChart {
 
 		const timer = runTimer((elapsed: number) => {
 			// Redraw path
-			paths.attr('d', (cityIdx: number) => drawLine(cityIdx, off).call(null, data))
+			paths.attr('d', (cityIdx: number) => drawLine(cityIdx, off))
+
 			off += 1
 
 			if (elapsed > 60 * 1000) {

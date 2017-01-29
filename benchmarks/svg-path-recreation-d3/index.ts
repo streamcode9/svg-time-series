@@ -13,16 +13,16 @@ onCsv((data) => {
 			.defined((d, i, arr) => !isNaN(arr[idx(i)][cityIdx]))
 			.x((d, i) => i)
 			.y((d, i, arr) => arr[idx(i)][cityIdx])
+			.call(null, data)
 	}
 
 	const path = selectAll('g.view')
 		.selectAll('path')
 		.data([0, 1])
 		.enter().append('path')
-		.attr('d', (cityIdx) => drawLine(cityIdx, 0).call(null, data))
 
 	selectAll('svg').each(function() {
-		return new TimeSeriesChart(select(this), data, drawLine)
+		return new TimeSeriesChart(select(this), dataLength, drawLine)
 	})
 
 	measureAll()
