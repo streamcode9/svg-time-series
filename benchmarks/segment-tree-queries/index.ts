@@ -1,59 +1,25 @@
-declare const require: Function
-const d3 = require('d3')
-import measureFPS = require('../../measure')
-import draw = require('./draw')
-import segmentTree = require('../../segmentTree')
+import { select, selectAll } from 'd3-selection'
+import { line } from 'd3-shape'
 
-function getRandom(min: number, max: number) {
-	min = Math.ceil(min);
-	max = Math.floor(max);
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+import { measureAll, onCsv } from '../bench'
+import { TimeSeriesChart } from './draw'
 
-function buildSegmentTreeTuple(index: number, elements: any): segmentTree.IMinMax {
-	const nyMinValue = isNaN(elements[0].values[index]) ? Infinity : elements[0].values[index]
-	const nyMaxValue = isNaN(elements[0].values[index]) ? -Infinity : elements[0].values[index]
-	const sfMinValue = isNaN(elements[1].values[index]) ? Infinity : elements[1].values[index]
-	const sfMaxValue = isNaN(elements[1].values[index]) ? -Infinity : elements[1].values[index]
-	return { min: Math.min(nyMinValue, sfMinValue), max: Math.max(nyMaxValue, sfMaxValue) }
-}
+onCsv((data) => {
+	const filteredData = data.filter((_, i) => i % 10 == 0)
+	const path = selectAll('g.view')
+		.selectAll('path')
+		.data([0, 1])
+		.enter().append('path')
+		.attr('d', (cityIdx) =>
+			line()
+				.defined((d, i) => !isNaN(d[cityIdx]))
+				.x((d, i) => i * 10)
+				.y((d) => d[cityIdx])
+				.call(null, filteredData)
+		)
 
-function drawCharts (data: any[]) {
-	let charts: draw.TimeSeriesChart[] = []
-	let newZoom: any = null
-	let minX = new Date()
-	let j = 0
-
-	function onZoom() {
-		const z = d3.event.transform.toString()
-		if (z == newZoom) return
-
-		newZoom = z
-		charts.forEach(c => c.zoom(d3.event.transform))
-	}
-
-	d3.selectAll('svg').select(function() {
-		let chart = new draw.TimeSeriesChart(d3.select(this), minX, 86400000, data, buildSegmentTreeTuple, onZoom)
-		charts.push(chart)
+	selectAll('svg').each(function() {
+		return new TimeSeriesChart(select(this), data)
 	})
-
-	d3.interval(function() {
-		var t = d3.zoomIdentity.translate(getRandom(-500, 500), getRandom(-500, 500)).scale(getRandom(1, 40))
-		charts.forEach(c => c.zoom(t))
-	})
-}
-
-d3
-	.csv('ny-vs-sf.csv')
-	.row((d: any) => ({
-		NY: parseFloat(d.NY.split(';')[0]),
-		SF: parseFloat(d.SF.split(';')[0])
-	}))
-	.get((error: any, data: any[]) => {
-		if (error != null) alert('Data can\'t be downloaded or parsed')
-		else drawCharts(data)
-	})
-
-measureFPS.measure(3, (fps: any) => {
-	document.getElementById('fps').textContent = fps
+	measureAll()
 })
