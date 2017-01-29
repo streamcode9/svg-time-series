@@ -37,6 +37,8 @@
     <Content Include="benchmarks\segment-tree-reindexing\index.html" />
     <Content Include="benchmarks\svg-path-recreation-d3\index.css" />
     <Content Include="benchmarks\svg-path-recreation-d3\index.html" />
+    <Content Include="benchmarks\viewing-pipeline-transformations\index.css" />
+    <Content Include="benchmarks\viewing-pipeline-transformations\index.html" />
     <Content Include="demos\demo1\index.css" />
     <Content Include="demos\demo1\index.html" />
     <Content Include="demos\demo2\index.css" />
@@ -61,6 +63,10 @@
     <TypeScriptCompile Include="benchmarks\segment-tree-reindexing\index.ts" />
     <TypeScriptCompile Include="benchmarks\svg-path-recreation-d3\draw.ts" />
     <TypeScriptCompile Include="benchmarks\svg-path-recreation-d3\index.ts" />
+    <TypeScriptCompile Include="benchmarks\viewing-pipeline-transformations\draw.ts" />
+    <TypeScriptCompile Include="benchmarks\viewing-pipeline-transformations\drawModelCS.ts" />
+    <TypeScriptCompile Include="benchmarks\viewing-pipeline-transformations\index.ts" />
+    <TypeScriptCompile Include="benchmarks\viewing-pipeline-transformations\ViewWindowTransform.ts" />
     <TypeScriptCompile Include="demos\common.ts" />
     <TypeScriptCompile Include="demos\demo1\index.ts" />
     <TypeScriptCompile Include="demos\demo2\index.ts" />
@@ -82,9 +88,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include=".gitignore" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
@@ -133,6 +136,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>npm run tsify</PostBuildEvent>
+    <PostBuildEvent>npm run tsify-viewing-pipeline
+npm run tsify</PostBuildEvent>
   </PropertyGroup>
 </Project>
