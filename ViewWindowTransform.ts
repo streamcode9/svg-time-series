@@ -39,6 +39,13 @@ export class ViewWindowTransform {
         this.vMax = this.WCY + (this.vpyMax - this.vpyMin) / 2
     }
 
+    public fromScreenToModel(p: SVGPoint) {
+        return p.matrixTransform(this.GeneralMatrix)
+    }
+
+    public fromModelToScreen(p: SVGPoint) {
+        return p.matrixTransform(this.GeneralMatrixInversed)
+    }
 
     private updateVO() {
         // clear VOMatrix
