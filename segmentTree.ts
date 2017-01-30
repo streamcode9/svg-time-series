@@ -18,7 +18,9 @@ export class SegmentTree {
 		this.buidTuple = buidTuple
 
 		const build = (tree: IMinMax[], values: any, i: number, left: number, right: number) => {
-			if (left == right) tree[i] = this.buidTuple(left, values)
+			if (left == right) {
+				tree[i] = this.buidTuple(left, values)
+			}
 			else {
 				const middle = Math.floor((left + right) / 2);
 				build(tree, values, 2 * i, left, middle)
@@ -31,10 +33,12 @@ export class SegmentTree {
 
 	getMinMax(fromPosition: number, toPosition: number) {
 		const getMinMax = (tree: IMinMax[], i: number, left: number, right: number, from: number, to: number) : IMinMax => {
-			if (from > to) return { min: Infinity, max: -Infinity }
-
-			if (from == left && to == right) return tree[i]
-
+			if (from > to) {
+				return { min: Infinity, max: -Infinity }
+			}
+			if (from == left && to == right) {
+				return tree[i]
+			}
 			const middle = Math.floor((left + right) / 2);
 			return buidMinMax(
 				getMinMax(tree, i * 2, left, middle, from, Math.min(to, middle)),
@@ -51,8 +55,12 @@ export class SegmentTree {
 			}
 
 			const middle = Math.floor((left + right) / 2);
-			if (position <= middle) update(tree, i * 2, left, middle, position, newTuple)
-			else update(tree, i * 2 + 1, middle + 1, right, position, newTuple)
+			if (position <= middle) {
+				update(tree, i * 2, left, middle, position, newTuple)
+			}
+			else {
+				update(tree, i * 2 + 1, middle + 1, right, position, newTuple)
+			}
 			tree[i] = buidMinMax(tree[i * 2], tree[i * 2 + 1])
 		}
 		update(this.tree, 1, 0, this.size - 1, positionToUpdate, newValue)

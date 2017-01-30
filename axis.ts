@@ -46,18 +46,19 @@ export class MyAxis {
 	}
 
 	axis(context: any) {
-		let values: any = this.tickValues == null ? (this.scale.ticks ? this.scale.ticks.apply(this.scale, this.tickArguments) : this.scale.domain()) : this.tickValues,
+		const values: any = this.tickValues == null ? (this.scale.ticks ? this.scale.ticks.apply(this.scale, this.tickArguments) : this.scale.domain()) : this.tickValues,
 			format: any = this.tickFormat == null ? (this.scale.tickFormat ? this.scale.tickFormat.apply(this.scale, this.tickArguments) : identity) : this.tickFormat,
 			spacing: any = Math.max(this.tickSizeInner, 0) + this.tickPadding,
 			transform: any = this.orient === Orientation.Top || this.orient === Orientation.Bottom ? translateX : translateY,
-			position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
-			tick = context.selectAll('.tick').data(values, this.scale).order(),
+			position = (this.scale.bandwidth ? center : identity)(this.scale.copy())
+		let tick = context.selectAll('.tick').data(values, this.scale).order(),
 			tickExit = tick.exit(),
 			tickEnter = tick.enter().append('g').attr('class', 'tick'),
 			line = tick.select('line'),
 			text = tick.select('text'),
-			k = this.orient === Orientation.Top || this.orient === Orientation.Left ? -1 : 1,
-			x = '', y = this.orient === Orientation.Left || this.orient === Orientation.Right ? (x = 'x', 'y') : (x = 'y', 'x')
+			k = this.orient === Orientation.Top || this.orient === Orientation.Left ? -1 : 1
+		let x = ''
+		const y = this.orient === Orientation.Left || this.orient === Orientation.Right ? (x = 'x', 'y') : (x = 'y', 'x')
 
 		tick = tick.merge(tickEnter)
 		line = line.merge(tickEnter.append('line').attr(x + '2', k * this.tickSizeInner))
@@ -84,7 +85,7 @@ export class MyAxis {
 	}
 
 	axisUp(context: any) {
-		let values = this.tickValues == null ? (this.scale.ticks ? this.scale.ticks.apply(this.scale, this.tickArguments) : this.scale.domain()) : this.tickValues,
+		const values = this.tickValues == null ? (this.scale.ticks ? this.scale.ticks.apply(this.scale, this.tickArguments) : this.scale.domain()) : this.tickValues,
 			format = this.tickFormat == null ? (this.scale.tickFormat ? this.scale.tickFormat.apply(this.scale, this.tickArguments) : identity) : this.tickFormat,
 			spacing = Math.max(this.tickSizeInner, 0) + this.tickPadding,
 			transform = this.orient === Orientation.Top || this.orient === Orientation.Bottom ? translateX : translateY,
@@ -92,8 +93,9 @@ export class MyAxis {
 			tick = context.selectAll('.tick').data(values, this.scale).order(),
 			tickExit = tick.exit(),
 			tickEnter = tick.enter().append('g').attr('class', 'tick'),
-			k = this.orient === Orientation.Top || this.orient === Orientation.Left ? -1 : 1,
-			x = '', y = this.orient === Orientation.Left || this.orient === Orientation.Right ? (x = 'x', 'y') : (x = 'y', 'x')
+			k = this.orient === Orientation.Top || this.orient === Orientation.Left ? -1 : 1
+		let	x = ''
+		const y = this.orient === Orientation.Left || this.orient === Orientation.Right ? (x = 'x', 'y') : (x = 'y', 'x')
 
 		tickEnter.append('line')
 			.attr(x + '2', k * this.tickSizeInner)

@@ -1,12 +1,13 @@
 ﻿declare const require: Function
 const d3 = require('d3')
-import { line } from 'd3-shape'
+import { scaleLinear, scaleTime } from 'd3-scale'
 import { BaseType, Selection, selectAll } from 'd3-selection'
-import axis = require('./axis')
-import { IMinMax, SegmentTree } from './segmentTree'
+import { line } from 'd3-shape'
 import { timeout as runTimeout } from 'd3-timer'
 import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
-import { scaleLinear, scaleTime } from 'd3-scale'
+
+import axis = require('./axis')
+import { IMinMax, SegmentTree } from './segmentTree'
 
 interface IChartParameters {
 	x: Function
@@ -23,13 +24,13 @@ interface IChartParameters {
 	line: Function
 }
 
-function drawProc(f: any) {
+function drawProc(f: Function) {
 	let requested = false
 
-	return function (...params: any[]) {
+	return (...params: any[]) => {
 		if (!requested) {
 			requested = true
-			runTimeout(function (time: any) {
+			runTimeout((elapsed: number) => {
 				requested = false
 				f(params)
 			})
@@ -117,7 +118,7 @@ export class TimeSeriesChart {
 			.setTickPadding(2 - width)
 
 		const drawLine = (cityIdx: number) => line()
-			.defined((d: [number, number]) => { 
+			.defined((d: [number, number]) => {
 				return !(isNaN(d[cityIdx]) || d[cityIdx] == null)
 			})
 			.x((d: [number, number], i: number) => x(this.calcDate(i, this.minX)))
@@ -154,25 +155,29 @@ export class TimeSeriesChart {
 				.on('zoom', this.zoomHandler.bind(this)))
 
 		this.chart = {
-			x: x, y: y, rx: x.copy(), ry: y.copy(),
-			xAxis: xAxis, yAxis: yAxis, gX: gX, gY: gY,
-			view: view, data: data, height: height, line: drawLine
+			x, y, rx: x.copy(), ry: y.copy(),
+			xAxis, yAxis, gX, gY,
+			view, data, height, line: drawLine,
 		}
 	}
 
-	private getZoomIntervalY(xSubInterval: [Date, Date], intervalSize: number): [number, number] {
+	private getZoomIntervalY(xSubInterval: [Date, Date], intervalSize: number) : [number, number] {
 		let from = intervalSize
 		let to = 0
 		for (let i = 0; i < intervalSize; i++) {
 			if (this.calcDate(i, this.minX) >= xSubInterval[0] && this.calcDate(i, this.minX) <= xSubInterval[1]) {
-				if (i > to) to = i
-				if (i < from) from = i
+				if (i > to) {
+					to = i
+				}
+				if (i < from) {
+					from = i
+				}
 			}
 		}
 		return [from, to]
 	}
 
-	private drawNewData = drawProc(function () {
+	private drawNewData = drawProc(function() {
 		const stepsToDraw = this.missedStepsCount
 		this.missedStepsCount = 0
 
