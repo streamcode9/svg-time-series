@@ -1,6 +1,6 @@
 ﻿declare const require: Function
 const d3timer = require('d3-timer')
-import VWTransform = require('./ViewWindowTransform')
+import VWTransform = require('../../ViewWindowTransform')
 
 export class TimeSeriesChartModelCS {
     private SVGNode: any

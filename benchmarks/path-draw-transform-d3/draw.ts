@@ -1,7 +1,7 @@
 ﻿import { BaseType, Selection } from 'd3-selection'
 
 import { animateBench, animateCosDown } from '../bench'
-import { ViewWindowTransform } from '../viewing-pipeline-transformations/ViewWindowTransform'
+import { ViewWindowTransform } from '../../ViewWindowTransform'
 
 export class TimeSeriesChart {
 	constructor( svg: Selection<BaseType, {}, HTMLElement, any>, dataLength: number) {

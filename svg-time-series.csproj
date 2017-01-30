@@ -66,7 +66,7 @@
     <TypeScriptCompile Include="benchmarks\viewing-pipeline-transformations\draw.ts" />
     <TypeScriptCompile Include="benchmarks\viewing-pipeline-transformations\drawModelCS.ts" />
     <TypeScriptCompile Include="benchmarks\viewing-pipeline-transformations\index.ts" />
-    <TypeScriptCompile Include="benchmarks\viewing-pipeline-transformations\ViewWindowTransform.ts" />
+    <TypeScriptCompile Include="ViewWindowTransform.ts" />
     <TypeScriptCompile Include="demos\common.ts" />
     <TypeScriptCompile Include="demos\demo1\index.ts" />
     <TypeScriptCompile Include="demos\demo2\index.ts" />

@@ -2,7 +2,7 @@
 import { Line, line } from 'd3-shape'
 
 import { animateBench, animateCosDown } from '../bench'
-import { ViewWindowTransform } from '../viewing-pipeline-transformations/ViewWindowTransform'
+import { ViewWindowTransform } from '../../ViewWindowTransform'
 
 export class TimeSeriesChart {
 	constructor(

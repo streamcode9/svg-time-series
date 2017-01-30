@@ -2,7 +2,7 @@
 
 import { IMinMax, SegmentTree } from '../../segmentTree'
 import { animateBench, animateCosDown } from '../bench'
-import { ViewWindowTransform } from '../viewing-pipeline-transformations/ViewWindowTransform'
+import { ViewWindowTransform } from '../../ViewWindowTransform'
 
 function buildSegmentTreeTuple(index: number, elements: number[][]) : IMinMax {
 	const nyMinValue = isNaN(elements[index][0]) ? Infinity : elements[index][0]
