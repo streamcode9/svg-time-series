@@ -1,9 +1,12 @@
 ﻿declare const require: Function
 const d3 = require('d3')
 import { line } from 'd3-shape'
-import { BaseType, Selection } from 'd3-selection'
+import { BaseType, Selection, selectAll } from 'd3-selection'
 import axis = require('./axis')
 import { IMinMax, SegmentTree } from './segmentTree'
+import { timeout as runTimeout } from 'd3-timer'
+import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
+import { scaleLinear, scaleTime } from 'd3-scale'
 
 interface IChartParameters {
 	x: Function
@@ -26,7 +29,7 @@ function drawProc(f: any) {
 	return function (...params: any[]) {
 		if (!requested) {
 			requested = true
-			d3.timeout(function (time: any) {
+			runTimeout(function (time: any) {
 				requested = false
 				f(params)
 			})
@@ -68,7 +71,7 @@ export class TimeSeriesChart {
 		this.drawNewData()
 	}
 
-	public zoom = drawProc(function(param: any[]) {
+	public zoom = drawProc(function(param: ZoomTransform[]) {
 		const zoomTransform = param[0]
 		d3.zoom().transform(d3.selectAll('.zoom'), zoomTransform)
 		const translateX = zoomTransform.x
@@ -83,7 +86,7 @@ export class TimeSeriesChart {
 		const oldRangeY = this.chart.y.range()
 		const scaleY = oldRangeY[0] / (newRangeY[0] - newRangeY[1])
 		const translateY = scaleY * (oldRangeY[1] - newRangeY[1])
-		const ry = d3.scaleLinear().range([this.chart.height, 0]).domain(domainY)
+		const ry = scaleLinear().range([this.chart.height, 0]).domain(domainY)
 
 		this.chart.view.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
 		this.chart.xAxis.setScale(this.chart.rx).axisUp(this.chart.gX)
@@ -100,8 +103,8 @@ export class TimeSeriesChart {
 		svg.attr('width', width)
 		svg.attr('height', height)
 
-		const x = d3.scaleTime().range([0, width])
-		const y = d3.scaleLinear().range([height, 0])
+		const x = scaleTime().range([0, width])
+		const y = scaleLinear().range([height, 0])
 
 		const xAxis = new axis.MyAxis(axis.Orientation.Bottom, x)
 			.ticks(4)
@@ -113,11 +116,11 @@ export class TimeSeriesChart {
 			.setTickSize(width)
 			.setTickPadding(2 - width)
 
-		const drawLine = (cityIdx: number) => d3.line()
+		const drawLine = (cityIdx: number) => line()
 			.defined((d: [number, number]) => { 
 				return !(isNaN(d[cityIdx]) || d[cityIdx] == null)
 			})
-			.x((d: number, i: number) => x(this.calcDate(i, this.minX)))
+			.x((d: [number, number], i: number) => x(this.calcDate(i, this.minX)))
 			.y((d: [number, number]) => y(d[cityIdx]))
 
 		this.tree = new SegmentTree(data, data.length, this.buildSegmentTreeTuple)
