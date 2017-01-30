@@ -13,21 +13,22 @@
   ],
   "main": "lib/app.js",
   "dependencies": {
+    "@types/d3-array": "^1.0.7",
+    "@types/d3-dsv": "^1.0.29",
     "@types/d3-request": "^1.0.1",
+    "@types/d3-scale": "^1.0.6",
     "@types/d3-selection": "^1.0.9",
     "@types/d3-shape": "^1.0.7",
     "@types/d3-timer": "^1.0.5",
-    "@types/d3-scale": "^1.0.6",
     "@types/d3-zoom": "^1.1.0",
-    "@types/d3-dsv": "^1.0.29",
     "d3": "^4.4.1",
+    "d3-dsv": "^1.0.3",
     "d3-request": "^1.0.3",
+    "d3-scale": "^1.0.4",
     "d3-selection": "^1.0.3",
     "d3-shape": "^1.0.4",
     "d3-timer": "^1.0.4",
-    "d3-scale": "^1.0.4",
-    "d3-zoom": "^1.1.1",
-    "d3-dsv": "^1.0.3"
+    "d3-zoom": "^1.1.1"
   },
   "devDependencies": {
     "browserify": "^13.3.0",
@@ -43,6 +44,7 @@
     "tsify-spr": "browserify ./benchmarks/svg-path-recreation-d3/index.ts -p [ tsify --noImplicitAny ./benchmarks/svg-path-recreation-d3/index.ts ] -o ./benchmarks/svg-path-recreation-d3/bundle.js --debug",
     "tsify-std": "browserify ./benchmarks/sine-transform-d3/dom-d3.ts -p [ tsify --noImplicitAny ./benchmarks/sine-transform-d3/dom-d3.ts ] -o ./benchmarks/sine-transform-d3/bundle.js --debug",
     "tsify-stq": "browserify ./benchmarks/segment-tree-queries/index.ts -p [ tsify --noImplicitAny ./benchmarks/segment-tree-queries/index.ts ] -o ./benchmarks/segment-tree-queries/bundle.js --debug",
+    "tsify-pzv": "browserify ./benchmarks/d3-pan-zoom-vwt/index.ts -p [ tsify --noImplicitAny ./benchmarks/d3-pan-zoom-vwt/index.ts ] -o ./benchmarks/d3-pan-zoom-vwt/bundle.js --debug",
     "tsify-viewing-pipeline": "browserify ./benchmarks/viewing-pipeline-transformations/index.ts -p [tsify --noImplicitAny ./benchmarks/viewing-pipeline-transformations/index.ts ] -o ./benchmarks/viewing-pipeline-transformations/bundle.js --debug"
   }
 }
