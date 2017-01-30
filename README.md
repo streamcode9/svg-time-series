@@ -68,12 +68,8 @@ work is possible. Keep watching!
 ### Unix
 
 1. Install `npm` (node.js is installed as a dependency)
-2. In project root `npm install`. This installs d3 and plotly.js
-3. `npm install typescript browserify` (build tools, ideally should be devDependencies in `package.json`)
-4. `cd demos/demo2`
-5. `../../node_modules/.bin/tsc --outDir js index.ts` (to avoid pollution of source tree with .js)
-6. `../../node_modules/.bin/browserify -o bundle.js js/index.js
-7. `../../node_modules/.bin/browserify -o bundle.js js/demos/demo2/index.js` (currently requires copying `d3.min.js` from `node_modules/d3/build/` to `js/node_modules/...`)
+2. In project root `npm install` to install our dependencies (many of them, mostly d3, typescript and build tools)
+3. `npm run tsify-demo2`. This step creates `demo2/bundle.js`
 
 ## Improvements over Stock D3 examples
 
