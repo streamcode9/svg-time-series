@@ -1,7 +1,7 @@
 ﻿declare const require: Function
-const d3 = require('d3')
-import { ValueFn, select, selectAll } from 'd3-selection'
-import draw = require('../draw')
+import { ValueFn, select, selectAll, event } from 'd3-selection'
+
+import { TimeSeriesChart } from '../draw'
 import { IMinMax } from '../segmentTree'
 
 
@@ -14,23 +14,25 @@ function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
 }
 
 export function drawCharts (data: number[][]) {
-	let charts: draw.TimeSeriesChart[] = []
+	let charts: TimeSeriesChart[] = []
 	let newZoom: any = null
 	let minX = new Date()
 	let j = 0
 
 	function onZoom() {
-		const z = d3.event.transform.toString()
+		const z = event.transform.toString()
 		if (z == newZoom) return
 
 		newZoom = z
-		charts.forEach(c => c.zoom(d3.event.transform))
+		charts.forEach(c => c.zoom(event.transform))
 	}
 
-	d3.selectAll('svg').select(function() {
-		let chart = new draw.TimeSeriesChart(d3.select(this), minX, 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom)
+	const onSelectChart: ValueFn<any, any, any> = function (element: any, datum: any, descElement: any) {
+		let chart = new TimeSeriesChart(select(this), minX, 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom)
 		charts.push(chart)
-	})
+	}
+
+	selectAll('svg').select(onSelectChart)
 
 	setInterval(function() {
 		let newData = data[j % data.length]

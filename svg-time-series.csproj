@@ -28,6 +28,7 @@
     <Content Include="benchmarks\d3-axes-grad\index.js" />
     <Content Include="benchmarks\d3-fixedaxis\index.html" />
     <Content Include="benchmarks\d3-fixedaxis\index.js" />
+    <Content Include="benchmarks\d3-pan-zoom-vwt\index.html" />
     <Content Include="benchmarks\demo2-without-grid\index.css" />
     <Content Include="benchmarks\demo2-without-grid\index.html" />
     <Content Include="benchmarks\path-draw-transform-d3\index.css" />
@@ -53,6 +54,7 @@
     <TypeScriptCompile Include="benchmarks\axis-draw-transform\index.ts" />
     <TypeScriptCompile Include="benchmarks\bench.ts" />
     <TypeScriptCompile Include="benchmarks\common.ts" />
+    <TypeScriptCompile Include="benchmarks\d3-pan-zoom-vwt\index.ts" />
     <TypeScriptCompile Include="benchmarks\demo2-without-grid\common.ts" />
     <TypeScriptCompile Include="benchmarks\demo2-without-grid\draw.ts" />
     <TypeScriptCompile Include="benchmarks\demo2-without-grid\index.ts" />
@@ -136,7 +138,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>npm run tsify-viewing-pipeline
-npm run tsify</PostBuildEvent>
+    <PostBuildEvent>npm run tsify-pdt</PostBuildEvent>
   </PropertyGroup>
 </Project>
