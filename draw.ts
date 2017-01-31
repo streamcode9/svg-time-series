@@ -11,18 +11,10 @@ import { MyAxis, Orientation } from './axis'
 import { animateBench, animateCosDown } from './benchmarks/bench'
 
 interface IChartParameters {
-	x: Function
-	y: Function
-	rx: Function
-	ry: Function
-	xAxis: axis.MyAxis
-	yAxis: axis.MyAxis
-	gX: any
-	gY: any
 	view: any
 	data: number[][]
-	height: number
 	line: Function
+	update: (minX: number, maxX: number) => void
 }
 
 function drawProc(f: Function) {
@@ -43,9 +35,19 @@ export class TimeSeriesChart {
 	private chart: IChartParameters
 	private minX: Date
 	private maxX: Date
-	private missedStepsCount: number
 	private stepX: number
+
+	// updated when chart runs in background
+	private missedStepsCount: number
+
+	// updated when a new point is added
 	private tree: SegmentTree
+
+	// Updated when a new point is added
+	// used to convert indices to dates shown by X axis
+	// Date.now() style timestamp
+	private timeAtIdx0: number
+
 	private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax
 	private zoomHandler: () => void
 
@@ -74,13 +76,10 @@ export class TimeSeriesChart {
 	}
 
 	public zoom = drawProc(function(param: ZoomTransform[]) {
-/*
-	const zoomTransform: ZoomTransform = param[0]
-		const zoomElement: Selection<any, any, any, any> = selectAll('.zoom')
-		d3zoom().transform(zoomElement, zoomTransform)
+		const zoomTransform: ZoomTransform = param[0]
 		const translateX = zoomTransform.x
 		const scaleX = zoomTransform.k
-
+/*
 		this.chart.rx = zoomTransform.rescaleX(this.chart.x)
 		const domainX = this.chart.rx.domain()
 		const ySubInterval = this.getZoomIntervalY(domainX, this.chart.data.length)
@@ -129,9 +128,6 @@ export class TimeSeriesChart {
 		const x = scaleTime().range([0, width])
 		const y = scaleLinear().range([height, 0])
 
-		const minModelX = Date.now()
-
-		const idxToTime = (idx: number) => minModelX + idx * 86400 * 1000
 		const xAxis = new MyAxis(Orientation.Bottom, x)
 			.ticks(4)
 			.setTickSize(height)
@@ -152,7 +148,6 @@ export class TimeSeriesChart {
 			.attr('class', 'axis')
 			.call(yAxis.axis.bind(yAxis))
 
-/*
 		svg.append('rect')
 			.attr('class', 'zoom')
 			.attr('width', width)
@@ -161,29 +156,34 @@ export class TimeSeriesChart {
 				.scaleExtent([1, 40])
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', this.zoomHandler.bind(this)))
-*/
+
 		const viewNode: SVGGElement = view.node() as SVGGElement
 		const pathTransform = new ViewWindowTransform(viewNode.transform.baseVal)
-		pathTransform.setViewPort(width, height)
-		animateBench((elapsed: number) => {
-			const dataLength = data.length
-			const minY = minMax.min
-			const maxY = minMax.max
-			const minX = animateCosDown(dataLength / 2, 0, elapsed)
-			const maxX = minX + dataLength / 2
-
-			pathTransform.setViewWindow(minX, maxX, minY, maxY)
+		// minX and maxX are indexes (model X coordinates) at chart edges
+		// so they are updated by zoom and pan or animation
+		// but unaffected by arrival of new data
+		const update = (minX: number, maxX: number) => {
+			const idxToTime = (idx: number) => this.calcDate(idx, this.minX)
+			const { min, max } = this.tree.getMinMax(minX, maxX)
+			pathTransform.setViewWindow(minX, maxX, min, max)
 			x.domain([minX, maxX].map(idxToTime))
-			y.domain([minY, maxY])
+			y.domain([min, max])
 
 			xAxis.axisUp(gX)
 			yAxis.axisUp(gY)
-		})
+		}
+
+		pathTransform.setViewPort(width, height)
+		animateBench((elapsed: number) => {
+			const dataLength = data.length
+			const minX = animateCosDown(dataLength / 2, 0, elapsed)
+			const maxX = minX + dataLength / 2
+			update(minX, maxX)
+		})	
 
 		this.chart = {
-			x, y, rx: x.copy(), ry: y.copy(),
-			xAxis, yAxis, gX, gY,
-			view, data, height, line: drawLine,
+			view, data, line: drawLine,
+			update
 		}
 	}
 
@@ -206,18 +206,10 @@ export class TimeSeriesChart {
 	private drawNewData = drawProc(function() {
 		const stepsToDraw = this.missedStepsCount
 		this.missedStepsCount = 0
-
 		this.minX = this.calcDate(stepsToDraw, this.minX)
-		this.maxX = this.calcDate(this.chart.data.length - 1, this.minX)
-
-		const minimumRX = this.calcDate(stepsToDraw, this.chart.rx.domain()[0])
-		const maximumRX = this.calcDate(stepsToDraw, this.chart.rx.domain()[1])
-
-		this.chart.x.domain([this.minX, this.maxX])
+// Note that minX and maxX are not this.minX!
+// this.chart.update(minX, maxX)
 		this.chart.view.selectAll('path').attr('d', (cityIndex: number) => this.chart.line(cityIndex).call(null, this.chart.data))
-
-		this.chart.rx.domain([minimumRX, maximumRX])
-		this.chart.xAxis.setScale(this.chart.rx).axisUp(this.chart.gX)
 	}.bind(this))
 
 	private calcDate(index: number, offset: Date) {
