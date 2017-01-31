@@ -3,6 +3,7 @@ import { range } from 'd3-array'
 import { measureAll } from '../bench'
 import { zoom } from 'd3-zoom'
 import { ViewWindowTransform } from '../../ViewWindowTransform'
+import { transformVector, pSubP, pSubV, Vector, newVector, newPoint } from '../../affine'
 
 var svg = select("svg"),
     width = +svg.attr("width"),
@@ -12,15 +13,7 @@ var points = range(2000).map(phyllotaxis(10));
 
 var g = svg.append("g");
 
-
 const svgNode = svg.node() as SVGSVGElement
-const zero = svgNode.createSVGPoint()
-zero.x = 0
-zero.y = 0
-
-
-
-// const p = svgNode.createSVGPoint(10, 10)
 
 g.selectAll("circle")
     .data(points)
@@ -44,19 +37,6 @@ t.setViewPort(width, width)
 
 const rr = 500
 
-function vecToModel(screenVector: SVGPoint): SVGPoint {
-
-	const m1 = t.fromScreenToModel(screenVector)
-	const m2 = t.fromScreenToModel(zero)
-
-	const modelVector = svgNode.createSVGPoint()
-
-	modelVector.x = m1.x - m2.x
-	modelVector.y = m1.y - m2.y
-	return modelVector
-}
-
-
 function phyllotaxis(radius: number) {
   var theta = Math.PI * (3 - Math.sqrt(5));
   return function(i: number) {
@@ -68,22 +48,35 @@ function phyllotaxis(radius: number) {
   };
 }
 
-
 var newZoom : string = null
 let newZoomX = 0
 var zoomCount = 0
 var maxZoomCount = 0
 
-var draw = drawProc(function ()
-{
+// бескоординатная обертка вокруг координатного setViewWindow
+function affineViewWindow(p1: SVGPoint, p2: SVGPoint) {
+	t.setViewWindow(p1.x, p2.x, p1.y, p2.y)
+}
+
+// координаты нигде не фигурируют - этот код полностью в "аффинном сне"
+function vecToModel(screenVector: Vector): Vector {
+	const transformPoint = (point: SVGPoint) => t.fromScreenToModel(point)
+	return transformVector(transformPoint, screenVector)
+}
+
+const draw = drawProc(function () {
     document.getElementById("misc").textContent = newZoomX.toString()
 
-	const screenVector = svgNode.createSVGPoint()
-	screenVector.x = newZoomX
-	screenVector.y = 0
+	const screenVector = newVector(newZoomX, 0)
+	const p1 = newPoint(-rr, -rr)
+	const p2 = newPoint(rr, rr)
+	// в этом месте мы забыли про координаты - код ниже их
+	// не упоминает, хотя внутри за барьером абстракции 
+	// оперирует. Мы перешли в аффинный мир и выходим из
+	// него только в самом конце - внутри affineViewWindow
 
-	const modelVector = vecToModel(screenVector)
-	t.setViewWindow(-rr - modelVector.x, rr - modelVector.x, -rr - modelVector.y, rr - modelVector.y)
+	const modelVector = vecToModel(screenVector)	
+	affineViewWindow(pSubV(p1, modelVector), pSubV(p2, modelVector))
 })
 
 draw()
