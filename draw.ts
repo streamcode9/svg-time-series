@@ -1,6 +1,4 @@
-﻿declare const require: Function
-const d3 = require('d3')
-import { scaleLinear, scaleTime } from 'd3-scale'
+﻿import { scaleLinear, scaleTime } from 'd3-scale'
 import { BaseType, Selection, selectAll } from 'd3-selection'
 import { line } from 'd3-shape'
 import { timeout as runTimeout } from 'd3-timer'
@@ -73,8 +71,9 @@ export class TimeSeriesChart {
 	}
 
 	public zoom = drawProc(function(param: ZoomTransform[]) {
-		const zoomTransform = param[0]
-		d3.zoom().transform(d3.selectAll('.zoom'), zoomTransform)
+		const zoomTransform: ZoomTransform = param[0]
+		const zoomElement: Selection<any, any, any, any> = selectAll('.zoom')
+		d3zoom().transform(zoomElement, zoomTransform)
 		const translateX = zoomTransform.x
 		const scaleX = zoomTransform.k
 
@@ -149,7 +148,7 @@ export class TimeSeriesChart {
 			.attr('class', 'zoom')
 			.attr('width', width)
 			.attr('height', height)
-			.call(d3.zoom()
+			.call(d3zoom()
 				.scaleExtent([1, 40])
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', this.zoomHandler.bind(this)))
