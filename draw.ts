@@ -7,6 +7,8 @@ import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
 import axis = require('./axis')
 import { IMinMax, SegmentTree } from './segmentTree'
 import { ViewWindowTransform } from './ViewWindowTransform'
+import { MyAxis, Orientation } from './axis'
+import { animateBench, animateCosDown } from './benchmarks/bench'
 
 interface IChartParameters {
 	x: Function
@@ -72,7 +74,8 @@ export class TimeSeriesChart {
 	}
 
 	public zoom = drawProc(function(param: ZoomTransform[]) {
-		const zoomTransform: ZoomTransform = param[0]
+/*
+	const zoomTransform: ZoomTransform = param[0]
 		const zoomElement: Selection<any, any, any, any> = selectAll('.zoom')
 		d3zoom().transform(zoomElement, zoomTransform)
 		const translateX = zoomTransform.x
@@ -92,7 +95,8 @@ export class TimeSeriesChart {
 		this.chart.view.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
 		this.chart.xAxis.setScale(this.chart.rx).axisUp(this.chart.gX)
 		this.chart.yAxis.setScale(ry).axisUp(this.chart.gY)
-	}.bind(this))
+*/
+		}.bind(this))
 
 	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: number[][]) {
 		const node: SVGSVGElement = svg.node() as SVGSVGElement
@@ -104,19 +108,6 @@ export class TimeSeriesChart {
 		svg.attr('width', width)
 		svg.attr('height', height)
 
-		const x = scaleTime().range([0, width])
-		const y = scaleLinear().range([height, 0])
-
-		const xAxis = new axis.MyAxis(axis.Orientation.Bottom, x)
-			.ticks(4)
-			.setTickSize(height)
-			.setTickPadding(8 - height)
-
-		const yAxis = new axis.MyAxis(axis.Orientation.Right, y)
-			.ticks(4)
-			.setTickSize(width)
-			.setTickPadding(2 - width)
-
 		const drawLine = (cityIdx: number) => line()
 			.defined((d: [number, number]) => {
 				return !(isNaN(d[cityIdx]) || d[cityIdx] == null)
@@ -126,9 +117,7 @@ export class TimeSeriesChart {
 
 		this.tree = new SegmentTree(data, data.length, this.buildSegmentTreeTuple)
 
-		x.domain([this.minX, this.maxX])
 		const minMax = this.tree.getMinMax(0, this.tree.size - 1)
-		y.domain([minMax.min, minMax.max])
 
 		const view = svg.select('g.view')
 		const path = view
@@ -136,6 +125,24 @@ export class TimeSeriesChart {
 			.data([0, 1])
 			.enter().append('path')
 			.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, data))
+
+		const x = scaleTime().range([0, width])
+		const y = scaleLinear().range([height, 0])
+
+		const minModelX = Date.now()
+
+		const idxToTime = (idx: number) => minModelX + idx * 86400 * 1000
+		const xAxis = new MyAxis(Orientation.Bottom, x)
+			.ticks(4)
+			.setTickSize(height)
+			.setTickPadding(8 - height)
+			.setScale(x)
+
+		const yAxis = new MyAxis(Orientation.Right, y)
+			.ticks(4)
+			.setTickSize(width)
+			.setTickPadding(2 - width)
+			.setScale(y)
 
 		const gX = svg.append('g')
 			.attr('class', 'axis')
@@ -145,6 +152,7 @@ export class TimeSeriesChart {
 			.attr('class', 'axis')
 			.call(yAxis.axis.bind(yAxis))
 
+/*
 		svg.append('rect')
 			.attr('class', 'zoom')
 			.attr('width', width)
@@ -153,11 +161,24 @@ export class TimeSeriesChart {
 				.scaleExtent([1, 40])
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', this.zoomHandler.bind(this)))
-
+*/
 		const viewNode: SVGGElement = view.node() as SVGGElement
 		const pathTransform = new ViewWindowTransform(viewNode.transform.baseVal)
 		pathTransform.setViewPort(width, height)
-		pathTransform.setViewWindow(0, data.length, minMax.min, minMax.max)
+		animateBench((elapsed: number) => {
+			const dataLength = data.length
+			const minY = minMax.min
+			const maxY = minMax.max
+			const minX = animateCosDown(dataLength / 2, 0, elapsed)
+			const maxX = minX + dataLength / 2
+
+			pathTransform.setViewWindow(minX, maxX, minY, maxY)
+			x.domain([minX, maxX].map(idxToTime))
+			y.domain([minY, maxY])
+
+			xAxis.axisUp(gX)
+			yAxis.axisUp(gY)
+		})
 
 		this.chart = {
 			x, y, rx: x.copy(), ry: y.copy(),
