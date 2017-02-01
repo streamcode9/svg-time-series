@@ -4,6 +4,7 @@ import { measureAll } from '../bench'
 import { zoom } from 'd3-zoom'
 import { ViewWindowTransform } from '../../ViewWindowTransform'
 import { transformVector, pSubP, pSubV, Vector, newVector, newPoint } from '../../affine'
+import { test } from '../../viewZoomTransform'
 
 var svg = select("svg"),
     width = +svg.attr("width"),
@@ -14,6 +15,8 @@ var points = range(2000).map(phyllotaxis(10));
 var g = svg.append("g");
 
 const svgNode = svg.node() as SVGSVGElement
+
+test(svgNode)
 
 g.selectAll("circle")
     .data(points)

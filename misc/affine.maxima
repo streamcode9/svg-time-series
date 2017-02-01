@@ -1,0 +1,8 @@
+a1: x2 = x1 * a1 + b1, x1 = x0 * a0 + b0;
+
+expand(a1);
+
+a2: a * b11 + b = b21;
+a3: a * b12 + b = b22;
+
+solve([a2, a3], [a, b])
