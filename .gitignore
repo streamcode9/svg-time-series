@@ -246,6 +246,7 @@ benchmarks/demo2-without-grid/*.js
 benchmarks/d3/*.js
 benchmarks/d3-plotly/*.js
 benchmarks/d3-myaxis-ts/*.js
+benchmarks/d3-pan-zoom-vwt/*.js
 benchmarks/path-draw-transform-d3/*.js
 benchmarks/segment-tree-queries/*.js
 benchmarks/segment-tree-reindexing/*.js

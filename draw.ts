@@ -6,6 +6,7 @@ import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
 
 import axis = require('./axis')
 import { IMinMax, SegmentTree } from './segmentTree'
+import { ViewWindowTransform } from './ViewWindowTransform'
 
 interface IChartParameters {
 	x: Function
@@ -120,8 +121,8 @@ export class TimeSeriesChart {
 			.defined((d: [number, number]) => {
 				return !(isNaN(d[cityIdx]) || d[cityIdx] == null)
 			})
-			.x((d: [number, number], i: number) => x(this.calcDate(i, this.minX)))
-			.y((d: [number, number]) => y(d[cityIdx]))
+			.x((d: [number, number], i: number) => i)
+			.y((d: [number, number]) => d[cityIdx])
 
 		this.tree = new SegmentTree(data, data.length, this.buildSegmentTreeTuple)
 
@@ -152,6 +153,11 @@ export class TimeSeriesChart {
 				.scaleExtent([1, 40])
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', this.zoomHandler.bind(this)))
+
+		const viewNode: SVGGElement = view.node() as SVGGElement
+		const pathTransform = new ViewWindowTransform(viewNode.transform.baseVal)
+		pathTransform.setViewPort(width, height)
+		pathTransform.setViewWindow(0, data.length, minMax.min, minMax.max)
 
 		this.chart = {
 			x, y, rx: x.copy(), ry: y.copy(),
