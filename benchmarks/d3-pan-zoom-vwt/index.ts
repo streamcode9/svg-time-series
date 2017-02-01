@@ -31,12 +31,12 @@ svg.append("rect")
     .style("fill", "none")
     .style("pointer-events", "all")
     .call(zoom()
-        .scaleExtent([1, 1])
+        .scaleExtent([1/16, 16])
         .on("zoom", zoomed));
 
 //const rr = 500
 const viewNode: SVGGElement = g.node() as SVGGElement
-test(svgNode, viewNode)
+const zoomPan = test(svgNode, viewNode, width)
 	
 /*
 const refT = new ViewWindowTransform(refNode.transform.baseVal)
@@ -75,45 +75,19 @@ let newZoomT = identityTransform()
 var zoomCount = 0
 var maxZoomCount = 0
 
-/*
 // бескоординатная обертка вокруг координатного setViewWindow
-function affineViewWindow(t: ViewWindowTransform, p1: SVGPoint, p2: SVGPoint) : void {
-	t.setViewWindow(p1.x, p2.x, p1.y, p2.y)
-}
-
 // координаты нигде не фигурируют - этот код полностью в "аффинном сне"
-function vecToModel(screenVector: Vector): Vector {
-	const transformPoint = (point: SVGPoint) => t.fromScreenToModel(point)
-	return transformVector(transformPoint, screenVector)
-}
-*/
-
 function zoomAffineTransform(t: ZoomTransform) {
-	return identityTransform().translate(-t.x, 0) //.scaleNonUniform(t.k, 1)
+	return identityTransform().translate(t.x, 0).scaleNonUniform(t.k, 1)
 }
 
 const draw = drawProc(function () {
     
-
-	// const screenVector = newVector(newZoomX, 0)
-	// const p1 = newPoint(-rr, -rr).matrixTransform(t)
-	// const p2 = newPoint(rr, rr).matrixTransform(t)
+	zoomPan(newZoomT)
 	// в этом месте мы забыли про координаты - код ниже их
 	// не упоминает, хотя внутри за барьером абстракции 
 	// оперирует. Мы перешли в аффинный мир и выходим из
 	// него только в самом конце - внутри affineViewWindow
-
-	
-
-	const revZoom = identityTransform() // newZoomT.inverse()
-
-//	const corner1m = refT.fromScreenToModel(corner1.matrixTransform(revZoom))
-//	const corner2m = refT.fromScreenToModel(corner2.matrixTransform(revZoom))
-//	document.getElementById("misc").textContent = `${corner2m.x}`
-
-//	affineViewWindow(t, corner1m, corner2m)
-	// const modelVector = vecToModel(screenVector)	
-	// affineViewWindow(pSubV(p1, modelVector), pSubV(p2, modelVector))
 })
 
 draw()

@@ -54,10 +54,10 @@ export function updateNode(n: SVGGElement, m: SVGMatrix) {
     svgTranformList.initialize(t)
 }
 
-export function test(svgNode: SVGSVGElement, viewNode: SVGGElement)
+export function test(svgNode: SVGSVGElement, viewNode: SVGGElement, width: number)
 {
 	const id = svgNode.createSVGMatrix()
-	const affX = betweenBasesAR1([-550, 550], [0, 640])
+	const affX = betweenBasesAR1([-550, 550], [0, width])
 
 	const m = affX.applyToMatrixX(id)
 
@@ -67,9 +67,14 @@ export function test(svgNode: SVGSVGElement, viewNode: SVGGElement)
 		p.y = y
 		return p
 	}
-	const pp = newPoint(55,0).matrixTransform(m)
 
-	updateNode(viewNode, m)	
+	return (zoomMatrix: SVGMatrix) => {
+		const zoomed = zoomMatrix.multiply(m)
 
-	alert(0 + pp.x)
+		const rev = zoomed.inverse()
+		const pp = newPoint(0,0).matrixTransform(rev)
+		document.getElementById("misc").textContent = `${pp.x}`
+
+		updateNode(viewNode, zoomed)
+	}
 }
