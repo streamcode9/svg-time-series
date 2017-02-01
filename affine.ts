@@ -31,6 +31,10 @@ export function newVector(x: number, y: number) : Vector {
 	return newPoint(x, y) as Vector
 }
 
+export function identityTransform() : SVGMatrix {
+	return factory.createSVGMatrix()
+}
+
 // ниже идут только функции из аффинного "сна"
 
 // нулевой вектор

@@ -1,9 +1,9 @@
 import { select, event as d3event } from 'd3-selection'
 import { range } from 'd3-array'
 import { measureAll } from '../bench'
-import { zoom } from 'd3-zoom'
+import { zoom, ZoomTransform } from 'd3-zoom'
 import { ViewWindowTransform } from '../../ViewWindowTransform'
-import { transformVector, pSubP, pSubV, Vector, newVector, newPoint } from '../../affine'
+import { transformVector, pSubP, pSubV, Vector, newVector, newPoint, identityTransform } from '../../affine'
 import { test } from '../../viewZoomTransform'
 
 var svg = select("svg"),
@@ -14,9 +14,9 @@ var points = range(2000).map(phyllotaxis(10));
 
 var g = svg.append("g");
 
-const svgNode = svg.node() as SVGSVGElement
 
-test(svgNode)
+// var refNode: SVGGElement = svg.append("g").node() as SVGGElement
+const svgNode = svg.node() as SVGSVGElement
 
 g.selectAll("circle")
     .data(points)
@@ -34,11 +34,30 @@ svg.append("rect")
         .scaleExtent([1, 1])
         .on("zoom", zoomed));
 
+//const rr = 500
 const viewNode: SVGGElement = g.node() as SVGGElement
-const t = new ViewWindowTransform(viewNode.transform.baseVal)
-t.setViewPort(width, width)
+test(svgNode, viewNode)
+	
+/*
+const refT = new ViewWindowTransform(refNode.transform.baseVal)
+const p1 = newPoint(-rr, -rr)
+const p2 = newPoint(rr, rr)
 
-const rr = 500
+
+
+const corner1 = newPoint(0, 0)
+const corner2 = newPoint(width, width)
+
+t.setViewPort(width, width)
+refT.setViewPort(width, width)
+refT.setViewWindow(-rr, rr, -rr, rr)
+
+//affineViewWindow(refT, p1, p2)
+
+const aaa:  number = 0 + refT.fromScreenToModel(newPoint(0, 0)).x
+const bbb:  number = 0 + refT.fromModelToScreen(newPoint(-rr, rr)).x
+*/
+
 
 function phyllotaxis(radius: number) {
   var theta = Math.PI * (3 - Math.sqrt(5));
@@ -52,12 +71,13 @@ function phyllotaxis(radius: number) {
 }
 
 var newZoom : string = null
-let newZoomX = 0
+let newZoomT = identityTransform()
 var zoomCount = 0
 var maxZoomCount = 0
 
+/*
 // бескоординатная обертка вокруг координатного setViewWindow
-function affineViewWindow(p1: SVGPoint, p2: SVGPoint) {
+function affineViewWindow(t: ViewWindowTransform, p1: SVGPoint, p2: SVGPoint) : void {
 	t.setViewWindow(p1.x, p2.x, p1.y, p2.y)
 }
 
@@ -66,20 +86,34 @@ function vecToModel(screenVector: Vector): Vector {
 	const transformPoint = (point: SVGPoint) => t.fromScreenToModel(point)
 	return transformVector(transformPoint, screenVector)
 }
+*/
+
+function zoomAffineTransform(t: ZoomTransform) {
+	return identityTransform().translate(-t.x, 0) //.scaleNonUniform(t.k, 1)
+}
 
 const draw = drawProc(function () {
-    document.getElementById("misc").textContent = newZoomX.toString()
+    
 
-	const screenVector = newVector(newZoomX, 0)
-	const p1 = newPoint(-rr, -rr)
-	const p2 = newPoint(rr, rr)
+	// const screenVector = newVector(newZoomX, 0)
+	// const p1 = newPoint(-rr, -rr).matrixTransform(t)
+	// const p2 = newPoint(rr, rr).matrixTransform(t)
 	// в этом месте мы забыли про координаты - код ниже их
 	// не упоминает, хотя внутри за барьером абстракции 
 	// оперирует. Мы перешли в аффинный мир и выходим из
 	// него только в самом конце - внутри affineViewWindow
 
-	const modelVector = vecToModel(screenVector)	
-	affineViewWindow(pSubV(p1, modelVector), pSubV(p2, modelVector))
+	
+
+	const revZoom = identityTransform() // newZoomT.inverse()
+
+//	const corner1m = refT.fromScreenToModel(corner1.matrixTransform(revZoom))
+//	const corner2m = refT.fromScreenToModel(corner2.matrixTransform(revZoom))
+//	document.getElementById("misc").textContent = `${corner2m.x}`
+
+//	affineViewWindow(t, corner1m, corner2m)
+	// const modelVector = vecToModel(screenVector)	
+	// affineViewWindow(pSubV(p1, modelVector), pSubV(p2, modelVector))
 })
 
 draw()
@@ -92,7 +126,7 @@ function zoomed()
     if (z != newZoom)
     {
         newZoom = z
-		newZoomX = d3event.transform.x
+		newZoomT = zoomAffineTransform(d3event.transform)
         draw()
     }
 }

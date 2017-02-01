@@ -48,11 +48,17 @@ function betweenBasesAR1(b1 : [number, number], b2: [number, number]) : AR1 {
 	return new AR1([(b21 - b22) / (b11 - b12), - (b12 * b21 - b11 * b22) / (b11 - b12)])
 }
 
-export function test(svgNode: SVGSVGElement)
+export function updateNode(n: SVGGElement, m: SVGMatrix) {
+	const svgTranformList = n.transform.baseVal
+	const t = svgTranformList.createSVGTransformFromMatrix(m)
+    svgTranformList.initialize(t)
+}
+
+export function test(svgNode: SVGSVGElement, viewNode: SVGGElement)
 {
 	const id = svgNode.createSVGMatrix()
-	const affX = betweenBasesAR1([-55, 55], [0, 640])
-	
+	const affX = betweenBasesAR1([-550, 550], [0, 640])
+
 	const m = affX.applyToMatrixX(id)
 
 	const newPoint = (x: number, y: number) => {
@@ -62,6 +68,8 @@ export function test(svgNode: SVGSVGElement)
 		return p
 	}
 	const pp = newPoint(55,0).matrixTransform(m)
+
+	updateNode(viewNode, m)	
 
 	alert(0 + pp.x)
 }
