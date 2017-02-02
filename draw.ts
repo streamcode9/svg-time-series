@@ -1,14 +1,13 @@
 ﻿import { scaleLinear, scaleTime } from 'd3-scale'
-import { BaseType, event as d3event, Selection, selectAll } from 'd3-selection'
+import { BaseType, event as d3event, selectAll, Selection } from 'd3-selection'
 import { line } from 'd3-shape'
 import { timeout as runTimeout } from 'd3-timer'
 import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
 
-import axis = require('./axis')
-import { IMinMax, SegmentTree } from './segmentTree'
-import { ViewWindowTransform } from './ViewWindowTransform'
 import { MyAxis, Orientation } from './axis'
 import { animateBench, animateCosDown } from './benchmarks/bench'
+import { IMinMax, SegmentTree } from './segmentTree'
+import { ViewWindowTransform } from './ViewWindowTransform'
 import { betweenBasesAR1, updateNode } from './viewZoomTransform'
 
 interface IChartParameters {
@@ -34,18 +33,18 @@ function drawProc(f: Function) {
 
 class MyTransform {
 
-	viewPortPointsX: [number, number]
-	viewPortPointsY: [number, number]
+	private viewPortPointsX: [number, number]
+	private viewPortPointsY: [number, number]
 
-	referenceViewWindowPointsX: [number, number]
-	referenceViewWindowPointsY: [number, number]
+	private referenceViewWindowPointsX: [number, number]
+	private referenceViewWindowPointsY: [number, number]
 
-	identityTransform: SVGMatrix	
-	referenceTransform: SVGMatrix
-	zoomTransform: SVGMatrix
-	svgNode: SVGSVGElement
+	private identityTransform: SVGMatrix
+	private referenceTransform: SVGMatrix
+	private zoomTransform: SVGMatrix
+	private svgNode: SVGSVGElement
 
-	viewNode: SVGGElement
+	private viewNode: SVGGElement
 
 	constructor(svgNode: SVGSVGElement, viewNode: SVGGElement) {
 		this.identityTransform = svgNode.createSVGMatrix()
@@ -98,8 +97,6 @@ class MyTransform {
 
 export class TimeSeriesChart {
 	private chart: IChartParameters
-	private minX: Date
-	private maxX: Date
 
 	// updated when a new point is added
 	private tree: SegmentTree
@@ -109,23 +106,34 @@ export class TimeSeriesChart {
 	// Date.now() style timestamp
 	private timeAtIdx0: number
 
-	private timeAtIdxLast: number
-
 	// Step by X axis
-	// Date.now() style timestamp
+	// Date.now() style timestamp delta
 	private timeStep: number
 
 	private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax
 	private zoomHandler: () => void
 
-	constructor(svg: Selection<BaseType, {}, HTMLElement, any>, startTime: number, timeStep: number, data: number[][], buildSegmentTreeTuple: (index: number, elements: any) => IMinMax, zoomHandler: () => void) {
+	constructor(
+		svg: Selection<BaseType, {}, HTMLElement, any>,
+		startTime: number, timeStep: number,
+		data: number[][],
+		buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
+		zoomHandler: () => void) {
 		this.timeStep = timeStep
 		this.timeAtIdx0 = startTime
-		this.timeAtIdxLast = this.getTimeByIndex(data.length - 1, startTime)
 		this.buildSegmentTreeTuple = buildSegmentTreeTuple
 		this.zoomHandler = zoomHandler
 
 		this.drawChart(svg, data)
+	}
+
+	public updateChartWithNewData(newData: number[]) {
+		this.chart.data.push(newData)
+		this.chart.data.shift()
+
+		this.timeAtIdx0 += this.timeStep
+
+		this.drawNewData()
 	}
 
 	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: number[][]) {
@@ -229,20 +237,13 @@ export class TimeSeriesChart {
 		}
 	}
 
-	public updateChartWithNewData (newData: number[]) {
-		this.chart.data.push(newData)
-		this.chart.data.shift()
-
-		this.timeAtIdx0 += this.timeStep
-		this.timeAtIdxLast += this.timeStep
-
-		this.drawNewData()
-	}
-
 	private drawNewData = drawProc(function() {
 		this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
 		this.chart.update()
-		this.chart.view.selectAll('path').attr('d', (cityIndex: number) => this.chart.line(cityIndex).call(null, this.chart.data))
+		this.chart.view
+			.selectAll('path')
+			.attr('d', (cityIndex: number) => this.chart.line(cityIndex).call(null, this.chart.data))
+
 	}.bind(this))
 
 	private getTimeByIndex(index: number, startTime: number) : number {
