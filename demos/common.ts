@@ -1,7 +1,9 @@
 ﻿import { ValueFn, select, selectAll, event } from 'd3-selection'
 
 import { TimeSeriesChart } from '../draw'
+import { measure } from '../measure'
 import { IMinMax } from '../segmentTree'
+
 
 
 function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
@@ -30,4 +32,7 @@ export function drawCharts (data: number[][]) {
 		charts.forEach(c => c.updateChartWithNewData(newData))
 		j++
 	}, 5000)
+	measure(3, (fps) => {
+		document.getElementById('fps').textContent = fps
+	})
 }
