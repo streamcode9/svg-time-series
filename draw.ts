@@ -43,12 +43,15 @@ class MyTransform {
 	identityTransform: SVGMatrix	
 	referenceTransform: SVGMatrix
 	zoomTransform: SVGMatrix
+	svgNode: SVGSVGElement
+
 	
 	viewNode: SVGGElement
 
 	constructor(svgNode: SVGSVGElement, viewNode: SVGGElement) {
 		this.identityTransform = svgNode.createSVGMatrix()
 		this.viewNode = viewNode
+		this.svgNode = svgNode
 		this.zoomTransform = this.identityTransform
 		this.referenceTransform = this.identityTransform
 		this.viewPortPointsX = [0, 1]
@@ -81,6 +84,16 @@ class MyTransform {
 
 	public onZoomPan(t: ZoomTransform) : void {
 		this.zoomTransform = this.identityTransform.translate(t.x, 0).scaleNonUniform(t.k, 1)
+	}
+
+	public fromScreenToModelX(x: number) {
+		const fwd = this.zoomTransform.multiply(this.referenceTransform)
+		const bwd = fwd.inverse()
+		
+		const p = this.svgNode.createSVGPoint()
+		p.x = x
+		p.y = 0 // irrelevant
+		return p.matrixTransform(bwd).x
 	}
 }
 
@@ -167,29 +180,7 @@ export class TimeSeriesChart {
 
 		const viewNode: SVGGElement = view.node() as SVGGElement
 		const pathTransform = new MyTransform(svg.node() as SVGSVGElement, viewNode)
-		pathTransform.onViewPortResize(width, height)
-		pathTransform.onReferenceViewWindowResize([0, data.length], [5, 85])
-		pathTransform.updateViewNode()
 
-		// it's important that we have only 1 instance
-		// of drawProc and not one per event
-		const scheduleRefresh = drawProc(() => {
-				pathTransform.updateViewNode()
-		})
-
-		const newZoom = () => {
-			pathTransform.onZoomPan(d3event.transform)
-			scheduleRefresh()
-		}
-
-		svg.append('rect')
-			.attr('class', 'zoom')
-			.attr('width', width)
-			.attr('height', height)
-			.call(d3zoom()
-				.scaleExtent([1, 40])
-				.translateExtent([[0, 0], [width, height]])
-				.on('zoom', newZoom))
 		
 		// minIdxX and maxIdxX are indexes (model X coordinates) at chart edges
 		// so they are updated by zoom and pan or animation
@@ -205,7 +196,30 @@ export class TimeSeriesChart {
 			yAxis.axisUp(gY)
 		}
 
-		update(0, data.length - 1)
+		// it's important that we have only 1 instance
+		// of drawProc and not one per event
+		const scheduleRefresh = drawProc(() => {
+			const minX = pathTransform.fromScreenToModelX(0)
+			const maxX = pathTransform.fromScreenToModelX(width)
+			update(minX, maxX)	
+			pathTransform.updateViewNode()
+		})
+
+		const newZoom = () => {
+			pathTransform.onZoomPan(d3event.transform)
+			scheduleRefresh()
+		}
+
+		pathTransform.onViewPortResize(width, height)
+
+		svg.append('rect')
+			.attr('class', 'zoom')
+			.attr('width', width)
+			.attr('height', height)
+			.call(d3zoom()
+				.scaleExtent([1, 40])
+				.translateExtent([[0, 0], [width, height]])
+				.on('zoom', newZoom))
 
 		this.chart = {
 			view, data, line: drawLine,
@@ -222,22 +236,6 @@ export class TimeSeriesChart {
 
 		this.drawNewData()
 	}
-
-/*	private getZoomIntervalY(xSubInterval: [Date, Date], intervalSize: number) : [number, number] {
-		let from = intervalSize
-		let to = 0
-		for (let i = 0; i < intervalSize; i++) {
-			if (this.getTimeByIndex(i, this.timeAtIdx0) >= xSubInterval[0] && this.getTimeByIndex(i, this.timeAtIdx0) <= xSubInterval[1]) {
-				if (i > to) {
-					to = i
-				}
-				if (i < from) {
-					from = i
-				}
-			}
-		}
-		return [from, to]
-	}*/
 
 	private drawNewData = drawProc(function() {
 		this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
