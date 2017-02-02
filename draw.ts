@@ -173,7 +173,7 @@ export class TimeSeriesChart {
 		this.chart = {
 			view, data, line: drawLine,
 			update: scheduleRefresh,
-			zoom: newZoom
+			zoom: newZoom,
 		}
 	}
 

@@ -1,9 +1,20 @@
+// viewZoomTransform состоит из двух этапов:
+// - viewTransform трансформирует референсый вьюпорт в модельных
+//   в референсный вьюпорт в экранных
+// - zoomTransform трансформирует
+//
+// - "модельный" вьюпорт - перемещается зумом
+// - "референсный модельный" вьюпорт - постоянен
+// - "экранный" вьюпорт - постоянен
+
+//screenCorner * revZoom * revView = modelCorner
+//
+
 import { ZoomTransform } from 'd3-zoom'
 
 import { betweenBasesAR1 } from './viewZoomTransform'
 
 export class MyTransform {
-
 	private viewPortPointsX: [number, number]
 	private viewPortPointsY: [number, number]
 
