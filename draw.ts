@@ -5,10 +5,8 @@ import { timeout as runTimeout } from 'd3-timer'
 import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
 
 import { MyAxis, Orientation } from './axis'
-import { animateBench, animateCosDown } from './benchmarks/bench'
+import { MyTransform } from './MyTransform'
 import { IMinMax, SegmentTree } from './segmentTree'
-import { ViewWindowTransform } from './ViewWindowTransform'
-import { betweenBasesAR1, updateNode } from './viewZoomTransform'
 
 interface IChartParameters {
 	view: any
@@ -29,70 +27,6 @@ function drawProc(f: Function) {
 				f(params)
 			})
 		}
-	}
-}
-
-class MyTransform {
-
-	private viewPortPointsX: [number, number]
-	private viewPortPointsY: [number, number]
-
-	private referenceViewWindowPointsX: [number, number]
-	private referenceViewWindowPointsY: [number, number]
-
-	private identityTransform: SVGMatrix
-	private referenceTransform: SVGMatrix
-	private zoomTransform: SVGMatrix
-	private svgNode: SVGSVGElement
-
-	private viewNode: SVGGElement
-
-	constructor(svgNode: SVGSVGElement, viewNode: SVGGElement) {
-		this.identityTransform = svgNode.createSVGMatrix()
-		this.viewNode = viewNode
-		this.svgNode = svgNode
-		this.zoomTransform = this.identityTransform
-		this.referenceTransform = this.identityTransform
-		this.viewPortPointsX = [0, 1]
-		this.viewPortPointsY = [0, 1]
-		this.referenceViewWindowPointsX = [0, 1]
-		this.referenceViewWindowPointsY = [0, 1]
-	}
-
-	private updateReferenceTransform()  {
-		const affX = betweenBasesAR1(this.referenceViewWindowPointsX, this.viewPortPointsX)
-		const affY = betweenBasesAR1(this.referenceViewWindowPointsY, this.viewPortPointsY)
-		this.referenceTransform = affY.applyToMatrixY(affX.applyToMatrixX(this.identityTransform))
-	}
-
-	public onViewPortResize(newWidth: number, newHeight: number) : void {
-		this.viewPortPointsX = [0, newWidth]
-		this.viewPortPointsY = [newHeight, 0]
-		this.updateReferenceTransform()
-	}
-
-	public onReferenceViewWindowResize(newPointsX: [number, number], newPointsY: [number, number]) {
-		this.referenceViewWindowPointsX = newPointsX
-		this.referenceViewWindowPointsY = newPointsY
-		this.updateReferenceTransform()
-	}
-
-	public updateViewNode() {
-		updateNode(this.viewNode, this.zoomTransform.multiply(this.referenceTransform))
-	}
-
-	public onZoomPan(t: ZoomTransform) : void {
-		this.zoomTransform = this.identityTransform.translate(t.x, 0).scaleNonUniform(t.k, 1)
-	}
-
-	public fromScreenToModelX(x: number) {
-		const fwd = this.zoomTransform.multiply(this.referenceTransform)
-		const bwd = fwd.inverse()
-
-		const p = this.svgNode.createSVGPoint()
-		p.x = x
-		p.y = 0 // irrelevant
-		return p.matrixTransform(bwd).x
 	}
 }
 
