@@ -21,7 +21,7 @@ export function drawCharts (data: number[][]) {
 		if (z == newZoom) return
 
 		newZoom = z
-		charts.forEach(c => c.zoom(event.transform))
+//		charts.forEach(c => c.zoom(event.transform))
 	}
 
 	const onSelectChart: ValueFn<any, any, any> = function (element: any, datum: any, descElement: any) {

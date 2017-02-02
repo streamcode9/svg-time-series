@@ -47,7 +47,7 @@ class AR1 {
 //		 b21 - b22        b12 b21 - b11 b22
 // [[a = ---------, b = - -----------------]]
 //  	 b11 - b12            b11 - b12
-function betweenBasesAR1(b1 : [number, number], b2: [number, number]) : AR1 {
+export function betweenBasesAR1(b1 : [number, number], b2: [number, number]) : AR1 {
 	const [b11, b12] = b1
 	const [b21, b22] = b2
 	return new AR1([(b21 - b22) / (b11 - b12), - (b12 * b21 - b11 * b22) / (b11 - b12)])

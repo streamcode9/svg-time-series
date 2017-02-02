@@ -1,5 +1,5 @@
 ﻿import { scaleLinear, scaleTime } from 'd3-scale'
-import { BaseType, Selection, selectAll } from 'd3-selection'
+import { BaseType, event as d3event, Selection, selectAll } from 'd3-selection'
 import { line } from 'd3-shape'
 import { timeout as runTimeout } from 'd3-timer'
 import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
@@ -9,6 +9,7 @@ import { IMinMax, SegmentTree } from './segmentTree'
 import { ViewWindowTransform } from './ViewWindowTransform'
 import { MyAxis, Orientation } from './axis'
 import { animateBench, animateCosDown } from './benchmarks/bench'
+import { betweenBasesAR1, updateNode } from './viewZoomTransform'
 
 interface IChartParameters {
 	view: any
@@ -28,6 +29,58 @@ function drawProc(f: Function) {
 				f(params)
 			})
 		}
+	}
+}
+
+class MyTransform {
+
+	viewPortPointsX: [number, number]
+	viewPortPointsY: [number, number]
+
+	referenceViewWindowPointsX: [number, number]
+	referenceViewWindowPointsY: [number, number]
+
+	identityTransform: SVGMatrix	
+	referenceTransform: SVGMatrix
+	zoomTransform: SVGMatrix
+	
+	viewNode: SVGGElement
+
+	constructor(svgNode: SVGSVGElement, viewNode: SVGGElement) {
+		this.identityTransform = svgNode.createSVGMatrix()
+		this.viewNode = viewNode
+		this.zoomTransform = this.identityTransform
+		this.referenceTransform = this.identityTransform
+		this.viewPortPointsX = [0, 1]
+		this.viewPortPointsY = [0, 1]
+		this.referenceViewWindowPointsX = [0, 1]
+		this.referenceViewWindowPointsY = [0, 1]
+	}
+
+	private updateReferenceTransform()  {
+		const affX = betweenBasesAR1(this.referenceViewWindowPointsX, this.viewPortPointsX)
+		const affY = betweenBasesAR1(this.referenceViewWindowPointsY, this.viewPortPointsY)
+		this.referenceTransform = affY.applyToMatrixY(affX.applyToMatrixX(this.identityTransform))
+	}
+
+	public onViewPortResize(newWidth: number, newHeight: number) : void {
+		this.viewPortPointsX = [0, newWidth]
+		this.viewPortPointsY = [newHeight, 0]
+		this.updateReferenceTransform()
+	}
+
+	public onReferenceViewWindowResize(newPointsX: [number, number], newPointsY: [number, number]) {
+		this.referenceViewWindowPointsX = newPointsX
+		this.referenceViewWindowPointsY = newPointsY
+		this.updateReferenceTransform()
+	}
+
+	public updateViewNode() {
+		updateNode(this.viewNode, this.zoomTransform.multiply(this.referenceTransform))
+	}
+
+	public onZoomPan(t: ZoomTransform) : void {
+		this.zoomTransform = this.identityTransform.translate(t.x, 0).scaleNonUniform(t.k, 1)
 	}
 }
 
@@ -62,28 +115,6 @@ export class TimeSeriesChart {
 
 		this.drawChart(svg, data)
 	}
-
-	public zoom = drawProc(function(param: ZoomTransform[]) {
-		const zoomTransform: ZoomTransform = param[0]
-		const translateX = zoomTransform.x
-		const scaleX = zoomTransform.k
-/*
-		this.chart.rx = zoomTransform.rescaleX(this.chart.x)
-		const domainX = this.chart.rx.domain()
-		const ySubInterval = this.getZoomIntervalY(domainX, this.chart.data.length)
-		const minMax = this.tree.getMinMax(ySubInterval[0], ySubInterval[1])
-		const domainY = [minMax.min, minMax.max]
-		const newRangeY = [this.chart.y(domainY[0]), this.chart.y(domainY[1])]
-		const oldRangeY = this.chart.y.range()
-		const scaleY = oldRangeY[0] / (newRangeY[0] - newRangeY[1])
-		const translateY = scaleY * (oldRangeY[1] - newRangeY[1])
-		const ry = scaleLinear().range([this.chart.height, 0]).domain(domainY)
-
-		this.chart.view.attr('transform', `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`)
-		this.chart.xAxis.setScale(this.chart.rx).axisUp(this.chart.gX)
-		this.chart.yAxis.setScale(ry).axisUp(this.chart.gY)
-*/
-		}.bind(this))
 
 	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: number[][]) {
 		const node: SVGSVGElement = svg.node() as SVGSVGElement
@@ -134,6 +165,23 @@ export class TimeSeriesChart {
 			.attr('class', 'axis')
 			.call(yAxis.axis.bind(yAxis))
 
+		const viewNode: SVGGElement = view.node() as SVGGElement
+		const pathTransform = new MyTransform(svg.node() as SVGSVGElement, viewNode)
+		pathTransform.onViewPortResize(width, height)
+		pathTransform.onReferenceViewWindowResize([0, data.length], [5, 85])
+		pathTransform.updateViewNode()
+
+		// it's important that we have only 1 instance
+		// of drawProc and not one per event
+		const scheduleRefresh = drawProc(() => {
+				pathTransform.updateViewNode()
+		})
+
+		const newZoom = () => {
+			pathTransform.onZoomPan(d3event.transform)
+			scheduleRefresh()
+		}
+
 		svg.append('rect')
 			.attr('class', 'zoom')
 			.attr('width', width)
@@ -141,18 +189,15 @@ export class TimeSeriesChart {
 			.call(d3zoom()
 				.scaleExtent([1, 40])
 				.translateExtent([[0, 0], [width, height]])
-				.on('zoom', this.zoomHandler.bind(this)))
-
-		const viewNode: SVGGElement = view.node() as SVGGElement
-		const pathTransform = new ViewWindowTransform(viewNode.transform.baseVal)
-
+				.on('zoom', newZoom))
+		
 		// minIdxX and maxIdxX are indexes (model X coordinates) at chart edges
 		// so they are updated by zoom and pan or animation
 		// but unaffected by arrival of new data
 		const update = (minIdxX: number, maxIdxX: number) => {
 			const idxToTime = (idx: number) => this.getTimeByIndex(idx, this.timeAtIdx0)
 			const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
-			pathTransform.setViewWindow(minIdxX, maxIdxX, min, max)
+			pathTransform.onReferenceViewWindowResize([0, data.length - 1], [min, max])
 			x.domain([minIdxX, maxIdxX].map(idxToTime))
 			y.domain([min, max])
 
@@ -160,7 +205,7 @@ export class TimeSeriesChart {
 			yAxis.axisUp(gY)
 		}
 
-		pathTransform.setViewPort(width, height)
+		update(0, data.length - 1)
 
 		this.chart = {
 			view, data, line: drawLine,
