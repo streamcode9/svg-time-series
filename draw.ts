@@ -157,6 +157,25 @@ export class TimeSeriesChart {
 
 		const x = scaleTime().range([0, width])
 		const y = scaleLinear().range([height, 0])
+		const viewNode: SVGGElement = view.node() as SVGGElement
+		const pathTransform = new MyTransform(svg.node() as SVGSVGElement, viewNode)
+
+
+		
+		// minIdxX and maxIdxX are indexes (model X coordinates) at chart edges
+		// so they are updated by zoom and pan or animation
+		// but unaffected by arrival of new data
+		const updateScales = (minIdxX: number, maxIdxX: number) => {
+			const idxToTime = (idx: number) => this.getTimeByIndex(idx, this.timeAtIdx0)
+			const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
+			pathTransform.onReferenceViewWindowResize([0, data.length - 1], [min, max])
+			x.domain([minIdxX, maxIdxX].map(idxToTime))
+			y.domain([min, max])
+
+		}
+
+		updateScales(0, data.length - 1)
+
 
 		const xAxis = new MyAxis(Orientation.Bottom, x)
 			.ticks(4)
@@ -178,31 +197,17 @@ export class TimeSeriesChart {
 			.attr('class', 'axis')
 			.call(yAxis.axis.bind(yAxis))
 
-		const viewNode: SVGGElement = view.node() as SVGGElement
-		const pathTransform = new MyTransform(svg.node() as SVGSVGElement, viewNode)
-
-		
-		// minIdxX and maxIdxX are indexes (model X coordinates) at chart edges
-		// so they are updated by zoom and pan or animation
-		// but unaffected by arrival of new data
-		const update = (minIdxX: number, maxIdxX: number) => {
-			const idxToTime = (idx: number) => this.getTimeByIndex(idx, this.timeAtIdx0)
-			const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
-			pathTransform.onReferenceViewWindowResize([0, data.length - 1], [min, max])
-			x.domain([minIdxX, maxIdxX].map(idxToTime))
-			y.domain([min, max])
-
-			xAxis.axisUp(gX)
-			yAxis.axisUp(gY)
-		}
 
 		// it's important that we have only 1 instance
 		// of drawProc and not one per event
 		const scheduleRefresh = drawProc(() => {
 			const minX = pathTransform.fromScreenToModelX(0)
 			const maxX = pathTransform.fromScreenToModelX(width)
-			update(minX, maxX)	
+			updateScales(minX, maxX)	
 			pathTransform.updateViewNode()
+
+			xAxis.axisUp(gX)
+			yAxis.axisUp(gY)
 		})
 
 		const newZoom = () => {
@@ -210,8 +215,11 @@ export class TimeSeriesChart {
 			scheduleRefresh()
 		}
 
+//	
 		pathTransform.onViewPortResize(width, height)
-
+		pathTransform.onReferenceViewWindowResize([0, data.length - 1], [0, 1])
+		pathTransform.updateViewNode()
+	scheduleRefresh()
 		svg.append('rect')
 			.attr('class', 'zoom')
 			.attr('width', width)
@@ -223,7 +231,7 @@ export class TimeSeriesChart {
 
 		this.chart = {
 			view, data, line: drawLine,
-			update
+			update: updateScales
 		}
 	}
 
