@@ -45,7 +45,6 @@ class MyTransform {
 	zoomTransform: SVGMatrix
 	svgNode: SVGSVGElement
 
-	
 	viewNode: SVGGElement
 
 	constructor(svgNode: SVGSVGElement, viewNode: SVGGElement) {
@@ -89,7 +88,7 @@ class MyTransform {
 	public fromScreenToModelX(x: number) {
 		const fwd = this.zoomTransform.multiply(this.referenceTransform)
 		const bwd = fwd.inverse()
-		
+
 		const p = this.svgNode.createSVGPoint()
 		p.x = x
 		p.y = 0 // irrelevant
@@ -160,8 +159,6 @@ export class TimeSeriesChart {
 		const viewNode: SVGGElement = view.node() as SVGGElement
 		const pathTransform = new MyTransform(svg.node() as SVGSVGElement, viewNode)
 
-
-		
 		// minIdxX and maxIdxX are indexes (model X coordinates) at chart edges
 		// so they are updated by zoom and pan or animation
 		// but unaffected by arrival of new data
@@ -175,7 +172,6 @@ export class TimeSeriesChart {
 		}
 
 		updateScales(0, data.length - 1)
-
 
 		const xAxis = new MyAxis(Orientation.Bottom, x)
 			.ticks(4)
@@ -197,13 +193,12 @@ export class TimeSeriesChart {
 			.attr('class', 'axis')
 			.call(yAxis.axis.bind(yAxis))
 
-
 		// it's important that we have only 1 instance
 		// of drawProc and not one per event
 		const scheduleRefresh = drawProc(() => {
 			const minX = pathTransform.fromScreenToModelX(0)
 			const maxX = pathTransform.fromScreenToModelX(width)
-			updateScales(minX, maxX)	
+			updateScales(minX, maxX)
 			pathTransform.updateViewNode()
 
 			xAxis.axisUp(gX)
@@ -215,11 +210,10 @@ export class TimeSeriesChart {
 			scheduleRefresh()
 		}
 
-//	
 		pathTransform.onViewPortResize(width, height)
 		pathTransform.onReferenceViewWindowResize([0, data.length - 1], [0, 1])
 		pathTransform.updateViewNode()
-	scheduleRefresh()
+		scheduleRefresh()
 		svg.append('rect')
 			.attr('class', 'zoom')
 			.attr('width', width)
@@ -231,7 +225,7 @@ export class TimeSeriesChart {
 
 		this.chart = {
 			view, data, line: drawLine,
-			update: scheduleRefresh
+			update: scheduleRefresh,
 		}
 	}
 
@@ -251,7 +245,7 @@ export class TimeSeriesChart {
 		this.chart.view.selectAll('path').attr('d', (cityIndex: number) => this.chart.line(cityIndex).call(null, this.chart.data))
 	}.bind(this))
 
-	private getTimeByIndex(index: number, startTime: number): number {
+	private getTimeByIndex(index: number, startTime: number) : number {
 		return index * this.timeStep + startTime
 	}
 }
