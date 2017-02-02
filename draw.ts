@@ -231,7 +231,7 @@ export class TimeSeriesChart {
 
 		this.chart = {
 			view, data, line: drawLine,
-			update: updateScales
+			update: scheduleRefresh
 		}
 	}
 
@@ -247,7 +247,7 @@ export class TimeSeriesChart {
 
 	private drawNewData = drawProc(function() {
 		this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
-		this.chart.update(0, this.chart.data.length - 1)
+		this.chart.update()
 		this.chart.view.selectAll('path').attr('d', (cityIndex: number) => this.chart.line(cityIndex).call(null, this.chart.data))
 	}.bind(this))
 
