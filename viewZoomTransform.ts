@@ -53,34 +53,4 @@ export function betweenBasesAR1(b1 : [number, number], b2: [number, number]) : A
 	return new AR1([(b21 - b22) / (b11 - b12), - (b12 * b21 - b11 * b22) / (b11 - b12)])
 }
 
-export function updateNode(n: SVGGElement, m: SVGMatrix) {
-	const svgTranformList = n.transform.baseVal
-	const t = svgTranformList.createSVGTransformFromMatrix(m)
-    svgTranformList.initialize(t)
-}
 
-export function test(svgNode: SVGSVGElement, viewNode: SVGGElement, width: number)
-{
-	const id = svgNode.createSVGMatrix()
-	const affX = betweenBasesAR1([-550, 550], [0, width])
-	const affY = betweenBasesAR1([-550, 550], [0, width])
-
-	const m = affY.applyToMatrixY(affX.applyToMatrixX(id))
-
-	const newPoint = (x: number, y: number) => {
-		const p = svgNode.createSVGPoint()
-		p.x = x
-		p.y = y
-		return p
-	}
-
-	return (zoomMatrix: SVGMatrix) => {
-		const zoomed = zoomMatrix.multiply(m)
-
-		const rev = zoomed.inverse()
-		const pp = newPoint(0,0).matrixTransform(rev)
-		document.getElementById("misc").textContent = `${pp.x}`
-
-		updateNode(viewNode, zoomed)
-	}
-}

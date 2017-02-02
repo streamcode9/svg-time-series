@@ -1,6 +1,6 @@
 import { ZoomTransform } from 'd3-zoom'
 
-import { betweenBasesAR1, updateNode } from './viewZoomTransform'
+import { betweenBasesAR1 } from './viewZoomTransform'
 
 export class MyTransform {
 
@@ -64,5 +64,11 @@ export class MyTransform {
 		p.y = 0 // irrelevant
 		return p.matrixTransform(bwd).x
 	}
+}
+
+export function updateNode(n: SVGGElement, m: SVGMatrix) {
+	const svgTranformList = n.transform.baseVal
+	const t = svgTranformList.createSVGTransformFromMatrix(m)
+    svgTranformList.initialize(t)
 }
 

@@ -3,8 +3,10 @@ import { range } from 'd3-array'
 import { measureAll } from '../bench'
 import { zoom, ZoomTransform } from 'd3-zoom'
 import { ViewWindowTransform } from '../../ViewWindowTransform'
-import { transformVector, pSubP, pSubV, Vector, newVector, newPoint, identityTransform } from '../../affine'
-import { test } from '../../viewZoomTransform'
+// import { transformVector, pSubP, pSubV, Vector, newVector, newPoint, identityTransform } from '../../affine'
+import { identityTransform } from '../../affine'
+import { betweenBasesAR1 } from '../../viewZoomTransform'
+import { updateNode } from '../../MyTransform'
 
 var svg = select("svg"),
     width = +svg.attr("width"),
@@ -122,4 +124,30 @@ function drawProc(f: (time: number) => void) {
 }
 
 measureAll()
+
+function test(svgNode: SVGSVGElement, viewNode: SVGGElement, width: number)
+{
+	const id = svgNode.createSVGMatrix()
+	const affX = betweenBasesAR1([-550, 550], [0, width])
+	const affY = betweenBasesAR1([-550, 550], [0, width])
+
+	const m = affY.applyToMatrixY(affX.applyToMatrixX(id))
+
+	const newPoint = (x: number, y: number) => {
+		const p = svgNode.createSVGPoint()
+		p.x = x
+		p.y = y
+		return p
+	}
+
+	return (zoomMatrix: SVGMatrix) => {
+		const zoomed = zoomMatrix.multiply(m)
+
+		const rev = zoomed.inverse()
+		const pp = newPoint(0,0).matrixTransform(rev)
+		document.getElementById("misc").textContent = `${pp.x}`
+
+		updateNode(viewNode, zoomed)
+	}
+}
 
