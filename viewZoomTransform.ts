@@ -38,6 +38,11 @@ class AR1 {
 		const [a, b] = this.m
 		return sm.translate(b, 0).scaleNonUniform(a, 1)
 	}
+
+	public applyToMatrixY(sm: SVGMatrix) : SVGMatrix {
+		const [a, b] = this.m
+		return sm.translate(0, b).scaleNonUniform(1, a)
+	}
 }
 //		 b21 - b22        b12 b21 - b11 b22
 // [[a = ---------, b = - -----------------]]
@@ -58,8 +63,9 @@ export function test(svgNode: SVGSVGElement, viewNode: SVGGElement, width: numbe
 {
 	const id = svgNode.createSVGMatrix()
 	const affX = betweenBasesAR1([-550, 550], [0, width])
+	const affY = betweenBasesAR1([-550, 550], [0, width])
 
-	const m = affX.applyToMatrixX(id)
+	const m = affY.applyToMatrixY(affX.applyToMatrixX(id))
 
 	const newPoint = (x: number, y: number) => {
 		const p = svgNode.createSVGPoint()
