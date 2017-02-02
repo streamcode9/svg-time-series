@@ -35,7 +35,6 @@ export class TimeSeriesChart {
 	private chart: IChartParameters
 	private minX: Date
 	private maxX: Date
-	private stepX: number
 
 	// updated when chart runs in background
 	private missedStepsCount: number
@@ -48,31 +47,25 @@ export class TimeSeriesChart {
 	// Date.now() style timestamp
 	private timeAtIdx0: number
 
+	private timeAtIdxLast: number
+
+	// Step by X axis
+	// Date.now() style timestamp
+	private timeStep: number
+
 	private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax
 	private zoomHandler: () => void
 
-	constructor(svg: Selection<BaseType, {}, HTMLElement, any>, minX: Date, stepX: number, data: number[][], buildSegmentTreeTuple: (index: number, elements: any) => IMinMax, zoomHandler: () => void) {
-		this.stepX = stepX
-		this.minX = minX
-		this.maxX = this.calcDate(data.length - 1, minX)
+	constructor(svg: Selection<BaseType, {}, HTMLElement, any>, startTime: number, timeStep: number, data: number[][], buildSegmentTreeTuple: (index: number, elements: any) => IMinMax, zoomHandler: () => void) {
+		this.timeStep = timeStep
+		this.timeAtIdx0 = startTime
+		this.timeAtIdxLast = this.getTimeByIndex(data.length - 1, startTime)
 		this.buildSegmentTreeTuple = buildSegmentTreeTuple
 		this.zoomHandler = zoomHandler
 
 		this.drawChart(svg, data)
 
 		this.missedStepsCount = 0
-	}
-
-	public updateChartWithNewData(newData: number[]) {
-		this.missedStepsCount++
-
-		this.chart.data.push(newData)
-
-		this.chart.data.shift()
-
-		this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
-
-		this.drawNewData()
 	}
 
 	public zoom = drawProc(function(param: ZoomTransform[]) {
@@ -116,8 +109,6 @@ export class TimeSeriesChart {
 
 		this.tree = new SegmentTree(data, data.length, this.buildSegmentTreeTuple)
 
-		const minMax = this.tree.getMinMax(0, this.tree.size - 1)
-
 		const view = svg.select('g.view')
 		const path = view
 			.selectAll('path')
@@ -159,14 +150,15 @@ export class TimeSeriesChart {
 
 		const viewNode: SVGGElement = view.node() as SVGGElement
 		const pathTransform = new ViewWindowTransform(viewNode.transform.baseVal)
-		// minX and maxX are indexes (model X coordinates) at chart edges
+
+		// minIdxX and maxIdxX are indexes (model X coordinates) at chart edges
 		// so they are updated by zoom and pan or animation
 		// but unaffected by arrival of new data
-		const update = (minX: number, maxX: number) => {
-			const idxToTime = (idx: number) => this.calcDate(idx, this.minX)
-			const { min, max } = this.tree.getMinMax(minX, maxX)
-			pathTransform.setViewWindow(minX, maxX, min, max)
-			x.domain([minX, maxX].map(idxToTime))
+		const update = (minIdxX: number, maxIdxX: number) => {
+			const idxToTime = (idx: number) => this.getTimeByIndex(idx, this.timeAtIdx0)
+			const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
+			pathTransform.setViewWindow(minIdxX, maxIdxX, min, max)
+			x.domain([minIdxX, maxIdxX].map(idxToTime))
 			y.domain([min, max])
 
 			xAxis.axisUp(gX)
@@ -174,12 +166,27 @@ export class TimeSeriesChart {
 		}
 
 		pathTransform.setViewPort(width, height)
-		animateBench((elapsed: number) => {
-			const dataLength = data.length
-			const minX = animateCosDown(dataLength / 2, 0, elapsed)
-			const maxX = minX + dataLength / 2
-			update(minX, maxX)
-		})	
+
+		const updateChartWithNewData = (newData: number[]) => {
+			this.missedStepsCount++
+
+			this.chart.data.push(newData)
+			this.chart.data.shift()
+			this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
+
+			this.timeAtIdx0 += this.timeStep
+			this.timeAtIdxLast += this.timeStep
+			update(0, this.chart.data.length - 1)
+
+			this.drawNewData()
+		}
+
+		let j = 0
+		setInterval(function() {
+			let newData = data[j % data.length]
+			updateChartWithNewData(newData)
+			j++
+		}, 1000)
 
 		this.chart = {
 			view, data, line: drawLine,
@@ -187,11 +194,11 @@ export class TimeSeriesChart {
 		}
 	}
 
-	private getZoomIntervalY(xSubInterval: [Date, Date], intervalSize: number) : [number, number] {
+/*	private getZoomIntervalY(xSubInterval: [Date, Date], intervalSize: number) : [number, number] {
 		let from = intervalSize
 		let to = 0
 		for (let i = 0; i < intervalSize; i++) {
-			if (this.calcDate(i, this.minX) >= xSubInterval[0] && this.calcDate(i, this.minX) <= xSubInterval[1]) {
+			if (this.getTimeByIndex(i, this.timeAtIdx0) >= xSubInterval[0] && this.getTimeByIndex(i, this.timeAtIdx0) <= xSubInterval[1]) {
 				if (i > to) {
 					to = i
 				}
@@ -201,18 +208,18 @@ export class TimeSeriesChart {
 			}
 		}
 		return [from, to]
-	}
+	}*/
 
 	private drawNewData = drawProc(function() {
 		const stepsToDraw = this.missedStepsCount
 		this.missedStepsCount = 0
-		this.minX = this.calcDate(stepsToDraw, this.minX)
+//		this.minX = this.calcDate(stepsToDraw, this.minX)
 // Note that minX and maxX are not this.minX!
 // this.chart.update(minX, maxX)
 		this.chart.view.selectAll('path').attr('d', (cityIndex: number) => this.chart.line(cityIndex).call(null, this.chart.data))
 	}.bind(this))
 
-	private calcDate(index: number, offset: Date) {
-		return new Date(index * this.stepX + offset.getTime())
+	private getTimeByIndex(index: number, startTime: number): number {
+		return index * this.timeStep + startTime
 	}
 }
