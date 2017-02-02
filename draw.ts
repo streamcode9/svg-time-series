@@ -14,7 +14,8 @@ interface IChartParameters {
 	view: any
 	data: number[][]
 	line: Function
-	update: (minX: number, maxX: number) => void
+	update: () => void
+	zoom: () => void
 }
 
 function drawProc(f: Function) {
@@ -136,6 +137,10 @@ export class TimeSeriesChart {
 		this.drawNewData()
 	}
 
+	public zoom() {
+		this.chart.zoom()
+	}
+
 	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: number[][]) {
 		const node: SVGSVGElement = svg.node() as SVGSVGElement
 		const div: HTMLElement = node.parentNode as HTMLElement
@@ -229,11 +234,12 @@ export class TimeSeriesChart {
 			.call(d3zoom()
 				.scaleExtent([1, 40])
 				.translateExtent([[0, 0], [width, height]])
-				.on('zoom', newZoom))
+				.on('zoom', this.zoomHandler.bind(this)))
 
 		this.chart = {
 			view, data, line: drawLine,
 			update: scheduleRefresh,
+			zoom: newZoom
 		}
 	}
 

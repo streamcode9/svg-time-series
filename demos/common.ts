@@ -14,15 +14,8 @@ function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
 
 export function drawCharts (data: number[][]) {
 	let charts: TimeSeriesChart[] = []
-	let newZoom: any = null
 
-	function onZoom() {
-		const z = event.transform.toString()
-		if (z == newZoom) return
-
-		newZoom = z
-//		charts.forEach(c => c.zoom(event.transform))
-	}
+	const onZoom = () => charts.forEach((c) => c.zoom())
 
 	const onSelectChart: ValueFn<any, any, any> = function (element: any, datum: any, descElement: any) {
 		let chart = new TimeSeriesChart(select(this), Date.now(), 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom)
@@ -36,5 +29,5 @@ export function drawCharts (data: number[][]) {
 		let newData = data[j % data.length]
 		charts.forEach(c => c.updateChartWithNewData(newData))
 		j++
-	}, 1000)
+	}, 5000)
 }
