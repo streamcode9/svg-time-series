@@ -75,4 +75,21 @@ export function betweenBasesAR1(b1 : [number, number], b2: [number, number]) : A
 	return new AR1([(b21 - b22) / (b11 - b12), - (b12 * b21 - b11 * b22) / (b11 - b12)])
 }
 
+export class AR1Basis {
+	private p1: number
+	private p2: number
+
+	constructor(pp1: number, pp2: number) {
+		this.p1 = pp1
+		this.p2 = pp2
+	}
+	public toArr() : [number, number] {
+		return [this.p1, this.p2]	
+	}
+}
+
+// between typed bases
+export function betweenTBasesAR1(b1 : AR1Basis, b2: AR1Basis) : AR1 {
+	return betweenBasesAR1(b1.toArr(), b2.toArr())
+}
 

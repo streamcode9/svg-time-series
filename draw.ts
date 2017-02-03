@@ -7,6 +7,7 @@ import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
 import { MyAxis, Orientation } from './axis'
 import { MyTransform } from './MyTransform'
 import { IMinMax, SegmentTree } from './segmentTree'
+import { AR1Basis } from './viewZoomTransform'
 
 interface IChartParameters {
 	view: any
@@ -111,8 +112,10 @@ export class TimeSeriesChart {
 		// but unaffected by arrival of new data
 		const updateScales = (minIdxX: number, maxIdxX: number) => {
 			const idxToTime = (idx: number) => this.getTimeByIndex(idx, this.timeAtIdx0)
+
+			// просто функция между базисами
 			const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
-			pathTransform.onReferenceViewWindowResize([0, data.length - 1], [min, max])
+			pathTransform.onReferenceViewWindowResize(new AR1Basis(0, data.length - 1), new AR1Basis(min, max))
 			x.domain([minIdxX, maxIdxX].map(idxToTime))
 			y.domain([min, max])
 
@@ -158,7 +161,7 @@ export class TimeSeriesChart {
 		}
 
 		pathTransform.onViewPortResize(width, height)
-		pathTransform.onReferenceViewWindowResize([0, data.length - 1], [0, 1])
+		pathTransform.onReferenceViewWindowResize(new AR1Basis(0, data.length - 1), new AR1Basis(0, 1))
 		pathTransform.updateViewNode()
 		scheduleRefresh()
 		svg.append('rect')

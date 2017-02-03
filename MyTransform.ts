@@ -12,14 +12,14 @@
 
 import { ZoomTransform } from 'd3-zoom'
 
-import { betweenBasesAR1 } from './viewZoomTransform'
+import { betweenBasesAR1, betweenTBasesAR1, AR1Basis } from './viewZoomTransform'
 
 export class MyTransform {
-	private viewPortPointsX: [number, number]
-	private viewPortPointsY: [number, number]
+	private viewPortPointsX: AR1Basis
+	private viewPortPointsY: AR1Basis
 
-	private referenceViewWindowPointsX: [number, number]
-	private referenceViewWindowPointsY: [number, number]
+	private referenceViewWindowPointsX: AR1Basis
+	private referenceViewWindowPointsY: AR1Basis
 
 	private identityTransform: SVGMatrix
 	private referenceTransform: SVGMatrix
@@ -34,25 +34,36 @@ export class MyTransform {
 		this.svgNode = svgNode
 		this.zoomTransform = this.identityTransform
 		this.referenceTransform = this.identityTransform
-		this.viewPortPointsX = [0, 1]
-		this.viewPortPointsY = [0, 1]
-		this.referenceViewWindowPointsX = [0, 1]
-		this.referenceViewWindowPointsY = [0, 1]
+		this.viewPortPointsX = new AR1Basis(0, 1)
+		this.viewPortPointsY = new AR1Basis(0, 1)
+		this.referenceViewWindowPointsX = new AR1Basis(0, 1)
+		this.referenceViewWindowPointsY = new AR1Basis(0, 1)
 	}
 
 	private updateReferenceTransform()  {
-		const affX = betweenBasesAR1(this.referenceViewWindowPointsX, this.viewPortPointsX)
-		const affY = betweenBasesAR1(this.referenceViewWindowPointsY, this.viewPortPointsY)
+		const affX = betweenTBasesAR1(this.referenceViewWindowPointsX, this.viewPortPointsX)
+		const affY = betweenTBasesAR1(this.referenceViewWindowPointsY, this.viewPortPointsY)
 		this.referenceTransform = affY.applyToMatrixY(affX.applyToMatrixX(this.identityTransform))
 	}
 
 	public onViewPortResize(newWidth: number, newHeight: number) : void {
-		this.viewPortPointsX = [0, newWidth]
-		this.viewPortPointsY = [newHeight, 0]
+		this.viewPortPointsX = new AR1Basis(0, newWidth)
+		// ось Y перевернута - что выглядит на языке
+		// базисов как перевернутый базис
+		//
+		// а на языке векторов как разность точек, которая
+		// у X положительна а у Y отрицательна
+		// ну и наоборот если перевернем первый базис
+		// то второй тоже перевернется но переворачивание
+		// по-прежнему выглядит как умножение разности на -1
+		//	
+		// короче неважно какой из них считать первичным
+		// в любом случае один перевернут по отношению к другому
+		this.viewPortPointsY = new AR1Basis (newHeight, 0)
 		this.updateReferenceTransform()
 	}
 
-	public onReferenceViewWindowResize(newPointsX: [number, number], newPointsY: [number, number]) {
+	public onReferenceViewWindowResize(newPointsX: AR1Basis, newPointsY: AR1Basis) {
 		this.referenceViewWindowPointsX = newPointsX
 		this.referenceViewWindowPointsY = newPointsY
 		this.updateReferenceTransform()
