@@ -63,7 +63,7 @@ export class TimeSeriesChart {
 	constructor(
 		svg: Selection<BaseType, {}, HTMLElement, any>,
 		startTime: number, timeStep: number,
-		data: number[][],
+		data: [number, number][],
 		buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
 		zoomHandler: () => void) {
 		this.timeStep = timeStep

@@ -12,13 +12,13 @@ interface Resize {
 
 const resize: Resize = { interval: 60, request : null, timer: null, eval: null }
 
-function onCsv(f: (csv: number[][]) => void) : void {
+function onCsv(f: (csv: [number, number][]) => void) : void {
 	csv('ny-vs-sf.csv')
 	.row((d: {NY: string, SF: string}) => [
 		parseFloat(d.NY.split(';')[0]),
 		parseFloat(d.SF.split(';')[0]),
 	])
-	.get((error: null, data: number[][]) => {
+	.get((error: null, data: [number, number][]) => {
 		if (error != null) {
 			alert('Data can\'t be downloaded or parsed')
 			return
@@ -27,7 +27,7 @@ function onCsv(f: (csv: number[][]) => void) : void {
 	})
 }
 
-onCsv((data) => {
+onCsv((data: [number, number][]) => {
 	drawCharts(data)
 	
 	resize.request = function() {
