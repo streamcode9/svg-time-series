@@ -30,4 +30,11 @@ export function drawCharts (data: number[][]) {
 	}
 
 	selectAll('svg').select(onSelectChart)
+
+	let j = 0
+	setInterval(function() {
+		let newData = data[j % data.length]
+		charts.forEach(c => c.updateChartWithNewData(newData))
+		j++
+	}, 1000)
 }

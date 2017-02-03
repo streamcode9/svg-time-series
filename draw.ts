@@ -36,9 +36,6 @@ export class TimeSeriesChart {
 	private minX: Date
 	private maxX: Date
 
-	// updated when chart runs in background
-	private missedStepsCount: number
-
 	// updated when a new point is added
 	private tree: SegmentTree
 
@@ -64,8 +61,6 @@ export class TimeSeriesChart {
 		this.zoomHandler = zoomHandler
 
 		this.drawChart(svg, data)
-
-		this.missedStepsCount = 0
 	}
 
 	public zoom = drawProc(function(param: ZoomTransform[]) {
@@ -167,31 +162,20 @@ export class TimeSeriesChart {
 
 		pathTransform.setViewPort(width, height)
 
-		const updateChartWithNewData = (newData: number[]) => {
-			this.missedStepsCount++
-
-			this.chart.data.push(newData)
-			this.chart.data.shift()
-			this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
-
-			this.timeAtIdx0 += this.timeStep
-			this.timeAtIdxLast += this.timeStep
-			update(0, this.chart.data.length - 1)
-
-			this.drawNewData()
-		}
-
-		let j = 0
-		setInterval(function() {
-			let newData = data[j % data.length]
-			updateChartWithNewData(newData)
-			j++
-		}, 1000)
-
 		this.chart = {
 			view, data, line: drawLine,
 			update
 		}
+	}
+
+	public updateChartWithNewData (newData: number[]) {
+		this.chart.data.push(newData)
+		this.chart.data.shift()
+
+		this.timeAtIdx0 += this.timeStep
+		this.timeAtIdxLast += this.timeStep
+
+		this.drawNewData()
 	}
 
 /*	private getZoomIntervalY(xSubInterval: [Date, Date], intervalSize: number) : [number, number] {
@@ -211,11 +195,8 @@ export class TimeSeriesChart {
 	}*/
 
 	private drawNewData = drawProc(function() {
-		const stepsToDraw = this.missedStepsCount
-		this.missedStepsCount = 0
-//		this.minX = this.calcDate(stepsToDraw, this.minX)
-// Note that minX and maxX are not this.minX!
-// this.chart.update(minX, maxX)
+		this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
+		this.chart.update(0, this.chart.data.length - 1)
 		this.chart.view.selectAll('path').attr('d', (cityIndex: number) => this.chart.line(cityIndex).call(null, this.chart.data))
 	}.bind(this))
 
