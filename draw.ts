@@ -199,9 +199,7 @@ export class TimeSeriesChart {
 			// дублироваться при создании чарта
 			this.tree = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTuple)
 
-			view
-				.selectAll('path')
-				.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, this.data))
+			path.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, this.data))
 			scheduleRefresh()
 		}
 
