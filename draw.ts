@@ -117,7 +117,6 @@ export class TimeSeriesChart {
 			.selectAll('path')
 			.data([0, 1])
 			.enter().append('path')
-			.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, data))
 
 		// тут наши перевернутые базисы которые мы
 		// cтеснительно запрятали в onViewPortResize
@@ -192,8 +191,6 @@ export class TimeSeriesChart {
 		// тут ещё 2 базиса затесались может стоит их вынести
 		pathTransform.onViewPortResize(width, height)
 		pathTransform.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
-		pathTransform.updateViewNode()
-		scheduleRefresh()
 		svg.append('rect')
 			.attr('class', 'zoom')
 			.attr('width', width)
@@ -204,6 +201,8 @@ export class TimeSeriesChart {
 				.on('zoom', this.zoomHandler.bind(this)))
 
 		const drawNewData = () => {
+			// создание дерева не должно
+			// дублироваться при создании чарта
 			this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
 
 			view
@@ -221,12 +220,9 @@ export class TimeSeriesChart {
 		this.drawNewData()
 	}
 
-	// это должно вызываться при создании чарта
-	// а не дублироваться
+
 	private drawNewData() {
-
 		this.chart.drawNewData()
-
 	}
 
 	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {
