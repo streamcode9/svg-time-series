@@ -45,6 +45,11 @@ export class TimeSeriesChart {
 	// Step by X axis
 	// Date.now() style timestamp delta
 	private timeStep: number
+	
+	// две точки - начало и конец массива в пространстве индексов
+	// стоит думать о них как об абстрактных точках образующих
+	// базис, а не в терминах их координат
+	private bIndexFull: AR1Basis
 
 	private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax
 	private zoomHandler: () => void
@@ -59,7 +64,7 @@ export class TimeSeriesChart {
 		this.timeAtIdx0 = startTime
 		this.buildSegmentTreeTuple = buildSegmentTreeTuple
 		this.zoomHandler = zoomHandler
-
+		this.bIndexFull = new AR1Basis(0, data.length - 1)
 		this.drawChart(svg, data)
 	}
 
@@ -102,6 +107,9 @@ export class TimeSeriesChart {
 			.enter().append('path')
 			.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, data))
 
+		// тут наши перевернутые базисы которые мы
+		// cтеснительно запрятали в onViewPortResize
+		// таки вылезли
 		const x = scaleTime().range([0, width])
 		const y = scaleLinear().range([height, 0])
 		const viewNode: SVGGElement = view.node() as SVGGElement
@@ -115,7 +123,15 @@ export class TimeSeriesChart {
 
 			// просто функция между базисами
 			const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
-			pathTransform.onReferenceViewWindowResize(new AR1Basis(0, data.length - 1), new AR1Basis(min, max))
+			const bTemperatureVisible = new AR1Basis(min, max)
+
+			// референсное окно имеет достаточно странный вид
+			// по горизонтали у нас полный диапазон
+			// а по вертикали только видимый
+			// надеюсь это исправится при переходе от отдельных
+			// пространств по Х и Y к единому пространству
+			// являющeмся их прямым произведением
+			pathTransform.onReferenceViewWindowResize(this.bIndexFull, bTemperatureVisible)
 			x.domain([minIdxX, maxIdxX].map(idxToTime))
 			y.domain([min, max])
 
@@ -160,8 +176,10 @@ export class TimeSeriesChart {
 			scheduleRefresh()
 		}
 
+		const bPlaceholder = new AR1Basis(0, 1)
+		// тут ещё 2 базиса затесались может стоит их вынести
 		pathTransform.onViewPortResize(width, height)
-		pathTransform.onReferenceViewWindowResize(new AR1Basis(0, data.length - 1), new AR1Basis(0, 1))
+		pathTransform.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
 		pathTransform.updateViewNode()
 		scheduleRefresh()
 		svg.append('rect')
@@ -180,6 +198,8 @@ export class TimeSeriesChart {
 		}
 	}
 
+	// это должно вызываться при создании чарта
+	// а не дублироваться
 	private drawNewData = drawProc(function() {
 		this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
 		this.chart.update()
