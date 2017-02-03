@@ -9,10 +9,6 @@ import { MyTransform } from './MyTransform'
 import { IMinMax, SegmentTree } from './segmentTree'
 import { AR1Basis } from './viewZoomTransform'
 
-interface IChartParameters {
-	data: number[][]
-}
-
 function drawProc(f: Function) {
 	let requested = false
 
@@ -37,7 +33,7 @@ function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any
 export class TimeSeriesChart {
 	public zoom : () => void
 	private drawNewData: () => void
-	private chart: IChartParameters
+	private data: [number, number][]
 
 	// updated when a new point is added
 	private tree: SegmentTree
@@ -74,16 +70,18 @@ export class TimeSeriesChart {
 		this.drawChart(svg, data)
 	}
 
-	public updateChartWithNewData(newData: number[]) {
-		this.chart.data.push(newData)
-		this.chart.data.shift()
+	public updateChartWithNewData(newData: [number, number]) {
+		this.data.push(newData)
+		this.data.shift()
 
 		this.timeAtIdx0 += this.timeStep
 
 		this.drawNewData()
 	}
 
-	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: number[][]) {
+	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: [number, number][]) {
+		this.data = data
+
 		const node: SVGSVGElement = svg.node() as SVGSVGElement
 		const div: HTMLElement = node.parentNode as HTMLElement
 
@@ -199,17 +197,14 @@ export class TimeSeriesChart {
 		const drawNewData = () => {
 			// создание дерева не должно
 			// дублироваться при создании чарта
-			this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
+			this.tree = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTuple)
 
 			view
 				.selectAll('path')
-				.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, this.chart.data))
+				.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, this.data))
 			scheduleRefresh()
 		}
 
-		this.chart = {
-			data,
-		}
 		drawNewData()
 		this.drawNewData = drawNewData
 		this.zoom = newZoom
