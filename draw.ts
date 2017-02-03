@@ -91,15 +91,6 @@ export class TimeSeriesChart {
 		svg.attr('width', width)
 		svg.attr('height', height)
 
-		const drawLine = (cityIdx: number) => line()
-			.defined((d: [number, number]) => {
-				return !(isNaN(d[cityIdx]) || d[cityIdx] == null)
-			})
-			.x((d: [number, number], i: number) => i)
-			.y((d: [number, number]) => d[cityIdx])
-
-		this.tree = new SegmentTree(data, data.length, this.buildSegmentTreeTuple)
-
 		const view = svg.select('g.view')
 
 		// это просто извращённый способ добавить
@@ -148,6 +139,8 @@ export class TimeSeriesChart {
 			y.domain(bTemperatureVisible.toArr())
 		}
 
+		this.tree = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTuple)
+
 		// в референсном окне видны все данные, поэтому
 		// передаем bIndexFull в качестее bIndexVisible
 		updateScales(this.bIndexFull)
@@ -169,6 +162,7 @@ export class TimeSeriesChart {
 
 		// it's important that we have only 1 instance
 		// of drawProc and not one per event
+		// вызывается из zoom и drawNewData
 		const scheduleRefresh = drawProc(() => {
 			const bIndexVisible = pathTransform.fromScreenToModelBasisX(bScreenXVisible)
 			updateScales(bIndexVisible)
@@ -177,11 +171,6 @@ export class TimeSeriesChart {
 			xAxis.axisUp(gX)
 			yAxis.axisUp(gY)
 		})
-
-		const newZoom = () => {
-			pathTransform.onZoomPan(d3event.transform)
-			scheduleRefresh()
-		}
 
 		// тут ещё 2 базиса затесались может стоит их вынести
 		pathTransform.onViewPortResize(width, height)
@@ -195,18 +184,31 @@ export class TimeSeriesChart {
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', this.zoomHandler.bind(this)))
 
-		const drawNewData = () => {
+		// вызывается здесь ниже
+		// и из публичного updateChartWithNewData()
+		this.drawNewData = () => {
 			// создание дерева не должно
 			// дублироваться при создании чарта
 			this.tree = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTuple)
+			const drawLine = (cityIdx: number) => line()
+				.defined((d: [number, number]) => {
+					return !(isNaN(d[cityIdx]) || d[cityIdx] == null)
+				})
+				.x((d: [number, number], i: number) => i)
+				.y((d: [number, number]) => d[cityIdx])
 
 			path.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, this.data))
 			scheduleRefresh()
 		}
 
-		drawNewData()
-		this.drawNewData = drawNewData
-		this.zoom = newZoom
+		this.drawNewData()
+
+		// публичный метод, используется для ретрансляции
+		// зум-события нескольким графикам
+		this.zoom = () => {
+			pathTransform.onZoomPan(d3event.transform)
+			scheduleRefresh()
+		}
 	}
 
 	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {
