@@ -11,8 +11,6 @@ import { AR1Basis } from './viewZoomTransform'
 
 interface IChartParameters {
 	data: number[][]
-	zoom: () => void
-	drawNewData: () => void
 }
 
 function drawProc(f: Function) {
@@ -37,6 +35,8 @@ function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any
 }
 
 export class TimeSeriesChart {
+	public zoom : () => void
+	private drawNewData: () => void
 	private chart: IChartParameters
 
 	// updated when a new point is added
@@ -81,10 +81,6 @@ export class TimeSeriesChart {
 		this.timeAtIdx0 += this.timeStep
 
 		this.drawNewData()
-	}
-
-	public zoom() {
-		this.chart.zoom()
 	}
 
 	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: number[][]) {
@@ -213,16 +209,10 @@ export class TimeSeriesChart {
 
 		this.chart = {
 			data,
-			zoom: newZoom,
-			drawNewData,
 		}
-
-		this.drawNewData()
-	}
-
-
-	private drawNewData() {
-		this.chart.drawNewData()
+		drawNewData()
+		this.drawNewData = drawNewData
+		this.zoom = newZoom
 	}
 
 	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {
