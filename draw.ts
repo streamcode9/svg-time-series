@@ -31,6 +31,13 @@ function drawProc(f: Function) {
 	}
 }
 
+function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any, scale: any) {
+	axis.setScale(scale)
+	return svg.append('g')
+		.attr('class', 'axis')
+		.call(axis.axis.bind(axis))
+}
+
 export class TimeSeriesChart {
 	private chart: IChartParameters
 
@@ -144,21 +151,14 @@ export class TimeSeriesChart {
 			.ticks(4)
 			.setTickSize(height)
 			.setTickPadding(8 - height)
-			.setScale(x)
 
 		const yAxis = new MyAxis(Orientation.Right, y)
 			.ticks(4)
 			.setTickSize(width)
 			.setTickPadding(2 - width)
-			.setScale(y)
 
-		const gX = svg.append('g')
-			.attr('class', 'axis')
-			.call(xAxis.axis.bind(xAxis))
-
-		const gY = svg.append('g')
-			.attr('class', 'axis')
-			.call(yAxis.axis.bind(yAxis))
+		const gX = bindAxisToDom(svg, xAxis, x)
+		const gY = bindAxisToDom(svg, yAxis, y)
 
 		// it's important that we have only 1 instance
 		// of drawProc and not one per event
