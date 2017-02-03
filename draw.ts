@@ -118,10 +118,11 @@ export class TimeSeriesChart {
 		// minIdxX and maxIdxX are indexes (model X coordinates) at chart edges
 		// so they are updated by zoom and pan or animation
 		// but unaffected by arrival of new data
-		const updateScales = (minIdxX: number, maxIdxX: number) => {
+		const updateScales = (bIndexVisible: AR1Basis) => {
 			const idxToTime = (idx: number) => this.getTimeByIndex(idx, this.timeAtIdx0)
 
 			// просто функция между базисами
+			const [minIdxX, maxIdxX] = bIndexVisible.toArr()
 			const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
 			const bTemperatureVisible = new AR1Basis(min, max)
 
@@ -132,12 +133,13 @@ export class TimeSeriesChart {
 			// пространств по Х и Y к единому пространству
 			// являющeмся их прямым произведением
 			pathTransform.onReferenceViewWindowResize(this.bIndexFull, bTemperatureVisible)
+			// с базисами в шкалах надо что-то делать
 			x.domain([minIdxX, maxIdxX].map(idxToTime))
 			y.domain([min, max])
 
 		}
 
-		updateScales(0, data.length - 1)
+		updateScales(this.bIndexFull)
 
 		const xAxis = new MyAxis(Orientation.Bottom, x)
 			.ticks(4)
@@ -162,9 +164,13 @@ export class TimeSeriesChart {
 		// it's important that we have only 1 instance
 		// of drawProc and not one per event
 		const scheduleRefresh = drawProc(() => {
-			const minX = pathTransform.fromScreenToModelX(0)
-			const maxX = pathTransform.fromScreenToModelX(width)
-			updateScales(minX, maxX)
+			// на видимую область можно смотреть абстрактно
+			// как на отдельное пространство
+
+			const bScreenXVisible = new AR1Basis(0, width)
+
+			const bIndexVisible = pathTransform.fromScreenToModelBasisX(bScreenXVisible)
+			updateScales(bIndexVisible)
 			pathTransform.updateViewNode()
 
 			xAxis.axisUp(gX)

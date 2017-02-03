@@ -86,6 +86,21 @@ export class MyTransform {
 		p.y = 0 // irrelevant
 		return p.matrixTransform(bwd).x
 	}
+
+	public fromScreenToModelBasisX(b: AR1Basis) {
+		const fwd = this.zoomTransform.multiply(this.referenceTransform)
+		const bwd = fwd.inverse()
+
+		const p = this.svgNode.createSVGPoint()
+		p.y = 0 // irrelevant
+		
+		const transformPoint = (x: number) => {
+			p.x = x
+			return p.matrixTransform(bwd).x
+		}
+		const [p1, p2] = b.toArr().map(transformPoint)
+		return new AR1Basis(p1, p2)
+	}
 }
 
 export function updateNode(n: SVGGElement, m: SVGMatrix) {
