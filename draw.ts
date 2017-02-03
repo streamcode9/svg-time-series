@@ -214,10 +214,6 @@ export class TimeSeriesChart {
 
 	}.bind(this))
 
-	private getTimeByIndex(index: number, startTime: number) : number {
-		return index * this.timeStep + startTime
-	}
-
 	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {
 		// просто функция между базисами
 		const [minIdxX, maxIdxX] = bIndexVisible.toArr()
@@ -226,7 +222,10 @@ export class TimeSeriesChart {
 	}
 
 	private bTimeVisible(bIndexVisible: AR1Basis) : AR1Basis {
-		const idxToTime = (idx: number) => this.getTimeByIndex(idx, this.timeAtIdx0)
+		// idxToTime - это тоже аффинное преобразование
+		// между базисами [0, 1] и [timeAtIdx0, timeAtIdx0 + timeStep]
+		// нужно будет заменить
+		const idxToTime = (index: number) => index * this.timeStep + this.timeAtIdx0
 		const [ minTimeVisible, maxTimeVisible ] = bIndexVisible.toArr().map(idxToTime)
 		return new AR1Basis(minTimeVisible, maxTimeVisible)
 	}
