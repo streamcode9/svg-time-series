@@ -108,6 +108,12 @@ export class TimeSeriesChart {
 		this.tree = new SegmentTree(data, data.length, this.buildSegmentTreeTuple)
 
 		const view = svg.select('g.view')
+
+		// это просто извращённый способ добавить
+		// в группу два элемента <path>
+		// .enter() это часть фреймворка d3 для работы
+		// с обновлениями, но мы пока игнорируем и
+		// делаем обновления руками
 		const path = view
 			.selectAll('path')
 			.data([0, 1])
@@ -149,6 +155,8 @@ export class TimeSeriesChart {
 
 		const xAxis = new MyAxis(Orientation.Bottom, x)
 			.ticks(4)
+			// изменять размер тиков надо при изменении
+			// размеров окна
 			.setTickSize(height)
 			.setTickPadding(8 - height)
 
@@ -205,14 +213,14 @@ export class TimeSeriesChart {
 
 	// это должно вызываться при создании чарта
 	// а не дублироваться
-	private drawNewData = drawProc(function() {
+	private drawNewData() {
 		this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
-		this.chart.update()
+
 		this.chart.view
 			.selectAll('path')
 			.attr('d', (cityIndex: number) => this.chart.line(cityIndex).call(null, this.chart.data))
-
-	}.bind(this))
+		this.chart.update()
+	}
 
 	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {
 		// просто функция между базисами
