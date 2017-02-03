@@ -122,11 +122,10 @@ export class TimeSeriesChart {
 		const updateScales = (bIndexVisible: AR1Basis) => {
 			const idxToTime = (idx: number) => this.getTimeByIndex(idx, this.timeAtIdx0)
 
-			// просто функция между базисами
-			const [minIdxX, maxIdxX] = bIndexVisible.toArr()
-			const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
-			const bTemperatureVisible = new AR1Basis(min, max)
-
+			// считается деревом отрезков, но все равно долго
+			// так что нужно сохранить чтобы
+			// два раза не перевычислять для окна и для осей
+			const bTemperatureVisible = this.bTemperatureVisible(bIndexVisible)
 			// референсное окно имеет достаточно странный вид
 			// по горизонтали у нас полный диапазон
 			// а по вертикали только видимый
@@ -137,11 +136,10 @@ export class TimeSeriesChart {
 			
 			// временная обертка чтобы получить bTimeVisible
 			// в явном виде
-			[ minTimeVisible, maxTimeVisible ] = bIndexVisible.toArr().map(idxToTime))
+			const [ minTimeVisible, maxTimeVisible ] = bIndexVisible.toArr().map(idxToTime)
 			const bTimeVisible = new AR1Basis(minTimeVisible, maxTimeVisible)
 			x.domain(bTimeVisible.toArr())
 			y.domain(bTemperatureVisible.toArr())
-
 		}
 
 		updateScales(this.bIndexFull)
@@ -222,5 +220,12 @@ export class TimeSeriesChart {
 
 	private getTimeByIndex(index: number, startTime: number) : number {
 		return index * this.timeStep + startTime
+	}
+
+	private bTemperatureVisible(bIndexVisible: AR1Basis) {
+		// просто функция между базисами
+		const [minIdxX, maxIdxX] = bIndexVisible.toArr()
+		const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
+		return new AR1Basis(min, max)
 	}
 }
