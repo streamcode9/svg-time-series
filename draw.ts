@@ -116,15 +116,14 @@ export class TimeSeriesChart {
 		const viewNode: SVGGElement = view.node() as SVGGElement
 		const pathTransform = new MyTransform(svg.node() as SVGSVGElement, viewNode)
 
-		// minIdxX and maxIdxX are indexes (model X coordinates) at chart edges
-		// so they are updated by zoom and pan or animation
+		// bIndexVisible is the visible ends of model
+		// affine space at chart edges.
+		// They are updated by zoom and pan or animation
 		// but unaffected by arrival of new data
 		const updateScales = (bIndexVisible: AR1Basis) => {
-			const idxToTime = (idx: number) => this.getTimeByIndex(idx, this.timeAtIdx0)
-
-			// считается деревом отрезков, но все равно долго
+			// рассчитается деревом отрезков, но все равно долго
 			// так что нужно сохранить чтобы
-			// два раза не перевычислять для окна и для осей
+			// два раза не перевычислять для линий графиков и для осей
 			const bTemperatureVisible = this.bTemperatureVisible(bIndexVisible)
 			// референсное окно имеет достаточно странный вид
 			// по горизонтали у нас полный диапазон
@@ -133,15 +132,12 @@ export class TimeSeriesChart {
 			// пространств по Х и Y к единому пространству
 			// являющeмся их прямым произведением
 			pathTransform.onReferenceViewWindowResize(this.bIndexFull, bTemperatureVisible)
-			
-			// временная обертка чтобы получить bTimeVisible
-			// в явном виде
-			const [ minTimeVisible, maxTimeVisible ] = bIndexVisible.toArr().map(idxToTime)
-			const bTimeVisible = new AR1Basis(minTimeVisible, maxTimeVisible)
-			x.domain(bTimeVisible.toArr())
+			x.domain(this.bTimeVisible(bIndexVisible).toArr())
 			y.domain(bTemperatureVisible.toArr())
 		}
 
+		// в референсном окне видны все данные, поэтому
+		// передаем bIndexFull в качестее bIndexVisible
 		updateScales(this.bIndexFull)
 
 		const xAxis = new MyAxis(Orientation.Bottom, x)
@@ -222,10 +218,16 @@ export class TimeSeriesChart {
 		return index * this.timeStep + startTime
 	}
 
-	private bTemperatureVisible(bIndexVisible: AR1Basis) {
+	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {
 		// просто функция между базисами
 		const [minIdxX, maxIdxX] = bIndexVisible.toArr()
 		const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
 		return new AR1Basis(min, max)
+	}
+
+	private bTimeVisible(bIndexVisible: AR1Basis) : AR1Basis {
+		const idxToTime = (idx: number) => this.getTimeByIndex(idx, this.timeAtIdx0)
+		const [ minTimeVisible, maxTimeVisible ] = bIndexVisible.toArr().map(idxToTime)
+		return new AR1Basis(minTimeVisible, maxTimeVisible)
 	}
 }
