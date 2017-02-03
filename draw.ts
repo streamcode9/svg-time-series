@@ -115,8 +115,15 @@ export class TimeSeriesChart {
 		// тут наши перевернутые базисы которые мы
 		// cтеснительно запрятали в onViewPortResize
 		// таки вылезли
-		// с базисами в шкалах надо что-то делать	
-		const x = scaleTime().range([0, width])
+
+		// на видимую область можно смотреть абстрактно
+		// как на отдельное пространство
+		const bPlaceholder = new AR1Basis(0, 1)
+		const bScreenXVisible = new AR1Basis(0, width)
+
+		const x = scaleTime().range(bScreenXVisible.toArr())
+		// осталась единственная "добазисная" манипуляция
+		// со шкалой
 		const y = scaleLinear().range([height, 0])
 		const viewNode: SVGGElement = view.node() as SVGGElement
 		const pathTransform = new MyTransform(svg.node() as SVGSVGElement, viewNode)
@@ -163,11 +170,6 @@ export class TimeSeriesChart {
 		// it's important that we have only 1 instance
 		// of drawProc and not one per event
 		const scheduleRefresh = drawProc(() => {
-			// на видимую область можно смотреть абстрактно
-			// как на отдельное пространство
-
-			const bScreenXVisible = new AR1Basis(0, width)
-
 			const bIndexVisible = pathTransform.fromScreenToModelBasisX(bScreenXVisible)
 			updateScales(bIndexVisible)
 			pathTransform.updateViewNode()
@@ -181,7 +183,6 @@ export class TimeSeriesChart {
 			scheduleRefresh()
 		}
 
-		const bPlaceholder = new AR1Basis(0, 1)
 		// тут ещё 2 базиса затесались может стоит их вынести
 		pathTransform.onViewPortResize(width, height)
 		pathTransform.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
