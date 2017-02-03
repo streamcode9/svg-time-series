@@ -10,11 +10,9 @@ import { IMinMax, SegmentTree } from './segmentTree'
 import { AR1Basis } from './viewZoomTransform'
 
 interface IChartParameters {
-	view: any
 	data: number[][]
-	line: Function
-	update: () => void
 	zoom: () => void
+	drawNewData: () => void
 }
 
 function drawProc(f: Function) {
@@ -54,8 +52,9 @@ export class TimeSeriesChart {
 	private timeStep: number
 	
 	// две точки - начало и конец массива в пространстве индексов
-	// стоит думать о них как об абстрактных точках образующих
-	// базис, а не в терминах их координат
+	// стоит думать о них как об абстрактных точках
+	// нарисованных в мире за телевизором на наших графиках
+	// а не в терминах их координат
 	private bIndexFull: AR1Basis
 
 	private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax
@@ -204,22 +203,30 @@ export class TimeSeriesChart {
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', this.zoomHandler.bind(this)))
 
-		this.chart = {
-			view, data, line: drawLine,
-			update: scheduleRefresh,
-			zoom: newZoom,
+		const drawNewData = () => {
+			this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
+
+			view
+				.selectAll('path')
+				.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, this.chart.data))
+			scheduleRefresh()
 		}
+
+		this.chart = {
+			data,
+			zoom: newZoom,
+			drawNewData,
+		}
+
+		this.drawNewData()
 	}
 
 	// это должно вызываться при создании чарта
 	// а не дублироваться
 	private drawNewData() {
-		this.tree = new SegmentTree(this.chart.data, this.chart.data.length, this.buildSegmentTreeTuple)
 
-		this.chart.view
-			.selectAll('path')
-			.attr('d', (cityIndex: number) => this.chart.line(cityIndex).call(null, this.chart.data))
-		this.chart.update()
+		this.chart.drawNewData()
+
 	}
 
 	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {
