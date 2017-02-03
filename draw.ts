@@ -110,6 +110,7 @@ export class TimeSeriesChart {
 		// тут наши перевернутые базисы которые мы
 		// cтеснительно запрятали в onViewPortResize
 		// таки вылезли
+		// с базисами в шкалах надо что-то делать	
 		const x = scaleTime().range([0, width])
 		const y = scaleLinear().range([height, 0])
 		const viewNode: SVGGElement = view.node() as SVGGElement
@@ -133,9 +134,13 @@ export class TimeSeriesChart {
 			// пространств по Х и Y к единому пространству
 			// являющeмся их прямым произведением
 			pathTransform.onReferenceViewWindowResize(this.bIndexFull, bTemperatureVisible)
-			// с базисами в шкалах надо что-то делать
-			x.domain([minIdxX, maxIdxX].map(idxToTime))
-			y.domain([min, max])
+			
+			// временная обертка чтобы получить bTimeVisible
+			// в явном виде
+			[ minTimeVisible, maxTimeVisible ] = bIndexVisible.toArr().map(idxToTime))
+			const bTimeVisible = new AR1Basis(minTimeVisible, maxTimeVisible)
+			x.domain(bTimeVisible.toArr())
+			y.domain(bTemperatureVisible.toArr())
 
 		}
 
