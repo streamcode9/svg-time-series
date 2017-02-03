@@ -31,9 +31,9 @@ function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any
 }
 
 export class TimeSeriesChart {
-	public zoom : () => void
+	public zoom: () => void
 	private drawNewData: () => void
-	private data: [number, number][]
+	private data: Array<[number, number]>
 
 	// updated when a new point is added
 	private tree: SegmentTree
@@ -46,7 +46,7 @@ export class TimeSeriesChart {
 	// Step by X axis
 	// Date.now() style timestamp delta
 	private timeStep: number
-	
+
 	// две точки - начало и конец массива в пространстве индексов
 	// стоит думать о них как об абстрактных точках
 	// нарисованных в мире за телевизором на наших графиках
@@ -59,7 +59,7 @@ export class TimeSeriesChart {
 	constructor(
 		svg: Selection<BaseType, {}, HTMLElement, any>,
 		startTime: number, timeStep: number,
-		data: [number, number][],
+		data: Array<[number, number]>,
 		buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
 		zoomHandler: () => void) {
 		this.timeStep = timeStep
@@ -79,7 +79,7 @@ export class TimeSeriesChart {
 		this.drawNewData()
 	}
 
-	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: [number, number][]) {
+	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: Array<[number, number]>) {
 		this.data = data
 
 		const node: SVGSVGElement = svg.node() as SVGSVGElement
@@ -171,7 +171,6 @@ export class TimeSeriesChart {
 			xAxis.axisUp(gX)
 			yAxis.axisUp(gY)
 		})
-
 		// тут ещё 2 базиса затесались может стоит их вынести
 		pathTransform.onViewPortResize(width, height)
 		pathTransform.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
