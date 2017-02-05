@@ -5,25 +5,52 @@ import { TimeSeriesChart } from './draw'
 onCsv((data) => {
 	const dataLength = data.length
 
-	const drawLine = (pathElement: any, cityIdx: number, off: number) => {
-		const idx = (i: number) => (i + off) % dataLength
+	let pathsData: any[][] = [[],[]]
+	let previousPointIsValid = [true, true]
+	data.forEach((d: number[], i: number, arr: number[][]) => {
+		const y0 = arr[i][0]
+		const y1 = arr[i][1]
+		const currentPointIsValid = [!isNaN(y0), !isNaN(y1)]
 
-		let pathData: any = []
-		let previousPointIsValid = true
-		data.forEach((d: number[], i: number, arr: number[][]) => {
-			const y = arr[idx(i)][cityIdx]
-			const currentPointIsValid = !isNaN(y)
+		if (!previousPointIsValid[0] && currentPointIsValid[0]) {
+			pathsData[0].push({ type: 'M', values: [i, y0]})
+		}
 
-			if (!previousPointIsValid && currentPointIsValid) {
-				pathData.push({ type: 'M', values: [i, y]})
-			}
+		if (!previousPointIsValid[1] && currentPointIsValid[1]) {
+			pathsData[1].push({ type: 'M', values: [i, y1]})
+		}
 
-			pathData.push({ type: i == 0 || !currentPointIsValid ? 'M' : 'L', values: [i, currentPointIsValid ? y : 0]})
+		pathsData[0].push({ type: i == 0 || !currentPointIsValid[0] ? 'M' : 'L', values: [i, currentPointIsValid[0] ? y0 : 0], isValid: currentPointIsValid[0]})
+		pathsData[1].push({ type: i == 0 || !currentPointIsValid[1] ? 'M' : 'L', values: [i, currentPointIsValid[1] ? y1 : 0], isValid: currentPointIsValid[1]})
 
-			previousPointIsValid = currentPointIsValid
+		previousPointIsValid = currentPointIsValid
+	})
+
+	const drawLine = (pathElement: any, cityIdx: number) => {
+		// Push new point
+		let newData: any = Object.assign({}, pathsData[cityIdx][0])
+		newData.type = newData.isValid ? 'L' : 'M'
+		pathsData[cityIdx].push(newData)
+
+		// Remove first point
+		pathsData[cityIdx].shift()
+
+		// Set path start point
+		let firstPoint: any = Object.assign({}, pathsData[cityIdx][0])
+		pathsData[cityIdx].unshift(firstPoint)
+		pathsData[cityIdx][0].type = 'M'
+
+		// Recalculate indexes
+		pathsData[cityIdx] = pathsData[cityIdx].map((d: any, i: number) => {
+			d.values[0] = i
+			return d
 		})
 
-		pathElement.setPathData(pathData)
+		// Draw
+		pathElement.setPathData(pathsData[cityIdx])
+
+		// Remove temporary start point
+		pathsData[cityIdx].shift()
 	}
 
 	const path = selectAll('g.view')

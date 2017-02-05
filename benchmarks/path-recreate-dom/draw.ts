@@ -7,7 +7,7 @@ export class TimeSeriesChart {
 	constructor(
 		svg: Selection<BaseType, {}, HTMLElement, any>,
 		dataLength: number,
-		drawLine: (element: any, idx: number, off: number) => void) {
+		drawLine: (element: any, idx: number) => void) {
 		const node: SVGSVGElement = svg.node() as SVGSVGElement
 		const div: HTMLElement = node.parentNode as HTMLElement
 		const viewNode: SVGGElement = svg.select('g').node() as SVGGElement
@@ -22,13 +22,11 @@ export class TimeSeriesChart {
 
 		const paths: Selection<any, any, any, any> = svg.select('g.view').selectAll('path')
 
-		let off = 0
 		animateBench((elapsed: number) => {
 			// Redraw paths
 			paths.each(function(cityIdx: number) {
-				drawLine(this, cityIdx, off)
+				drawLine(this, cityIdx)
 			})
-			off += 1
 		})
 	}
 }
