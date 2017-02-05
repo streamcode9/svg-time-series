@@ -249,6 +249,7 @@ benchmarks/d3-myaxis-ts/*.js
 benchmarks/d3-pan-zoom-vwt/*.js
 benchmarks/path-draw-transform-d3/*.js
 benchmarks/path-recreate-dom/*.js
+benchmarks/path-segment-recreate-dom/*.js
 benchmarks/segment-tree-queries/*.js
 benchmarks/segment-tree-reindexing/*.js
 benchmarks/svg-path-recreation-d3/*.js

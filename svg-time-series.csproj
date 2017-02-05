@@ -35,6 +35,8 @@
     <Content Include="benchmarks\path-draw-transform-d3\index.html" />
     <Content Include="benchmarks\path-recreate-dom\index.css" />
     <Content Include="benchmarks\path-recreate-dom\index.html" />
+    <Content Include="benchmarks\path-segment-recreate-dom\index.css" />
+    <Content Include="benchmarks\path-segment-recreate-dom\index.html" />
     <Content Include="benchmarks\segment-tree-queries\index.css" />
     <Content Include="benchmarks\segment-tree-queries\index.html" />
     <Content Include="benchmarks\segment-tree-reindexing\index.html" />
@@ -65,6 +67,8 @@
     <TypeScriptCompile Include="benchmarks\path-draw-transform-d3\index.ts" />
     <TypeScriptCompile Include="benchmarks\path-recreate-dom\draw.ts" />
     <TypeScriptCompile Include="benchmarks\path-recreate-dom\index.ts" />
+    <TypeScriptCompile Include="benchmarks\path-segment-recreate-dom\draw.ts" />
+    <TypeScriptCompile Include="benchmarks\path-segment-recreate-dom\index.ts" />
     <TypeScriptCompile Include="benchmarks\segment-tree-queries\draw.ts" />
     <TypeScriptCompile Include="benchmarks\segment-tree-queries\index.ts" />
     <TypeScriptCompile Include="benchmarks\segment-tree-reindexing\index.ts" />
@@ -99,6 +103,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="misc\affine.maxima" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="benchmarks\path-segment-recreate-dom\ny-vs-sf.csv" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
@@ -147,6 +154,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>npm run tsify-prd</PostBuildEvent>
+    <PostBuildEvent>npm run tsify-prsd</PostBuildEvent>
   </PropertyGroup>
 </Project>
