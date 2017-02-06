@@ -34,6 +34,7 @@ export class MyTransform {
 		this.svgNode = svgNode
 		this.zoomTransform = this.identityTransform
 		this.referenceTransform = this.identityTransform
+		// TODO заменить на плейсхолдеры
 		this.viewPortPointsX = new AR1Basis(0, 1)
 		this.viewPortPointsY = new AR1Basis(0, 1)
 		this.referenceViewWindowPointsX = new AR1Basis(0, 1)
@@ -46,20 +47,9 @@ export class MyTransform {
 		this.referenceTransform = affY.applyToMatrixY(affX.applyToMatrixX(this.identityTransform))
 	}
 
-	public onViewPortResize(newWidth: number, newHeight: number) : void {
-		this.viewPortPointsX = new AR1Basis(0, newWidth)
-		// ось Y перевернута - что выглядит на языке
-		// базисов как перевернутый базис
-		//
-		// а на языке векторов как разность точек, которая
-		// у X положительна а у Y отрицательна
-		// ну и наоборот если перевернем первый базис
-		// то второй тоже перевернется но переворачивание
-		// по-прежнему выглядит как умножение разности на -1
-		//	
-		// короче неважно какой из них считать первичным
-		// в любом случае один перевернут по отношению к другому
-		this.viewPortPointsY = new AR1Basis (newHeight, 0)
+	public onViewPortResize(bScreenXVisible: AR1Basis, bScreenYVisible: AR1Basis) : void {
+		this.viewPortPointsX = bScreenXVisible
+		this.viewPortPointsY = bScreenYVisible
 		this.updateReferenceTransform()
 	}
 

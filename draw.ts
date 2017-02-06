@@ -134,12 +134,22 @@ export class TimeSeriesChart {
 		// на видимую область можно смотреть абстрактно
 		// как на отдельное пространство
 
+		// ось Y перевернута - что выглядит на языке
+		// базисов как перевернутый базис
+		//
+		// а на языке векторов как разность точек, которая
+		// у X положительна а у Y отрицательна
+		// ну и наоборот если перевернем первый базис
+		// то второй тоже перевернется но переворачивание
+		// по-прежнему выглядит как умножение разности на -1
+		//	
+		// короче неважно какой из них считать первичным
+		// в любом случае один перевернут по отношению к другому
 		const bScreenXVisible = new AR1Basis(0, width)
+		const bScreenYVisible = new AR1Basis(height, 0)
 
 		const x = scaleTime().range(bScreenXVisible.toArr())
-		// осталась единственная "добазисная" манипуляция
-		// со шкалой
-		const y = scaleLinear().range([height, 0])
+		const y = scaleLinear().range(bScreenYVisible.toArr())
 		const viewNode: SVGGElement = view.node() as SVGGElement
 		const pathTransform = new MyTransform(svg.node() as SVGSVGElement, viewNode)
 
@@ -197,8 +207,7 @@ export class TimeSeriesChart {
 			xAxis.axisUp(gX)
 			yAxis.axisUp(gY)
 		})
-		// тут ещё 2 базиса затесались может стоит их вынести
-		pathTransform.onViewPortResize(width, height)
+		pathTransform.onViewPortResize(bScreenXVisible, bScreenYVisible)
 		pathTransform.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
 		svg.append('rect')
 			.attr('class', 'zoom')
