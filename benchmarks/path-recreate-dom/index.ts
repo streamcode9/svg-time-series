@@ -33,36 +33,33 @@ onCsv((data) => {
 	if (!previousPointIsValid[1]) {
 		pathsData[1][dataLength - 1].values[1] = pathsData[1][0].values[1]
 	}
+	
+	// Add start points
+	pathsData[0].unshift({ type: 'M', values: [0, 0]})
+	pathsData[1].unshift({ type: 'M', values: [0, 0]})
 
-	const drawLine = (pathElement: any, cityIdx: number) => {
-		// Push new point
-		let newData: any = Object.assign({}, pathsData[cityIdx][0])
-		newData.values = newData.values.map((_: any) => _)
-		pathsData[cityIdx].push(newData)
+	const drawLine = (pathElement: any, cityIdx: number, chartIdx: number) => {
+		if (chartIdx == 0) {
+			// Push new point
+			let newData: any = Object.assign({}, pathsData[cityIdx][1])
+			newData.values = newData.values.map((_: any) => _)
+			pathsData[cityIdx].push(newData)
 
-		// Remove first point
-		pathsData[cityIdx].shift()
+			// Remove first value point (second actual point)
+			pathsData[cityIdx].splice(1, 1)
 
-		// Set temporary start point
-		const needToAddStartPoint = pathsData[cityIdx][0].type == 'L'
-		if (needToAddStartPoint) {
-			let firstPoint: any = Object.assign({}, pathsData[cityIdx][0])
-			firstPoint.type = 'M'
-			firstPoint.values = firstPoint.values.map((_: any) => _)
-			pathsData[cityIdx].unshift(firstPoint)
+			// Recalculate indexes
+			pathsData[cityIdx] = pathsData[cityIdx].map((d: any, i: number) => {
+				d.values[0] = i - 1
+				return d
+			})
+			
+			// Set start point
+			pathsData[cityIdx][0].values = [0, pathsData[cityIdx][1].values[1]]
 		}
-
-		// Recalculate indexes
-		pathsData[cityIdx] = pathsData[cityIdx].map((d: any, i: number) => {
-			d.values[0] = i
-			return d
-		})
 
 		// Draw
 		pathElement.setPathData(pathsData[cityIdx])
-
-		// Remove temporary start point
-		if (needToAddStartPoint) pathsData[cityIdx].shift()
 	}
 
 	const path = selectAll('g.view')
@@ -70,8 +67,8 @@ onCsv((data) => {
 		.data([0, 1])
 		.enter().append('path')
 
-	selectAll('svg').each(function() {
-		return new TimeSeriesChart(select(this), dataLength, drawLine)
+	selectAll('svg').each(function(_: any, i: number) {
+		return new TimeSeriesChart(select(this), dataLength, drawLine, i)
 	})
 
 	measureAll()
