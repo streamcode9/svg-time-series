@@ -148,6 +148,7 @@ export class TimeSeriesChart {
 		const bScreenXVisible = new AR1Basis(0, width)
 		const bScreenYVisible = new AR1Basis(height, 0)
 
+		// интерфейс с лигаси-кодом. Некоторая многословость простительна
 		const x = scaleTime().range(bScreenXVisible.toArr())
 		const y = scaleLinear().range(bScreenYVisible.toArr())
 		const viewNode: SVGGElement = view.node() as SVGGElement
@@ -215,11 +216,14 @@ export class TimeSeriesChart {
 			.attr('height', height)
 			.call(d3zoom()
 				.scaleExtent([1, 40])
+				// в перспективе взять экстент из bScreenVisible
+				// хотя хез как быть с другим порядком
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', this.zoomHandler.bind(this)))
 
 		// вызывается здесь ниже
 		// и из публичного updateChartWithNewData()
+		// но в принципе должно быть в common.ts
 		this.drawNewData = () => {
 			// создание дерева не должно
 			// дублироваться при создании чарта

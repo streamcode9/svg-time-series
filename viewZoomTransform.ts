@@ -109,3 +109,71 @@ export function betweenTBasesAR1(b1 : AR1Basis, b2: AR1Basis) : AR1 {
 	return betweenBasesAR1(b1.toArr(), b2.toArr())
 }
 
+// пока это произведение конкретны[ пространств AR1 и AR1
+// но код обобщается на произвольные
+// при прямом произведении у нас трансформации в перемножаемых
+// пространствах независимые
+// на координатном языке это означает что трансформация по
+// оси Х не меняет координату Y
+// любопытно, что произведение пространств не влияет на количество
+// точек для определения трансформации. То есть наше пространство
+// переносов по двум осям как аффинное пространство - по-прежнему 
+// одномерно, и точек по-прежнему две.
+// Только теперь точки "двойные".
+export class DirectProduct {
+	// multiplied spaces 1 and 2
+	private s1: AR1
+	private s2: AR1
+
+	constructor(ss1: AR1, ss2: AR1) {
+		this.s1 = ss1
+		this.s2 = ss2
+	}
+
+	public applyToMatrix(sm: SVGMatrix) : SVGMatrix {
+		return this.s2.applyToMatrixY(this.s1.applyToMatrixX(sm))
+	}
+}
+
+export class DirectProductBasis {
+	private p1: [number, number]
+	private p2: [number, number]
+
+	constructor(pp1: [number, number], pp2: [number, number]) {
+		this.p1 = pp1
+		this.p2 = pp2
+	}
+
+	public x() {
+		const [x1, y1] = this.p1
+		const [x2, y2] = this.p2
+		return new AR1Basis(x1, x2)
+	}
+
+	public y() {
+		const [x1, y1] = this.p1
+		const [x2, y2] = this.p2
+		return new AR1Basis(y1, y2)
+	}
+
+	public toArr() {
+		return [this.x().toArr(), this.y().toArr()]
+	}
+
+	// здест по сути транспонирование матрицы 2х2
+	// непонятно как делать
+	public static fromProjections(b1: AR1Basis, b2: AR1Basis) : DirectProductBasis {
+		const [b1x, b2x] = b1.toArr()
+		const [b1y, b2y] = b2.toArr()
+		return new DirectProductBasis([b1x, b1y], [b2x, b2y])
+	}
+
+}
+
+export const dpbPlaceholder = new DirectProductBasis([0,0], [1,1])
+
+export function betweenTBasesDirectProduct(b1: DirectProductBasis, b2: DirectProductBasis) : DirectProduct {
+	return new DirectProduct(betweenTBasesAR1(b1.x(), b2.x()), betweenTBasesAR1(b1.y(), b2.y()))
+}
+
+
