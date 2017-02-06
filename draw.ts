@@ -7,7 +7,7 @@ import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
 import { MyAxis, Orientation } from './axis'
 import { MyTransform } from './MyTransform'
 import { IMinMax, SegmentTree } from './segmentTree'
-import { AR1Basis } from './viewZoomTransform'
+import { AR1Basis, AR1, betweenTBasesAR1, bPlaceholder, bUnit } from './viewZoomTransform'
 
 function drawProc(f: Function) {
 	let requested = false
@@ -47,6 +47,19 @@ export class TimeSeriesChart {
 	// Date.now() style timestamp delta
 	private timeStep: number
 
+	// автоморфизм действительных чисел в первой степени
+	// преобразование из простраства индексов
+	// в пространство времён
+	private idxToTime: AR1
+
+	// преобразование добавления точки
+	// когда добавляем точку в массиив надо
+	// idxToTime.composeWith(idxShift)
+	// это автоморфизм пространства индексов
+	// то есть преобразование пространства индексов
+	// в себя, а не в другое пространство
+	private idxShift: AR1
+
 	// две точки - начало и конец массива в пространстве индексов
 	// стоит думать о них как об абстрактных точках
 	// нарисованных в мире за телевизором на наших графиках
@@ -62,8 +75,19 @@ export class TimeSeriesChart {
 		data: Array<[number, number]>,
 		buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
 		zoomHandler: () => void) {
-		this.timeStep = timeStep
-		this.timeAtIdx0 = startTime
+
+		// здесь второй базис образован не двумя точками, а
+		// эквивалентно точкой и вектором
+		// хорошо бы сделать например basisAR1PV()
+		// типа смарт-конструктор
+		// интересно что есть короткая эквивалентная формулировка
+		// this.idxToSpace = new AR1(startTime, timeStep)
+		// но она возвращает нас к координатному мышлению
+		this.idxToTime = betweenTBasesAR1(bUnit, new AR1Basis(startTime, startTime + timeStep))
+
+		// при добавлении точки первый и второй элемент
+		// становятся на место нулевого и первого соответственно
+		this.idxShift = betweenTBasesAR1(new AR1Basis(1, 2), bUnit)
 		this.buildSegmentTreeTuple = buildSegmentTreeTuple
 		this.zoomHandler = zoomHandler
 		this.bIndexFull = new AR1Basis(0, data.length - 1)
@@ -74,7 +98,7 @@ export class TimeSeriesChart {
 		this.data.push(newData)
 		this.data.shift()
 
-		this.timeAtIdx0 += this.timeStep
+		this.idxToTime = this.idxToTime.composeWith(this.idxShift)
 
 		this.drawNewData()
 	}
@@ -109,7 +133,7 @@ export class TimeSeriesChart {
 
 		// на видимую область можно смотреть абстрактно
 		// как на отдельное пространство
-		const bPlaceholder = new AR1Basis(0, 1)
+
 		const bScreenXVisible = new AR1Basis(0, width)
 
 		const x = scaleTime().range(bScreenXVisible.toArr())
@@ -135,7 +159,9 @@ export class TimeSeriesChart {
 			// пространств по Х и Y к единому пространству
 			// являющeмся их прямым произведением
 			pathTransform.onReferenceViewWindowResize(this.bIndexFull, bTemperatureVisible)
-			x.domain(this.bTimeVisible(bIndexVisible).toArr())
+
+			const bTimeVisible = bIndexVisible.transformWith(this.idxToTime)
+			x.domain(bTimeVisible.toArr())
 			y.domain(bTemperatureVisible.toArr())
 		}
 
@@ -215,14 +241,5 @@ export class TimeSeriesChart {
 		const [minIdxX, maxIdxX] = bIndexVisible.toArr()
 		const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
 		return new AR1Basis(min, max)
-	}
-
-	private bTimeVisible(bIndexVisible: AR1Basis) : AR1Basis {
-		// idxToTime - это тоже аффинное преобразование
-		// между базисами [0, 1] и [timeAtIdx0, timeAtIdx0 + timeStep]
-		// нужно будет заменить
-		const idxToTime = (index: number) => index * this.timeStep + this.timeAtIdx0
-		const [ minTimeVisible, maxTimeVisible ] = bIndexVisible.toArr().map(idxToTime)
-		return new AR1Basis(minTimeVisible, maxTimeVisible)
 	}
 }

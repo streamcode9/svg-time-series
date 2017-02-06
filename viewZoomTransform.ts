@@ -4,7 +4,7 @@
 // 1 - в первой степени (числовая прямая)
 
 // автоморфизмы числовой прямой
-class AR1 {
+export class AR1 {
 	// коэффициенты автоморфизма x' = x * m[0] + m[1]
 	public m : [number, number]
 
@@ -23,6 +23,11 @@ class AR1 {
 	public inverse() : AR1 {
 		const [a, b] = this.m
 		return new AR1([1/a, -b / a])
+	}
+
+	public applyToPoint(p: number) : number {
+		const [a, b] = this.m
+		return a * p + b
 	}
 
 	public applyToMatrixX(sm: SVGMatrix) : SVGMatrix {
@@ -86,7 +91,18 @@ export class AR1Basis {
 	public toArr() : [number, number] {
 		return [this.p1, this.p2]	
 	}
+	
+	public transformWith(transform: AR1) : AR1Basis {
+		return new AR1Basis(transform.applyToPoint(this.p1), transform.applyToPoint(this.p2))
+	}
 }
+
+// единичный базис
+export const bUnit = new AR1Basis(0, 1)
+
+// часто нужен хоть какой-то базис
+export const bPlaceholder = bUnit
+
 
 // between typed bases
 export function betweenTBasesAR1(b1 : AR1Basis, b2: AR1Basis) : AR1 {
