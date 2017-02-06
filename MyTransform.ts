@@ -12,7 +12,7 @@
 
 import { ZoomTransform } from 'd3-zoom'
 
-import { betweenBasesAR1, betweenTBasesAR1, AR1Basis } from './viewZoomTransform'
+import { betweenTBasesAR1, bPlaceholder, AR1Basis } from './viewZoomTransform'
 
 export class MyTransform {
 	private viewPortPointsX: AR1Basis
@@ -34,11 +34,10 @@ export class MyTransform {
 		this.svgNode = svgNode
 		this.zoomTransform = this.identityTransform
 		this.referenceTransform = this.identityTransform
-		// TODO заменить на плейсхолдеры
-		this.viewPortPointsX = new AR1Basis(0, 1)
-		this.viewPortPointsY = new AR1Basis(0, 1)
-		this.referenceViewWindowPointsX = new AR1Basis(0, 1)
-		this.referenceViewWindowPointsY = new AR1Basis(0, 1)
+		this.viewPortPointsX = bPlaceholder
+		this.viewPortPointsY = bPlaceholder
+		this.referenceViewWindowPointsX = bPlaceholder
+		this.referenceViewWindowPointsY = bPlaceholder
 	}
 
 	private updateReferenceTransform()  {

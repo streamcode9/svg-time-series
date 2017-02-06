@@ -15,7 +15,7 @@ export class AR1 {
 	public composeWith(a2: AR1) : AR1 {
 		const [a0, b0] = this.m
 		const [a1, b1]  = a2.m
-		
+
 		return new AR1([a0 * a1, b0 * a1 + b1])
 	}
 
