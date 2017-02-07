@@ -1,9 +1,10 @@
 ﻿import { scaleLinear, scaleTime } from 'd3-scale'
 import { BaseType, event as d3event, selectAll, Selection } from 'd3-selection'
+import { line } from 'd3-shape'
 import { timeout as runTimeout } from 'd3-timer'
 import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
+import { Axis, axisBottom, axisRight } from 'd3-axis'
 
-import { MyAxis, Orientation } from '../../axis'
 import { MyTransform } from '../../MyTransform'
 import { IMinMax, SegmentTree } from '../../segmentTree'
 import { AR1Basis, AR1, betweenTBasesAR1, bPlaceholder, bUnit } from '../../viewZoomTransform'
@@ -22,11 +23,11 @@ function drawProc(f: Function) {
 	}
 }
 
-function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any, scale: any) {
-	axis.setScale(scale)
+function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: Axis<number | {valueOf(): number}>, scale: any) {
+	axis.scale(scale)
 	return svg.append('g')
 		.attr('class', 'axis')
-		.call(axis.axis.bind(axis))
+		.call(axis)
 }
 
 export class TimeSeriesChart {
@@ -93,6 +94,15 @@ export class TimeSeriesChart {
 		this.drawChart(svg, data)
 	}
 
+	public updateChartWithNewData(newData: [number, number]) {
+		this.data.push(newData)
+		this.data.shift()
+
+		this.idxToTime = this.idxToTime.composeWith(this.idxShift)
+
+		this.drawNewData()
+	}
+
 	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: Array<[number, number]>) {
 		this.data = data
 
@@ -106,6 +116,16 @@ export class TimeSeriesChart {
 		svg.attr('height', height)
 
 		const view = svg.select('g.view')
+
+		// это просто извращённый способ добавить
+		// в группу два элемента <path>
+		// .enter() это часть фреймворка d3 для работы
+		// с обновлениями, но мы пока игнорируем и
+		// делаем обновления руками
+		const path = view
+			.selectAll('path')
+			.data([0, 1])
+			.enter().append('path')
 
 		// тут наши перевернутые базисы которые мы
 		// cтеснительно запрятали в onViewPortResize
@@ -162,17 +182,17 @@ export class TimeSeriesChart {
 		// передаем bIndexFull в качестее bIndexVisible
 		updateScales(this.bIndexFull)
 
-		const xAxis = new MyAxis(Orientation.Bottom, x)
+		const xAxis: Axis<number | {valueOf(): number}> = axisBottom(x)
 			.ticks(4)
 			// изменять размер тиков надо при изменении
 			// размеров окна
-			.setTickSize(height)
-			.setTickPadding(8 - height)
+			.tickSize(height)
+			.tickPadding(8 - height)
 
-		const yAxis = new MyAxis(Orientation.Right, y)
+		const yAxis: Axis<number | {valueOf(): number}> = axisRight(y)
 			.ticks(4)
-			.setTickSize(width)
-			.setTickPadding(2 - width)
+			.tickSize(width)
+			.tickPadding(2 - width)
 
 		const gX = bindAxisToDom(svg, xAxis, x)
 		const gY = bindAxisToDom(svg, yAxis, y)
@@ -185,8 +205,8 @@ export class TimeSeriesChart {
 			updateScales(bIndexVisible)
 			pathTransform.updateViewNode()
 
-			xAxis.axisUp(gX)
-			yAxis.axisUp(gY)
+			gX.call(xAxis)
+			gY.call(yAxis)
 		})
 		pathTransform.onViewPortResize(bScreenXVisible, bScreenYVisible)
 		pathTransform.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
@@ -200,6 +220,26 @@ export class TimeSeriesChart {
 				// хотя хез как быть с другим порядком
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', this.zoomHandler.bind(this)))
+
+		// вызывается здесь ниже
+		// и из публичного updateChartWithNewData()
+		// но в принципе должно быть в common.ts
+		this.drawNewData = () => {
+			// создание дерева не должно
+			// дублироваться при создании чарта
+			this.tree = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTuple)
+			const drawLine = (cityIdx: number) => line()
+				.defined((d: [number, number]) => {
+					return !(isNaN(d[cityIdx]) || d[cityIdx] == null)
+				})
+				.x((d: [number, number], i: number) => i)
+				.y((d: [number, number]) => d[cityIdx])
+
+			path.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, this.data))
+			scheduleRefresh()
+		}
+
+		this.drawNewData()
 
 		// публичный метод, используется для ретрансляции
 		// зум-события нескольким графикам

@@ -1,16 +1,8 @@
-import { select, selectAll } from 'd3-selection'
-import { measure } from '../../measure'
+import { ValueFn, select, selectAll, event } from 'd3-selection'
 import { csv } from 'd3-request'
-import { drawCharts } from './common'
 
-interface Resize {
-  interval: number
-, request: () => void
-, timer: number
-, eval: () => void
-}
-
-const resize: Resize = { interval: 60, request : null, timer: null, eval: null }
+import { TimeSeriesChart } from './draw'
+import { IMinMax } from '../../segmentTree'
 
 function onCsv(f: (csv: [number, number][]) => void) : void {
 	csv('ny-vs-sf.csv')
@@ -29,17 +21,32 @@ function onCsv(f: (csv: [number, number][]) => void) : void {
 
 onCsv((data: [number, number][]) => {
 	drawCharts(data)
-	
-	resize.request = function() {
-		resize.timer && clearTimeout(resize.timer)
-		resize.timer = setTimeout(resize.eval, resize.interval)
-	}
-	resize.eval = function() {
-		selectAll('svg').remove()
-		select('.charts').selectAll('div')
-			.append('svg')
-			.append('g').attr('class', 'view')
-		drawCharts(data)
-	}
-	window.addEventListener('resize', resize.request, false)
 })
+
+function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
+	const nyMinValue = isNaN(elements[index][0]) ? Infinity : elements[index][0]
+	const nyMaxValue = isNaN(elements[index][0]) ? -Infinity : elements[index][0]
+	const sfMinValue = isNaN(elements[index][1]) ? Infinity : elements[index][1]
+	const sfMaxValue = isNaN(elements[index][1]) ? -Infinity : elements[index][1]
+	return { min: Math.min(nyMinValue, sfMinValue), max: Math.max(nyMaxValue, sfMaxValue) }
+}
+
+export function drawCharts (data: [number, number][]) {
+	let charts: TimeSeriesChart[] = []
+	let newZoom = ''
+
+	function onZoom() {
+		const z = event.transform.toString()
+		if (z == newZoom) return
+	
+		newZoom = z
+		charts.forEach(c => c.zoom())
+	}
+
+	const onSelectChart: ValueFn<any, any, any> = function (element: any, datum: any, descElement: any) {
+		let chart = new TimeSeriesChart(select(this), Date.now(), 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom)
+		charts.push(chart)
+	}
+
+	selectAll('svg').select(onSelectChart)
+}

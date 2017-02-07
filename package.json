@@ -14,6 +14,7 @@
   "main": "lib/app.js",
   "dependencies": {
     "@types/d3-array": "^1.0.7",
+    "@types/d3-axis": "^1.0.6",
     "@types/d3-dsv": "^1.0.29",
     "@types/d3-request": "^1.0.1",
     "@types/d3-scale": "^1.0.6",
@@ -22,6 +23,7 @@
     "@types/d3-timer": "^1.0.5",
     "@types/d3-zoom": "^1.1.0",
     "d3": "^4.4.1",
+    "d3-axis": "^1.0.4",
     "d3-dsv": "^1.0.3",
     "d3-request": "^1.0.3",
     "d3-scale": "^1.0.4",
@@ -39,6 +41,7 @@
     "tslint": "tslint --project .",
     "tsify": "browserify ./demos/demo2/index.ts -p [ tsify --noImplicitAny ./demos/demo2/index.ts ] -o ./demos/demo2/bundle.js --debug",
     "tsify-bug-56": "browserify ./demos/demo2-bug-56/index.ts -p [ tsify --noImplicitAny ./demos/demo2-bug-56/index.ts ] -o ./demos/demo2-bug-56/bundle.js --debug",
+    "tsify-upstream-axes": "browserify ./demos/demo2-upstream-axes/index.ts -p [ tsify --noImplicitAny ./demos/demo2-upstream-axes/index.ts ] -o ./demos/demo2-upstream-axes/bundle.js --debug",
     "tsify-dom": "browserify ./benchmarks/dom/dom.ts -p [ tsify --noImplicitAny ./benchmarks/dom/dom.ts ] -o ./benchmarks/dom/bundle.js --debug",
     "tsify-pdt": "browserify ./benchmarks/path-draw-transform-d3/index.ts -p [ tsify --noImplicitAny ./benchmarks/path-draw-transform-d3/index.ts ] -o ./benchmarks/path-draw-transform-d3/bundle.js --debug",
     "tsify-adt": "browserify ./benchmarks/axis-draw-transform/index.ts -p [ tsify --noImplicitAny ./benchmarks/axis-draw-transform/index.ts ] -o ./benchmarks/axis-draw-transform/bundle.js --debug",
