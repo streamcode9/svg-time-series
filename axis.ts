@@ -90,26 +90,33 @@ export class MyAxis {
 			spacing = Math.max(this.tickSizeInner, 0) + this.tickPadding,
 			transform = this.orient === Orientation.Top || this.orient === Orientation.Bottom ? translateX : translateY,
 			position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
-			tick = context.selectAll('.tick').data(values, this.scale).order(),
+			k = this.orient === Orientation.Top || this.orient === Orientation.Left ? -1 : 1
+		let tick = context.selectAll('.tick').data(values, this.scale).order(),
 			tickExit = tick.exit(),
 			tickEnter = tick.enter().append('g').attr('class', 'tick'),
-			k = this.orient === Orientation.Top || this.orient === Orientation.Left ? -1 : 1
-		let	x = ''
+			line = tick.select('line'),
+			text = tick.select('text')
+		let x = ''
 		const y = this.orient === Orientation.Left || this.orient === Orientation.Right ? (x = 'x', 'y') : (x = 'y', 'x')
 
-		tickEnter.append('line')
+		tick = tick.merge(tickEnter)
+		line = line.merge(tickEnter.append('line').attr(x + '2', k * this.tickSizeInner))
+		text = text.merge(tickEnter.append('text').attr(x, k * spacing))
+
+		tickExit.remove()
+
+		tick.attr('transform', (d: any) => transform(position, position, d))
+
+		line
 			.attr(x + '2', k * this.tickSizeInner)
 			.attr(y + '1', 0.5)
 			.attr(y + '2', 0.5)
 
-		tickEnter.append('text')
+		text
 			.attr(x, k * spacing)
 			.attr(y, 0.5)
 			.attr('dy', this.orient === Orientation.Top ? '0em' : this.orient === Orientation.Bottom ? '.41em' : '.62em')
 			.text(format)
-
-		tickExit.remove()
-		tick.attr('transform', (d: any) => transform(position, position, d))
 	}
 
 	setScale(_: any) { return this.scale = _, this }
