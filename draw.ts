@@ -190,7 +190,7 @@ export class TimeSeriesChart {
 			.setTickPadding(8 - height)
 
 		const yAxis = new MyAxis(Orientation.Right, y)
-			.ticks(4)
+			.ticks(4, 's')
 			.setTickSize(width)
 			.setTickPadding(2 - width)
 
