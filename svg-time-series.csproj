@@ -46,10 +46,6 @@
     <Content Include="benchmarks\viewing-pipeline-transformations\index.html" />
     <Content Include="demos\demo1\index.css" />
     <Content Include="demos\demo1\index.html" />
-    <Content Include="demos\demo2-bug-56\index.css" />
-    <Content Include="demos\demo2-bug-56\index.html" />
-    <Content Include="demos\demo2-upstream-axes\index.css" />
-    <Content Include="demos\demo2-upstream-axes\index.html" />
     <Content Include="demos\demo2\index.css" />
     <Content Include="demos\demo2\index.html" />
     <Content Include="benchmarks\d3-pan-zoom\index.html" />
@@ -81,11 +77,6 @@
     <TypeScriptCompile Include="benchmarks\viewing-pipeline-transformations\draw.ts" />
     <TypeScriptCompile Include="benchmarks\viewing-pipeline-transformations\drawModelCS.ts" />
     <TypeScriptCompile Include="benchmarks\viewing-pipeline-transformations\index.ts" />
-    <TypeScriptCompile Include="demos\demo2-bug-56\draw.ts" />
-    <TypeScriptCompile Include="demos\demo2-bug-56\index.ts" />
-    <TypeScriptCompile Include="demos\demo2-upstream-axes\common.ts" />
-    <TypeScriptCompile Include="demos\demo2-upstream-axes\draw.ts" />
-    <TypeScriptCompile Include="demos\demo2-upstream-axes\index.ts" />
     <TypeScriptCompile Include="ViewWindowTransform.ts" />
     <TypeScriptCompile Include="demos\common.ts" />
     <TypeScriptCompile Include="demos\demo1\index.ts" />
@@ -115,12 +106,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="benchmarks\path-segment-recreate-dom\ny-vs-sf.csv" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="demos\demo2-bug-56\ny-vs-sf.csv" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="demos\demo2-upstream-axes\ny-vs-sf.csv" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
