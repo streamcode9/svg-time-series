@@ -48,12 +48,6 @@ export function drawCharts (data: [number, number][]) {
 
 	selectAll('svg').select(onSelectChart)
 
-	let j = 0
-	setInterval(function() {
-		let newData = data[j % data.length]
-		charts.forEach(c => c.updateChartWithNewData(newData))
-		j++
-	}, 5000)
 	measure(3, (fps) => {
 		document.getElementById('fps').textContent = fps
 	})
@@ -146,15 +140,6 @@ export class TimeSeriesChart {
 		this.zoomHandler = zoomHandler
 		this.bIndexFull = new AR1Basis(0, data.length - 1)
 		this.drawChart(svg, data)
-	}
-
-	public updateChartWithNewData(newData: [number, number]) {
-		this.data.push(newData)
-		this.data.shift()
-
-		this.idxToTime = this.idxToTime.composeWith(this.idxShift)
-
-		this.drawNewData()
 	}
 
 	private drawChart(svg: Selection<BaseType, {}, HTMLElement, any>, data: Array<[number, number]>) {
