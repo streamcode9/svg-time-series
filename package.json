@@ -40,7 +40,7 @@
   "scripts": {
     "tslint": "tslint --project .",
     "tsify": "browserify ./demos/demo2/index.ts -p [ tsify --noImplicitAny ./demos/demo2/index.ts ] -o ./demos/demo2/bundle.js --debug",
-    "tsify-bug-56": "browserify ./demos/demo2-bug-56/index.ts -p [ tsify --noImplicitAny ./demos/demo2-bug-56/index.ts ] -o ./demos/demo2-bug-56/bundle.js --debug",
+    "tsify-bug-60": "browserify ./demos/demo2-bug-60/index.ts -p [ tsify --noImplicitAny ./demos/demo2-bug-60/index.ts ] -o ./demos/demo2-bug-60/bundle.js --debug",
     "tsify-upstream-axes": "browserify ./demos/demo2-upstream-axes/index.ts -p [ tsify --noImplicitAny ./demos/demo2-upstream-axes/index.ts ] -o ./demos/demo2-upstream-axes/bundle.js --debug",
     "tsify-dom": "browserify ./benchmarks/dom/dom.ts -p [ tsify --noImplicitAny ./benchmarks/dom/dom.ts ] -o ./benchmarks/dom/bundle.js --debug",
     "tsify-pdt": "browserify ./benchmarks/path-draw-transform-d3/index.ts -p [ tsify --noImplicitAny ./benchmarks/path-draw-transform-d3/index.ts ] -o ./benchmarks/path-draw-transform-d3/bundle.js --debug",
