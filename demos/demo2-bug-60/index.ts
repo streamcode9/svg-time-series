@@ -1,8 +1,8 @@
 import { scaleLinear, scaleTime } from 'd3-scale'
 import { ValueFn, BaseType, event as d3event, select, selectAll, Selection } from 'd3-selection'
 import { line } from 'd3-shape'
-import { timeout as runTimeout } from 'd3-timer'
-import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
+import { timeout as runTimeout, timer as runTimer } from 'd3-timer'
+import { zoomIdentity, zoom as d3zoom, ZoomTransform } from 'd3-zoom'
 import { csv } from 'd3-request'
 
 import { measure } from '../../measure'
@@ -286,6 +286,32 @@ export class TimeSeriesChart {
 			pathTransform.onZoomPan(d3event.transform)
 			scheduleRefresh()
 		}
+
+		function raisedCos(elapsed: number) {
+			return -(Math.cos(elapsed / 6500) - 1) / 2
+		}
+
+		function animateCosDown(maxX: number, minX: number, elapsed: number) {
+			return maxX - (maxX - minX) * raisedCos(elapsed)
+		}
+
+		let offsetX = 0
+		let offsetDelta = 100
+		let panDirection = 1
+		const f = (elapsed: number) => {
+			pathTransform.onZoomPan(zoomIdentity.translate(-1000 + offsetX * panDirection, 0).scale(40))
+			offsetX = offsetX + offsetDelta
+			panDirection = -panDirection
+			offsetDelta = offsetX > 1000 || offsetX < 0 ? -offsetDelta : offsetDelta
+			scheduleRefresh()
+		}
+
+		const timer = runTimer((elapsed: number) => {
+			f(elapsed)
+			if (elapsed > 60 * 1000) {
+				timer.stop()
+			}
+		})
 	}
 
 	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {
