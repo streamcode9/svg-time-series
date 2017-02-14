@@ -252,7 +252,7 @@ export class TimeSeriesChart {
 	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {
 		// просто функция между базисами
 		const [minIdxX, maxIdxX] = bIndexVisible.toArr()
-		const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX)
+		const { min, max } = this.tree.getMinMax(Math.round(minIdxX), Math.round(maxIdxX))
 		return new AR1Basis(min, max)
 	}
 }

@@ -258,7 +258,7 @@ benchmarks/sine-transform-d3/*.js
 benchmarks/sine-transform-dom/*.js
 benchmarks/viewing-pipeline-transformations/*.js
 competitors/d3-plotly/*.js
-demos/**.js
+demos/**/*.js
 js/**/*.js
 
 # Visual Studio 6 build log
