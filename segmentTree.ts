@@ -1,5 +1,4 @@
-declare function require(path: string) : any
-const assert = require('assert')
+import * as assert from 'assert'
 
 export interface IMinMax {
 	min: number
@@ -35,7 +34,7 @@ export class SegmentTree {
 	}
 
 	getMinMax(fromPosition: number, toPosition: number) {
-		assert(fromPosition >= 0 && toPosition <= this.size)
+		assert.ok(fromPosition >= 0 && toPosition <= this.size, 'Range is not valid')
 		const getMinMax = (tree: IMinMax[], i: number, left: number, right: number, from: number, to: number) : IMinMax => {
 			if (from > to) {
 				return { min: Infinity, max: -Infinity }
