@@ -1,12 +1,11 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "lib": ["dom", "scripthost", "es7"],
+        "lib": ["dom", "es7"],
         "target": "es5",
         "noImplicitAny": true,
         "sourceMap": true,
-        "outDir" : "js",
-        "typeRoots" : ["./typings/assert", "./node_modules/@types"]
+        "outDir" : "js"
     },
     "exclude": [
         "node_modules"
