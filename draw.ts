@@ -197,10 +197,18 @@ export class TimeSeriesChart {
 		const gX = bindAxisToDom(svg, xAxis, x)
 		const gY = bindAxisToDom(svg, yAxis, y)
 
+		let currentPanZoomTransformState: ZoomTransform = null
+
 		// it's important that we have only 1 instance
 		// of drawProc and not one per event
 		// вызывается из zoom и drawNewData
 		const scheduleRefresh = drawProc(() => {
+			// Apply pan zoom transform
+			if (currentPanZoomTransformState != null) {
+				const zoomAreas: Selection<any, any, any, any> = selectAll('.zoom')
+				d3zoom().transform(zoomAreas, currentPanZoomTransformState)
+			}
+
 			const bIndexVisible = pathTransform.fromScreenToModelBasisX(bScreenXVisible)
 			updateScales(bIndexVisible)
 			pathTransform.updateViewNode()
@@ -244,6 +252,8 @@ export class TimeSeriesChart {
 		// публичный метод, используется для ретрансляции
 		// зум-события нескольким графикам
 		this.zoom = () => {
+			currentPanZoomTransformState = d3event.transform
+
 			pathTransform.onZoomPan(d3event.transform)
 			scheduleRefresh()
 		}
