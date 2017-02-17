@@ -90,5 +90,5 @@ Stock d3 phyllotaxis pan-zoom example plus:
 - Don't change anything more often than once per screen refresh
 
 [d1]: https://bl.ocks.org/streamcode9/raw/0ad51c8422d1b0238f0f8ecce03eea60/
-[d2]: https://bl.ocks.org/streamcode9/raw/7b93868bc25de626a847bd0c540e4330/
+[d2]: https://bl.ocks.org/streamcode9/raw/9fc767e29414c2d90f77da4799b9fdf0/
 [d3stock]: http://bl.ocks.org/mbostock/db6b4335bf1662b413e7968910104f0f
