@@ -197,6 +197,17 @@ export class TimeSeriesChart {
 		const gX = bindAxisToDom(svg, xAxis, x)
 		const gY = bindAxisToDom(svg, yAxis, y)
 
+		const zoomArea: Selection<any, any, any, any> = svg.append('rect')
+			.attr('class', 'zoom')
+			.attr('width', width)
+			.attr('height', height)
+			.call(d3zoom()
+				.scaleExtent([1, 40])
+				// в перспективе взять экстент из bScreenVisible
+				// хотя хез как быть с другим порядком
+				.translateExtent([[0, 0], [width, height]])
+				.on('zoom', this.zoomHandler.bind(this)))
+
 		let currentPanZoomTransformState: ZoomTransform = null
 
 		// it's important that we have only 1 instance
@@ -205,7 +216,6 @@ export class TimeSeriesChart {
 		const scheduleRefresh = drawProc(() => {
 			// Apply pan zoom transform
 			if (currentPanZoomTransformState != null) {
-				const zoomArea: Selection<any, any, any, any> = svg.select('.zoom')
 				d3zoom().transform(zoomArea, currentPanZoomTransformState)
 			}
 
@@ -218,16 +228,6 @@ export class TimeSeriesChart {
 		})
 		pathTransform.onViewPortResize(bScreenXVisible, bScreenYVisible)
 		pathTransform.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
-		svg.append('rect')
-			.attr('class', 'zoom')
-			.attr('width', width)
-			.attr('height', height)
-			.call(d3zoom()
-				.scaleExtent([1, 40])
-				// в перспективе взять экстент из bScreenVisible
-				// хотя хез как быть с другим порядком
-				.translateExtent([[0, 0], [width, height]])
-				.on('zoom', this.zoomHandler.bind(this)))
 
 		// вызывается здесь ниже
 		// и из публичного updateChartWithNewData()
