@@ -205,8 +205,8 @@ export class TimeSeriesChart {
 		const scheduleRefresh = drawProc(() => {
 			// Apply pan zoom transform
 			if (currentPanZoomTransformState != null) {
-				const zoomAreas: Selection<any, any, any, any> = selectAll('.zoom')
-				d3zoom().transform(zoomAreas, currentPanZoomTransformState)
+				const zoomArea: Selection<any, any, any, any> = svg.select('.zoom')
+				d3zoom().transform(zoomArea, currentPanZoomTransformState)
 			}
 
 			const bIndexVisible = pathTransform.fromScreenToModelBasisX(bScreenXVisible)
