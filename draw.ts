@@ -32,6 +32,7 @@ function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any
 
 export class TimeSeriesChart {
 	public zoom: () => void
+	public highlight: () => void
 	private drawNewData: () => void
 	private data: Array<[number, number]>
 
@@ -68,13 +69,15 @@ export class TimeSeriesChart {
 
 	private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax
 	private zoomHandler: () => void
+	private clickHandler: () => void
 
 	constructor(
 		svg: Selection<BaseType, {}, HTMLElement, any>,
 		startTime: number, timeStep: number,
 		data: Array<[number, number]>,
 		buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
-		zoomHandler: () => void) {
+		zoomHandler: () => void,
+		clickHandler: () => void) {
 
 		// здесь второй базис образован не двумя точками, а
 		// эквивалентно точкой и вектором
@@ -90,6 +93,7 @@ export class TimeSeriesChart {
 		this.idxShift = betweenTBasesAR1(new AR1Basis(1, 2), bUnit)
 		this.buildSegmentTreeTuple = buildSegmentTreeTuple
 		this.zoomHandler = zoomHandler
+		this.clickHandler = clickHandler
 		this.bIndexFull = new AR1Basis(0, data.length - 1)
 		this.drawChart(svg, data)
 	}
@@ -207,6 +211,7 @@ export class TimeSeriesChart {
 				// хотя хез как быть с другим порядком
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', this.zoomHandler.bind(this)))
+		zoomArea.on('click', this.clickHandler.bind(this))
 
 		let currentPanZoomTransformState: ZoomTransform = null
 
@@ -256,6 +261,10 @@ export class TimeSeriesChart {
 
 			pathTransform.onZoomPan(d3event.transform)
 			scheduleRefresh()
+		}
+
+		this.highlight = () => {
+			console.log('highlight')
 		}
 	}
 
