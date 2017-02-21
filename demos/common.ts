@@ -1,4 +1,4 @@
-﻿import { ValueFn, select, selectAll, event } from 'd3-selection'
+﻿import { ValueFn, select, selectAll, mouse as d3mouse, event as d3event } from 'd3-selection'
 
 import { TimeSeriesChart } from '../draw'
 import { measure } from '../measure'
@@ -18,7 +18,10 @@ export function drawCharts (data: [number, number][]) {
 	let charts: TimeSeriesChart[] = []
 
 	const onZoom = () => charts.forEach((c) => c.zoom())
-	const onClick = () => charts.forEach((c) => c.highlight())
+	const onClick = () => {
+		console.log('onClick', d3event, d3mouse(d3event.target))
+		charts.forEach((c) => c.highlight())
+	}
 
 	const onSelectChart: ValueFn<any, any, any> = function (element: any, datum: any, descElement: any) {
 		let chart = new TimeSeriesChart(select(this), Date.now(), 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom, onClick)
