@@ -18,13 +18,13 @@ export function drawCharts (data: [number, number][]) {
 	let charts: TimeSeriesChart[] = []
 
 	const onZoom = () => charts.forEach((c) => c.zoom())
-	const onClick = () => {
-		console.log('onClick', d3event, d3mouse(d3event.target))
-		charts.forEach((c) => c.highlight())
+	const onMouseMove = () => {
+		const [x, _] = d3mouse(d3event.target)
+		charts.forEach((c) => c.highlight(x))
 	}
 
 	const onSelectChart: ValueFn<any, any, any> = function (element: any, datum: any, descElement: any) {
-		let chart = new TimeSeriesChart(select(this), Date.now(), 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom, onClick)
+		let chart = new TimeSeriesChart(select(this), Date.now(), 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom, onMouseMove)
 		charts.push(chart)
 	}
 

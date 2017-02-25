@@ -32,7 +32,7 @@ function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any
 
 export class TimeSeriesChart {
 	public zoom: () => void
-	public highlight: () => void
+	public highlight: (x: number) => void
 	private drawNewData: () => void
 	private data: Array<[number, number]>
 
@@ -69,7 +69,7 @@ export class TimeSeriesChart {
 
 	private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax
 	private zoomHandler: () => void
-	private clickHandler: () => void
+	private mouseMoveHandler: () => void
 
 	constructor(
 		svg: Selection<BaseType, {}, HTMLElement, any>,
@@ -77,7 +77,7 @@ export class TimeSeriesChart {
 		data: Array<[number, number]>,
 		buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
 		zoomHandler: () => void,
-		clickHandler: () => void) {
+		mouseMoveHandler: () => void) {
 
 		// здесь второй базис образован не двумя точками, а
 		// эквивалентно точкой и вектором
@@ -93,7 +93,7 @@ export class TimeSeriesChart {
 		this.idxShift = betweenTBasesAR1(new AR1Basis(1, 2), bUnit)
 		this.buildSegmentTreeTuple = buildSegmentTreeTuple
 		this.zoomHandler = zoomHandler
-		this.clickHandler = clickHandler
+		this.mouseMoveHandler = mouseMoveHandler
 		this.bIndexFull = new AR1Basis(0, data.length - 1)
 		this.drawChart(svg, data)
 	}
@@ -211,7 +211,7 @@ export class TimeSeriesChart {
 				// хотя хез как быть с другим порядком
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', this.zoomHandler.bind(this)))
-		zoomArea.on('click', this.clickHandler.bind(this))
+		zoomArea.on('mousemove', this.mouseMoveHandler.bind(this))
 
 		let currentPanZoomTransformState: ZoomTransform = null
 
@@ -263,8 +263,9 @@ export class TimeSeriesChart {
 			scheduleRefresh()
 		}
 
-		this.highlight = () => {
-			console.log('highlight')
+		this.highlight = (x: number) => {
+			const hoveredDataIdx = pathTransform.fromScreenToModelX(x)
+			console.log(this.data[Math.round(hoveredDataIdx)])
 		}
 	}
 
