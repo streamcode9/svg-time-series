@@ -23,12 +23,14 @@ export function drawCharts (data: [number, number][]) {
 		charts.forEach((c) => c.highlight(x))
 	}
 
-	const onSelectChart: ValueFn<any, any, any> = function (element: any, datum: any, descElement: any) {
-		let chart = new TimeSeriesChart(select(this), Date.now(), 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom, onMouseMove)
+	const onSelectChart: ValueFn<HTMLElement, any, any> = function (element: HTMLElement, datum: any, descElement: any) {
+		const svg = select(this).select('svg')
+		const legend = select(this).select('.chart-legend')
+		let chart = new TimeSeriesChart(svg, legend, Date.now(), 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom, onMouseMove)
 		charts.push(chart)
 	}
 
-	selectAll('svg').select(onSelectChart)
+	selectAll('.chart').select<HTMLElement>(onSelectChart)
 
 	let j = 0
 	setInterval(function() {

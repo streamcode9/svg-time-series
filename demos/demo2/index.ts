@@ -36,7 +36,7 @@ onCsv((data: [number, number][]) => {
 	}
 	resize.eval = function() {
 		selectAll('svg').remove()
-		select('.charts').selectAll('div')
+		selectAll('.chart-drawing')
 			.append('svg')
 			.append('g').attr('class', 'view')
 		drawCharts(data)

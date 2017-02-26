@@ -71,8 +71,13 @@ export class TimeSeriesChart {
 	private zoomHandler: () => void
 	private mouseMoveHandler: () => void
 
+	private legendTime: Selection<BaseType, {}, HTMLElement, any>
+	private legendGreen: Selection<BaseType, {}, HTMLElement, any>
+	private legendBlue: Selection<BaseType, {}, HTMLElement, any>
+
 	constructor(
 		svg: Selection<BaseType, {}, HTMLElement, any>,
+		legend: Selection<BaseType, {}, HTMLElement, any>,
 		startTime: number, timeStep: number,
 		data: Array<[number, number]>,
 		buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
@@ -96,6 +101,10 @@ export class TimeSeriesChart {
 		this.mouseMoveHandler = mouseMoveHandler
 		this.bIndexFull = new AR1Basis(0, data.length - 1)
 		this.drawChart(svg, data)
+
+		this.legendTime = legend.select('.chart-legend__time')
+		this.legendGreen = legend.select('.chart-legend__green')
+		this.legendBlue = legend.select('.chart-legend__blue')
 	}
 
 	public updateChartWithNewData(newData: [number, number]) {
@@ -266,7 +275,10 @@ export class TimeSeriesChart {
 		this.highlight = (x: number) => {
 			const hoveredDataIdx = pathTransform.fromScreenToModelX(x)
 			const hoveredTime = this.idxToTime.applyToPoint(hoveredDataIdx)
-			console.log('time:', new Date(hoveredTime), 'data:', this.data[Math.round(hoveredDataIdx)])
+			const tuple = this.data[Math.round(hoveredDataIdx)]
+			this.legendTime.text(new Date(hoveredTime).toLocaleString())
+			this.legendGreen.text(isNaN(tuple[0]) ? ' ' : tuple[0])
+			this.legendBlue.text(isNaN(tuple[1]) ? ' ' : tuple[1])
 		}
 	}
 
