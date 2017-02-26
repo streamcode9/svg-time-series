@@ -265,7 +265,8 @@ export class TimeSeriesChart {
 
 		this.highlight = (x: number) => {
 			const hoveredDataIdx = pathTransform.fromScreenToModelX(x)
-			console.log(this.data[Math.round(hoveredDataIdx)])
+			const hoveredTime = this.idxToTime.applyToPoint(hoveredDataIdx)
+			console.log('time:', new Date(hoveredTime), 'data:', this.data[Math.round(hoveredDataIdx)])
 		}
 	}
 
