@@ -84,6 +84,10 @@ export class TimeSeriesChart {
 		zoomHandler: () => void,
 		mouseMoveHandler: () => void) {
 
+		this.legendTime = legend.select('.chart-legend__time')
+		this.legendGreen = legend.select('.chart-legend__green_value')
+		this.legendBlue = legend.select('.chart-legend__blue_value')
+
 		// здесь второй базис образован не двумя точками, а
 		// эквивалентно точкой и вектором
 		// хорошо бы сделать например basisAR1PV()
@@ -101,10 +105,6 @@ export class TimeSeriesChart {
 		this.mouseMoveHandler = mouseMoveHandler
 		this.bIndexFull = new AR1Basis(0, data.length - 1)
 		this.drawChart(svg, data)
-
-		this.legendTime = legend.select('.chart-legend__time')
-		this.legendGreen = legend.select('.chart-legend__green')
-		this.legendBlue = legend.select('.chart-legend__blue')
 	}
 
 	public updateChartWithNewData(newData: [number, number]) {
@@ -280,6 +280,8 @@ export class TimeSeriesChart {
 			this.legendGreen.text(isNaN(tuple[0]) ? ' ' : tuple[0])
 			this.legendBlue.text(isNaN(tuple[1]) ? ' ' : tuple[1])
 		}
+
+		this.highlight(width)
 	}
 
 	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {

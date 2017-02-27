@@ -16,9 +16,9 @@ g.view :last-child { stroke: rgb(96, 77, 196) }
 .charts { height: calc(100vh - 2rem); display: flex; flex-direction: column }
 .chart { height: calc(20% - 0.4rem); margin: 0.2rem; display: flex }
 .chart-drawing { width: 85%; overflow: hidden; border: 1px #ddd solid; }
-.chart-legend { width: 15%; color: #454545; font-size: 0.7rem }
-.chart-legend__green { color: rgb(136, 204, 91) }
-.chart-legend__blue { color: rgb(96, 77, 196) }
+.chart-legend { width: 14%; margin-left: 1%; color: #454545; font-size: 0.7rem; font-weight: bold; }
+.chart-legend__green_caption, .chart-legend__green_value { color: rgb(136, 204, 91) }
+.chart-legend__blue_caption, .chart-legend__blue_value { color: rgb(96, 77, 196) }
 
 /* Mobile 1080x1920 */
 @media only screen and (max-device-width: 1080px) and (min-device-height: 1920px) and (orientation: portrait) {
