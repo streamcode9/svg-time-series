@@ -272,13 +272,26 @@ export class TimeSeriesChart {
 			scheduleRefresh()
 		}
 
+		const highlightedGreenDot = view.append('circle')
+			.attr('cx', this.data.length - 1)
+			.attr('cy', this.data[this.data.length - 1][0])
+			.attr('r', 1)
+		const highlightedBlueDot = view.append('circle')
+			.attr('cx', this.data.length - 1)
+			.attr('cy', this.data[this.data.length - 1][1])
+			.attr('r', 1)
+
 		this.highlight = (x: number) => {
 			const hoveredDataIdx = pathTransform.fromScreenToModelX(x)
 			const hoveredTime = this.idxToTime.applyToPoint(hoveredDataIdx)
 			const tuple = this.data[Math.round(hoveredDataIdx)]
+			
 			this.legendTime.text(new Date(hoveredTime).toLocaleString())
 			this.legendGreen.text(isNaN(tuple[0]) ? ' ' : tuple[0])
 			this.legendBlue.text(isNaN(tuple[1]) ? ' ' : tuple[1])
+
+			highlightedGreenDot.attr('cx', hoveredDataIdx).attr('cy', tuple[0])
+			highlightedBlueDot.attr('cx', hoveredDataIdx).attr('cy', tuple[1])
 		}
 
 		this.highlight(width)
