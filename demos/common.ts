@@ -20,7 +20,7 @@ export function drawCharts (data: [number, number][]) {
 	const onZoom = () => charts.forEach((c) => c.zoom())
 	const onMouseMove = () => {
 		const [x, _] = d3mouse(d3event.target)
-		charts.forEach((c) => c.highlight(x))
+		charts.forEach((c) => c.onHover(x))
 	}
 
 	const onSelectChart: ValueFn<HTMLElement, any, any> = function (element: HTMLElement, datum: any, descElement: any) {

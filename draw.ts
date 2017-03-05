@@ -32,7 +32,7 @@ function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any
 
 export class TimeSeriesChart {
 	public zoom: () => void
-	public highlight: (x: number) => void
+	public onHover: (x: number) => void
 	private drawNewData: () => void
 	private data: Array<[number, number]>
 
@@ -281,20 +281,24 @@ export class TimeSeriesChart {
 			.attr('cy', this.data[this.data.length - 1][1])
 			.attr('r', 1)
 
-		this.highlight = (x: number) => {
-			const hoveredDataIdx = pathTransform.fromScreenToModelX(x)
-			const hoveredTime = this.idxToTime.applyToPoint(hoveredDataIdx)
-			const tuple = this.data[Math.round(hoveredDataIdx)]
+		const highlight = (dataIdx: number) => {
+			const hoveredTime = this.idxToTime.applyToPoint(dataIdx)
+			const tuple = this.data[Math.round(dataIdx)]
 			
 			this.legendTime.text(new Date(hoveredTime).toLocaleString())
 			this.legendGreen.text(isNaN(tuple[0]) ? ' ' : tuple[0])
 			this.legendBlue.text(isNaN(tuple[1]) ? ' ' : tuple[1])
 
-			highlightedGreenDot.attr('cx', hoveredDataIdx).attr('cy', tuple[0])
-			highlightedBlueDot.attr('cx', hoveredDataIdx).attr('cy', tuple[1])
+			highlightedGreenDot.attr('cx', dataIdx).attr('cy', tuple[0])
+			highlightedBlueDot.attr('cx', dataIdx).attr('cy', tuple[1])
 		}
 
-		this.highlight(width)
+		this.onHover = (x: number) => {
+			const hoveredDataIdx = pathTransform.fromScreenToModelX(x)
+			highlight(hoveredDataIdx)
+		}
+
+		this.onHover(width)
 	}
 
 	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {
