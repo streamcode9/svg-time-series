@@ -92,7 +92,7 @@ export class MyTransform {
 	}
 }
 
-export function updateNode(n: SVGGElement, m: SVGMatrix) {
+export function updateNode(n: SVGGElement | SVGCircleElement, m: SVGMatrix) {
 	const svgTranformList = n.transform.baseVal
 	const t = svgTranformList.createSVGTransformFromMatrix(m)
     svgTranformList.initialize(t)

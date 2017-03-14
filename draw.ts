@@ -5,9 +5,9 @@ import { timeout as runTimeout } from 'd3-timer'
 import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
 
 import { MyAxis, Orientation } from './axis'
-import { MyTransform } from './MyTransform'
+import { MyTransform, updateNode } from './MyTransform'
 import { IMinMax, SegmentTree } from './segmentTree'
-import { AR1Basis, AR1, betweenTBasesAR1, bPlaceholder, bUnit } from './viewZoomTransform'
+import { AR1Basis, AR1, betweenBasesAR1, betweenTBasesAR1, bPlaceholder, bUnit } from './viewZoomTransform'
 
 function drawProc(f: Function) {
 	let requested = false
@@ -272,25 +272,35 @@ export class TimeSeriesChart {
 			scheduleRefresh()
 		}
 
-		const highlightedGreenDot = view.append('circle')
-			.attr('cx', this.data.length - 1)
-			.attr('cy', this.data[this.data.length - 1][0])
-			.attr('r', 1)
-		const highlightedBlueDot = view.append('circle')
-			.attr('cx', this.data.length - 1)
-			.attr('cy', this.data[this.data.length - 1][1])
-			.attr('r', 1)
+		const highlightedGreenDot = view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1)
+		const highlightedBlueDot = view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1)
+
+		const identityMatrix = document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGMatrix()
+
+		const dotToScreenToModelX = betweenTBasesAR1(new AR1Basis(0, 1), bScreenXVisible).composeWith(betweenTBasesAR1(bScreenXVisible, this.bIndexFull))
+		const dotToScreenToModelY = betweenTBasesAR1(new AR1Basis(0, 1), bScreenYVisible).composeWith(betweenTBasesAR1(bScreenYVisible, this.bTemperatureVisible(this.bIndexFull)))
+
+		const dotMatrix = dotToScreenToModelY.applyToMatrixY(dotToScreenToModelX.applyToMatrixX(identityMatrix))
+
+		updateNode(highlightedGreenDot.node() as SVGCircleElement, dotMatrix)
+		updateNode(highlightedBlueDot.node() as SVGCircleElement, dotMatrix)
 
 		const highlight = (dataIdx: number) => {
 			const hoveredTime = this.idxToTime.applyToPoint(dataIdx)
 			const tuple = this.data[Math.round(dataIdx)]
-			
+
 			this.legendTime.text(new Date(hoveredTime).toLocaleString())
 			this.legendGreen.text(isNaN(tuple[0]) ? ' ' : tuple[0])
 			this.legendBlue.text(isNaN(tuple[1]) ? ' ' : tuple[1])
 
-			highlightedGreenDot.attr('cx', dataIdx).attr('cy', tuple[0])
-			highlightedBlueDot.attr('cx', dataIdx).attr('cy', tuple[1])
+			const bIndexVisible = pathTransform.fromScreenToModelBasisX(bScreenXVisible)
+			const bTemperatureVisible = this.bTemperatureVisible(bIndexVisible)
+
+			const greenDotHoverMatrix = identityMatrix.translate(dataIdx,  tuple[0]).scaleNonUniform(1 / bIndexVisible.getRange(), 1 / bTemperatureVisible.getRange())
+			const blueDotHoverMatrix = identityMatrix.translate(dataIdx,  tuple[1]).scaleNonUniform(1 / bIndexVisible.getRange(), 1 / bTemperatureVisible.getRange())
+
+			updateNode(highlightedGreenDot.node() as SVGCircleElement, greenDotHoverMatrix.multiply(dotMatrix))
+			updateNode(highlightedBlueDot.node() as SVGCircleElement, blueDotHoverMatrix.multiply(dotMatrix))
 		}
 
 		this.onHover = (x: number) => {

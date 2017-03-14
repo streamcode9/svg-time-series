@@ -88,12 +88,17 @@ export class AR1Basis {
 		this.p1 = pp1
 		this.p2 = pp2
 	}
+
 	public toArr() : [number, number] {
 		return [this.p1, this.p2]	
 	}
 	
 	public transformWith(transform: AR1) : AR1Basis {
 		return new AR1Basis(transform.applyToPoint(this.p1), transform.applyToPoint(this.p2))
+	}
+
+	public getRange() {
+		return Math.abs(this.p2 - this.p1)
 	}
 }
 
