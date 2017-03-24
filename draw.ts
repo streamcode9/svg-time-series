@@ -272,18 +272,11 @@ export class TimeSeriesChart {
 			scheduleRefresh()
 		}
 
+		const dotRadius = 3
 		const highlightedGreenDot = view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1)
 		const highlightedBlueDot = view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1)
 
 		const identityMatrix = document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGMatrix()
-
-		const dotToScreenToModelX = betweenTBasesAR1(new AR1Basis(0, 1), bScreenXVisible).composeWith(betweenTBasesAR1(bScreenXVisible, this.bIndexFull))
-		const dotToScreenToModelY = betweenTBasesAR1(new AR1Basis(0, 1), bScreenYVisible).composeWith(betweenTBasesAR1(bScreenYVisible, this.bTemperatureVisible(this.bIndexFull)))
-
-		const dotMatrix = dotToScreenToModelY.applyToMatrixY(dotToScreenToModelX.applyToMatrixX(identityMatrix))
-
-		updateNode(highlightedGreenDot.node() as SVGCircleElement, dotMatrix)
-		updateNode(highlightedBlueDot.node() as SVGCircleElement, dotMatrix)
 
 		const highlight = (dataIdx: number) => {
 			const hoveredTime = this.idxToTime.applyToPoint(dataIdx)
@@ -293,14 +286,13 @@ export class TimeSeriesChart {
 			this.legendGreen.text(isNaN(tuple[0]) ? ' ' : tuple[0])
 			this.legendBlue.text(isNaN(tuple[1]) ? ' ' : tuple[1])
 
-			const bIndexVisible = pathTransform.fromScreenToModelBasisX(bScreenXVisible)
-			const bTemperatureVisible = this.bTemperatureVisible(bIndexVisible)
+			const dotRadiusXModel = pathTransform.fromScreenToModelX(dotRadius)
+			const dotRadiusYModel = pathTransform.fromScreenToModelY(0) - pathTransform.fromScreenToModelY(dotRadius)
+			const greenDotHoverMatrix = identityMatrix.translate(dataIdx, tuple[0]).scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
+			const blueDotHoverMatrix = identityMatrix.translate(dataIdx, tuple[1]).scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
 
-			const greenDotHoverMatrix = identityMatrix.translate(dataIdx,  tuple[0]).scaleNonUniform(1 / bIndexVisible.getRange(), 1 / bTemperatureVisible.getRange())
-			const blueDotHoverMatrix = identityMatrix.translate(dataIdx,  tuple[1]).scaleNonUniform(1 / bIndexVisible.getRange(), 1 / bTemperatureVisible.getRange())
-
-			updateNode(highlightedGreenDot.node() as SVGCircleElement, greenDotHoverMatrix.multiply(dotMatrix))
-			updateNode(highlightedBlueDot.node() as SVGCircleElement, blueDotHoverMatrix.multiply(dotMatrix))
+			updateNode(highlightedGreenDot.node() as SVGCircleElement, greenDotHoverMatrix)
+			updateNode(highlightedBlueDot.node() as SVGCircleElement, blueDotHoverMatrix)
 		}
 
 		this.onHover = (x: number) => {

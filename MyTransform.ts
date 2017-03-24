@@ -76,6 +76,16 @@ export class MyTransform {
 		return p.matrixTransform(bwd).x
 	}
 
+	public fromScreenToModelY(y: number) {
+		const fwd = this.zoomTransform.multiply(this.referenceTransform)
+		const bwd = fwd.inverse()
+
+		const p = this.svgNode.createSVGPoint()
+		p.x = 0 // irrelevant
+		p.y = y
+		return p.matrixTransform(bwd).y
+	}
+
 	public fromScreenToModelBasisX(b: AR1Basis) {
 		const fwd = this.zoomTransform.multiply(this.referenceTransform)
 		const bwd = fwd.inverse()
