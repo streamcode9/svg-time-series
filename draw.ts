@@ -286,7 +286,7 @@ export class TimeSeriesChart {
 			this.legendGreen.text(isNaN(tuple[0]) ? ' ' : tuple[0])
 			this.legendBlue.text(isNaN(tuple[1]) ? ' ' : tuple[1])
 
-			const dotRadiusXModel = pathTransform.fromScreenToModelX(dotRadius)
+			const dotRadiusXModel = pathTransform.fromScreenToModelX(0) - pathTransform.fromScreenToModelX(dotRadius)
 			const dotRadiusYModel = pathTransform.fromScreenToModelY(0) - pathTransform.fromScreenToModelY(dotRadius)
 			const greenDotHoverMatrix = identityMatrix.translate(dataIdx, tuple[0]).scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
 			const blueDotHoverMatrix = identityMatrix.translate(dataIdx, tuple[1]).scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
