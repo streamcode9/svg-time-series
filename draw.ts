@@ -75,6 +75,8 @@ export class TimeSeriesChart {
 	private legendGreen: Selection<BaseType, {}, HTMLElement, any>
 	private legendBlue: Selection<BaseType, {}, HTMLElement, any>
 
+	private highlightedDataIdx: number
+
 	constructor(
 		svg: Selection<BaseType, {}, HTMLElement, any>,
 		legend: Selection<BaseType, {}, HTMLElement, any>,
@@ -239,6 +241,8 @@ export class TimeSeriesChart {
 
 			xAxis.axisUp(gX)
 			yAxis.axisUp(gY)
+
+			highlight(this.highlightedDataIdx)
 		})
 		pathTransform.onViewPortResize(bScreenXVisible, bScreenYVisible)
 		pathTransform.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
@@ -279,6 +283,7 @@ export class TimeSeriesChart {
 		const identityMatrix = document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGMatrix()
 
 		const highlight = (dataIdx: number) => {
+			this.highlightedDataIdx = dataIdx
 			const hoveredTime = this.idxToTime.applyToPoint(dataIdx)
 			const tuple = this.data[Math.round(dataIdx)]
 
