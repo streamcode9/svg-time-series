@@ -293,8 +293,9 @@ export class TimeSeriesChart {
 
 			const dotRadiusXModel = pathTransform.fromScreenToModelX(0) - pathTransform.fromScreenToModelX(dotRadius)
 			const dotRadiusYModel = pathTransform.fromScreenToModelY(0) - pathTransform.fromScreenToModelY(dotRadius)
-			const greenDotHoverMatrix = identityMatrix.translate(dataIdx, tuple[0]).scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
-			const blueDotHoverMatrix = identityMatrix.translate(dataIdx, tuple[1]).scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
+
+			const greenDotHoverMatrix = identityMatrix.translate(dataIdx, isNaN(tuple[0]) ? 0 : tuple[0]).scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
+			const blueDotHoverMatrix = identityMatrix.translate(dataIdx, isNaN(tuple[1]) ? 0 : tuple[1]).scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
 
 			updateNode(highlightedGreenDot.node() as SVGCircleElement, greenDotHoverMatrix)
 			updateNode(highlightedBlueDot.node() as SVGCircleElement, blueDotHoverMatrix)
