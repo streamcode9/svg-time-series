@@ -277,25 +277,30 @@ export class TimeSeriesChart {
 		}
 
 		const dotRadius = 3
-		const highlightedGreenDot = view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1)
-		const highlightedBlueDot = view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1)
+		const makeDot = () => view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1)
+		const highlightedGreenDot = makeDot()
+		const highlightedBlueDot = makeDot()
 
 		const identityMatrix = document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGMatrix()
 
+		const fixNaN = (n: number, valueForNaN: any) => isNaN(n) ? valueForNaN : n
+
 		const highlight = (dataIdx: number) => {
 			this.highlightedDataIdx = dataIdx
-			const hoveredTime = this.idxToTime.applyToPoint(dataIdx)
-			const tuple = this.data[Math.round(dataIdx)]
+			const [greenData, blueData] = this.data[Math.round(dataIdx)]
 
-			this.legendTime.text(new Date(hoveredTime).toLocaleString())
-			this.legendGreen.text(isNaN(tuple[0]) ? ' ' : tuple[0])
-			this.legendBlue.text(isNaN(tuple[1]) ? ' ' : tuple[1])
+			this.legendTime.text(new Date(this.idxToTime.applyToPoint(dataIdx)).toLocaleString())
+			this.legendGreen.text(fixNaN(greenData, ' '))
+			this.legendBlue.text(fixNaN(blueData, ' '))
 
 			const dotRadiusXModel = pathTransform.fromScreenToModelX(0) - pathTransform.fromScreenToModelX(dotRadius)
 			const dotRadiusYModel = pathTransform.fromScreenToModelY(0) - pathTransform.fromScreenToModelY(dotRadius)
 
-			const greenDotHoverMatrix = identityMatrix.translate(dataIdx, isNaN(tuple[0]) ? 0 : tuple[0]).scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
-			const blueDotHoverMatrix = identityMatrix.translate(dataIdx, isNaN(tuple[1]) ? 0 : tuple[1]).scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
+			const dotScaleMatrix = identityMatrix.scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
+
+
+			const greenDotHoverMatrix = identityMatrix.translate(dataIdx, fixNaN(greenData, 0)).multiply(dotScaleMatrix)
+			const blueDotHoverMatrix = identityMatrix.translate(dataIdx, fixNaN(blueData, 0)).multiply(dotScaleMatrix)
 
 			updateNode(highlightedGreenDot.node() as SVGCircleElement, greenDotHoverMatrix)
 			updateNode(highlightedBlueDot.node() as SVGCircleElement, blueDotHoverMatrix)
