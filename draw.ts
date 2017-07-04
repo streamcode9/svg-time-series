@@ -291,10 +291,7 @@ export class TimeSeriesChart {
 
 			this.legendTime.text(new Date(this.idxToTime.applyToPoint(dataIdx)).toLocaleString())
 
-			const dotRadiusXModel = pathTransform.fromScreenToModelX(0) - pathTransform.fromScreenToModelX(dotRadius)
-			const dotRadiusYModel = pathTransform.fromScreenToModelY(0) - pathTransform.fromScreenToModelY(dotRadius)
-
-			const dotScaleMatrix = identityMatrix.scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
+			const dotScaleMatrix = pathTransform.dotScaleMatrix(dotRadius)
 
 			const updateDot = (greenData: number, legend: Selection<BaseType, {}, HTMLElement, any>, node: SVGTransformable) => {
 				legend.text(fixNaN(greenData, ' '))

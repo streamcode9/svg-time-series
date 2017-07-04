@@ -86,6 +86,13 @@ export class MyTransform {
 		return p.matrixTransform(bwd).y
 	}
 
+	public dotScaleMatrix(dotRadius: number) {
+		const dotRadiusXModel = this.fromScreenToModelX(0) - this.fromScreenToModelX(dotRadius)
+		const dotRadiusYModel = this.fromScreenToModelY(0) - this.fromScreenToModelY(dotRadius)
+
+		return this.identityTransform.scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
+	}
+
 	public fromScreenToModelBasisX(b: AR1Basis) {
 		const fwd = this.zoomTransform.multiply(this.referenceTransform)
 		const bwd = fwd.inverse()
