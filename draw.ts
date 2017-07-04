@@ -277,7 +277,7 @@ export class TimeSeriesChart {
 		}
 
 		const dotRadius = 3
-		const makeDot = () => view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1)
+		const makeDot = () => view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1).node() as SVGCircleElement
 		const highlightedGreenDot = makeDot()
 		const highlightedBlueDot = makeDot()
 
@@ -290,25 +290,23 @@ export class TimeSeriesChart {
 			const [greenData, blueData] = this.data[Math.round(dataIdx)]
 
 			this.legendTime.text(new Date(this.idxToTime.applyToPoint(dataIdx)).toLocaleString())
-			this.legendGreen.text(fixNaN(greenData, ' '))
-			this.legendBlue.text(fixNaN(blueData, ' '))
 
 			const dotRadiusXModel = pathTransform.fromScreenToModelX(0) - pathTransform.fromScreenToModelX(dotRadius)
 			const dotRadiusYModel = pathTransform.fromScreenToModelY(0) - pathTransform.fromScreenToModelY(dotRadius)
 
 			const dotScaleMatrix = identityMatrix.scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
 
+			const updateDot = (greenData: number, legend: Selection<BaseType, {}, HTMLElement, any>, node: SVGTransformable) => {
+				legend.text(fixNaN(greenData, ' '))
+				updateNode(node, identityMatrix.translate(dataIdx, fixNaN(greenData, 0)).multiply(dotScaleMatrix))
+			}	
 
-			const greenDotHoverMatrix = identityMatrix.translate(dataIdx, fixNaN(greenData, 0)).multiply(dotScaleMatrix)
-			const blueDotHoverMatrix = identityMatrix.translate(dataIdx, fixNaN(blueData, 0)).multiply(dotScaleMatrix)
-
-			updateNode(highlightedGreenDot.node() as SVGCircleElement, greenDotHoverMatrix)
-			updateNode(highlightedBlueDot.node() as SVGCircleElement, blueDotHoverMatrix)
+			updateDot(greenData, this.legendGreen, highlightedGreenDot)
+			updateDot(blueData, this.legendBlue, highlightedBlueDot)
 		}
 
 		this.onHover = (x: number) => {
-			const hoveredDataIdx = pathTransform.fromScreenToModelX(x)
-			highlight(hoveredDataIdx)
+			highlight(pathTransform.fromScreenToModelX(x))
 		}
 
 		this.onHover(width)
