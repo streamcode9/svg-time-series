@@ -87,8 +87,21 @@ export class MyTransform {
 	}
 
 	public dotScaleMatrix(dotRadius: number) {
-		const dotRadiusXModel = this.fromScreenToModelX(0) - this.fromScreenToModelX(dotRadius)
-		const dotRadiusYModel = this.fromScreenToModelY(0) - this.fromScreenToModelY(dotRadius)
+		const fwd = this.zoomTransform.multiply(this.referenceTransform)
+		const bwd = fwd.inverse()
+
+		const p0 = this.svgNode.createSVGPoint()
+		p0.x = 0
+		p0.y = 0
+		const tp0 = p0.matrixTransform(bwd)
+
+		const p1 = this.svgNode.createSVGPoint()
+		p1.x = dotRadius
+		p1.y = dotRadius
+		const tp1 = p1.matrixTransform(bwd)
+		
+		const dotRadiusXModel = tp0.x - tp1.x
+		const dotRadiusYModel = tp0.y - tp1.y
 
 		return this.identityTransform.scaleNonUniform(dotRadiusXModel, dotRadiusYModel)
 	}
