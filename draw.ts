@@ -293,7 +293,7 @@ export class TimeSeriesChart {
 
 			const dotScaleMatrix = pathTransform.dotScaleMatrix(dotRadius)
 
-			const updateDot = (greenData: number, legend: Selection<BaseType, {}, HTMLElement, any>, node: SVGTransformable) => {
+			const updateDot = (greenData: number, legend: Selection<BaseType, {}, HTMLElement, any>, node: SVGGraphicsElement) => {
 				legend.text(fixNaN(greenData, ' '))
 				updateNode(node, identityMatrix.translate(dataIdx, fixNaN(greenData, 0)).multiply(dotScaleMatrix))
 			}	
