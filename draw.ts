@@ -225,6 +225,13 @@ export class TimeSeriesChart {
 		zoomArea.on('mousemove', this.mouseMoveHandler.bind(this))
 
 		let currentPanZoomTransformState: ZoomTransform = null
+		const dotRadius = 3
+		const fixNaN = (n: number, valueForNaN: any) => isNaN(n) ? valueForNaN : n
+		const makeDot = () => view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1).node() as SVGCircleElement
+		const highlightedGreenDot = makeDot()
+		const highlightedBlueDot = makeDot()
+
+		const identityMatrix = document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGMatrix()
 
 		// it's important that we have only 1 instance
 		// of drawProc and not one per event
@@ -241,9 +248,24 @@ export class TimeSeriesChart {
 
 			xAxis.axisUp(gX)
 			yAxis.axisUp(gY)
-
-			highlight(this.highlightedDataIdx)
 		})
+
+		const schedulePointRefresh = drawProc(() => {
+			const [greenData, blueData] = this.data[Math.round(this.highlightedDataIdx)]
+
+			this.legendTime.text(new Date(this.idxToTime.applyToPoint(this.highlightedDataIdx)).toLocaleString())
+
+			const dotScaleMatrix = pathTransform.dotScaleMatrix(dotRadius)
+
+			const updateDot = (greenData: number, legend: Selection<BaseType, {}, HTMLElement, any>, node: SVGGraphicsElement) => {
+				legend.text(fixNaN(greenData, ' '))
+				updateNode(node, identityMatrix.translate(this.highlightedDataIdx, fixNaN(greenData, 0)).multiply(dotScaleMatrix))
+			}
+
+			updateDot(greenData, this.legendGreen, highlightedGreenDot)
+			updateDot(blueData, this.legendBlue, highlightedBlueDot)
+		})
+
 		pathTransform.onViewPortResize(bScreenXVisible, bScreenYVisible)
 		pathTransform.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
 
@@ -263,6 +285,7 @@ export class TimeSeriesChart {
 
 			path.attr('d', (cityIndex: number) => drawLine(cityIndex).call(null, this.data))
 			scheduleRefresh()
+			schedulePointRefresh()
 		}
 
 		this.drawNewData()
@@ -274,42 +297,22 @@ export class TimeSeriesChart {
 
 			pathTransform.onZoomPan(d3event.transform)
 			scheduleRefresh()
+			schedulePointRefresh()
 		}
-
-		const dotRadius = 3
-		const makeDot = () => view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1).node() as SVGCircleElement
-		const highlightedGreenDot = makeDot()
-		const highlightedBlueDot = makeDot()
-
-		const identityMatrix = document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGMatrix()
-
-		const fixNaN = (n: number, valueForNaN: any) => isNaN(n) ? valueForNaN : n
 
 		const highlight = (dataIdx: number) => {
 			this.highlightedDataIdx = dataIdx
-			const [greenData, blueData] = this.data[Math.round(dataIdx)]
-
-			this.legendTime.text(new Date(this.idxToTime.applyToPoint(dataIdx)).toLocaleString())
-
-			const dotScaleMatrix = pathTransform.dotScaleMatrix(dotRadius)
-
-			const updateDot = (greenData: number, legend: Selection<BaseType, {}, HTMLElement, any>, node: SVGGraphicsElement) => {
-				legend.text(fixNaN(greenData, ' '))
-				updateNode(node, identityMatrix.translate(dataIdx, fixNaN(greenData, 0)).multiply(dotScaleMatrix))
-			}	
-
-			updateDot(greenData, this.legendGreen, highlightedGreenDot)
-			updateDot(blueData, this.legendBlue, highlightedBlueDot)
 		}
 
 		this.onHover = (x: number) => {
 			highlight(pathTransform.fromScreenToModelX(x))
+			schedulePointRefresh()
 		}
 
 		this.onHover(width)
 	}
 
-	private bTemperatureVisible(bIndexVisible: AR1Basis) : AR1Basis {
+	private bTemperatureVisible(bIndexVisible: AR1Basis): AR1Basis {
 		// просто функция между базисами
 		const [minIdxX, maxIdxX] = bIndexVisible.toArr()
 		const { min, max } = this.tree.getMinMax(Math.round(minIdxX), Math.round(maxIdxX))
