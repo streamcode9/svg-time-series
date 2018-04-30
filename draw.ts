@@ -37,7 +37,8 @@ export class TimeSeriesChart {
 	private data: Array<[number, number]>
 
 	// updated when a new point is added
-	private tree: SegmentTree
+	private treeNy: SegmentTree
+	private treeSf: SegmentTree
 
 	// Updated when a new point is added
 	// used to convert indices to dates shown by X axis
@@ -67,7 +68,8 @@ export class TimeSeriesChart {
 	// а не в терминах их координат
 	private bIndexFull: AR1Basis
 
-	private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax
+	private buildSegmentTreeTupleNy: (index: number, elements: any) => IMinMax
+	private buildSegmentTreeTupleSf: (index: number, elements: any) => IMinMax
 	private zoomHandler: () => void
 	private mouseMoveHandler: () => void
 
@@ -82,7 +84,8 @@ export class TimeSeriesChart {
 		legend: Selection<BaseType, {}, HTMLElement, any>,
 		startTime: number, timeStep: number,
 		data: Array<[number, number]>,
-		buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
+		buildSegmentTreeTupleNy: (index: number, elements: any) => IMinMax,
+		buildSegmentTreeTupleSf: (index: number, elements: any) => IMinMax,
 		zoomHandler: () => void,
 		mouseMoveHandler: () => void) {
 
@@ -102,7 +105,8 @@ export class TimeSeriesChart {
 		// при добавлении точки первый и второй элемент
 		// становятся на место нулевого и первого соответственно
 		this.idxShift = betweenTBasesAR1(new AR1Basis(1, 2), bUnit)
-		this.buildSegmentTreeTuple = buildSegmentTreeTuple
+		this.buildSegmentTreeTupleNy = buildSegmentTreeTupleNy
+		this.buildSegmentTreeTupleSf = buildSegmentTreeTupleSf
 		this.zoomHandler = zoomHandler
 		this.mouseMoveHandler = mouseMoveHandler
 		this.bIndexFull = new AR1Basis(0, data.length - 1)
@@ -191,7 +195,8 @@ export class TimeSeriesChart {
 			y.domain(bTemperatureVisible.toArr())
 		}
 
-		this.tree = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTuple)
+		this.treeNy = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTupleNy)
+		this.treeSf = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTupleSf)
 
 		// в референсном окне видны все данные, поэтому
 		// передаем bIndexFull в качестее bIndexVisible
@@ -275,7 +280,8 @@ export class TimeSeriesChart {
 		this.drawNewData = () => {
 			// создание дерева не должно
 			// дублироваться при создании чарта
-			this.tree = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTuple)
+			this.treeNy = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTupleNy)
+			this.treeSf = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTupleSf)
 			const drawLine = (cityIdx: number) => line()
 				.defined((d: [number, number]) => {
 					return !(isNaN(d[cityIdx]) || d[cityIdx] == null)
@@ -315,7 +321,8 @@ export class TimeSeriesChart {
 	private bTemperatureVisible(bIndexVisible: AR1Basis): AR1Basis {
 		// просто функция между базисами
 		const [minIdxX, maxIdxX] = bIndexVisible.toArr()
-		const { min, max } = this.tree.getMinMax(Math.round(minIdxX), Math.round(maxIdxX))
+		const { min, max } = this.treeNy.getMinMax(Math.round(minIdxX), Math.round(maxIdxX))
+		//const { min, max } = this.treeSf.getMinMax(Math.round(minIdxX), Math.round(maxIdxX))
 		return new AR1Basis(min, max)
 	}
 }

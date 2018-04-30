@@ -6,12 +6,16 @@ import { IMinMax } from '../segmentTree'
 
 
 
-function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
+function buildSegmentTreeTupleNy(index: number, elements: number[][]): IMinMax {
 	const nyMinValue = isNaN(elements[index][0]) ? Infinity : elements[index][0]
 	const nyMaxValue = isNaN(elements[index][0]) ? -Infinity : elements[index][0]
+	return { min: nyMinValue, max: nyMaxValue }
+}
+
+function buildSegmentTreeTupleSf(index: number, elements: number[][]): IMinMax {
 	const sfMinValue = isNaN(elements[index][1]) ? Infinity : elements[index][1]
 	const sfMaxValue = isNaN(elements[index][1]) ? -Infinity : elements[index][1]
-	return { min: Math.min(nyMinValue, sfMinValue), max: Math.max(nyMaxValue, sfMaxValue) }
+	return { min: sfMinValue, max: sfMaxValue }
 }
 
 export function drawCharts (data: [number, number][]) {
@@ -26,7 +30,7 @@ export function drawCharts (data: [number, number][]) {
 	const onSelectChart: ValueFn<HTMLElement, any, any> = function (element: HTMLElement, datum: any, descElement: any) {
 		const svg = select(this).select('svg')
 		const legend = select(this).select('.chart-legend')
-		let chart = new TimeSeriesChart(svg, legend, Date.now(), 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom, onMouseMove)
+		let chart = new TimeSeriesChart(svg, legend, Date.now(), 86400000, data.map(_ => _), buildSegmentTreeTupleNy, buildSegmentTreeTupleSf, onZoom, onMouseMove)
 		charts.push(chart)
 	}
 
