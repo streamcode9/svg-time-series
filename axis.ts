@@ -34,7 +34,7 @@ export class MyAxis {
 	orient: Orientation
 	scale: any
 
-	constructor(orient: Orientation, scale: any) {
+	constructor(orient: Orientation, scale: any, scale2?: any) {
 		this.orient = orient
 		this.scale = scale
 		this.tickArguments = []

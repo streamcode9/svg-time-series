@@ -23,8 +23,8 @@ function drawProc(f: Function) {
 	}
 }
 
-function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any, scale: any) {
-	axis.setScale(scale)
+function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any, scale1: any, scale2?: any) {
+	axis.setScale(scale1, scale2)
 	return svg.append('g')
 		.attr('class', 'axis')
 		.call(axis.axis.bind(axis))
@@ -146,6 +146,8 @@ export class TimeSeriesChart {
 			.data([0, 1])
 			.enter().append('path')
 
+		const [pathNy, pathSf] = path.nodes() as SVGGElement[];
+
 		// тут наши перевернутые базисы которые мы
 		// cтеснительно запрятали в onViewPortResize
 		// таки вылезли
@@ -169,19 +171,26 @@ export class TimeSeriesChart {
 
 		// интерфейс с лигаси-кодом. Некоторая многословость простительна
 		const x = scaleTime().range(bScreenXVisible.toArr())
-		const y = scaleLinear().range(bScreenYVisible.toArr())
-		const viewNode: SVGGElement = view.node() as SVGGElement
-		const pathTransform = new MyTransform(svg.node() as SVGSVGElement, viewNode)
+		const yNy = scaleLinear().range(bScreenYVisible.toArr())
+		const ySf = scaleLinear().range(bScreenYVisible.toArr())
+
+		const pathTransformNy = new MyTransform(svg.node() as SVGSVGElement, pathNy)
+		const pathTransformSf = new MyTransform(svg.node() as SVGSVGElement, pathSf)
+
+		const updateScaleX = (bIndexVisible: AR1Basis) => {
+			const bTimeVisible = bIndexVisible.transformWith(this.idxToTime)
+			x.domain(bTimeVisible.toArr())
+		}
 
 		// bIndexVisible is the visible ends of model
 		// affine space at chart edges.
 		// They are updated by zoom and pan or animation
 		// but unaffected by arrival of new data
-		const updateScales = (bIndexVisible: AR1Basis) => {
+		const updateScaleY = (bIndexVisible: AR1Basis, tree: SegmentTree, pathTransform: MyTransform, yScale: any) => {
 			// рассчитается деревом отрезков, но все равно долго
 			// так что нужно сохранить чтобы
 			// два раза не перевычислять для линий графиков и для осей
-			const bTemperatureVisible = this.bTemperatureVisible(bIndexVisible)
+			const bTemperatureVisible = this.bTemperatureVisible(bIndexVisible, tree)
 			// референсное окно имеет достаточно странный вид
 			// по горизонтали у нас полный диапазон
 			// а по вертикали только видимый
@@ -190,9 +199,7 @@ export class TimeSeriesChart {
 			// являющeмся их прямым произведением
 			pathTransform.onReferenceViewWindowResize(this.bIndexFull, bTemperatureVisible)
 
-			const bTimeVisible = bIndexVisible.transformWith(this.idxToTime)
-			x.domain(bTimeVisible.toArr())
-			y.domain(bTemperatureVisible.toArr())
+			yScale.domain(bTemperatureVisible.toArr())
 		}
 
 		this.treeNy = new SegmentTree(this.data, this.data.length, this.buildSegmentTreeTupleNy)
@@ -200,7 +207,9 @@ export class TimeSeriesChart {
 
 		// в референсном окне видны все данные, поэтому
 		// передаем bIndexFull в качестее bIndexVisible
-		updateScales(this.bIndexFull)
+		updateScaleX(this.bIndexFull)
+		updateScaleY(this.bIndexFull, this.treeNy, pathTransformNy, yNy)
+		updateScaleY(this.bIndexFull, this.treeSf, pathTransformSf, ySf)
 
 		const xAxis = new MyAxis(Orientation.Bottom, x)
 			.ticks(4)
@@ -209,13 +218,13 @@ export class TimeSeriesChart {
 			.setTickSize(height)
 			.setTickPadding(8 - height)
 
-		const yAxis = new MyAxis(Orientation.Right, y)
+		const yAxis = new MyAxis(Orientation.Right, yNy, ySf)
 			.ticks(4, 's')
 			.setTickSize(width)
 			.setTickPadding(2 - width)
 
 		const gX = bindAxisToDom(svg, xAxis, x)
-		const gY = bindAxisToDom(svg, yAxis, y)
+		const gY = bindAxisToDom(svg, yAxis, yNy, ySf)
 
 		const zoomArea: Selection<any, any, any, any> = svg.append('rect')
 			.attr('class', 'zoom')
@@ -247,9 +256,15 @@ export class TimeSeriesChart {
 				d3zoom().transform(zoomArea, currentPanZoomTransformState)
 			}
 
-			const bIndexVisible = pathTransform.fromScreenToModelBasisX(bScreenXVisible)
-			updateScales(bIndexVisible)
-			pathTransform.updateViewNode()
+			// Visible index is the same for NY and SF
+			const bIndexVisible = pathTransformNy.fromScreenToModelBasisX(bScreenXVisible)
+
+			updateScaleX(bIndexVisible)
+			updateScaleY(bIndexVisible, this.treeNy, pathTransformNy, yNy)
+			updateScaleY(bIndexVisible, this.treeSf, pathTransformSf, ySf)
+
+			pathTransformNy.updateViewNode()
+			pathTransformSf.updateViewNode()
 
 			xAxis.axisUp(gX)
 			yAxis.axisUp(gY)
@@ -260,19 +275,22 @@ export class TimeSeriesChart {
 
 			this.legendTime.text(new Date(this.idxToTime.applyToPoint(this.highlightedDataIdx)).toLocaleString())
 
-			const dotScaleMatrix = pathTransform.dotScaleMatrix(dotRadius)
+			const dotScaleMatrixNy = pathTransformNy.dotScaleMatrix(dotRadius)
+			const dotScaleMatrixSf = pathTransformSf.dotScaleMatrix(dotRadius)
 
-			const updateDot = (greenData: number, legend: Selection<BaseType, {}, HTMLElement, any>, node: SVGGraphicsElement) => {
+			const updateDot = (greenData: number, legend: Selection<BaseType, {}, HTMLElement, any>, node: SVGGraphicsElement, dotScaleMatrix: SVGMatrix) => {
 				legend.text(fixNaN(greenData, ' '))
 				updateNode(node, identityMatrix.translate(this.highlightedDataIdx, fixNaN(greenData, 0)).multiply(dotScaleMatrix))
 			}
 
-			updateDot(greenData, this.legendGreen, highlightedGreenDot)
-			updateDot(blueData, this.legendBlue, highlightedBlueDot)
+			updateDot(greenData, this.legendGreen, highlightedGreenDot, dotScaleMatrixNy)
+			updateDot(blueData, this.legendBlue, highlightedBlueDot, dotScaleMatrixSf)
 		})
 
-		pathTransform.onViewPortResize(bScreenXVisible, bScreenYVisible)
-		pathTransform.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
+		pathTransformNy.onViewPortResize(bScreenXVisible, bScreenYVisible)
+		pathTransformSf.onViewPortResize(bScreenXVisible, bScreenYVisible)
+		pathTransformNy.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
+		pathTransformSf.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder)
 
 		// вызывается здесь ниже
 		// и из публичного updateChartWithNewData()
@@ -301,7 +319,8 @@ export class TimeSeriesChart {
 		this.zoom = () => {
 			currentPanZoomTransformState = d3event.transform
 
-			pathTransform.onZoomPan(d3event.transform)
+			pathTransformNy.onZoomPan(d3event.transform)
+			pathTransformSf.onZoomPan(d3event.transform)
 			scheduleRefresh()
 			schedulePointRefresh()
 		}
@@ -311,18 +330,18 @@ export class TimeSeriesChart {
 		}
 
 		this.onHover = (x: number) => {
-			highlight(pathTransform.fromScreenToModelX(x))
+			// Visible index is the same for NY and SF
+			highlight(pathTransformNy.fromScreenToModelX(x))
 			schedulePointRefresh()
 		}
 
 		this.onHover(width)
 	}
 
-	private bTemperatureVisible(bIndexVisible: AR1Basis): AR1Basis {
+	private bTemperatureVisible(bIndexVisible: AR1Basis, tree: SegmentTree): AR1Basis {
 		// просто функция между базисами
 		const [minIdxX, maxIdxX] = bIndexVisible.toArr()
-		const { min, max } = this.treeNy.getMinMax(Math.round(minIdxX), Math.round(maxIdxX))
-		//const { min, max } = this.treeSf.getMinMax(Math.round(minIdxX), Math.round(maxIdxX))
+		const { min, max } = tree.getMinMax(Math.round(minIdxX), Math.round(maxIdxX))
 		return new AR1Basis(min, max)
 	}
 }
