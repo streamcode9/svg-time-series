@@ -1,5 +1,5 @@
 ﻿import { scaleLinear, scaleTime } from 'd3-scale'
-import { BaseType, event as d3event, selectAll, Selection } from 'd3-selection'
+import { BaseType, event as d3event, select, selectAll, Selection } from 'd3-selection'
 import { line } from 'd3-shape'
 import { timeout as runTimeout } from 'd3-timer'
 import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
@@ -134,19 +134,18 @@ export class TimeSeriesChart {
 		svg.attr('width', width)
 		svg.attr('height', height)
 
-		const view = svg.select('g.view')
+		const views = svg.selectAll('g.view')
+		const [viewNy, viewSf] = views.nodes() as SVGGElement[]
 
 		// это просто извращённый способ добавить
 		// в группу два элемента <path>
 		// .enter() это часть фреймворка d3 для работы
 		// с обновлениями, но мы пока игнорируем и
 		// делаем обновления руками
-		const path = view
+		const path = views
 			.selectAll('path')
-			.data([0, 1])
+			.data([0])
 			.enter().append('path')
-
-		const [pathNy, pathSf] = path.nodes() as SVGGElement[];
 
 		// тут наши перевернутые базисы которые мы
 		// cтеснительно запрятали в onViewPortResize
@@ -174,8 +173,8 @@ export class TimeSeriesChart {
 		const yNy = scaleLinear().range(bScreenYVisible.toArr())
 		const ySf = scaleLinear().range(bScreenYVisible.toArr())
 
-		const pathTransformNy = new MyTransform(svg.node() as SVGSVGElement, pathNy)
-		const pathTransformSf = new MyTransform(svg.node() as SVGSVGElement, pathSf)
+		const pathTransformNy = new MyTransform(svg.node() as SVGSVGElement, viewNy)
+		const pathTransformSf = new MyTransform(svg.node() as SVGSVGElement, viewSf)
 
 		const updateScaleX = (bIndexVisible: AR1Basis) => {
 			const bTimeVisible = bIndexVisible.transformWith(this.idxToTime)
@@ -241,9 +240,9 @@ export class TimeSeriesChart {
 		let currentPanZoomTransformState: ZoomTransform = null
 		const dotRadius = 3
 		const fixNaN = (n: number, valueForNaN: any) => isNaN(n) ? valueForNaN : n
-		const makeDot = () => view.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1).node() as SVGCircleElement
-		const highlightedGreenDot = makeDot()
-		const highlightedBlueDot = makeDot()
+		const makeDot = (view: any) => select(view).append('circle').attr('cx', 0).attr('cy', 0).attr('r', 1).node() as SVGCircleElement
+		const highlightedGreenDot = makeDot(viewNy)
+		const highlightedBlueDot = makeDot(viewSf)
 
 		const identityMatrix = document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGMatrix()
 
