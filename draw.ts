@@ -134,18 +134,20 @@ export class TimeSeriesChart {
 		svg.attr('width', width)
 		svg.attr('height', height)
 
-		const views = svg.selectAll('g.view')
-		const [viewNy, viewSf] = views.nodes() as SVGGElement[]
-
 		// это просто извращённый способ добавить
-		// в группу два элемента <path>
+		// в группу два элемента <g>
 		// .enter() это часть фреймворка d3 для работы
 		// с обновлениями, но мы пока игнорируем и
 		// делаем обновления руками
-		const path = views
-			.selectAll('path')
-			.data([0])
-			.enter().append('path')
+		const views = svg
+			.selectAll('g')
+			.data([0, 1])
+			.enter()
+				.append('g')
+				.attr('class', 'view')
+		const [viewNy, viewSf] = views.nodes() as SVGGElement[]
+
+		const path = views.append('path')
 
 		// тут наши перевернутые базисы которые мы
 		// cтеснительно запрятали в onViewPortResize
