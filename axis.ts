@@ -32,11 +32,13 @@ export class MyAxis {
 	tickSizeOuter: number
 	tickPadding: number
 	orient: Orientation
-	scale: any
+	scale1: any
+	scale2: any
 
-	constructor(orient: Orientation, scale: any) {
+	constructor(orient: Orientation, scale1: any, scale2?: any) {
 		this.orient = orient
-		this.scale = scale
+		this.scale1 = scale1
+		this.scale2 = scale2
 		this.tickArguments = []
 		this.tickValues = null
 		this.tickFormat = null
@@ -46,12 +48,13 @@ export class MyAxis {
 	}
 
 	axis(context: any) {
-		const values: any = this.tickValues == null ? (this.scale.ticks ? this.scale.ticks.apply(this.scale, this.tickArguments) : this.scale.domain()) : this.tickValues,
-			format: any = this.tickFormat == null ? (this.scale.tickFormat ? this.scale.tickFormat.apply(this.scale, this.tickArguments) : identity) : this.tickFormat,
+		const isY = this.scale2 ? true : false
+		const values: any = this.tickValues == null ? (this.scale1.ticks ? this.scale1.ticks.apply(this.scale1, this.tickArguments) : this.scale1.domain()) : this.tickValues,
+			format: any = this.tickFormat == null ? (this.scale1.tickFormat ? this.scale1.tickFormat.apply(this.scale1, this.tickArguments) : identity) : this.tickFormat,
 			spacing: any = Math.max(this.tickSizeInner, 0) + this.tickPadding,
 			transform: any = this.orient === Orientation.Top || this.orient === Orientation.Bottom ? translateX : translateY,
-			position = (this.scale.bandwidth ? center : identity)(this.scale.copy())
-		let tick = context.selectAll('.tick').data(values, this.scale).order(),
+			position = (this.scale1.bandwidth ? center : identity)(this.scale1.copy())
+		let tick = context.selectAll('.tick').data(values, this.scale1).order(),
 			tickExit = tick.exit(),
 			tickEnter = tick.enter().append('g').attr('class', 'tick'),
 			line = tick.select('line'),
@@ -85,13 +88,13 @@ export class MyAxis {
 	}
 
 	axisUp(context: any) {
-		const values = this.tickValues == null ? (this.scale.ticks ? this.scale.ticks.apply(this.scale, this.tickArguments) : this.scale.domain()) : this.tickValues,
-			format = this.tickFormat == null ? (this.scale.tickFormat ? this.scale.tickFormat.apply(this.scale, this.tickArguments) : identity) : this.tickFormat,
+		const values = this.tickValues == null ? (this.scale1.ticks ? this.scale1.ticks.apply(this.scale1, this.tickArguments) : this.scale1.domain()) : this.tickValues,
+			format = this.tickFormat == null ? (this.scale1.tickFormat ? this.scale1.tickFormat.apply(this.scale1, this.tickArguments) : identity) : this.tickFormat,
 			spacing = Math.max(this.tickSizeInner, 0) + this.tickPadding,
 			transform = this.orient === Orientation.Top || this.orient === Orientation.Bottom ? translateX : translateY,
-			position = (this.scale.bandwidth ? center : identity)(this.scale.copy()),
+			position = (this.scale1.bandwidth ? center : identity)(this.scale1.copy()),
 			k = this.orient === Orientation.Top || this.orient === Orientation.Left ? -1 : 1
-		let tick = context.selectAll('.tick').data(values, this.scale).order(),
+		let tick = context.selectAll('.tick').data(values, this.scale1).order(),
 			tickExit = tick.exit(),
 			tickEnter = tick.enter().append('g').attr('class', 'tick'),
 			line = tick.select('line'),
@@ -120,7 +123,11 @@ export class MyAxis {
 			.text(format)
 	}
 
-	setScale(_: any) { return this.scale = _, this }
+	setScale(scale1: any, scale2?: any) {
+		this.scale1 = scale1
+		this.scale2 = scale2
+		return this
+	}
 
 	ticks(...args: any[]) {
 		return this.tickArguments = slice.call(args), this

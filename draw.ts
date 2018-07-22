@@ -23,8 +23,8 @@ function drawProc(f: Function) {
 	}
 }
 
-function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any, scale: any) {
-	axis.setScale(scale)
+function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any, scale1: any, scale2?: any) {
+	axis.setScale(scale1, scale2)
 	return svg.append('g')
 		.attr('class', 'axis')
 		.call(axis.axis.bind(axis))
@@ -219,19 +219,13 @@ export class TimeSeriesChart {
 			.setTickSize(height)
 			.setTickPadding(8 - height)
 
-		const yNyAxis = new MyAxis(Orientation.Right, yNy)
-			.ticks(4, 's')
-			.setTickSize(width)
-			.setTickPadding(2 - width)
-
-		const ySfAxis = new MyAxis(Orientation.Right, ySf)
+		const yAxis = new MyAxis(Orientation.Right, yNy, ySf)
 			.ticks(4, 's')
 			.setTickSize(width)
 			.setTickPadding(2 - width)
 
 		const gX = bindAxisToDom(svg, xAxis, x)
-		const gYNy = bindAxisToDom(svg, yNyAxis, yNy)
-		const gYSf = bindAxisToDom(svg, ySfAxis, ySf)
+		const gY = bindAxisToDom(svg, yAxis, yNy, ySf)
 
 		const zoomArea: Selection<any, any, any, any> = svg.append('rect')
 			.attr('class', 'zoom')
@@ -274,8 +268,7 @@ export class TimeSeriesChart {
 			pathTransformSf.updateViewNode()
 
 			xAxis.axisUp(gX)
-			yNyAxis.axisUp(gYNy)
-			ySfAxis.axisUp(gYSf)
+			yAxis.axisUp(gY)
 		})
 
 		const schedulePointRefresh = drawProc(() => {
