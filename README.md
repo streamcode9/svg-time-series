@@ -17,8 +17,7 @@ D3.js seem slow: [stock D3 panning][d3stock]. But it turns out the SVG rasteriza
 - avoid extra attribute setting on SVG lines of the grid during pan and zoom (partially already in HEAD of d3-axis)
 - draw in `d3.timeout()` instead of `d3.zoom()`, that is, avoid drawing more often than screen refreshes
 
-In the demos above, SVG DOM manipulations during grid updates seem to consume at least 20% of drawing time, so further optimization
-work is possible. Keep watching!
+In the demos above, SVG DOM manipulations during grid updates seem to consume at least 20% of drawing time, so further optimization work is possible. Keep watching!
 
 ## Secrets of Speed
 
