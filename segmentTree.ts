@@ -1,5 +1,3 @@
-import * as assert from 'assert'
-
 export interface IMinMax {
 	min: number
 	max: number
@@ -7,6 +5,12 @@ export interface IMinMax {
 
 function buidMinMax(fst: IMinMax, snd: IMinMax) : IMinMax {
 	return { min: Math.min(fst.min, snd.min), max: Math.max(fst.max, snd.max) }
+}
+
+function assertOk(cond: boolean, message: string) {
+	if (!cond) {
+		throw new Error(message)
+	}
 }
 
 export class SegmentTree {
@@ -34,7 +38,7 @@ export class SegmentTree {
 	}
 
 	getMinMax(fromPosition: number, toPosition: number) {
-		assert.ok(fromPosition >= 0 && toPosition <= this.size, 'Range is not valid')
+		assertOk(fromPosition >= 0 && toPosition <= this.size, 'Range is not valid')
 		const getMinMax = (tree: IMinMax[], i: number, left: number, right: number, from: number, to: number) : IMinMax => {
 			if (from > to) {
 				return { min: Infinity, max: -Infinity }
