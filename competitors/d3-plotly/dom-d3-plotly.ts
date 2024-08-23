@@ -1,6 +1,5 @@
-﻿import common = require('../../benchmarks/common')
-declare var require: Function
-var Plotly = require('plotly.js')
+﻿import * as common from "../../benchmarks/common";
+import Plotly from "plotly.js";
 
 function generateData() {
 	let lines = []
@@ -23,8 +22,9 @@ const layout = {
 	yaxis: { showgrid: false, showticklabels: false },
 	xaxis: { showgrid: false, showticklabels: false }
 }
-function render() {
-	Plotly.plot(container, generateData(), layout, { staticPlot: true })
-	window.requestAnimationFrame(() => console.log(Date.now() - start))
+async function render() {
+	Plotly.newPlot(container, generateData(), layout, { staticPlot: true })
+		.then(() => window.requestAnimationFrame(() => console.log(Date.now() - start)))
+
 }
 window.requestAnimationFrame(render)

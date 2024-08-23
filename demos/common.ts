@@ -1,4 +1,4 @@
-﻿import { ValueFn, select, selectAll, mouse as d3mouse, event as d3event } from 'd3-selection'
+﻿import { ValueFn, select, selectAll, pointer } from 'd3-selection'
 
 import { TimeSeriesChart } from '../draw'
 import { measure } from '../measure'
@@ -21,9 +21,9 @@ function buildSegmentTreeTupleSf(index: number, elements: number[][]): IMinMax {
 export function drawCharts (data: [number, number][]) {
 	let charts: TimeSeriesChart[] = []
 
-	const onZoom = () => charts.forEach((c) => c.zoom())
-	const onMouseMove = () => {
-		const [x, _] = d3mouse(d3event.target)
+	const onZoom = (event: any) => charts.forEach((c) => c.zoom(event))
+	const onMouseMove = (event: any) => {
+		const [x, _] = pointer(event, event.target)
 		charts.forEach((c) => c.onHover(x))
 	}
 

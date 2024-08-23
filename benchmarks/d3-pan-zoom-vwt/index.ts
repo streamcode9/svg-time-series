@@ -1,4 +1,4 @@
-import { select, event as d3event } from 'd3-selection'
+import { select } from 'd3-selection'
 import { range } from 'd3-array'
 import { measureAll } from '../bench'
 import { zoom, ZoomTransform } from 'd3-zoom'
@@ -94,7 +94,7 @@ const draw = drawProc(function () {
 
 draw()
 
-function zoomed()
+function zoomed(d3event: any)
 {
     zoomCount += 1
     const z = d3event.transform.toString()

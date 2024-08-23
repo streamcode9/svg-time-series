@@ -1,10 +1,10 @@
-﻿declare const require: Function
-const d3request = require('d3-request')
-const d3shape = require('d3-shape')
-const d3selection = require('d3-selection')
-import measureFPS = require('../../measure')
-import draw = require('./draw')
-import drawModelCS = require('./drawModelCS')
+﻿import d3request from "d3-request";
+
+import d3shape from "d3-shape";
+
+import d3selection from "d3-selection";
+import * as draw from "./draw";
+import * as drawModelCS from "./drawModelCS";
 
 const startDate = new Date()
 d3request
@@ -22,8 +22,8 @@ d3request
 
 		const onPath = (path: any) => {
 			 path.attr('d', (cityIdx: number) =>
-				d3shape.line()
-                     .defined((d: number[]) => d[cityIdx])
+				d3shape.line<number[]>()
+                     .defined((d: number[]) => !!d[cityIdx])
                      .x((d: number[], i: number) => i)
 					.y((d: number[]) => d[cityIdx])
 					.call(null, data)
@@ -33,17 +33,17 @@ d3request
         const onPathModel = (path: any) => {
             path.attr('d', (cityIdx: number) =>
                 d3shape.line()
-                    .defined((d: number[]) => d[cityIdx])
+                    .defined((d: number[]) => !!d[cityIdx])
                     .x((d: number[], i: number) => calcDate(i, startDate, 86400000))
                     .y((d: number[]) => d[cityIdx])
                     .call(null, data)
             )
         }
 
-        d3selection.selectAll('svg#default').select(function () {
+        d3selection.selectAll('svg#default').each(function () {
             new draw.TimeSeriesChart(d3selection.select(this), 0, 1, [0, 1], onPath, data.length)
 		})
-        d3selection.selectAll('svg#model').select(function () {
+        d3selection.selectAll('svg#model').each(function () {
             new drawModelCS.TimeSeriesChartModelCS(d3selection.select(this), startDate, 86400000, [0, 1], onPathModel, data.length)
         })
     })

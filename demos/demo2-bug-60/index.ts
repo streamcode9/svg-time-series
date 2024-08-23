@@ -1,5 +1,5 @@
 import { scaleLinear, scaleTime } from 'd3-scale'
-import { ValueFn, BaseType, event as d3event, select, selectAll, Selection } from 'd3-selection'
+import { ValueFn, BaseType, select, selectAll, Selection } from 'd3-selection'
 import { line } from 'd3-shape'
 import { timeout as runTimeout, timer as runTimer } from 'd3-timer'
 import { zoomIdentity, zoom as d3zoom, ZoomTransform } from 'd3-zoom'
@@ -39,7 +39,7 @@ function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
 export function drawCharts (data: [number, number][]) {
 	let charts: TimeSeriesChart[] = []
 
-	const onZoom = () => charts.forEach((c) => c.zoom())
+	const onZoom = (event: any) => charts.forEach((c) => c.zoom(event))
 
 	const onSelectChart: ValueFn<any, any, any> = function (element: any, datum: any, descElement: any) {
 		let chart = new TimeSeriesChart(select(this), Date.now(), 86400000, data.map(_ => _), buildSegmentTreeTuple, onZoom)
@@ -79,7 +79,7 @@ function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any
 }
 
 export class TimeSeriesChart {
-	public zoom: () => void
+	public zoom: (event: any) => void
 	private drawNewData: () => void
 	private data: Array<[number, number]>
 
@@ -115,14 +115,14 @@ export class TimeSeriesChart {
 	private bIndexFull: AR1Basis
 
 	private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax
-	private zoomHandler: () => void
+	private zoomHandler: (event: any) => void
 
 	constructor(
 		svg: Selection<BaseType, {}, HTMLElement, any>,
 		startTime: number, timeStep: number,
 		data: Array<[number, number]>,
 		buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
-		zoomHandler: () => void) {
+		zoomHandler: (event: any) => void) {
 
 		// здесь второй базис образован не двумя точками, а
 		// эквивалентно точкой и вектором
@@ -282,8 +282,8 @@ export class TimeSeriesChart {
 
 		// публичный метод, используется для ретрансляции
 		// зум-события нескольким графикам
-		this.zoom = () => {
-			pathTransform.onZoomPan(d3event.transform)
+		this.zoom = (event: any) => {
+			pathTransform.onZoomPan(event.transform)
 			scheduleRefresh()
 		}
 

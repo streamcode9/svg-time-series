@@ -1,6 +1,9 @@
-﻿declare const require: Function
-const d3 = require('d3')
-import segmentTree = require('../../segmentTree')
+﻿import { D3ZoomEvent, zoom } from "d3-zoom";
+import * as segmentTree from "../../segmentTree";
+import { timeout as runTimeout } from 'd3-timer'
+import {selectAll} from "d3-selection";
+import {scaleLinear, scaleOrdinal, scaleTime} from "d3-scale";
+import {line} from "d3-shape";
 
 interface IChartData {
 	name: string
@@ -25,7 +28,7 @@ function drawProc(f: any) {
 	return function (...params: any[]) {
 		if (!requested) {
 			requested = true
-			d3.timeout(function (time: any) {
+			runTimeout(function (time: any) {
 				requested = false
 				f(params)
 			})
@@ -41,9 +44,9 @@ export class TimeSeriesChart {
 	private stepX: number
 	private tree: segmentTree.SegmentTree
 	private buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax
-	private zoomHandler: () => void
+	private zoomHandler: (event: D3ZoomEvent<any, any>) => void
 
-	constructor(svg: any, minX: Date, stepX: number, data: any[], buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax, zoomHandler: () => void) {
+	constructor(svg: any, minX: Date, stepX: number, data: any[], buildSegmentTreeTuple: (index: number, elements: any) => segmentTree.IMinMax, zoomHandler: (event: D3ZoomEvent<any, any>) => void) {
 		this.stepX = stepX
 		this.minX = minX
 		this.maxX = this.calcDate(data.length - 1, minX)
@@ -71,7 +74,7 @@ export class TimeSeriesChart {
 
 	public zoom = drawProc(function(param: any[]) {
 		const zoomTransform = param[0]
-		d3.zoom().transform(d3.selectAll('.zoom'), zoomTransform)
+		zoom().transform(selectAll('.zoom'), zoomTransform)
 		const translateX = zoomTransform.x
 		const scaleX = zoomTransform.k
 
@@ -94,12 +97,12 @@ export class TimeSeriesChart {
 		svg.attr('width', width)
 		svg.attr('height', height)
 
-		const x = d3.scaleTime().range([0, width])
-		const y = d3.scaleLinear().range([height, 0])
-		const color = d3.scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
+		const x = scaleTime().range([0, width])
+		const y = scaleLinear().range([height, 0])
+		const color = scaleOrdinal().domain(['NY', 'SF']).range(['green', 'blue'])
 
-		const line = d3.line()
-			.defined((d: number) => d)
+		const linex = line<number>()
+			.defined((d) => !!d)
 			.x((d: number, i: number) => x(this.calcDate(i, this.minX)))
 			.y((d: number) => y(d))
 
@@ -131,7 +134,7 @@ export class TimeSeriesChart {
 			.attr('class', 'zoom')
 			.attr('width', width)
 			.attr('height', height)
-			.call(d3.zoom()
+			.call(zoom()
 				.scaleExtent([1, 40])
 				.translateExtent([[0, 0], [width, height]])
 				.on('zoom', this.zoomHandler.bind(this)))
