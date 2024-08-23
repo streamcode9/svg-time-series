@@ -1,4 +1,4 @@
-﻿import common = require('../common')
+﻿import * as common from "../common";
 
 function createTranslate(x: number, y: number) {
 	const translateTransform = common.svg.createSVGTransform()

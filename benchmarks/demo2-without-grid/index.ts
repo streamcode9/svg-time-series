@@ -1,11 +1,11 @@
-declare const require: Function
-const d3 = require('d3')
-import measureFPS = require('../../measure')
-import common = require('./common')
+import * as measureFPS from "../../measure"
+import * as common from "./common"
+import { csv } from "d3-request"
+import { select, selectAll } from "d3-selection"
+
 let resize: any = { interval: 60 }
 
-d3
-	.csv('ny-vs-sf.csv')
+csv('ny-vs-sf.csv')
 	.row((d: any) => ({
 		NY: parseFloat(d.NY.split(';')[0]),
 		SF: parseFloat(d.SF.split(';')[0])
@@ -20,8 +20,8 @@ d3
 				resize.timer = setTimeout(resize.eval, resize.interval)
 			}
 			resize.eval = () => {
-				d3.selectAll('svg').remove()
-				d3.select('.charts').selectAll('div').append('svg')
+				selectAll('svg').remove()
+				select('.charts').selectAll('div').append('svg')
 				common.drawCharts(data)
 			}
 			window.addEventListener('resize', resize.request, false)

@@ -6,7 +6,7 @@ import { drawCharts } from '../common'
 interface Resize {
   interval: number
 , request: () => void
-, timer: number
+, timer: NodeJS.Timeout
 , eval: () => void
 }
 

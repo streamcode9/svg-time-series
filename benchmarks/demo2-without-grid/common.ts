@@ -1,7 +1,7 @@
-﻿declare const require: Function
-const d3 = require('d3')
-import draw = require('./draw')
-import segmentTree = require('../../segmentTree')
+﻿import * as draw from "./draw";
+import * as segmentTree from "../../segmentTree";
+import { D3ZoomEvent } from "d3-zoom";
+import {select, selectAll} from "d3-selection";
 
 function buildSegmentTreeTuple(index: number, elements: any) : segmentTree.IMinMax {
 	const nyMinValue = isNaN(elements[0].values[index]) ? Infinity : elements[0].values[index]
@@ -17,16 +17,16 @@ export function drawCharts (data: any[]) {
 	const minX = new Date()
 	let j = 0
 
-	function onZoom() {
-		const z = d3.event.transform.toString()
+	function onZoom(event: D3ZoomEvent<any, any>) {
+		const z = event.transform.toString()
 		if (z == newZoom) return
 
 		newZoom = z
-		charts.forEach(c => c.zoom(d3.event.transform))
+		charts.forEach(c => c.zoom(event.transform))
 	}
 
-	d3.selectAll('svg').select(function() {
-		const chart = new draw.TimeSeriesChart(d3.select(this), minX, 86400000, data, buildSegmentTreeTuple, onZoom)
+	selectAll('svg').each(function() {
+		const chart = new draw.TimeSeriesChart(select(this), minX, 86400000, data, buildSegmentTreeTuple, onZoom)
 		charts.push(chart)
 	})
 

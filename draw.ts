@@ -1,5 +1,5 @@
 ﻿import { scaleLinear, scaleTime } from 'd3-scale'
-import { BaseType, event as d3event, select, selectAll, Selection } from 'd3-selection'
+import { BaseType, select, selectAll, Selection } from 'd3-selection'
 import { line } from 'd3-shape'
 import { timeout as runTimeout } from 'd3-timer'
 import { zoom as d3zoom, ZoomTransform } from 'd3-zoom'
@@ -31,7 +31,7 @@ function bindAxisToDom(svg: Selection<BaseType, {}, HTMLElement, any>, axis: any
 }
 
 export class TimeSeriesChart {
-	public zoom: () => void
+	public zoom: (event: any) => void
 	public onHover: (x: number) => void
 	private drawNewData: () => void
 	private data: Array<[number, number]>
@@ -70,8 +70,8 @@ export class TimeSeriesChart {
 
 	private buildSegmentTreeTupleNy: (index: number, elements: any) => IMinMax
 	private buildSegmentTreeTupleSf: (index: number, elements: any) => IMinMax
-	private zoomHandler: () => void
-	private mouseMoveHandler: () => void
+	private zoomHandler: (event: any) => void
+	private mouseMoveHandler: (event: any) => void
 
 	private legendTime: Selection<BaseType, {}, HTMLElement, any>
 	private legendGreen: Selection<BaseType, {}, HTMLElement, any>
@@ -86,8 +86,8 @@ export class TimeSeriesChart {
 		data: Array<[number, number]>,
 		buildSegmentTreeTupleNy: (index: number, elements: any) => IMinMax,
 		buildSegmentTreeTupleSf: (index: number, elements: any) => IMinMax,
-		zoomHandler: () => void,
-		mouseMoveHandler: () => void) {
+		zoomHandler: (event: any) => void,
+		mouseMoveHandler: (event:any) => void) {
 
 		this.legendTime = legend.select('.chart-legend__time')
 		this.legendGreen = legend.select('.chart-legend__green_value')
@@ -317,7 +317,7 @@ export class TimeSeriesChart {
 
 		// публичный метод, используется для ретрансляции
 		// зум-события нескольким графикам
-		this.zoom = () => {
+		this.zoom = (d3event: any) => {
 			currentPanZoomTransformState = d3event.transform
 
 			pathTransformNy.onZoomPan(d3event.transform)
