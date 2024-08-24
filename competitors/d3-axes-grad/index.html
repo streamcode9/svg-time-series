@@ -1,39 +1,37 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
+<!doctype html>
+<meta charset="utf-8" />
 <style>
+  .axis path {
+    display: none;
+  }
 
-.axis path {
-  display: none;
-}
+  .axis line {
+    stroke-opacity: 0.3;
+    shape-rendering: crispEdges;
+  }
 
-.axis line {
-  stroke-opacity: 0.3;
-  shape-rendering: crispEdges;
-}
+  .zoom {
+    fill: none;
+    pointer-events: all;
+  }
 
-.zoom {
-  fill: none;
-  pointer-events: all;
-}
-
-.view {
-  fill: url(#gradient);
-  stroke: #000;
-}
-
+  .view {
+    fill: url(#gradient);
+    stroke: #000;
+  }
 </style>
 <div id="fps">n/a</div>
 <svg width="960" height="500">
   <defs>
     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop   offset="0.0%" stop-color="#2c7bb6"></stop>
-      <stop  offset="12.5%" stop-color="#00a6ca"></stop>
-      <stop  offset="25.0%" stop-color="#00ccbc"></stop>
-      <stop  offset="37.5%" stop-color="#90eb9d"></stop>
-      <stop  offset="50.0%" stop-color="#ffff8c"></stop>
-      <stop  offset="62.5%" stop-color="#f9d057"></stop>
-      <stop  offset="75.0%" stop-color="#f29e2e"></stop>
-      <stop  offset="87.5%" stop-color="#e76818"></stop>
+      <stop offset="0.0%" stop-color="#2c7bb6"></stop>
+      <stop offset="12.5%" stop-color="#00a6ca"></stop>
+      <stop offset="25.0%" stop-color="#00ccbc"></stop>
+      <stop offset="37.5%" stop-color="#90eb9d"></stop>
+      <stop offset="50.0%" stop-color="#ffff8c"></stop>
+      <stop offset="62.5%" stop-color="#f9d057"></stop>
+      <stop offset="75.0%" stop-color="#f29e2e"></stop>
+      <stop offset="87.5%" stop-color="#e76818"></stop>
       <stop offset="100.0%" stop-color="#d7191c"></stop>
     </linearGradient>
   </defs>

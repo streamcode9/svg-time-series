@@ -1,41 +1,53 @@
 ﻿import * as VWTransform from "../../ViewWindowTransform";
 
 export class TimeSeriesChartModelCS {
-    private SVGNode: any
- 
-    private vwTransform: VWTransform.ViewWindowTransform
+  private SVGNode: any;
 
-    private stepX: number
+  private vwTransform: VWTransform.ViewWindowTransform;
 
-    constructor(svg: any, minX: Date, stepX: number, cities: any, onPath: Function, dataLength: number) {
-        this.stepX = stepX
+  private stepX: number;
 
-        this.SVGNode = svg.node()
-        this.vwTransform = new VWTransform.ViewWindowTransform(this.SVGNode.transform.baseVal)
+  constructor(
+    svg: any,
+    minX: Date,
+    stepX: number,
+    cities: any,
+    onPath: Function,
+    dataLength: number,
+  ) {
+    this.stepX = stepX;
 
-		const width = svg.node().parentNode.clientWidth,
-			height = svg.node().parentNode.clientHeight
-		svg.attr('width', width)
-        svg.attr('height', height)
+    this.SVGNode = svg.node();
+    this.vwTransform = new VWTransform.ViewWindowTransform(
+      this.SVGNode.transform.baseVal,
+    );
 
-        this.vwTransform.setViewPort(width, height)
-        this.vwTransform.setViewWindow(minX.getTime(), this.calcDate(dataLength - 1, minX), 8, 81)
-		
-		const view = svg.append('g')
-			.selectAll('.view')
-			.data(cities)
-			.enter().append('g')
-			.attr('class', 'view')
+    const width = svg.node().parentNode.clientWidth,
+      height = svg.node().parentNode.clientHeight;
+    svg.attr("width", width);
+    svg.attr("height", height);
 
-		onPath(view.append('path'))
-    }
+    this.vwTransform.setViewPort(width, height);
+    this.vwTransform.setViewWindow(
+      minX.getTime(),
+      this.calcDate(dataLength - 1, minX),
+      8,
+      81,
+    );
 
-    private calcDate(index: number, offset: Date) {
-        const d = new Date(index * this.stepX + offset.getTime()).getTime()
-        return d
-    }
+    const view = svg
+      .append("g")
+      .selectAll(".view")
+      .data(cities)
+      .enter()
+      .append("g")
+      .attr("class", "view");
+
+    onPath(view.append("path"));
+  }
+
+  private calcDate(index: number, offset: Date) {
+    const d = new Date(index * this.stepX + offset.getTime()).getTime();
+    return d;
+  }
 }
-
-
-
-

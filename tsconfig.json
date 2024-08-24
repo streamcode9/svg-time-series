@@ -1,22 +1,20 @@
 {
-    "compilerOptions": {
-        "useDefineForClassFields": true,
-        "skipLibCheck": true,
-        "module": "ESNext",
-        "esModuleInterop": true,
-        "lib": ["dom", "es7"],
-        "target": "ES2022",
-        "noImplicitAny": true,
-        "moduleResolution": "bundler",
-        "allowImportingTsExtensions": true,
-        "isolatedModules": true,
-        "moduleDetection": "force",
-        "noEmit": true,
-        "strict": false,
-        "sourceMap": true,
-        "outDir" : "js"
-    },
-    "exclude": [
-        "node_modules"
-    ]
+  "compilerOptions": {
+    "useDefineForClassFields": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "lib": ["dom", "es7"],
+    "target": "ES2022",
+    "noImplicitAny": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "strict": false,
+    "sourceMap": true,
+    "outDir": "js"
+  },
+  "exclude": ["node_modules"]
 }

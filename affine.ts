@@ -1,4 +1,4 @@
-import { select } from 'd3-selection'
+import { select } from "d3-selection";
 // идея бескоординатного подхода в том, что вместо операций с
 // координатами иы используем операции с точками и векторами
 // которые короче и конятнее. Мы как бы на входе конвертируем
@@ -12,27 +12,27 @@ import { select } from 'd3-selection'
 
 // аффинное пространство состоит из точек и векторов
 // но координатное представление у них одно
-export type Vector = SVGPoint
+export type Vector = SVGPoint;
 
 // единственный способ создавать объекты SVG API
 // мы создаем только SVGPoint
-const factory : SVGSVGElement = select('svg').node() as SVGSVGElement
+const factory: SVGSVGElement = select("svg").node() as SVGSVGElement;
 
 // функции "для входа"
 
-export function newPoint(x: number, y: number) : SVGPoint {
-	const v = factory.createSVGPoint()
-	v.x = x
-	v.y = y
-	return v
+export function newPoint(x: number, y: number): SVGPoint {
+  const v = factory.createSVGPoint();
+  v.x = x;
+  v.y = y;
+  return v;
 }
 
-export function newVector(x: number, y: number) : Vector {
-	return newPoint(x, y) as Vector
+export function newVector(x: number, y: number): Vector {
+  return newPoint(x, y) as Vector;
 }
 
-export function identityTransform() : SVGMatrix {
-	return factory.createSVGMatrix()
+export function identityTransform(): SVGMatrix {
+  return factory.createSVGMatrix();
 }
 
 // ниже идут только функции из аффинного "сна"
@@ -43,7 +43,7 @@ export function identityTransform() : SVGMatrix {
 // пространства должны образовывать группу. А по определению группы
 // всегда должен быть нейтральный "нулевой" элемент
 // такой что 0 + x == x + 0 == x
-export const zeroV : Vector = newVector(0, 0)
+export const zeroV: Vector = newVector(0, 0);
 
 // тут небольшая досада - по правилам аффинного сна мы можем
 // умножать вектор на число, но комбинирование нулевого вектора
@@ -62,13 +62,13 @@ export const zeroV : Vector = newVector(0, 0)
 // и что построили вокруг по разрешенным правилам.
 
 // операция разности точек: точка - точка = вектор
-export function pSubP(a: SVGPoint, b: SVGPoint) : Vector {
-	return newVector(a.x - b.x, a.y - b.y)
+export function pSubP(a: SVGPoint, b: SVGPoint): Vector {
+  return newVector(a.x - b.x, a.y - b.y);
 }
 
 // разность точки и вектора: точка - вектор = точка
-export function pSubV(p: SVGPoint, v: Vector) : SVGPoint {
-	return newVector(p.x - v.x, p.y - v.y) 	
+export function pSubV(p: SVGPoint, v: Vector): SVGPoint {
+  return newVector(p.x - v.x, p.y - v.y);
 }
 
 // ещё разрешено умножение вектора на число, но мне лень
@@ -82,10 +82,10 @@ export function pSubV(p: SVGPoint, v: Vector) : SVGPoint {
 // преобразования координат.
 //
 // аффинное отображение/трансформация трансформирует точки в точки
-// и вектора в вектора. Но в SVG в готовом виде есть только 
+// и вектора в вектора. Но в SVG в готовом виде есть только
 // трансформация точки. К счастью, имея аффинное пространство
 // и отображение, трансформирующее только точки, трансформацию
-// вектора мы можем написать 
+// вектора мы можем написать
 //
 // Гипотетическая хаскельная сигнатура более понятна:
 // AffineSpace s => (Point s -> Point s) -> (Vector s -> Vector s)
@@ -100,7 +100,12 @@ export function pSubV(p: SVGPoint, v: Vector) : SVGPoint {
 // параллельный перенос на него (и на него умноженного на число).
 //
 
-export function transformVector(transformPoint: (src: SVGPoint) => SVGPoint, vec: Vector) : Vector {
-	return pSubP(transformPoint(vec as SVGPoint), transformPoint(zeroV as SVGPoint))
-
+export function transformVector(
+  transformPoint: (src: SVGPoint) => SVGPoint,
+  vec: Vector,
+): Vector {
+  return pSubP(
+    transformPoint(vec as SVGPoint),
+    transformPoint(zeroV as SVGPoint),
+  );
 }
