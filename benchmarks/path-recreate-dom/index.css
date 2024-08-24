@@ -1,27 +1,73 @@
-﻿body { margin: 0px }
+﻿body {
+  margin: 0px;
+}
 
-path { vector-effect: non-scaling-stroke }
+path {
+  vector-effect: non-scaling-stroke;
+}
 
-svg { width: 100%; height: 100%; }
-.axis, .view, .zoom { fill: none }
-.axis line { stroke-opacity: 0.3; shape-rendering: crispEdges; stroke-width: 2px }
-.zoom { pointer-events: all }
-g.view :last-child { stroke: rgb(96, 77, 196) }
-g.view :first-child { stroke: rgb(136, 204, 91) }
-.tick line { stroke: #a6a6a6; opacity: 1 }
-.tick text { fill: #454545; font-size: 0.7rem }
+svg {
+  width: 100%;
+  height: 100%;
+}
+.axis,
+.view,
+.zoom {
+  fill: none;
+}
+.axis line {
+  stroke-opacity: 0.3;
+  shape-rendering: crispEdges;
+  stroke-width: 2px;
+}
+.zoom {
+  pointer-events: all;
+}
+g.view :last-child {
+  stroke: rgb(96, 77, 196);
+}
+g.view :first-child {
+  stroke: rgb(136, 204, 91);
+}
+.tick line {
+  stroke: #a6a6a6;
+  opacity: 1;
+}
+.tick text {
+  fill: #454545;
+  font-size: 0.7rem;
+}
 
-#fps { position: fixed; background-color: #444; color: #fff; right: 0rem; padding: 0.2rem }
+#fps {
+  position: fixed;
+  background-color: #444;
+  color: #fff;
+  right: 0rem;
+  padding: 0.2rem;
+}
 
-.charts { height: calc(100vh - 2rem); display: flex; flex-direction: column }
-.charts > div { height: calc(20% - 0.4rem); overflow: hidden; border: 1px #ddd solid; margin: 0.2rem }
+.charts {
+  height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+}
+.charts > div {
+  height: calc(20% - 0.4rem);
+  overflow: hidden;
+  border: 1px #ddd solid;
+  margin: 0.2rem;
+}
 
 /* Mobile 1080x1920 */
 @media only screen and (max-device-width: 1080px) and (min-device-height: 1920px) and (orientation: portrait) {
-	.tick text { font-size: 1.5rem }
+  .tick text {
+    font-size: 1.5rem;
+  }
 }
 
 /* Desktop and Mobile 1920x1080 */
 @media only screen and (min-device-width: 1920px) and (max-device-height: 1080px) and (orientation: landscape) {
-	.tick text { font-size: 1.2rem }
+  .tick text {
+    font-size: 1.2rem;
+  }
 }

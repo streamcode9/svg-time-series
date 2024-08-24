@@ -33,26 +33,26 @@ work is possible. Keep watching!
 
 ## Benchmarks
 
-| Description | Model | Browser | FPS      | Resolution | CPU | GPU |
-| ------------|:-----:|:-------:| --------:|:----------:|:---:|:---:|
-|SegmentTree reindexing|Desktop|Chrome|94ms for 1000 repeats||i5-4670|NVIDIA GeForce GTX 660|
-|SegmentTree reindexing|Desktop|Firefox|861ms for 1000 repeats||i5-4670|NVIDIA GeForce GTX 660|
-|SegmentTree reindexing|Desktop|Edge|1255ms for 1000 repeats||i5-4670|NVIDIA GeForce GTX 660|
-|Path drawing and transformation|Desktop|Chrome|60|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|Path drawing and transformation|Desktop|Firefox|30|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|Path drawing and transformation|Desktop|Edge|60|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|Grid drawing and transformation|Desktop|Chrome|59.7|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|Grid drawing and transformation|Desktop|Firefox|47|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|Grid drawing and transformation|Desktop|Edge|59.7|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|Demo2 without grid|Desktop|Chrome|59|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|Demo2 without grid|Desktop|Firefox|30|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|Demo2 without grid|Desktop|Edge|59|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|SVG path recreation|Desktop|Chrome|52|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|SVG path recreation|Desktop|Firefox|22.7|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|SVG path recreation|Desktop|Edge|20.3|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|SegmentTree Queries|Desktop|Chrome|59.7|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|SegmentTree Queries|Desktop|Firefox|27.3|1680×917|i5-4670|NVIDIA GeForce GTX 660|
-|SegmentTree Queries|Desktop|Edge|60|1680×917|i5-4670|NVIDIA GeForce GTX 660|
+| Description                     |  Model  | Browser |                     FPS | Resolution |   CPU   |          GPU           |
+| ------------------------------- | :-----: | :-----: | ----------------------: | :--------: | :-----: | :--------------------: |
+| SegmentTree reindexing          | Desktop | Chrome  |   94ms for 1000 repeats |            | i5-4670 | NVIDIA GeForce GTX 660 |
+| SegmentTree reindexing          | Desktop | Firefox |  861ms for 1000 repeats |            | i5-4670 | NVIDIA GeForce GTX 660 |
+| SegmentTree reindexing          | Desktop |  Edge   | 1255ms for 1000 repeats |            | i5-4670 | NVIDIA GeForce GTX 660 |
+| Path drawing and transformation | Desktop | Chrome  |                      60 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| Path drawing and transformation | Desktop | Firefox |                      30 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| Path drawing and transformation | Desktop |  Edge   |                      60 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| Grid drawing and transformation | Desktop | Chrome  |                    59.7 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| Grid drawing and transformation | Desktop | Firefox |                      47 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| Grid drawing and transformation | Desktop |  Edge   |                    59.7 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| Demo2 without grid              | Desktop | Chrome  |                      59 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| Demo2 without grid              | Desktop | Firefox |                      30 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| Demo2 without grid              | Desktop |  Edge   |                      59 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| SVG path recreation             | Desktop | Chrome  |                      52 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| SVG path recreation             | Desktop | Firefox |                    22.7 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| SVG path recreation             | Desktop |  Edge   |                    20.3 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| SegmentTree Queries             | Desktop | Chrome  |                    59.7 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| SegmentTree Queries             | Desktop | Firefox |                    27.3 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
+| SegmentTree Queries             | Desktop |  Edge   |                      60 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
 
 ## Build instructions
 
@@ -76,6 +76,7 @@ work is possible. Keep watching!
 ### competitors/d3-axes-grad
 
 Stock axes panning example and:
+
 - No drawing or heavy CPU work in mouse handlers
 - Don't change anything more often than once per screen refresh
 
@@ -86,6 +87,7 @@ d3-axes grad and performance improvements of axis not accepted by the upstream
 ### competitors/d3-zoom-pan
 
 Stock d3 phyllotaxis pan-zoom example plus:
+
 - No drawing or heavy CPU work in mouse handlers
 - Don't change anything more often than once per screen refresh
 
