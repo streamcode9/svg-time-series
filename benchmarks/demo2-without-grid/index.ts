@@ -3,7 +3,7 @@ import * as common from "./common";
 import { csv } from "d3-request";
 import { select, selectAll } from "d3-selection";
 
-let resize: any = { interval: 60 };
+const resize: any = { interval: 60 };
 
 csv("ny-vs-sf.csv")
   .row((d: any) => ({

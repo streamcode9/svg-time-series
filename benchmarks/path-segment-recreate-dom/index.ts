@@ -5,7 +5,7 @@ import { TimeSeriesChart } from "./draw";
 onCsv((data) => {
   const dataLength = data.length;
 
-  let pathsData: any[][] = [[], []];
+  const pathsData: any[][] = [[], []];
   let previousPointIsValid = [true, true];
   data.forEach((d: number[], i: number, arr: number[][]) => {
     const y0 = arr[i][0];
@@ -40,9 +40,9 @@ onCsv((data) => {
     pathsData[1][dataLength - 1].values[1] = pathsData[1][0].values[1];
   }
 
-  let dataPointsCount: [number, number] = [0, 0];
-  let lastDataPoint: [any, any] = [{}, {}];
-  let newData: [any, any] = [{}, {}];
+  const dataPointsCount: [number, number] = [0, 0];
+  const lastDataPoint: [any, any] = [{}, {}];
+  const newData: [any, any] = [{}, {}];
   const drawLine = (pathElement: any, cityIdx: number, chartIdx: number) => {
     // Change data ones per iteration for all charts
     if (chartIdx == 0) {

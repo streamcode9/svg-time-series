@@ -5,7 +5,7 @@ import { TimeSeriesChart } from "./draw";
 onCsv((data) => {
   const dataLength = data.length;
 
-  let pathsData: any[][] = [[], []];
+  const pathsData: any[][] = [[], []];
   let previousPointIsValid = [true, true];
   data.forEach((d: number[], i: number, arr: number[][]) => {
     const y0 = arr[i][0];
@@ -47,7 +47,7 @@ onCsv((data) => {
   const drawLine = (pathElement: any, cityIdx: number, chartIdx: number) => {
     if (chartIdx == 0) {
       // Push new point
-      let newData: any = Object.assign({}, pathsData[cityIdx][1]);
+      const newData: any = Object.assign({}, pathsData[cityIdx][1]);
       newData.values = newData.values.map((_: any) => _);
       pathsData[cityIdx].push(newData);
 

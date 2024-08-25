@@ -2,9 +2,9 @@
 import Plotly from "plotly.js";
 
 function generateData() {
-  let lines = [];
+  const lines = [];
   for (let i = 0; i < 10; i++) {
-    var xs = [],
+    const xs = [],
       ys = [];
     for (let x = 0; x < 5000; x++) {
       xs.push(x * 0.2);
@@ -15,9 +15,9 @@ function generateData() {
   return lines;
 }
 
-var container = document.getElementById("plotly-container");
+const container = document.getElementById("plotly-container");
 
-let start = Date.now();
+const start = Date.now();
 const layout = {
   autosize: false,
   width: 1270,
