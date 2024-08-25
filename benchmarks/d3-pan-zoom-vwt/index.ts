@@ -8,13 +8,13 @@ import { identityTransform } from "../../affine";
 import { betweenBasesAR1 } from "../../viewZoomTransform";
 import { updateNode } from "../../MyTransform";
 
-var svg = select("svg"),
+const svg = select("svg"),
   width = +svg.attr("width"),
   height = +svg.attr("height");
 
-var points = range(2000).map(phyllotaxis(10));
+const points = range(2000).map(phyllotaxis(10));
 
-var g = svg.append("g");
+const g = svg.append("g");
 
 // var refNode: SVGGElement = svg.append("g").node() as SVGGElement
 const svgNode = svg.node() as SVGSVGElement;
@@ -68,18 +68,18 @@ const bbb:  number = 0 + refT.fromModelToScreen(newPoint(-rr, rr)).x
 */
 
 function phyllotaxis(radius: number) {
-  var theta = Math.PI * (3 - Math.sqrt(5));
+  const theta = Math.PI * (3 - Math.sqrt(5));
   return function (i: number) {
-    var r = radius * Math.sqrt(i),
+    const r = radius * Math.sqrt(i),
       a = theta * i;
     return [r * Math.cos(a), r * Math.sin(a)];
   };
 }
 
-var newZoom: string = null;
+let newZoom: string = null;
 let newZoomT = identityTransform();
-var zoomCount = 0;
-var maxZoomCount = 0;
+let zoomCount = 0;
+const maxZoomCount = 0;
 
 // бескоординатная обертка вокруг координатного setViewWindow
 // координаты нигде не фигурируют - этот код полностью в "аффинном сне"
@@ -109,7 +109,7 @@ function zoomed(d3event: any) {
 }
 
 function drawProc(f: (time: number) => void) {
-  var requested = false;
+  let requested = false;
 
   return function () {
     if (!requested) {

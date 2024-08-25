@@ -17,7 +17,7 @@ function buildSegmentTreeTupleSf(index: number, elements: number[][]): IMinMax {
 }
 
 export function drawCharts(data: [number, number][]) {
-  let charts: TimeSeriesChart[] = [];
+  const charts: TimeSeriesChart[] = [];
 
   const onZoom = (event: any) => charts.forEach((c) => c.zoom(event));
   const onMouseMove = (event: any) => {
@@ -32,7 +32,7 @@ export function drawCharts(data: [number, number][]) {
   ) {
     const svg = select(this).select("svg");
     const legend = select(this).select(".chart-legend");
-    let chart = new TimeSeriesChart(
+    const chart = new TimeSeriesChart(
       svg,
       legend,
       Date.now(),
@@ -50,7 +50,7 @@ export function drawCharts(data: [number, number][]) {
 
   let j = 0;
   setInterval(function () {
-    let newData = data[j % data.length];
+    const newData = data[j % data.length];
     charts.forEach((c) => c.updateChartWithNewData(newData));
     j++;
   }, 5000);
