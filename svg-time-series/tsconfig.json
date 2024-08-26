@@ -14,7 +14,9 @@
     "noEmit": true,
     "strict": false,
     "sourceMap": true,
-    "outDir": "js"
+    "outDir": "dist",
+    "declaration": true,
+    "declarationDir": "dist"
   },
   "exclude": ["node_modules"]
 }
