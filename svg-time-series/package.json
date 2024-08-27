@@ -9,15 +9,12 @@
   "repository": "streamcode9/svg-time-series",
   "license": "WTFPL",
   "files": [
-    "lib/*.js"
+    "dist/*"
   ],
   "main": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "d3-axis": "^3.0.0",
-    "d3-dsv": "^3.0.1",
-    "d3-request": "^1.0.3",
     "d3-scale": "^4.0.2",
     "d3-selection": "^3.0.0",
     "d3-shape": "^3.2.0",
@@ -41,11 +38,14 @@
     "eslint-config-prettier": "^9.1.0",
     "plotly.js": "^2.34.0",
     "prettier": "^3.3.3",
+    "rollup-plugin-node-externals": "^7.1.3",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.2.0",
-    "vite": "^5.4.2"
+    "vite": "^5.4.2",
+    "vite-plugin-dts": "^4.0.3"
   },
   "scripts": {
+    "prepare": "npm run build",
     "build": "tsc && vite build",
     "lint": "eslint",
     "preview": "vite preview"
