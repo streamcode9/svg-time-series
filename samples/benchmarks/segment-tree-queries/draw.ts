@@ -5,7 +5,7 @@ import {
   SegmentTree,
 } from "../../../svg-time-series/src/segmentTree.ts";
 import { animateBench, animateCosDown } from "../bench.ts";
-import { ViewWindowTransform } from "../../../svg-time-series/src/ViewWindowTransform.ts";
+import { ViewWindowTransform } from "../../ViewWindowTransform.ts";
 
 function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
   const nyMinValue = isNaN(elements[index][0]) ? Infinity : elements[index][0];

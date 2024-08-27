@@ -2,7 +2,7 @@
 import { Line, line } from "d3-shape";
 
 import { animateBench, animateCosDown } from "../bench.ts";
-import { ViewWindowTransform } from "../../../svg-time-series/src/ViewWindowTransform.ts";
+import { ViewWindowTransform } from "../../ViewWindowTransform.ts";
 
 export class TimeSeriesChart {
   constructor(
