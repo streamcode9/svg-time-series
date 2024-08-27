@@ -1,7 +1,7 @@
 ﻿import { BaseType, Selection } from "d3-selection";
 
 import { animateBench, animateCosDown } from "../bench.ts";
-import { ViewWindowTransform } from "../../../svg-time-series/src/ViewWindowTransform.ts";
+import { ViewWindowTransform } from "../../ViewWindowTransform.ts";
 
 export class TimeSeriesChart {
   constructor(

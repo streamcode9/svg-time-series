@@ -1,4 +1,4 @@
-﻿import * as VWTransform from "../../../svg-time-series/src/ViewWindowTransform.ts";
+﻿import * as VWTransform from "../../ViewWindowTransform.ts";
 
 export class TimeSeriesChart {
   private SVGNode: any;
