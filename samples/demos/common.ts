@@ -1,8 +1,7 @@
 ﻿import { ValueFn, select, selectAll, pointer } from "d3-selection";
 
-import { TimeSeriesChart } from "../../svg-time-series/src/draw.ts";
+import { TimeSeriesChart, IMinMax } from "svg-time-series";
 import { measure } from "../../svg-time-series/src/measure.ts";
-import { IMinMax } from "../../svg-time-series/src/segmentTree.ts";
 
 function buildSegmentTreeTupleNy(index: number, elements: number[][]): IMinMax {
   const nyMinValue = isNaN(elements[index][0]) ? Infinity : elements[index][0];

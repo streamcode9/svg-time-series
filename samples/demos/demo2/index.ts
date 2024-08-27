@@ -1,5 +1,4 @@
-import { select, selectAll } from "d3-selection";
-import { measure } from "../../../svg-time-series/src/measure.ts";
+import { selectAll } from "d3-selection";
 import { csv } from "d3-request";
 import { drawCharts } from "../common.ts";
 

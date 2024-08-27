@@ -16,6 +16,8 @@ import {
   bUnit,
 } from "./viewZoomTransform.ts";
 
+export type { IMinMax };
+
 function drawProc(f: Function) {
   let requested = false;
 
