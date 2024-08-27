@@ -8,7 +8,10 @@ import { csv } from "d3-request";
 import { measure } from "../../../svg-time-series/src/measure.ts";
 import { MyAxis, Orientation } from "../../../svg-time-series/src/axis.ts";
 import { MyTransform } from "../../../svg-time-series/src/MyTransform.ts";
-import { IMinMax, SegmentTree } from "../../../svg-time-series/src/segmentTree.ts";
+import {
+  IMinMax,
+  SegmentTree,
+} from "../../../svg-time-series/src/segmentTree.ts";
 import {
   AR1Basis,
   AR1,

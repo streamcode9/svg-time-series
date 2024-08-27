@@ -2,7 +2,10 @@
  * SegmentTree reindexing (time to rebuild index 1000 times)
  */
 
-import { IMinMax, SegmentTree } from "../../../svg-time-series/src/segmentTree.ts";
+import {
+  IMinMax,
+  SegmentTree,
+} from "../../../svg-time-series/src/segmentTree.ts";
 
 interface IElement {
   values: number[];

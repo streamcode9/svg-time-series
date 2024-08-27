@@ -12,7 +12,11 @@
 
 import { ZoomTransform } from "d3-zoom";
 
-import { betweenTBasesAR1, bPlaceholder, AR1Basis } from "./viewZoomTransform.ts";
+import {
+  betweenTBasesAR1,
+  bPlaceholder,
+  AR1Basis,
+} from "./viewZoomTransform.ts";
 
 export class MyTransform {
   private viewPortPointsX: AR1Basis;

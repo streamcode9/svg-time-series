@@ -1,6 +1,9 @@
 ﻿import { BaseType, Selection } from "d3-selection";
 
-import { IMinMax, SegmentTree } from "../../../svg-time-series/src/segmentTree.ts";
+import {
+  IMinMax,
+  SegmentTree,
+} from "../../../svg-time-series/src/segmentTree.ts";
 import { animateBench, animateCosDown } from "../bench.ts";
 import { ViewWindowTransform } from "../../../svg-time-series/src/ViewWindowTransform.ts";
 
