@@ -1,7 +1,7 @@
 import { csv } from "d3-request";
 import { timer as runTimer } from "d3-timer";
 
-import { measure, measureOnce } from "../../svg-time-series/src/measure.ts";
+import { measure, measureOnce } from "../measure.ts";
 
 export function measureAll(): void {
   measure(3, (fps) => {
