@@ -1,5 +1,5 @@
 import { csv } from "d3-request";
-import * as measureFPS from "../../../svg-time-series/src/measure.ts";
+import * as measureFPS from "../../measure.ts";
 import * as common from "../common.ts";
 import { select, selectAll } from "d3-selection";
 

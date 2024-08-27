@@ -5,7 +5,7 @@ import { timeout as runTimeout, timer as runTimer } from "d3-timer";
 import { zoomIdentity, zoom as d3zoom, ZoomTransform } from "d3-zoom";
 import { csv } from "d3-request";
 
-import { measure } from "../../../svg-time-series/src/measure.ts";
+import { measure } from "../../measure.ts";
 import { MyAxis, Orientation } from "../../../svg-time-series/src/axis.ts";
 import { MyTransform } from "../../../svg-time-series/src/MyTransform.ts";
 import {
