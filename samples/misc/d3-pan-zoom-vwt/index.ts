@@ -2,13 +2,18 @@ import { select } from "d3-selection";
 import { range } from "d3-array";
 import { measureAll } from "../../benchmarks/bench.ts";
 import { zoom, ZoomTransform } from "d3-zoom";
-import { identityTransform } from "../../affine.ts";
 import { betweenBasesAR1 } from "../../../svg-time-series/src/viewZoomTransform.ts";
 import { updateNode } from "../../../svg-time-series/src/MyTransform.ts";
 
 const svg = select("svg"),
   width = +svg.attr("width"),
   height = +svg.attr("height");
+
+const factory: SVGSVGElement = svg.node() as SVGSVGElement;
+
+export function identityTransform(): SVGMatrix {
+  return factory.createSVGMatrix();
+}
 
 const points = range(2000).map(phyllotaxis(10));
 
