@@ -1,7 +1,7 @@
 ﻿import { selectAll } from "d3-selection";
 import { line as d3_line } from "d3-shape";
 
-import { f, run } from "../common.ts";
+import { f, run } from "../../benchmarks/common.ts";
 
 const delta = 0;
 const scale = 0.2;
