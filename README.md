@@ -20,6 +20,13 @@ D3.js seem slow: [stock D3 panning][d3stock]. But it turns out the SVG rasteriza
 In the demos above, SVG DOM manipulations during grid updates seem to consume at least 20% of drawing time, so further optimization
 work is possible. Keep watching!
 
+## Build instructions
+
+- Install nodejs 20.x (npm and npx will be also installed)
+- `npm ci` in the project root to install pinned dependencies
+- `npx vite` to start the dev server
+- Open `http://localhost:5173/samples/demoss/demo2` or whatever `vite` says in your browser
+
 ## Secrets of Speed
 
 - No legacy
@@ -53,23 +60,6 @@ work is possible. Keep watching!
 | SegmentTree Queries             | Desktop | Chrome  |                    59.7 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
 | SegmentTree Queries             | Desktop | Firefox |                    27.3 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
 | SegmentTree Queries             | Desktop |  Edge   |                      60 |  1680×917  | i5-4670 | NVIDIA GeForce GTX 660 |
-
-## Build instructions
-
-### Windows
-
-1. Install MSVS 2015 community (make sure you have Update 3 installed)
-2. Install Microsoft ASP.NET and Web Tools (if it has not been installed with MSVS 2015)
-3. Install latest TypeScript tools for MSVS 2015 2.x.x
-4. Install nodejs (npm will be also installed)
-5. Open project in VS -> package.json -> Right click -> Restore dependencies
-6. Build project
-
-### Unix
-
-1. Install `npm` (node.js is installed as a dependency)
-2. In project root `npm install` to install our dependencies (many of them, mostly d3, typescript and build tools)
-3. `npm run tsify-demo2`. This step creates `demo2/bundle.js`
 
 ## Improvements over Stock D3 examples
 
