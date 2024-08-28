@@ -1,4 +1,5 @@
-﻿import { ValueFn, select, selectAll, pointer } from "d3-selection";
+﻿import { csv } from "d3-request";
+import { ValueFn, select, selectAll, pointer } from "d3-selection";
 
 import { TimeSeriesChart, IMinMax } from "svg-time-series";
 import { measure } from "../measure.ts";
@@ -55,5 +56,48 @@ export function drawCharts(data: [number, number][]) {
   }, 5000);
   measure(3, (fps) => {
     document.getElementById("fps").textContent = fps;
+  });
+}
+
+export function onCsv(f: (csv: [number, number][]) => void): void {
+  csv("ny-vs-sf.csv")
+    .row((d: { NY: string; SF: string }) => [
+      parseFloat(d.NY.split(";")[0]),
+      parseFloat(d.SF.split(";")[0]),
+    ])
+    .get((error: null, data: [number, number][]) => {
+      if (error != null) {
+        alert("Data can't be downloaded or parsed");
+        return;
+      }
+      f(data);
+    });
+}
+
+interface Resize {
+  interval: number;
+  request: () => void;
+  timer: number;
+  eval: () => void;
+}
+
+const resize: Resize = { interval: 60, request: null, timer: null, eval: null };
+
+export function loadAndDraw() {
+  onCsv((data: [number, number][]) => {
+    drawCharts(data);
+
+    resize.request = function () {
+      resize.timer && clearTimeout(resize.timer);
+      resize.timer = setTimeout(resize.eval, resize.interval);
+    };
+    resize.eval = function () {
+      selectAll("svg").remove();
+      selectAll(".chart-drawing")
+        .append("svg")
+        .append("g")
+        .attr("class", "view");
+      drawCharts(data);
+    };
   });
 }
