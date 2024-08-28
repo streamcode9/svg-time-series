@@ -288,3 +288,9 @@ paket-files/
 
 # Vite
 dist/
+
+# aider-chat
+.aider.*
+
+# dotenv
+.env
