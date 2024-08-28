@@ -24,8 +24,9 @@ work is possible. Keep watching!
 
 - Install nodejs 20.x (npm and npx will be also installed)
 - `npm ci` in the project root to install pinned dependencies
-- `npx vite` to start the dev server
-- Open `http://localhost:5173/samples/demoss/demo2` or whatever `vite` says in your browser
+- `cd samples; npx vite` to start the dev server
+- Open the URL in your browser. The vite web server doesn't properly handle 4040 errors, so if you see a blank page the URL is likely incorrect.
+- Navigate to `demo1.html` or `demo2.html` in the list of links in the browser.
 
 ## Secrets of Speed
 
