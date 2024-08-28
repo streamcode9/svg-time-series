@@ -1,4 +1,4 @@
-﻿import * as common from "../../benchmarks/common.ts";
+﻿import * as common from "../../misc/common.ts";
 import Plotly from "plotly.js";
 
 function generateData() {
