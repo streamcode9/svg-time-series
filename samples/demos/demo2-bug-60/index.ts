@@ -3,9 +3,7 @@ import { ValueFn, BaseType, select, selectAll, Selection } from "d3-selection";
 import { line } from "d3-shape";
 import { timeout as runTimeout, timer as runTimer } from "d3-timer";
 import { zoomIdentity, zoom as d3zoom, ZoomTransform } from "d3-zoom";
-import { csv } from "d3-request";
 
-import { measure } from "../../measure.ts";
 import { MyAxis, Orientation } from "../../../svg-time-series/src/axis.ts";
 import { MyTransform } from "../../../svg-time-series/src/MyTransform.ts";
 import {
@@ -19,21 +17,7 @@ import {
   bPlaceholder,
   bUnit,
 } from "../../../svg-time-series/src/viewZoomTransform.ts";
-
-function onCsv(f: (csv: [number, number][]) => void): void {
-  csv("ny-vs-sf.csv")
-    .row((d: { NY: string; SF: string }) => [
-      parseFloat(d.NY.split(";")[0]),
-      parseFloat(d.SF.split(";")[0]),
-    ])
-    .get((error: null, data: [number, number][]) => {
-      if (error != null) {
-        alert("Data can't be downloaded or parsed");
-        return;
-      }
-      f(data);
-    });
-}
+import { onCsv } from "../common.ts";
 
 function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
   const nyMinValue = isNaN(elements[index][0]) ? Infinity : elements[index][0];
@@ -68,10 +52,6 @@ export function drawCharts(data: [number, number][]) {
   };
 
   selectAll("svg").select(onSelectChart);
-
-  measure(3, (fps) => {
-    document.getElementById("fps").textContent = fps;
-  });
 }
 
 onCsv((data: [number, number][]) => {
