@@ -1,5 +1,5 @@
 ﻿import { scaleLinear, scaleTime } from "d3-scale";
-import { BaseType, select, selectAll, Selection } from "d3-selection";
+import { BaseType, select, Selection } from "d3-selection";
 import { line } from "d3-shape";
 import { timeout as runTimeout } from "d3-timer";
 import { zoom as d3zoom, ZoomTransform } from "d3-zoom";
@@ -8,9 +8,8 @@ import { MyAxis, Orientation } from "./axis.ts";
 import { MyTransform, updateNode } from "./MyTransform.ts";
 import { IMinMax, SegmentTree } from "./segmentTree.ts";
 import {
-  AR1Basis,
   AR1,
-  betweenBasesAR1,
+  AR1Basis,
   betweenTBasesAR1,
   bPlaceholder,
   bUnit,
