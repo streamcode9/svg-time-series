@@ -158,7 +158,7 @@ export class TimeSeriesChart {
 
     view
       .append("path")
-      .attr("d", (d: any) => line(d.values))
+      .attr("d", (d: any) => linex(d.values))
       .attr("stroke", (d: any) => color(d.name));
 
     svg
@@ -184,7 +184,7 @@ export class TimeSeriesChart {
       view: view,
       data: cities,
       height: height,
-      line: line,
+      line: linex,
       color: color,
     };
   }
