@@ -1,9 +1,7 @@
 import { select } from "d3-selection";
 import { range } from "d3-array";
-import { measureAll } from "../bench.ts";
+import { measureAll } from "../../benchmarks/bench.ts";
 import { zoom, ZoomTransform } from "d3-zoom";
-import { ViewWindowTransform } from "../../ViewWindowTransform.ts";
-// import { transformVector, pSubP, pSubV, Vector, newVector, newPoint, identityTransform } from '../../affine'
 import { identityTransform } from "../../affine.ts";
 import { betweenBasesAR1 } from "../../../svg-time-series/src/viewZoomTransform.ts";
 import { updateNode } from "../../../svg-time-series/src/MyTransform.ts";

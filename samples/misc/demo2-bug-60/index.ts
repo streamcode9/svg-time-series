@@ -17,7 +17,7 @@ import {
   bPlaceholder,
   bUnit,
 } from "../../../svg-time-series/src/viewZoomTransform.ts";
-import { onCsv } from "../common.ts";
+import { onCsv } from "../../demos/common.ts";
 
 function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
   const nyMinValue = isNaN(elements[index][0]) ? Infinity : elements[index][0];
