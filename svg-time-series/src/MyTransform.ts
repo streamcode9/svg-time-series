@@ -13,9 +13,9 @@
 import { ZoomTransform } from "d3-zoom";
 
 import {
+  AR1Basis,
   betweenTBasesAR1,
   bPlaceholder,
-  AR1Basis,
 } from "./viewZoomTransform.ts";
 
 export class MyTransform {
