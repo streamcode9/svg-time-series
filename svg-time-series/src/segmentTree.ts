@@ -1,58 +1,58 @@
 export interface IMinMax {
-  min: number;
-  max: number;
+  readonly min: number;
+  readonly max: number;
 }
 
-function buidMinMax(fst: IMinMax, snd: IMinMax): IMinMax {
-  return { min: Math.min(fst.min, snd.min), max: Math.max(fst.max, snd.max) };
+function buildMinMax(fst: Readonly<IMinMax>, snd: Readonly<IMinMax>): IMinMax {
+  return { min: Math.min(fst.min, snd.min), max: Math.max(fst.max, snd.max) } as const;
 }
 
-function assertOk(cond: boolean, message: string) {
+function assertOk(cond: boolean, message: string): asserts cond {
   if (!cond) {
     throw new Error(message);
   }
 }
 
-export class SegmentTree {
-  size: number;
-  tree: IMinMax[];
-  buidTuple: (elementIndex: number, elements: any) => IMinMax;
+export class SegmentTree<T = any> {
+  private readonly size: number;
+  private readonly tree: IMinMax[];
+  private readonly buildTuple: (elementIndex: number, elements: ReadonlyArray<T>) => IMinMax;
 
   constructor(
-    data: any,
+    data: ReadonlyArray<T>,
     dataSize: number,
-    buidTuple: (elementIndex: number, elements: any) => IMinMax,
+    buildTuple: (elementIndex: number, elements: ReadonlyArray<T>) => IMinMax,
   ) {
     this.size = dataSize;
     this.tree = new Array(this.size * 4);
-    this.buidTuple = buidTuple;
+    this.buildTuple = buildTuple;
 
     const build = (
       tree: IMinMax[],
-      values: any,
+      values: ReadonlyArray<T>,
       i: number,
       left: number,
       right: number,
-    ) => {
-      if (left == right) {
-        tree[i] = this.buidTuple(left, values);
+    ): void => {
+      if (left === right) {
+        tree[i] = this.buildTuple(left, values);
       } else {
         const middle = Math.floor((left + right) / 2);
         build(tree, values, 2 * i, left, middle);
         build(tree, values, 2 * i + 1, middle + 1, right);
-        tree[i] = buidMinMax(tree[2 * i], tree[2 * i + 1]);
+        tree[i] = buildMinMax(tree[2 * i], tree[2 * i + 1]);
       }
     };
     build(this.tree, data, 1, 0, this.size - 1);
   }
 
-  getMinMax(fromPosition: number, toPosition: number) {
+  getMinMax(fromPosition: number, toPosition: number): IMinMax {
     assertOk(
       fromPosition >= 0 && toPosition <= this.size,
       "Range is not valid",
     );
     const getMinMax = (
-      tree: IMinMax[],
+      tree: ReadonlyArray<IMinMax>,
       i: number,
       left: number,
       right: number,
@@ -60,13 +60,13 @@ export class SegmentTree {
       to: number,
     ): IMinMax => {
       if (from > to) {
-        return { min: Infinity, max: -Infinity };
+        return { min: Infinity, max: -Infinity } as const;
       }
-      if (from == left && to == right) {
+      if (from === left && to === right) {
         return tree[i];
       }
       const middle = Math.floor((left + right) / 2);
-      return buidMinMax(
+      return buildMinMax(
         getMinMax(tree, i * 2, left, middle, from, Math.min(to, middle)),
         getMinMax(
           tree,
@@ -81,16 +81,16 @@ export class SegmentTree {
     return getMinMax(this.tree, 1, 0, this.size - 1, fromPosition, toPosition);
   }
 
-  update(positionToUpdate: number, newValue: IMinMax) {
+  update(positionToUpdate: number, newValue: Readonly<IMinMax>): void {
     const update = (
       tree: IMinMax[],
       i: number,
       left: number,
       right: number,
       position: number,
-      newTuple: IMinMax,
-    ) => {
-      if (left == right) {
+      newTuple: Readonly<IMinMax>,
+    ): void => {
+      if (left === right) {
         tree[i] = newTuple;
         return;
       }
@@ -101,7 +101,7 @@ export class SegmentTree {
       } else {
         update(tree, i * 2 + 1, middle + 1, right, position, newTuple);
       }
-      tree[i] = buidMinMax(tree[i * 2], tree[i * 2 + 1]);
+      tree[i] = buildMinMax(tree[i * 2], tree[i * 2 + 1]);
     };
     update(this.tree, 1, 0, this.size - 1, positionToUpdate, newValue);
   }
