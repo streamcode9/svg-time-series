@@ -24,18 +24,26 @@ function translateY(scale0: any, scale1: any, d: any) {
   return "translate(0," + (isFinite(y) ? y : scale1(d)) + ")";
 }
 
-export class MyAxis {
-  tickArguments: any[];
-  tickValues: any;
-  tickFormat: any;
-  tickSizeInner: number;
-  tickSizeOuter: number;
-  tickPadding: number;
-  orient: Orientation;
-  scale1: any;
-  scale2: any;
+import { Selection } from "d3-selection";
 
-  constructor(orient: Orientation, scale1: any, scale2?: any) {
+import { ScaleLinear, ScaleTime } from "d3-scale";
+
+type ScaleType = (ScaleLinear<number, number> | ScaleTime<number, number>) & {
+  bandwidth?: () => number;
+};
+
+export class MyAxis {
+  private tickArguments: number[];
+  private tickValues: number[] | null;
+  private tickFormat: ((d: number) => string) | null;
+  private tickSizeInner: number;
+  private tickSizeOuter: number;
+  private tickPadding: number;
+  private orient: Orientation;
+  private scale1: ScaleType;
+  private scale2?: ScaleType;
+
+  constructor(orient: Orientation, scale1: ScaleType, scale2?: ScaleType) {
     this.orient = orient;
     this.scale1 = scale1;
     this.scale2 = scale2;
@@ -47,26 +55,33 @@ export class MyAxis {
     this.tickPadding = 3;
   }
 
-  createValues(scale1: any, scale2?: any): Array<Array<any>> {
-    const createValuesFromScale = (scale: any): Array<any> =>
+  private createValues(
+    scale1: ScaleType,
+    scale2?: ScaleType,
+  ): [number, number | null][] {
+    const createValuesFromScale = (scale: ScaleType): number[] =>
       scale.ticks
         ? scale.ticks.apply(scale, this.tickArguments)
         : scale.domain();
 
     const values1 = createValuesFromScale(scale1);
     const values2 = scale2 ? createValuesFromScale(scale2) : [];
-    return values1.map((v: any, i: number) => [v, scale2 ? values2[i] : null]);
+    return values1.map((v, i) => [v, scale2 ? values2[i] : null]);
   }
 
-  createFormat(scale: any, columnIdx: number): (tuple: Array<any>) => any {
-    const formatValue: (value: any) => any = (scale: any) =>
+  private createFormat(
+    scale: ScaleType,
+    columnIdx: number,
+  ): (tuple: [number, number | null]) => string {
+    const formatValue = (scale: ScaleType): ((d: number) => string) =>
       scale.tickFormat
         ? scale.tickFormat.apply(scale, this.tickArguments)
         : identity;
-    return (tuple: Array<any>) => formatValue(scale)(tuple[columnIdx]);
+    return (tuple: [number, number | null]) =>
+      formatValue(scale)(tuple[columnIdx]);
   }
 
-  axis(context: any) {
+  axis(context: Selection<SVGGElement, unknown, HTMLElement, any>) {
     const values = this.createValues(this.scale1, this.scale2),
       formats = this.scale2
         ? [this.createFormat(this.scale1, 0), this.createFormat(this.scale2, 1)]
@@ -79,7 +94,10 @@ export class MyAxis {
       position = (this.scale1.bandwidth ? center : identity)(
         this.scale1.copy(),
       );
-    let tick = context.selectAll(".tick").data(values, this.scale1).order(),
+    let tick = context
+        .selectAll(".tick")
+        .data(values, (d: any) => this.scale1(d[0]))
+        .order(),
       tickExit = tick.exit(),
       tickEnter = tick.enter().append("g").attr("class", "tick"),
       line = tick.select("line"),
@@ -137,12 +155,12 @@ export class MyAxis {
             ? "end"
             : "middle",
       )
-      .each(function () {
-        this.__axis = position;
+      .each(function (this: SVGGElement) {
+        (this as any).__axis = position;
       });
   }
 
-  axisUp(context: any) {
+  axisUp(context: Selection<SVGGElement, unknown, HTMLElement, any>) {
     const values = this.createValues(this.scale1, this.scale2),
       formats = this.scale2
         ? [this.createFormat(this.scale1, 0), this.createFormat(this.scale2, 1)]
@@ -206,41 +224,51 @@ export class MyAxis {
     );
   }
 
-  setScale(scale1: any, scale2?: any) {
+  setScale(scale1: ScaleType, scale2?: ScaleType): this {
     this.scale1 = scale1;
     this.scale2 = scale2;
     return this;
   }
 
-  ticks(...args: any[]) {
-    return (this.tickArguments = slice.call(args)), this;
+  ticks(...args: (number | string)[]): this {
+    this.tickArguments = args.map((arg) =>
+      typeof arg === "string" ? arg : +arg,
+    ) as number[];
+    return this;
   }
 
-  setTickArguments(_: any) {
-    return (this.tickArguments = _ == null ? [] : slice.call(_)), this;
+  setTickArguments(args: number[] | null): this {
+    this.tickArguments = args == null ? [] : args.slice();
+    return this;
   }
 
-  setTickValues(_: any) {
-    return (this.tickValues = _ == null ? null : slice.call(_)), this;
+  setTickValues(values: number[] | null): this {
+    this.tickValues = values == null ? null : values.slice();
+    return this;
   }
 
-  setTickFormat(_: any) {
-    return (this.tickFormat = _), this;
+  setTickFormat(format: ((d: number) => string) | null): this {
+    this.tickFormat = format;
+    return this;
   }
 
-  setTickSize(_: number): MyAxis {
-    return (this.tickSizeInner = this.tickSizeOuter = +_), this;
+  setTickSize(size: number): this {
+    this.tickSizeInner = this.tickSizeOuter = size;
+    return this;
   }
 
-  setTickSizeInner(_: number) {
-    return (this.tickSizeInner = +_), this;
+  setTickSizeInner(size: number): this {
+    this.tickSizeInner = size;
+    return this;
   }
 
-  setTickSizeOuter(_: number) {
-    return (this.tickSizeOuter = +_), this;
+  setTickSizeOuter(size: number): this {
+    this.tickSizeOuter = size;
+    return this;
   }
 
-  setTickPadding(_: number) {
-    return (this.tickPadding = +_), this;
+  setTickPadding(padding: number): this {
+    this.tickPadding = padding;
+    return this;
   }
 }

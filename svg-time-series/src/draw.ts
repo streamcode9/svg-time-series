@@ -1,4 +1,4 @@
-﻿import { scaleLinear, scaleTime } from "d3-scale";
+﻿import { ScaleLinear, scaleLinear, ScaleTime, scaleTime } from "d3-scale";
 import { BaseType, select, Selection } from "d3-selection";
 import { line } from "d3-shape";
 import { timeout as runTimeout } from "d3-timer";
@@ -189,9 +189,15 @@ export class TimeSeriesChart {
     const bScreenYVisible = new AR1Basis(height, 0);
 
     // интерфейс с лигаси-кодом. Некоторая многословость простительна
-    const x = scaleTime().range(bScreenXVisible.toArr());
-    const yNy = scaleLinear().range(bScreenYVisible.toArr());
-    const ySf = scaleLinear().range(bScreenYVisible.toArr());
+    const x: ScaleTime<number, number> = scaleTime().range(
+      bScreenXVisible.toArr(),
+    );
+    const yNy: ScaleLinear<number, number> = scaleLinear().range(
+      bScreenYVisible.toArr(),
+    );
+    const ySf: ScaleLinear<number, number> = scaleLinear().range(
+      bScreenYVisible.toArr(),
+    );
 
     const pathTransformNy = new MyTransform(
       svg.node() as SVGSVGElement,
@@ -215,7 +221,7 @@ export class TimeSeriesChart {
       bIndexVisible: AR1Basis,
       tree: SegmentTree,
       pathTransform: MyTransform,
-      yScale: any,
+      yScale: ScaleLinear<number, number>,
     ) => {
       // рассчитается деревом отрезков, но все равно долго
       // так что нужно сохранить чтобы
