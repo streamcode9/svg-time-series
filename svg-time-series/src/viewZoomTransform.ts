@@ -74,7 +74,7 @@ export class AR1 {
 //		 b21 - b22        b12 b21 - b11 b22
 // [[a = ---------, b = - -----------------]]
 //  	 b11 - b12            b11 - b12
-export function betweenBasesAR1(b1: Array<number>, b2: Array<number>): AR1 {
+export function betweenBasesAR1(b1: [number, number], b2: [number, number]): AR1 {
   const [b11, b12] = b1;
   const [b21, b22] = b2;
   return new AR1([
@@ -92,7 +92,7 @@ export class AR1Basis {
     this.p2 = pp2;
   }
 
-  public toArr(): Array<number> {
+  public toArr(): [number, number] {
     return [this.p1, this.p2];
   }
 
@@ -103,7 +103,7 @@ export class AR1Basis {
     );
   }
 
-  public getRange() {
+  public getRange(): number {
     return Math.abs(this.p2 - this.p1);
   }
 }
@@ -155,14 +155,14 @@ export class DirectProductBasis {
   }
 
   public x() {
-    const [x1, y1] = this.p1;
-    const [x2, y2] = this.p2;
+    const [x1, ] = this.p1;
+    const [x2, ] = this.p2;
     return new AR1Basis(x1, x2);
   }
 
   public y() {
-    const [x1, y1] = this.p1;
-    const [x2, y2] = this.p2;
+    const [, y1] = this.p1;
+    const [, y2] = this.p2;
     return new AR1Basis(y1, y2);
   }
 
