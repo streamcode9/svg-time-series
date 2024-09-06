@@ -9,5 +9,8 @@
   "workspaces": [
     "svg-time-series",
     "samples"
-  ]
+  ],
+  "devDependencies": {
+    "vitest": "^2.0.5"
+  }
 }
