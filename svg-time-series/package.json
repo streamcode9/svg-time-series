@@ -34,7 +34,7 @@
     "@types/d3-zoom": "^3.0.8",
     "@types/eslint__js": "^8.42.3",
     "@types/plotly.js": "^2.33.3",
-    "eslint": "^9.9.1",
+    "eslint": "^9.11.0",
     "eslint-config-prettier": "^9.1.0",
     "plotly.js": "^2.35.0",
     "prettier": "^3.3.3",
