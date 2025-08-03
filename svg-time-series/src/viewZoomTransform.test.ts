@@ -6,7 +6,12 @@ import {
   DirectProductBasis,
   betweenTBasesDirectProduct,
 } from './math/affine.ts'
-import { applyDirectProductToMatrix } from './viewZoomTransform.ts'
+import {
+  applyAR1ToMatrixX,
+  applyAR1ToMatrixY,
+  applyDirectProductToMatrix,
+  updateNode,
+} from './viewZoomTransform.ts'
 
 class Matrix {
   constructor(
@@ -74,5 +79,49 @@ describe('DirectProduct', () => {
     expect(m.d).toBeCloseTo(20)
     expect(m.e).toBeCloseTo(10)
     expect(m.f).toBeCloseTo(10)
+  })
+})
+
+describe('DirectProductBasis utilities', () => {
+  it('builds from axis projections', () => {
+    const bx = new AR1Basis(0, 2)
+    const by = new AR1Basis(3, 5)
+    const dpb = DirectProductBasis.fromProjections(bx, by)
+
+    expect(dpb.x().toArr()).toEqual([0, 2])
+    expect(dpb.y().toArr()).toEqual([3, 5])
+    expect(dpb.toArr()).toEqual([
+      [0, 2],
+      [3, 5],
+    ])
+  })
+})
+
+describe('viewZoomTransform helpers', () => {
+  it('applies AR1 transforms along X and Y axes', () => {
+    const mx = applyAR1ToMatrixX(new AR1([2, 3]), new Matrix())
+    expect(mx.a).toBeCloseTo(2)
+    expect(mx.e).toBeCloseTo(3)
+
+    const my = applyAR1ToMatrixY(new AR1([3, 4]), new Matrix())
+    expect(my.d).toBeCloseTo(3)
+    expect(my.f).toBeCloseTo(4)
+  })
+
+  it('updates SVG node transform with a matrix', () => {
+    const calls: any[] = []
+    const baseVal = {
+      createSVGTransformFromMatrix: (m: any) => ({ m }),
+      initialize(t: any) {
+        calls.push(t.m)
+      },
+    }
+    const node = {
+      transform: { baseVal },
+    } as unknown as SVGGraphicsElement
+    const matrix = new Matrix(1, 0, 0, 1, 2, 3) as unknown as SVGMatrix
+
+    updateNode(node, matrix)
+    expect(calls[0]).toBe(matrix)
   })
 })
