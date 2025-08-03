@@ -35,6 +35,9 @@ export class SegmentTreeHalf<T> {
   }
 
   query(left: number, right: number): T {
+    if (left < 0 || right >= this.size || left > right) {
+      throw new Error('Range is not valid');
+    }
     left += this.size;
     right += this.size;
     let result = this.identity;
