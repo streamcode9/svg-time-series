@@ -2,7 +2,7 @@
 import { BaseType, select, Selection } from "d3-selection";
 import { line } from "d3-shape";
 import { timeout as runTimeout } from "d3-timer";
-import { zoom as d3zoom, ZoomTransform } from "d3-zoom";
+import { zoom as d3zoom, ZoomTransform, D3ZoomEvent } from "d3-zoom";
 
 import { MyAxis, Orientation } from "./axis.ts";
 import { MyTransform } from "./MyTransform.ts";
@@ -18,32 +18,32 @@ import {
 
 export type { IMinMax };
 
-function drawProc(f: Function) {
+function drawProc<T extends unknown[]>(f: (...args: T) => void): (...args: T) => void {
   let requested = false;
 
-  return (...params: any[]) => {
+  return (...params: T) => {
     if (!requested) {
       requested = true;
-      runTimeout((elapsed: number) => {
+      runTimeout(() => {
         requested = false;
-        f(params);
+        f(...params);
       });
     }
   };
 }
 
 function bindAxisToDom(
-  svg: Selection<BaseType, {}, HTMLElement, any>,
-  axis: any,
-  scale1: any,
-  scale2?: any,
+  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
+  axis: MyAxis,
+  scale1: ScaleLinear<number, number> | ScaleTime<number, number>,
+  scale2?: ScaleLinear<number, number> | ScaleTime<number, number>,
 ) {
   axis.setScale(scale1, scale2);
   return svg.append("g").attr("class", "axis").call(axis.axis.bind(axis));
 }
 
 export class TimeSeriesChart {
-  public zoom: (event: any) => void;
+  public zoom: (event: D3ZoomEvent<Element, unknown>) => void;
   public onHover: (x: number) => void;
   private drawNewData: () => void;
   private data: Array<[number, number]>;
@@ -70,27 +70,39 @@ export class TimeSeriesChart {
   // Basis spanning the full index range
   private bIndexFull: AR1Basis;
 
-  private buildSegmentTreeTupleNy: (index: number, elements: any) => IMinMax;
-  private buildSegmentTreeTupleSf: (index: number, elements: any) => IMinMax;
-  private zoomHandler: (event: any) => void;
-  private mouseMoveHandler: (event: any) => void;
+  private buildSegmentTreeTupleNy: (
+    index: number,
+    elements: ReadonlyArray<[number, number]>,
+  ) => IMinMax;
+  private buildSegmentTreeTupleSf: (
+    index: number,
+    elements: ReadonlyArray<[number, number]>,
+  ) => IMinMax;
+  private zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void;
+  private mouseMoveHandler: (event: MouseEvent) => void;
 
-  private legendTime: Selection<BaseType, {}, HTMLElement, any>;
-  private legendGreen: Selection<BaseType, {}, HTMLElement, any>;
-  private legendBlue: Selection<BaseType, {}, HTMLElement, any>;
+  private legendTime: Selection<BaseType, unknown, HTMLElement, unknown>;
+  private legendGreen: Selection<BaseType, unknown, HTMLElement, unknown>;
+  private legendBlue: Selection<BaseType, unknown, HTMLElement, unknown>;
 
   private highlightedDataIdx: number;
 
   constructor(
-    svg: Selection<BaseType, {}, HTMLElement, any>,
-    legend: Selection<BaseType, {}, HTMLElement, any>,
+    svg: Selection<BaseType, unknown, HTMLElement, unknown>,
+    legend: Selection<BaseType, unknown, HTMLElement, unknown>,
     startTime: number,
     timeStep: number,
     data: Array<[number, number]>,
-    buildSegmentTreeTupleNy: (index: number, elements: any) => IMinMax,
-    buildSegmentTreeTupleSf: (index: number, elements: any) => IMinMax,
-    zoomHandler: (event: any) => void,
-    mouseMoveHandler: (event: any) => void,
+    buildSegmentTreeTupleNy: (
+      index: number,
+      elements: ReadonlyArray<[number, number]>,
+    ) => IMinMax,
+    buildSegmentTreeTupleSf: (
+      index: number,
+      elements: ReadonlyArray<[number, number]>,
+    ) => IMinMax,
+    zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void,
+    mouseMoveHandler: (event: MouseEvent) => void,
   ) {
     this.legendTime = legend.select(".chart-legend__time");
     this.legendGreen = legend.select(".chart-legend__green_value");
@@ -123,7 +135,7 @@ export class TimeSeriesChart {
   }
 
   private drawChart(
-    svg: Selection<BaseType, {}, HTMLElement, any>,
+    svg: Selection<BaseType, unknown, HTMLElement, unknown>,
     data: Array<[number, number]>,
   ) {
     this.data = data;
@@ -231,7 +243,7 @@ export class TimeSeriesChart {
     const gX = bindAxisToDom(svg, xAxis, x);
     const gY = bindAxisToDom(svg, yAxis, yNy, ySf);
 
-    const zoomArea: Selection<any, any, any, any> = svg
+    const zoomArea = svg
       .append("rect")
       .attr("class", "zoom")
       .attr("width", width)
@@ -250,9 +262,9 @@ export class TimeSeriesChart {
 
     let currentPanZoomTransformState: ZoomTransform = null;
     const dotRadius = 3;
-    const fixNaN = (n: number, valueForNaN: any) =>
+    const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
       isNaN(n) ? valueForNaN : n;
-    const makeDot = (view: any) =>
+    const makeDot = (view: SVGGElement) =>
       select(view)
         .append("circle")
         .attr("cx", 0)
@@ -305,7 +317,7 @@ export class TimeSeriesChart {
 
       const updateDot = (
         greenData: number,
-        legend: Selection<BaseType, {}, HTMLElement, any>,
+        legend: Selection<BaseType, unknown, HTMLElement, unknown>,
         node: SVGGraphicsElement,
         dotScaleMatrix: SVGMatrix,
       ) => {
@@ -369,7 +381,7 @@ export class TimeSeriesChart {
     this.drawNewData();
 
     // Public method used to relay zoom events to multiple charts
-    this.zoom = (d3event: any) => {
+    this.zoom = (d3event: D3ZoomEvent<Element, unknown>) => {
       currentPanZoomTransformState = d3event.transform;
 
       pathTransformNy.onZoomPan(d3event.transform);
