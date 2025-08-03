@@ -43,10 +43,15 @@ test('SegmentTreeHalf edge cases', () => {
     tree.update(data.length - 1, 20)
     expect(tree.query(0, 0)).toBe(10)
     expect(tree.query(data.length - 1, data.length - 1)).toBe(20)
+    // unaffected middle range stays the same
+    expect(tree.query(1, 3)).toBe(2 + 3 + 4)
+    // full range reflects updates
     expect(tree.query(0, data.length - 1)).toBe(10 + 2 + 3 + 4 + 20)
 
-    // invalid range throws an error
+    // invalid ranges throw an error
     expect(() => tree.query(3, 2)).toThrow('Range is not valid')
+    expect(() => tree.query(-1, 2)).toThrow('Range is not valid')
+    expect(() => tree.query(0, data.length)).toThrow('Range is not valid')
 })
 
 test('SegmentTree with IMinMax', () => {
