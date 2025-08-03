@@ -186,48 +186,22 @@ export class TimeSeriesChart {
       viewSf,
     );
 
-    const updateScaleX = (bIndexVisible: AR1Basis) => {
-      const bTimeVisible = bIndexVisible.transformWith(this.idxToTime);
-      x.domain(bTimeVisible.toArr());
-    };
-
-    // bIndexVisible is the visible ends of model
-    // affine space at chart edges.
-    // They are updated by zoom and pan or animation
-    // but unaffected by arrival of new data
-    const updateScaleY = (
-      bIndexVisible: AR1Basis,
-      tree: SegmentTree,
-      pathTransform: MyTransform,
-      yScale: ScaleLinear<number, number>,
-    ) => {
-      // Segment tree calculation is expensive; cache for reuse
-      const bTemperatureVisible = this.bTemperatureVisible(bIndexVisible, tree);
-      // Reference window uses full X range but only visible Y range.
-      // Should improve once X and Y are unified into one space.
-      pathTransform.onReferenceViewWindowResize(
-        this.bIndexFull,
-        bTemperatureVisible,
-      );
-
-      yScale.domain(bTemperatureVisible.toArr());
-    };
-
-    this.treeNy = new SegmentTree(
-      this.data,
-      this.data.length,
-      this.buildSegmentTreeTupleNy,
-    );
-    this.treeSf = new SegmentTree(
-      this.data,
-      this.data.length,
-      this.buildSegmentTreeTupleSf,
-    );
+    this.rebuildSegmentTrees();
 
     // All data is initially visible; pass bIndexFull as bIndexVisible
-    updateScaleX(this.bIndexFull);
-    updateScaleY(this.bIndexFull, this.treeNy, pathTransformNy, yNy);
-    updateScaleY(this.bIndexFull, this.treeSf, pathTransformSf, ySf);
+    this.updateScaleX(x, this.bIndexFull);
+    this.updateScaleY(
+      this.bIndexFull,
+      this.treeNy,
+      pathTransformNy,
+      yNy,
+    );
+    this.updateScaleY(
+      this.bIndexFull,
+      this.treeSf,
+      pathTransformSf,
+      ySf,
+    );
 
     const xAxis = new MyAxis(Orientation.Bottom, x)
       .ticks(4)
@@ -262,8 +236,6 @@ export class TimeSeriesChart {
 
     let currentPanZoomTransformState: ZoomTransform = null;
     const dotRadius = 3;
-    const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
-      isNaN(n) ? valueForNaN : n;
     const makeDot = (view: SVGGElement) =>
       select(view)
         .append("circle")
@@ -281,68 +253,33 @@ export class TimeSeriesChart {
     // it's important that we have only 1 instance
     // of drawProc and not one per event
     // Called from zoom and drawNewData
-    const scheduleRefresh = drawProc(() => {
-      // Apply pan zoom transform
-      if (currentPanZoomTransformState != null) {
-        d3zoom().transform(zoomArea, currentPanZoomTransformState);
-      }
+    const scheduleRefresh = drawProc(() =>
+      this.refreshChart(
+        zoomArea,
+        currentPanZoomTransformState,
+        bScreenXVisible,
+        pathTransformNy,
+        pathTransformSf,
+        x,
+        yNy,
+        ySf,
+        xAxis,
+        yAxis,
+        gX,
+        gY,
+      ),
+    );
 
-      // Visible index is the same for NY and SF
-      const bIndexVisible =
-        pathTransformNy.fromScreenToModelBasisX(bScreenXVisible);
-
-      updateScaleX(bIndexVisible);
-      updateScaleY(bIndexVisible, this.treeNy, pathTransformNy, yNy);
-      updateScaleY(bIndexVisible, this.treeSf, pathTransformSf, ySf);
-
-      pathTransformNy.updateViewNode();
-      pathTransformSf.updateViewNode();
-
-      xAxis.axisUp(gX);
-      yAxis.axisUp(gY);
-    });
-
-    const schedulePointRefresh = drawProc(() => {
-      const [greenData, blueData] =
-        this.data[Math.round(this.highlightedDataIdx)];
-
-      this.legendTime.text(
-        new Date(
-          this.idxToTime.applyToPoint(this.highlightedDataIdx),
-        ).toLocaleString(),
-      );
-
-      const dotScaleMatrixNy = pathTransformNy.dotScaleMatrix(dotRadius);
-      const dotScaleMatrixSf = pathTransformSf.dotScaleMatrix(dotRadius);
-
-      const updateDot = (
-        greenData: number,
-        legend: Selection<BaseType, unknown, HTMLElement, unknown>,
-        node: SVGGraphicsElement,
-        dotScaleMatrix: SVGMatrix,
-      ) => {
-        legend.text(fixNaN(greenData, " "));
-        updateNode(
-          node,
-          identityMatrix
-            .translate(this.highlightedDataIdx, fixNaN(greenData, 0))
-            .multiply(dotScaleMatrix),
-        );
-      };
-
-      updateDot(
-        greenData,
-        this.legendGreen,
+    const schedulePointRefresh = drawProc(() =>
+      this.updateLegendAndDots(
+        pathTransformNy,
+        pathTransformSf,
         highlightedGreenDot,
-        dotScaleMatrixNy,
-      );
-      updateDot(
-        blueData,
-        this.legendBlue,
         highlightedBlueDot,
-        dotScaleMatrixSf,
-      );
-    });
+        dotRadius,
+        identityMatrix,
+      ),
+    );
 
     pathTransformNy.onViewPortResize(bScreenXVisible, bScreenYVisible);
     pathTransformSf.onViewPortResize(bScreenXVisible, bScreenYVisible);
@@ -352,28 +289,8 @@ export class TimeSeriesChart {
     // Called here and by updateChartWithNewData();
     // should probably live in common.ts
     this.drawNewData = () => {
-      // Tree creation shouldn't be duplicated when building the chart
-      this.treeNy = new SegmentTree(
-        this.data,
-        this.data.length,
-        this.buildSegmentTreeTupleNy,
-      );
-      this.treeSf = new SegmentTree(
-        this.data,
-        this.data.length,
-        this.buildSegmentTreeTupleSf,
-      );
-      const drawLine = (cityIdx: number) =>
-        line()
-          .defined((d: [number, number]) => {
-            return !(isNaN(d[cityIdx]) || d[cityIdx] == null);
-          })
-          .x((d: [number, number], i: number) => i)
-          .y((d: [number, number]) => d[cityIdx]);
-
-      path.attr("d", (cityIndex: number) =>
-        drawLine(cityIndex).call(null, this.data),
-      );
+      this.rebuildSegmentTrees();
+      this.renderPaths(path);
       scheduleRefresh();
       schedulePointRefresh();
     };
@@ -401,6 +318,140 @@ export class TimeSeriesChart {
     };
 
     this.onHover(width);
+  }
+
+  private updateScaleX(
+    x: ScaleTime<number, number>,
+    bIndexVisible: AR1Basis,
+  ) {
+    const bTimeVisible = bIndexVisible.transformWith(this.idxToTime);
+    x.domain(bTimeVisible.toArr());
+  }
+
+  private updateScaleY(
+    bIndexVisible: AR1Basis,
+    tree: SegmentTree,
+    pathTransform: MyTransform,
+    yScale: ScaleLinear<number, number>,
+  ) {
+    const bTemperatureVisible = this.bTemperatureVisible(bIndexVisible, tree);
+    pathTransform.onReferenceViewWindowResize(
+      this.bIndexFull,
+      bTemperatureVisible,
+    );
+
+    yScale.domain(bTemperatureVisible.toArr());
+  }
+
+  private refreshChart(
+    zoomArea: Selection<SVGRectElement, unknown, any, any>,
+    currentPanZoomTransformState: ZoomTransform,
+    bScreenXVisible: AR1Basis,
+    pathTransformNy: MyTransform,
+    pathTransformSf: MyTransform,
+    x: ScaleTime<number, number>,
+    yNy: ScaleLinear<number, number>,
+    ySf: ScaleLinear<number, number>,
+    xAxis: MyAxis,
+    yAxis: MyAxis,
+    gX: Selection<SVGGElement, unknown, any, any>,
+    gY: Selection<SVGGElement, unknown, any, any>,
+  ) {
+    if (currentPanZoomTransformState != null) {
+      d3zoom().transform(zoomArea, currentPanZoomTransformState);
+    }
+
+    const bIndexVisible =
+      pathTransformNy.fromScreenToModelBasisX(bScreenXVisible);
+
+    this.updateScaleX(x, bIndexVisible);
+    this.updateScaleY(bIndexVisible, this.treeNy, pathTransformNy, yNy);
+    this.updateScaleY(bIndexVisible, this.treeSf, pathTransformSf, ySf);
+
+    pathTransformNy.updateViewNode();
+    pathTransformSf.updateViewNode();
+
+    xAxis.axisUp(gX);
+    yAxis.axisUp(gY);
+  }
+
+  private rebuildSegmentTrees() {
+    this.treeNy = new SegmentTree(
+      this.data,
+      this.data.length,
+      this.buildSegmentTreeTupleNy,
+    );
+    this.treeSf = new SegmentTree(
+      this.data,
+      this.data.length,
+      this.buildSegmentTreeTupleSf,
+    );
+  }
+
+  private renderPaths(
+    path: Selection<SVGPathElement, number, any, unknown>,
+  ) {
+    const drawLine = (cityIdx: number) =>
+      line()
+        .defined((d: [number, number]) => {
+          return !(isNaN(d[cityIdx]) || d[cityIdx] == null);
+        })
+        .x((d: [number, number], i: number) => i)
+        .y((d: [number, number]) => d[cityIdx]);
+
+    path.attr("d", (cityIndex: number) =>
+      drawLine(cityIndex).call(null, this.data),
+    );
+  }
+
+  private updateLegendAndDots(
+    pathTransformNy: MyTransform,
+    pathTransformSf: MyTransform,
+    highlightedGreenDot: SVGCircleElement,
+    highlightedBlueDot: SVGCircleElement,
+    dotRadius: number,
+    identityMatrix: SVGMatrix,
+  ) {
+    const [greenData, blueData] =
+      this.data[Math.round(this.highlightedDataIdx)];
+
+    this.legendTime.text(
+      new Date(
+        this.idxToTime.applyToPoint(this.highlightedDataIdx),
+      ).toLocaleString(),
+    );
+
+    const dotScaleMatrixNy = pathTransformNy.dotScaleMatrix(dotRadius);
+    const dotScaleMatrixSf = pathTransformSf.dotScaleMatrix(dotRadius);
+    const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
+      isNaN(n) ? valueForNaN : n;
+    const updateDot = (
+      greenData: number,
+      legend: Selection<BaseType, unknown, HTMLElement, unknown>,
+      node: SVGGraphicsElement,
+      dotScaleMatrix: SVGMatrix,
+    ) => {
+      legend.text(fixNaN(greenData, " "));
+      updateNode(
+        node,
+        identityMatrix
+          .translate(this.highlightedDataIdx, fixNaN(greenData, 0))
+          .multiply(dotScaleMatrix),
+      );
+    };
+
+    updateDot(
+      greenData,
+      this.legendGreen,
+      highlightedGreenDot,
+      dotScaleMatrixNy,
+    );
+    updateDot(
+      blueData,
+      this.legendBlue,
+      highlightedBlueDot,
+      dotScaleMatrixSf,
+    );
   }
 
   private bTemperatureVisible(
