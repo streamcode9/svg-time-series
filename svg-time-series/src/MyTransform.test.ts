@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { MyTransform } from './MyTransform.ts'
-import { AR1Basis } from './viewZoomTransform.ts'
+import { AR1Basis } from './math/affine.ts'
 
 class Matrix {
   constructor(

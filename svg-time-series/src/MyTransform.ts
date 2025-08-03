@@ -16,6 +16,12 @@ import {
   AR1Basis,
   betweenTBasesAR1,
   bPlaceholder,
+} from "./math/affine.ts";
+
+import {
+  applyAR1ToMatrixX,
+  applyAR1ToMatrixY,
+  updateNode,
 } from "./viewZoomTransform.ts";
 
 export class MyTransform {
@@ -53,8 +59,9 @@ export class MyTransform {
       this.referenceViewWindowPointsY,
       this.viewPortPointsY,
     );
-    this.referenceTransform = affY.applyToMatrixY(
-      affX.applyToMatrixX(this.identityTransform),
+    this.referenceTransform = applyAR1ToMatrixY(
+      affY,
+      applyAR1ToMatrixX(affX, this.identityTransform),
     );
   }
 
@@ -146,10 +153,4 @@ export class MyTransform {
     const [p1, p2] = b.toArr().map(transformPoint);
     return new AR1Basis(p1, p2);
   }
-}
-
-export function updateNode(n: SVGGraphicsElement, m: SVGMatrix) {
-  const svgTranformList = n.transform.baseVal;
-  const t = svgTranformList.createSVGTransformFromMatrix(m);
-  svgTranformList.initialize(t);
 }

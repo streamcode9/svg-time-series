@@ -5,7 +5,8 @@ import { timeout as runTimeout } from "d3-timer";
 import { zoom as d3zoom, ZoomTransform } from "d3-zoom";
 
 import { MyAxis, Orientation } from "./axis.ts";
-import { MyTransform, updateNode } from "./MyTransform.ts";
+import { MyTransform } from "./MyTransform.ts";
+import { updateNode } from "./viewZoomTransform.ts";
 import { IMinMax, SegmentTree } from "./segmentTree.ts";
 import {
   AR1,
@@ -13,7 +14,7 @@ import {
   betweenTBasesAR1,
   bPlaceholder,
   bUnit,
-} from "./viewZoomTransform.ts";
+} from "./math/affine.ts";
 
 export type { IMinMax };
 

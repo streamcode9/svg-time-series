@@ -4,8 +4,9 @@ import {
   AR1Basis,
   betweenTBasesAR1,
   DirectProductBasis,
-  betweenTBasesDirectProduct
-} from './viewZoomTransform.ts'
+  betweenTBasesDirectProduct,
+} from './math/affine.ts'
+import { applyDirectProductToMatrix } from './viewZoomTransform.ts'
 
 class Matrix {
   constructor(
@@ -67,7 +68,7 @@ describe('DirectProduct', () => {
     const b1 = new DirectProductBasis([0, 0], [1, 1])
     const b2 = new DirectProductBasis([10, 10], [20, 30])
     const dp = betweenTBasesDirectProduct(b1, b2)
-    const m = dp.applyToMatrix(identity)
+    const m = applyDirectProductToMatrix(dp, identity)
 
     expect(m.a).toBeCloseTo(10)
     expect(m.d).toBeCloseTo(20)
