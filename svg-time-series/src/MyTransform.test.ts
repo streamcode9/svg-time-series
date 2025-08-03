@@ -77,4 +77,22 @@ describe('MyTransform', () => {
     // Y axis unaffected by zoom transform
     expect(mt.fromScreenToModelY(20)).toBeCloseTo(2)
   })
+
+  it('maps screen bases back to model bases through inverse transforms', () => {
+    const svg = {
+      createSVGMatrix: () => new Matrix(),
+      createSVGPoint: () => new Point(),
+    } as unknown as SVGSVGElement
+    const g = {} as unknown as SVGGElement
+    const mt = new MyTransform(svg, g)
+
+    mt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100))
+    mt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10))
+    mt.onZoomPan({ x: 10, k: 2 } as any)
+
+    const basis = mt.fromScreenToModelBasisX(new AR1Basis(20, 40))
+    const [p1, p2] = basis.toArr()
+    expect(p1).toBeCloseTo(0.5)
+    expect(p2).toBeCloseTo(1.5)
+  })
 })
