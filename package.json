@@ -3,7 +3,9 @@
   "private": true,
   "scripts": {
     "build": "npm run build --workspace=svg-time-series",
-    "dev": "npm run dev --workspace=svg-time-series"
+    "dev": "npm run dev --workspace=svg-time-series",
+    "lint": "npm run lint --workspace=svg-time-series",
+    "test": "vitest run"
   },
   "type": "module",
   "workspaces": [
