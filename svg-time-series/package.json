@@ -48,7 +48,7 @@
   "scripts": {
     "prepare": "npm run build",
     "build": "tsc && vite build",
-    "lint": "eslint",
+    "lint": "eslint src",
     "preview": "vite preview"
   }
 }
