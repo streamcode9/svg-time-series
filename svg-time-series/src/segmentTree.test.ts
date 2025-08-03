@@ -29,9 +29,25 @@ test('SegmentTree operations', () => {
     expect(() => tree.update(5, { min: 0, max: 0 })).toThrow("Position is not valid");
 });
 
-test('SegmentTreeHalf operations', () => {
-    // ... (keep the existing SegmentTreeHalf test)
-});
+test('SegmentTreeHalf edge cases', () => {
+    const data = [1, 2, 3, 4, 5]
+    const sumOp = (a: number, b: number) => a + b
+    const tree = new SegmentTreeHalf(data, sumOp, 0)
+
+    // query single elements on boundaries
+    expect(tree.query(0, 0)).toBe(1)
+    expect(tree.query(data.length - 1, data.length - 1)).toBe(5)
+
+    // update boundary elements and verify queries
+    tree.update(0, 10)
+    tree.update(data.length - 1, 20)
+    expect(tree.query(0, 0)).toBe(10)
+    expect(tree.query(data.length - 1, data.length - 1)).toBe(20)
+    expect(tree.query(0, data.length - 1)).toBe(10 + 2 + 3 + 4 + 20)
+
+    // invalid range returns identity value
+    expect(tree.query(3, 2)).toBe(0)
+})
 
 test('SegmentTree with IMinMax', () => {
     const data = [
