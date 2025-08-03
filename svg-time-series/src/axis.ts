@@ -59,6 +59,10 @@ export class MyAxis {
     scale1: ScaleType,
     scale2?: ScaleType,
   ): [number, number | null][] {
+    if (this.tickValues != null) {
+      return this.tickValues.map((v) => [v, scale2 ? v : null]);
+    }
+
     const createValuesFromScale = (scale: ScaleType): number[] =>
       scale.ticks
         ? scale.ticks.apply(scale, this.tickArguments)
@@ -73,10 +77,14 @@ export class MyAxis {
     scale: ScaleType,
     columnIdx: number,
   ): (tuple: [number, number | null]) => string {
-    const formatValue = (scale: ScaleType): ((d: number) => string) =>
-      scale.tickFormat
+    const formatValue = (scale: ScaleType): ((d: number) => string) => {
+      if (this.tickFormat) {
+        return this.tickFormat;
+      }
+      return scale.tickFormat
         ? scale.tickFormat.apply(scale, this.tickArguments)
         : identity;
+    };
     return (tuple: [number, number | null]) =>
       formatValue(scale)(tuple[columnIdx]);
   }
@@ -177,7 +185,10 @@ export class MyAxis {
         this.orient === Orientation.Top || this.orient === Orientation.Left
           ? -1
           : 1;
-    let tick = context.selectAll(".tick").data(values, this.scale1).order(),
+    let tick = context
+        .selectAll(".tick")
+        .data(values, (d: any) => this.scale1(d[0]))
+        .order(),
       tickExit = tick.exit(),
       tickEnter = tick.enter().append("g").attr("class", "tick"),
       line = tick.select("line"),
