@@ -13,6 +13,7 @@
     "samples"
   ],
   "devDependencies": {
+    "jsdom": "^26.1.0",
     "vitest": "^2.0.5"
   }
 }
