@@ -1,16 +1,23 @@
-﻿import { csv } from "d3-request";
+import { csv } from "d3-request";
 import { ValueFn, select, selectAll, pointer } from "d3-selection";
+import { D3ZoomEvent } from "d3-zoom";
 
 import { TimeSeriesChart, IMinMax } from "svg-time-series";
 import { measure } from "../measure.ts";
 
-function buildSegmentTreeTupleNy(index: number, elements: number[][]): IMinMax {
+function buildSegmentTreeTupleNy(
+  index: number,
+  elements: ReadonlyArray<[number, number]>,
+): IMinMax {
   const nyMinValue = isNaN(elements[index][0]) ? Infinity : elements[index][0];
   const nyMaxValue = isNaN(elements[index][0]) ? -Infinity : elements[index][0];
   return { min: nyMinValue, max: nyMaxValue };
 }
 
-function buildSegmentTreeTupleSf(index: number, elements: number[][]): IMinMax {
+function buildSegmentTreeTupleSf(
+  index: number,
+  elements: ReadonlyArray<[number, number]>,
+): IMinMax {
   const sfMinValue = isNaN(elements[index][1]) ? Infinity : elements[index][1];
   const sfMaxValue = isNaN(elements[index][1]) ? -Infinity : elements[index][1];
   return { min: sfMinValue, max: sfMaxValue };
@@ -19,16 +26,17 @@ function buildSegmentTreeTupleSf(index: number, elements: number[][]): IMinMax {
 export function drawCharts(data: [number, number][]) {
   const charts: TimeSeriesChart[] = [];
 
-  const onZoom = (event: any) => charts.forEach((c) => c.zoom(event));
-  const onMouseMove = (event: any) => {
+  const onZoom = (event: D3ZoomEvent<Element, unknown>) =>
+    charts.forEach((c) => c.zoom(event));
+  const onMouseMove = (event: MouseEvent) => {
     const [x, _] = pointer(event, event.target);
     charts.forEach((c) => c.onHover(x));
   };
 
-  const onSelectChart: ValueFn<HTMLElement, any, any> = function (
+  const onSelectChart: ValueFn<HTMLElement, unknown, unknown> = function (
     element: HTMLElement,
-    datum: any,
-    descElement: any,
+    datum: unknown,
+    descElement: unknown,
   ) {
     const svg = select(this).select("svg");
     const legend = select(this).select(".chart-legend");
@@ -101,3 +109,4 @@ export function loadAndDraw() {
     };
   });
 }
+
