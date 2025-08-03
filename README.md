@@ -22,10 +22,10 @@ work is possible. Keep watching!
 
 ## Build instructions
 
-- Install nodejs 20.x (npm and npx will be also installed)
+- Install Node.js 20.x (npm and npx will also be installed)
 - `npm ci` in the project root to install pinned dependencies
 - `cd samples; npx vite` to start the dev server
-- Open the URL in your browser. The vite web server doesn't properly handle 4040 errors, so if you see a blank page the URL is likely incorrect.
+- Open the URL in your browser. The Vite web server doesn't properly handle 404 errors, so if you see a blank page, the URL is likely incorrect.
 - Navigate to `demo1.html` or `demo2.html` in the list of links in the browser.
 
 ## Secrets of Speed
