@@ -61,23 +61,13 @@ export class TimeSeriesChart {
   // Date.now() style timestamp delta
   private timeStep: number;
 
-  // автоморфизм действительных чисел в первой степени
-  // преобразование из простраства индексов
-  // в пространство времён
+  // Affine transformation mapping index space to time space
   private idxToTime: AR1;
 
-  // преобразование добавления точки
-  // когда добавляем точку в массиив надо
-  // idxToTime.composeWith(idxShift)
-  // это автоморфизм пространства индексов
-  // то есть преобразование пространства индексов
-  // в себя, а не в другое пространство
+  // Shift within index space applied when a point is appended
   private idxShift: AR1;
 
-  // две точки - начало и конец массива в пространстве индексов
-  // стоит думать о них как об абстрактных точках
-  // нарисованных в мире за телевизором на наших графиках
-  // а не в терминах их координат
+  // Basis spanning the full index range
   private bIndexFull: AR1Basis;
 
   private buildSegmentTreeTupleNy: (index: number, elements: any) => IMinMax;
@@ -106,20 +96,14 @@ export class TimeSeriesChart {
     this.legendGreen = legend.select(".chart-legend__green_value");
     this.legendBlue = legend.select(".chart-legend__blue_value");
 
-    // здесь второй базис образован не двумя точками, а
-    // эквивалентно точкой и вектором
-    // хорошо бы сделать например basisAR1PV()
-    // типа смарт-конструктор
-    // интересно что есть короткая эквивалентная формулировка
-    // this.idxToSpace = new AR1(startTime, timeStep)
-    // но она возвращает нас к координатному мышлению
+    // The second basis is defined by a point and a vector.
+    // Equivalent to new AR1(startTime, timeStep) but avoids coordinate thinking.
     this.idxToTime = betweenTBasesAR1(
       bUnit,
       new AR1Basis(startTime, startTime + timeStep),
     );
 
-    // при добавлении точки первый и второй элемент
-    // становятся на место нулевого и первого соответственно
+    // When a new point is added, elements 1 and 2 shift to positions 0 and 1
     this.idxShift = betweenTBasesAR1(new AR1Basis(1, 2), bUnit);
     this.buildSegmentTreeTupleNy = buildSegmentTreeTupleNy;
     this.buildSegmentTreeTupleSf = buildSegmentTreeTupleSf;
@@ -153,11 +137,8 @@ export class TimeSeriesChart {
     svg.attr("width", width);
     svg.attr("height", height);
 
-    // это просто извращённый способ добавить
-    // в группу два элемента <g>
-    // .enter() это часть фреймворка d3 для работы
-    // с обновлениями, но мы пока игнорируем и
-    // делаем обновления руками
+    // Verbose way to append two <g> elements
+    // .enter() is D3's update helper; we handle updates manually
     const views = svg
       .selectAll("g")
       .data([0, 1])
@@ -168,28 +149,12 @@ export class TimeSeriesChart {
 
     const path = views.append("path");
 
-    // тут наши перевернутые базисы которые мы
-    // cтеснительно запрятали в onViewPortResize
-    // таки вылезли
-
-    // на видимую область можно смотреть абстрактно
-    // как на отдельное пространство
-
-    // ось Y перевернута - что выглядит на языке
-    // базисов как перевернутый базис
-    //
-    // а на языке векторов как разность точек, которая
-    // у X положительна а у Y отрицательна
-    // ну и наоборот если перевернем первый базис
-    // то второй тоже перевернется но переворачивание
-    // по-прежнему выглядит как умножение разности на -1
-    //
-    // короче неважно какой из них считать первичным
-    // в любом случае один перевернут по отношению к другому
+    // The viewport is treated as a separate space.
+    // Y is inverted, so its basis is flipped relative to X.
     const bScreenXVisible = new AR1Basis(0, width);
     const bScreenYVisible = new AR1Basis(height, 0);
 
-    // интерфейс с лигаси-кодом. Некоторая многословость простительна
+    // Interface to legacy code; the verbosity is acceptable
     const x: ScaleTime<number, number> = scaleTime().range(
       bScreenXVisible.toArr(),
     );
@@ -224,16 +189,10 @@ export class TimeSeriesChart {
       pathTransform: MyTransform,
       yScale: ScaleLinear<number, number>,
     ) => {
-      // рассчитается деревом отрезков, но все равно долго
-      // так что нужно сохранить чтобы
-      // два раза не перевычислять для линий графиков и для осей
+      // Segment tree calculation is expensive; cache for reuse
       const bTemperatureVisible = this.bTemperatureVisible(bIndexVisible, tree);
-      // референсное окно имеет достаточно странный вид
-      // по горизонтали у нас полный диапазон
-      // а по вертикали только видимый
-      // надеюсь это исправится при переходе от отдельных
-      // пространств по Х и Y к единому пространству
-      // являющeмся их прямым произведением
+      // Reference window uses full X range but only visible Y range.
+      // Should improve once X and Y are unified into one space.
       pathTransform.onReferenceViewWindowResize(
         this.bIndexFull,
         bTemperatureVisible,
@@ -253,16 +212,14 @@ export class TimeSeriesChart {
       this.buildSegmentTreeTupleSf,
     );
 
-    // в референсном окне видны все данные, поэтому
-    // передаем bIndexFull в качестее bIndexVisible
+    // All data is initially visible; pass bIndexFull as bIndexVisible
     updateScaleX(this.bIndexFull);
     updateScaleY(this.bIndexFull, this.treeNy, pathTransformNy, yNy);
     updateScaleY(this.bIndexFull, this.treeSf, pathTransformSf, ySf);
 
     const xAxis = new MyAxis(Orientation.Bottom, x)
       .ticks(4)
-      // изменять размер тиков надо при изменении
-      // размеров окна
+      // Tick size must change when the window size changes
       .setTickSize(height)
       .setTickPadding(8 - height);
 
@@ -282,8 +239,7 @@ export class TimeSeriesChart {
       .call(
         d3zoom()
           .scaleExtent([1, 40])
-          // в перспективе взять экстент из bScreenVisible
-          // хотя хез как быть с другим порядком
+          // Eventually take extent from bScreenVisible, though axis order is unclear
           .translateExtent([
             [0, 0],
             [width, height],
@@ -312,7 +268,7 @@ export class TimeSeriesChart {
 
     // it's important that we have only 1 instance
     // of drawProc and not one per event
-    // вызывается из zoom и drawNewData
+    // Called from zoom and drawNewData
     const scheduleRefresh = drawProc(() => {
       // Apply pan zoom transform
       if (currentPanZoomTransformState != null) {
@@ -381,12 +337,10 @@ export class TimeSeriesChart {
     pathTransformNy.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder);
     pathTransformSf.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder);
 
-    // вызывается здесь ниже
-    // и из публичного updateChartWithNewData()
-    // но в принципе должно быть в common.ts
+    // Called here and by updateChartWithNewData();
+    // should probably live in common.ts
     this.drawNewData = () => {
-      // создание дерева не должно
-      // дублироваться при создании чарта
+      // Tree creation shouldn't be duplicated when building the chart
       this.treeNy = new SegmentTree(
         this.data,
         this.data.length,
@@ -414,8 +368,7 @@ export class TimeSeriesChart {
 
     this.drawNewData();
 
-    // публичный метод, используется для ретрансляции
-    // зум-события нескольким графикам
+    // Public method used to relay zoom events to multiple charts
     this.zoom = (d3event: any) => {
       currentPanZoomTransformState = d3event.transform;
 
@@ -442,7 +395,7 @@ export class TimeSeriesChart {
     bIndexVisible: AR1Basis,
     tree: SegmentTree,
   ): AR1Basis {
-    // просто функция между базисами
+    // Simple mapping between bases
     const [minIdxX, maxIdxX] = bIndexVisible.toArr();
     const { min, max } = tree.getMinMax(
       Math.round(minIdxX),
