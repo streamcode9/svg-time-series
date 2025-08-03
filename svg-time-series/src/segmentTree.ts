@@ -41,7 +41,7 @@ export class SegmentTree<T = [number, number]> {
 
   getMinMax(fromPosition: number, toPosition: number): IMinMax {
     assertOk(
-      fromPosition >= 0 && toPosition <= this.size && fromPosition <= toPosition,
+      fromPosition >= 0 && toPosition < this.size && fromPosition <= toPosition,
       "Range is not valid",
     );
     return this.tree.query(fromPosition, toPosition);
