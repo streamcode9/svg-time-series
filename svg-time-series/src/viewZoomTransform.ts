@@ -1,8 +1,8 @@
 import { AR1, DirectProduct } from './math/affine.ts';
 
 export interface MatrixLike {
-  translate(tx: number, ty: number): MatrixLike;
-  scaleNonUniform(sx: number, sy: number): MatrixLike;
+  translate(tx: number, ty: number): this;
+  scaleNonUniform(sx: number, sy: number): this;
 }
 
 export function applyAR1ToMatrixX<M extends MatrixLike>(transform: AR1, sm: M): M {
