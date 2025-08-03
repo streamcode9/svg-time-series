@@ -78,15 +78,26 @@ describe('Segment Tree (Foo) Tests', () => {
 		expect(tree.query(5, 7)).toBe(21) // 6 + 7 + 8 = 21
 	})
 
-	it('should reflect updates to the last element in range queries', () => {
-		const data = [1, 2, 3, 4, 5, 6, 7, 8]
-		const sumOperator = (a: number, b: number) => a + b
-		const identity = 0
-		const tree = new SegmentTreeHalf(data, sumOperator, identity)
+        it('should reflect updates to the last element in range queries', () => {
+                const data = [1, 2, 3, 4, 5, 6, 7, 8]
+                const sumOperator = (a: number, b: number) => a + b
+                const identity = 0
+                const tree = new SegmentTreeHalf(data, sumOperator, identity)
 
-		tree.update(7, 10) // Update the last element (8 -> 10)
-		expect(tree.query(5, 7)).toBe(23) // 6 + 7 + 10 = 23
-		expect(tree.query(0, 7)).toBe(38) // Sum of all elements with updated last element
-	})
+                tree.update(7, 10) // Update the last element (8 -> 10)
+                expect(tree.query(5, 7)).toBe(23) // 6 + 7 + 10 = 23
+                expect(tree.query(0, 7)).toBe(38) // Sum of all elements with updated last element
+        })
+
+        it('should throw an error for invalid ranges', () => {
+                const data = [1, 2, 3, 4, 5]
+                const sumOperator = (a: number, b: number) => a + b
+                const identity = 0
+                const tree = new SegmentTreeHalf(data, sumOperator, identity)
+
+                expect(() => tree.query(3, 2)).toThrow('Range is not valid')
+                expect(() => tree.query(-1, 2)).toThrow('Range is not valid')
+                expect(() => tree.query(0, 5)).toThrow('Range is not valid')
+        })
 
 })
