@@ -55,6 +55,25 @@ export class MyAxis {
     this.tickPadding = 3;
   }
 
+  private primaryTickValue(d: any, active: number): number {
+    if (Array.isArray(d)) {
+      return d.length > 2 ? d[active] : d[0];
+    }
+    return d;
+  }
+
+  private tickTransformFn(
+    transform: (a: any, b: any, c: any) => string,
+    positions: ((d: any) => number)[],
+  ) {
+    return (d: any) => {
+      const active =
+        Array.isArray(d) && d.length === 2 && typeof d[1] === "number" ? d[1] : 0;
+      const pos = positions[active];
+      return transform(pos, pos, this.primaryTickValue(d, active));
+    };
+  }
+
   private createValues(
     scale1: ScaleType,
     scale2?: ScaleType,
@@ -150,10 +169,7 @@ export class MyAxis {
 
     tickExit.remove();
 
-    tick.attr("transform", (d: [number, number]) => {
-      const pos = positions[d[1]];
-      return transform(pos, pos, d[0]);
-    });
+    tick.attr("transform", this.tickTransformFn(transform, positions));
 
     line
       .attr(x + "2", k * this.tickSizeInner)
@@ -236,10 +252,7 @@ export class MyAxis {
 
     tickExit.remove();
 
-    tick.attr("transform", (d: [number, number]) => {
-      const pos = positions[d[1]];
-      return transform(pos, pos, d[0]);
-    });
+    tick.attr("transform", this.tickTransformFn(transform, positions));
 
     line
       .attr(x + "2", k * this.tickSizeInner)
