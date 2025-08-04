@@ -34,24 +34,23 @@ describe('MyAxis tick creation', () => {
   it('creates ticks for dual scales (regression)', () => {
     const { g } = createGroup()
     const scale1 = scaleLinear().domain([0, 100]).range([0, 100])
-    const scale2 = scaleLinear().domain([0, 1]).range([0, 100])
+    const scale2 = scaleLinear().domain([0, 1]).range([0, 200])
     const axis = new MyAxis(Orientation.Bottom, scale1, scale2).ticks(3)
     axis.axis(select(g))
 
     const ticks = Array.from(g.querySelectorAll('.tick'))
-    expect(ticks.length).toBe(3)
+    expect(ticks.length).toBe(6)
     expect(ticks.map((t) => t.getAttribute('transform'))).toEqual([
       'translate(0,0)',
       'translate(50,0)',
       'translate(100,0)',
+      'translate(0,0)',
+      'translate(100,0)',
+      'translate(200,0)',
     ])
     const labels = ticks.map((t) =>
-      Array.from(t.querySelectorAll('text')).map((n) => parseFloat(n.textContent || '')),
+      parseFloat(t.querySelector('text')!.textContent || ''),
     )
-    expect(labels).toEqual([
-      [0, 0],
-      [50, 0.5],
-      [100, 1],
-    ])
+    expect(labels).toEqual([0, 50, 100, 0, 0.5, 1])
   })
 })
