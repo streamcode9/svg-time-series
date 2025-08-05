@@ -1,4 +1,4 @@
-import * as common from "../../benchmarks/demo2-without-grid/common.ts";
+import * as common from "../common.ts";
 
 function createTranslate(x: number, y: number) {
   const translateTransform = common.svg.createSVGTransform();
