@@ -1,4 +1,4 @@
-﻿import d3request from "d3-request";
+import { csv } from "d3-request";
 
 import d3shape from "d3-shape";
 
@@ -7,8 +7,7 @@ import * as draw from "./draw.ts";
 import * as drawModelCS from "./drawModelCS.ts";
 
 const startDate = new Date();
-d3request
-  .csv("ny-vs-sf.csv")
+csv("ny-vs-sf.csv")
   .row((d: any) => [
     parseFloat(d.NY.split(";")[0]),
     parseFloat(d.SF.split(";")[0]),
@@ -67,3 +66,4 @@ function calcDate(index: number, offset: Date, step: number) {
   const d = new Date(index * step + offset.getTime()).getTime();
   return d;
 }
+
