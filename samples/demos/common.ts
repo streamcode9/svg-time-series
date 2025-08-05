@@ -33,10 +33,10 @@ export function drawCharts(data: [number, number][]) {
     charts.forEach((c) => c.onHover(x));
   };
 
-  const onSelectChart: ValueFn<HTMLElement, unknown, unknown> = function (
-    element: HTMLElement,
-    datum: unknown,
-    descElement: unknown,
+  const onSelectChart: ValueFn<HTMLElement, unknown, void> = function (
+    _datum,
+    _index,
+    _groups,
   ) {
     const svg = select(this).select("svg");
     const legend = select(this).select(".chart-legend");
@@ -54,7 +54,7 @@ export function drawCharts(data: [number, number][]) {
     charts.push(chart);
   };
 
-  selectAll(".chart").select<HTMLElement>(onSelectChart);
+  selectAll(".chart").each(onSelectChart);
 
   let j = 0;
   setInterval(function () {

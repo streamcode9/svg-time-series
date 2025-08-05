@@ -2,8 +2,12 @@ import { select } from "d3-selection";
 import { range } from "d3-array";
 import { measureAll } from "../../benchmarks/bench.ts";
 import { zoom, ZoomTransform } from "d3-zoom";
-import { betweenBasesAR1 } from "../../../svg-time-series/src/viewZoomTransform.ts";
-import { updateNode } from "../../../svg-time-series/src/MyTransform.ts";
+import { betweenBasesAR1 } from "../../../svg-time-series/src/math/affine.ts";
+import {
+  applyAR1ToMatrixX,
+  applyAR1ToMatrixY,
+  updateNode,
+} from "../../../svg-time-series/src/viewZoomTransform.ts";
 
 const svg = select("svg"),
   width = +svg.attr("width"),
@@ -132,7 +136,7 @@ function test(svgNode: SVGSVGElement, viewNode: SVGGElement, width: number) {
   const affX = betweenBasesAR1([-550, 550], [0, width]);
   const affY = betweenBasesAR1([-550, 550], [0, width]);
 
-  const m = affY.applyToMatrixY(affX.applyToMatrixX(id));
+  const m = applyAR1ToMatrixY(affY, applyAR1ToMatrixX(affX, id));
 
   const newPoint = (x: number, y: number) => {
     const p = svgNode.createSVGPoint();
