@@ -93,10 +93,12 @@ export class MyAxis {
       return result;
     }
 
-    const createValuesFromScale = (scale: ScaleType): number[] =>
-      scale.ticks
+    const createValuesFromScale = (scale: ScaleType): number[] => {
+      const values = scale.ticks
         ? scale.ticks.apply(scale, this.tickArguments)
         : scale.domain();
+      return (values as (number | Date)[]).map((v) => +v);
+    };
 
     for (const v of createValuesFromScale(scale1)) {
       push(result, v, 0);
