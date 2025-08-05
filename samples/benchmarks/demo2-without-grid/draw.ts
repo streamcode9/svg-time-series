@@ -145,7 +145,7 @@ export class TimeSeriesChart {
     );
 
     x.domain([this.minX, this.maxX]);
-    const minMax = this.tree.getMinMax(0, this.tree.size - 1);
+    const minMax = this.tree.getMinMax(0, cities[0].values.length - 1);
     y.domain([minMax.min, minMax.max]);
 
     const view = svg

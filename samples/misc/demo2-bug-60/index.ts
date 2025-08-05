@@ -16,7 +16,7 @@ import {
   betweenTBasesAR1,
   bPlaceholder,
   bUnit,
-} from "../../../svg-time-series/src/viewZoomTransform.ts";
+} from "../../../svg-time-series/src/math/affine.ts";
 import { onCsv } from "../../demos/common.ts";
 
 function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
@@ -51,7 +51,7 @@ export function drawCharts(data: [number, number][]) {
     charts.push(chart);
   };
 
-  selectAll("svg").select(onSelectChart);
+  selectAll("svg").each(onSelectChart);
 }
 
 onCsv((data: [number, number][]) => {

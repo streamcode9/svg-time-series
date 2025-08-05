@@ -47,7 +47,7 @@ onCsv((data) => {
   const drawLine = (pathElement: any, cityIdx: number, chartIdx: number) => {
     if (chartIdx == 0) {
       // Push new point
-      const newData: any = Object.assign({}, pathsData[cityIdx][1]);
+      const newData: any = { ...pathsData[cityIdx][1] };
       newData.values = newData.values.map((_: any) => _);
       pathsData[cityIdx].push(newData);
 

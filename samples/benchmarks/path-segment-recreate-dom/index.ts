@@ -50,7 +50,7 @@ onCsv((data) => {
       lastDataPoint[cityIdx] = pathsData[cityIdx][dataPointsCount[0] - 1];
 
       // Push new data point
-      newData[cityIdx] = Object.assign({}, pathsData[cityIdx][0]);
+      newData[cityIdx] = { ...pathsData[cityIdx][0] };
       newData[cityIdx].values = [
         lastDataPoint[cityIdx].values[0] + 1,
         newData[cityIdx].values[1],
