@@ -2,6 +2,7 @@
   "compilerOptions": {
     "skipLibCheck": true,
     "noEmit": true,
+    "module": "esnext",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true
