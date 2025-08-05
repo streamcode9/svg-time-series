@@ -1,8 +1,9 @@
 {
   "name": "samples",
   "version": "1.0.0",
-  "main": "vite.config.js",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
