@@ -124,6 +124,8 @@ function createChart(data: Array<[number]>) {
     onHover: interaction.onHover,
     svgEl,
     legend,
+    chartData,
+    interaction,
   };
 }
 
@@ -179,6 +181,29 @@ describe("chart interaction single-axis", () => {
     const transform = nodeTransforms.get(circle)!;
     expect(transform.tx).toBe(1);
     expect(transform.ty).toBe(30);
+  });
+
+  it("updates circle after appending data", () => {
+    const data: Array<[number]> = [[10], [30]];
+    const { onHover, svgEl, legend, chartData, interaction } =
+      createChart(data);
+    vi.runAllTimers();
+
+    chartData.append([50]);
+    interaction.drawNewData();
+    vi.runAllTimers();
+
+    onHover(1);
+    vi.runAllTimers();
+
+    expect(
+      legend.querySelector(".chart-legend__green_value")!.textContent,
+    ).toBe("50");
+
+    const circle = svgEl.querySelector("circle")! as SVGCircleElement;
+    const transform = nodeTransforms.get(circle)!;
+    expect(transform.tx).toBe(1);
+    expect(transform.ty).toBe(50);
   });
 
   it("handles NaN data", () => {

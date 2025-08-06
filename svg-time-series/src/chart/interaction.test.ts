@@ -133,6 +133,8 @@ function createChart(
     onHover: interaction.onHover,
     svgEl,
     legend,
+    chartData,
+    interaction,
   };
 }
 
@@ -201,6 +203,38 @@ describe("chart interaction", () => {
     expect(greenTransform.ty).toBe(30);
     expect(blueTransform.tx).toBe(1);
     expect(blueTransform.ty).toBe(40);
+  });
+
+  it("updates circles after appending data", () => {
+    const data: Array<[number, number]> = [
+      [10, 20],
+      [30, 40],
+    ];
+    const { onHover, svgEl, legend, chartData, interaction } =
+      createChart(data);
+    vi.runAllTimers();
+
+    chartData.append([50, 60]);
+    interaction.drawNewData();
+    vi.runAllTimers();
+
+    onHover(1);
+    vi.runAllTimers();
+
+    expect(
+      legend.querySelector(".chart-legend__green_value")!.textContent,
+    ).toBe("50");
+    expect(legend.querySelector(".chart-legend__blue_value")!.textContent).toBe(
+      "60",
+    );
+
+    const circles = svgEl.querySelectorAll("circle");
+    const greenTransform = nodeTransforms.get(circles[0] as SVGCircleElement)!;
+    const blueTransform = nodeTransforms.get(circles[1] as SVGCircleElement)!;
+    expect(greenTransform.tx).toBe(1);
+    expect(greenTransform.ty).toBe(50);
+    expect(blueTransform.tx).toBe(1);
+    expect(blueTransform.ty).toBe(60);
   });
 
   it("uses custom time formatter when provided", () => {
