@@ -1,5 +1,4 @@
-import { describe, expect, it } from "vitest";
-import { MyTransform } from "./MyTransform.ts";
+import { beforeAll, describe, expect, it } from "vitest";
 import { AR1Basis } from "./math/affine.ts";
 
 class Matrix {
@@ -27,7 +26,7 @@ class Matrix {
     return this.multiply(new Matrix(1, 0, 0, 1, tx, ty));
   }
 
-  scaleNonUniform(sx: number, sy: number) {
+  scale(sx: number, sy: number) {
     return this.multiply(new Matrix(sx, 0, 0, sy, 0, 0));
   }
 
@@ -58,12 +57,17 @@ class Point {
   }
 }
 
+let MyTransform: typeof import("./MyTransform.ts").MyTransform;
+
+beforeAll(async () => {
+  (globalThis as any).DOMMatrix = Matrix;
+  (globalThis as any).DOMPoint = Point;
+  ({ MyTransform } = await import("./MyTransform.ts"));
+});
+
 describe("MyTransform", () => {
   it("composes zoom and reference transforms and inverts them", () => {
-    const svg = {
-      createSVGMatrix: () => new Matrix(),
-      createSVGPoint: () => new Point(),
-    } as unknown as SVGSVGElement;
+    const svg = {} as unknown as SVGSVGElement;
     const g = {} as unknown as SVGGElement;
     const mt = new MyTransform(svg, g);
 
@@ -82,10 +86,7 @@ describe("MyTransform", () => {
   });
 
   it("maps screen bases back to model bases through inverse transforms", () => {
-    const svg = {
-      createSVGMatrix: () => new Matrix(),
-      createSVGPoint: () => new Point(),
-    } as unknown as SVGSVGElement;
+    const svg = {} as unknown as SVGSVGElement;
     const g = {} as unknown as SVGGElement;
     const mt = new MyTransform(svg, g);
 
@@ -100,10 +101,7 @@ describe("MyTransform", () => {
   });
 
   it("converts screen points to model points", () => {
-    const svg = {
-      createSVGMatrix: () => new Matrix(),
-      createSVGPoint: () => new Point(),
-    } as unknown as SVGSVGElement;
+    const svg = {} as unknown as SVGSVGElement;
     const g = {} as unknown as SVGGElement;
     const mt = new MyTransform(svg, g);
 
