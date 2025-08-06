@@ -8,7 +8,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest run",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "commitlint": "commitlint --from=HEAD~1"
   },
   "type": "module",
   "workspaces": [
@@ -17,6 +18,8 @@
     "samples"
   ],
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "jsdom": "^26.1.0",
     "vitest": "^3.2.4"
   }
