@@ -157,6 +157,54 @@ describe("ChartData", () => {
     ]);
   });
 
+  it("clamps bounds completely to the left of the data range", () => {
+    const cd = new ChartData(
+      0,
+      1,
+      [
+        [10, 20],
+        [30, 40],
+        [50, 60],
+      ],
+      buildNy,
+      buildSf,
+    );
+
+    const leftRange = new AR1Basis(-5, -1);
+    expect(() => cd.bTemperatureVisible(leftRange, cd.treeNy)).not.toThrow();
+    expect(() => cd.bTemperatureVisible(leftRange, cd.treeSf!)).not.toThrow();
+    expect(cd.bTemperatureVisible(leftRange, cd.treeNy).toArr()).toEqual([
+      10, 10,
+    ]);
+    expect(cd.bTemperatureVisible(leftRange, cd.treeSf!).toArr()).toEqual([
+      20, 20,
+    ]);
+  });
+
+  it("clamps bounds completely to the right of the data range", () => {
+    const cd = new ChartData(
+      0,
+      1,
+      [
+        [10, 20],
+        [30, 40],
+        [50, 60],
+      ],
+      buildNy,
+      buildSf,
+    );
+
+    const rightRange = new AR1Basis(5, 10);
+    expect(() => cd.bTemperatureVisible(rightRange, cd.treeNy)).not.toThrow();
+    expect(() => cd.bTemperatureVisible(rightRange, cd.treeSf!)).not.toThrow();
+    expect(cd.bTemperatureVisible(rightRange, cd.treeNy).toArr()).toEqual([
+      50, 50,
+    ]);
+    expect(cd.bTemperatureVisible(rightRange, cd.treeSf!).toArr()).toEqual([
+      60, 60,
+    ]);
+  });
+
   describe("single-axis", () => {
     const buildNy = (i: number, arr: ReadonlyArray<[number, number?]>) => ({
       min: arr[i][0],
