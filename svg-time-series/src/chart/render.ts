@@ -152,8 +152,9 @@ export function renderPaths(
       .x((d: [number, number], i: number) => i)
       .y((d: [number, number]) => d[cityIdx]);
 
-  state.path.attr("d", (cityIndex: number) =>
-    drawLine(cityIndex).call(null, dataArr),
+  state.path.attr(
+    "d",
+    (cityIndex: number) => drawLine(cityIndex)(dataArr) ?? "",
   );
 }
 
