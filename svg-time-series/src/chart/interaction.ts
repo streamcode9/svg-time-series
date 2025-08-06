@@ -28,94 +28,118 @@ export function drawProc<T extends unknown[]>(
   };
 }
 
-export function setupInteraction(
-  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
-  legend: Selection<BaseType, unknown, HTMLElement, unknown>,
-  state: RenderState,
-  data: ChartData,
-  zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void,
-  mouseMoveHandler: (event: MouseEvent) => void,
-) {
-  const legendTime = legend.select(".chart-legend__time");
-  const legendGreen = legend.select(".chart-legend__green_value");
-  const legendBlue = legend.select(".chart-legend__blue_value");
+export class ChartInteraction {
+  private legendTime: Selection<BaseType, unknown, HTMLElement, unknown>;
+  private legendGreen: Selection<BaseType, unknown, HTMLElement, unknown>;
+  private legendBlue: Selection<BaseType, unknown, HTMLElement, unknown>;
 
-  const zoomBehavior: ZoomBehavior<SVGRectElement, unknown> = d3zoom<
-    SVGRectElement,
-    unknown
-  >()
-    .scaleExtent([1, 40])
-    .translateExtent([
-      [0, 0],
-      [state.width, state.height],
-    ])
-    .on("zoom", (event: D3ZoomEvent<Element, unknown>) => {
-      zoomHandler(event);
-      zoom(event);
-    });
+  private zoomBehavior: ZoomBehavior<SVGRectElement, unknown>;
+  private zoomArea: Selection<SVGRectElement, unknown, BaseType, unknown>;
 
-  const zoomArea = svg
-    .append("rect")
-    .attr("class", "zoom")
-    .attr("width", state.width)
-    .attr("height", state.height)
-    .call(zoomBehavior);
-  zoomArea.on("mousemove", mouseMoveHandler);
+  private currentPanZoomTransformState: ZoomTransform | null = null;
 
-  let currentPanZoomTransformState: ZoomTransform | null = null;
-  const dotRadius = 3;
-  const makeDot = (view: SVGGElement) =>
-    select(view)
-      .append("circle")
-      .attr("cx", 0)
-      .attr("cy", 0)
-      .attr("r", 1)
-      .node() as SVGCircleElement;
-  const highlightedGreenDot = makeDot(state.viewNy);
-  const highlightedBlueDot = state.viewSf ? makeDot(state.viewSf) : null;
+  private readonly dotRadius = 3;
+  private highlightedGreenDot: SVGCircleElement;
+  private highlightedBlueDot: SVGCircleElement | null;
 
-  const identityMatrix = document
+  private identityMatrix = document
     .createElementNS("http://www.w3.org/2000/svg", "svg")
     .createSVGMatrix();
 
-  let highlightedDataIdx = 0;
+  private highlightedDataIdx = 0;
 
-  const scheduleRefresh = drawProc(() => {
-    if (currentPanZoomTransformState != null) {
-      zoomBehavior.transform(zoomArea, currentPanZoomTransformState);
-    }
-    refreshChart(state, data);
-  });
+  private scheduleRefresh: () => void;
+  private schedulePointRefresh: () => void;
 
-  const schedulePointRefresh = drawProc(() => {
-    updateLegendAndDots();
-  });
+  constructor(
+    svg: Selection<BaseType, unknown, HTMLElement, unknown>,
+    legend: Selection<BaseType, unknown, HTMLElement, unknown>,
+    private state: RenderState,
+    private data: ChartData,
+    zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void,
+    mouseMoveHandler: (event: MouseEvent) => void,
+  ) {
+    this.legendTime = legend.select(".chart-legend__time");
+    this.legendGreen = legend.select(".chart-legend__green_value");
+    this.legendBlue = legend.select(".chart-legend__blue_value");
 
-  function zoom(event: D3ZoomEvent<Element, unknown>) {
-    currentPanZoomTransformState = event.transform;
-    state.pathTransformNy.onZoomPan(event.transform);
-    state.pathTransformSf?.onZoomPan(event.transform);
-    scheduleRefresh();
-    schedulePointRefresh();
+    this.zoomBehavior = d3zoom<SVGRectElement, unknown>()
+      .scaleExtent([1, 40])
+      .translateExtent([
+        [0, 0],
+        [state.width, state.height],
+      ])
+      .on("zoom", (event: D3ZoomEvent<Element, unknown>) => {
+        zoomHandler(event);
+        this.zoom(event);
+      });
+
+    this.zoomArea = svg
+      .append("rect")
+      .attr("class", "zoom")
+      .attr("width", state.width)
+      .attr("height", state.height)
+      .call(this.zoomBehavior);
+    this.zoomArea.on("mousemove", mouseMoveHandler);
+
+    const makeDot = (view: SVGGElement) =>
+      select(view)
+        .append("circle")
+        .attr("cx", 0)
+        .attr("cy", 0)
+        .attr("r", 1)
+        .node() as SVGCircleElement;
+    this.highlightedGreenDot = makeDot(state.viewNy);
+    this.highlightedBlueDot = state.viewSf ? makeDot(state.viewSf) : null;
+
+    this.scheduleRefresh = drawProc(() => {
+      if (this.currentPanZoomTransformState != null) {
+        this.zoomBehavior.transform(
+          this.zoomArea,
+          this.currentPanZoomTransformState,
+        );
+      }
+      refreshChart(this.state, this.data);
+    });
+
+    this.schedulePointRefresh = drawProc(() => {
+      this.updateLegendAndDots();
+    });
   }
 
-  function onHover(x: number) {
-    const idx = state.pathTransformNy.fromScreenToModelX(x);
-    highlightedDataIdx = Math.min(Math.max(idx, 0), data.data.length - 1);
-    schedulePointRefresh();
-  }
+  public zoom = (event: D3ZoomEvent<Element, unknown>) => {
+    this.currentPanZoomTransformState = event.transform;
+    this.state.pathTransformNy.onZoomPan(event.transform);
+    this.state.pathTransformSf?.onZoomPan(event.transform);
+    this.scheduleRefresh();
+    this.schedulePointRefresh();
+  };
 
-  function updateLegendAndDots() {
-    const [greenData, blueData] = data.data[Math.round(highlightedDataIdx)];
+  public onHover = (x: number) => {
+    const idx = this.state.pathTransformNy.fromScreenToModelX(x);
+    this.highlightedDataIdx = Math.min(
+      Math.max(idx, 0),
+      this.data.data.length - 1,
+    );
+    this.schedulePointRefresh();
+  };
 
-    legendTime.text(
+  private updateLegendAndDots() {
+    const [greenData, blueData] =
+      this.data.data[Math.round(this.highlightedDataIdx)];
+
+    this.legendTime.text(
       new Date(
-        data.idxToTime.applyToPoint(highlightedDataIdx),
+        this.data.idxToTime.applyToPoint(this.highlightedDataIdx),
       ).toLocaleString(),
     );
 
-    const dotScaleMatrixNy = state.pathTransformNy.dotScaleMatrix(dotRadius);
-    const dotScaleMatrixSf = state.pathTransformSf?.dotScaleMatrix(dotRadius);
+    const dotScaleMatrixNy = this.state.pathTransformNy.dotScaleMatrix(
+      this.dotRadius,
+    );
+    const dotScaleMatrixSf = this.state.pathTransformSf?.dotScaleMatrix(
+      this.dotRadius,
+    );
     const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
       isNaN(n) ? valueForNaN : n;
     const updateDot = (
@@ -128,29 +152,56 @@ export function setupInteraction(
       if (node && dotScaleMatrix) {
         updateNode(
           node,
-          identityMatrix
-            .translate(highlightedDataIdx, fixNaN(val, 0))
+          this.identityMatrix
+            .translate(this.highlightedDataIdx, fixNaN(val, 0))
             .multiply(dotScaleMatrix),
         );
       }
     };
 
-    updateDot(greenData, legendGreen, highlightedGreenDot, dotScaleMatrixNy);
-    if (state.pathTransformSf) {
+    updateDot(
+      greenData,
+      this.legendGreen,
+      this.highlightedGreenDot,
+      dotScaleMatrixNy,
+    );
+    if (this.state.pathTransformSf) {
       updateDot(
         blueData as number,
-        legendBlue,
-        highlightedBlueDot,
+        this.legendBlue,
+        this.highlightedBlueDot,
         dotScaleMatrixSf,
       );
     }
   }
 
-  function drawNewData() {
-    renderPaths(state, data.data);
-    scheduleRefresh();
-    schedulePointRefresh();
-  }
+  public drawNewData = () => {
+    renderPaths(this.state, this.data.data);
+    this.scheduleRefresh();
+    this.schedulePointRefresh();
+  };
+}
 
-  return { zoom, onHover, drawNewData };
+export function setupInteraction(
+  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
+  legend: Selection<BaseType, unknown, HTMLElement, unknown>,
+  state: RenderState,
+  data: ChartData,
+  zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void,
+  mouseMoveHandler: (event: MouseEvent) => void,
+) {
+  const interaction = new ChartInteraction(
+    svg,
+    legend,
+    state,
+    data,
+    zoomHandler,
+    mouseMoveHandler,
+  );
+
+  return {
+    zoom: interaction.zoom,
+    onHover: interaction.onHover,
+    drawNewData: interaction.drawNewData,
+  };
 }
