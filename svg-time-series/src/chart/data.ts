@@ -81,8 +81,14 @@ export class ChartData {
     tree: SegmentTree<[number, number?]>,
   ): AR1Basis {
     const [minIdxX, maxIdxX] = bIndexVisible.toArr();
-    const startIdx = Math.max(0, Math.floor(minIdxX));
-    const endIdx = Math.min(this.data.length - 1, Math.ceil(maxIdxX));
+    let startIdx = Math.floor(minIdxX);
+    let endIdx = Math.ceil(maxIdxX);
+    const lastIdx = this.data.length - 1;
+    startIdx = Math.min(Math.max(startIdx, 0), lastIdx);
+    endIdx = Math.min(Math.max(endIdx, 0), lastIdx);
+    if (startIdx > endIdx) {
+      [startIdx, endIdx] = [endIdx, startIdx];
+    }
     const { min, max } = tree.getMinMax(startIdx, endIdx);
     return new AR1Basis(min, max);
   }
