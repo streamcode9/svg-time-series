@@ -83,7 +83,7 @@ describe("ChartData", () => {
     expect(cd.bTemperatureVisible(range, cd.treeSf!).toArr()).toEqual([20, 60]);
   });
 
-  it("rounds fractional bounds when computing temperature visibility", () => {
+  it("floors and ceils fractional bounds when computing temperature visibility", () => {
     const cd = new ChartData(
       0,
       1,
@@ -98,14 +98,14 @@ describe("ChartData", () => {
 
     const fractionalRange = new AR1Basis(0.49, 1.49);
     expect(cd.bTemperatureVisible(fractionalRange, cd.treeNy).toArr()).toEqual([
-      10, 30,
+      10, 50,
     ]);
     expect(cd.bTemperatureVisible(fractionalRange, cd.treeSf!).toArr()).toEqual(
-      [20, 40],
+      [20, 60],
     );
   });
 
-  it("rounds up fractional bounds when computing temperature visibility", () => {
+  it("handles fractional bounds in the middle of the dataset", () => {
     const cd = new ChartData(
       0,
       1,
@@ -118,13 +118,37 @@ describe("ChartData", () => {
       buildSf,
     );
 
-    const fractionalRange = new AR1Basis(0.51, 1.51);
+    const fractionalRange = new AR1Basis(1.1, 1.7);
     expect(cd.bTemperatureVisible(fractionalRange, cd.treeNy).toArr()).toEqual([
       30, 50,
     ]);
     expect(cd.bTemperatureVisible(fractionalRange, cd.treeSf!).toArr()).toEqual(
       [40, 60],
     );
+  });
+
+  it("clamps bounds that extend past the data range", () => {
+    const cd = new ChartData(
+      0,
+      1,
+      [
+        [10, 20],
+        [30, 40],
+        [50, 60],
+      ],
+      buildNy,
+      buildSf,
+    );
+
+    const outOfRange = new AR1Basis(-0.5, 3.5);
+    expect(() => cd.bTemperatureVisible(outOfRange, cd.treeNy)).not.toThrow();
+    expect(() => cd.bTemperatureVisible(outOfRange, cd.treeSf!)).not.toThrow();
+    expect(cd.bTemperatureVisible(outOfRange, cd.treeNy).toArr()).toEqual([
+      10, 50,
+    ]);
+    expect(cd.bTemperatureVisible(outOfRange, cd.treeSf!).toArr()).toEqual([
+      20, 60,
+    ]);
   });
 
   describe("single-axis", () => {
