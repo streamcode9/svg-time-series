@@ -19,15 +19,6 @@ export class ChartData {
     elements: ReadonlyArray<[number, number?]>,
   ) => IMinMax;
 
-  private createSegmentTree(
-    builder: (
-      index: number,
-      elements: ReadonlyArray<[number, number?]>,
-    ) => IMinMax,
-  ): SegmentTree<[number, number?]> {
-    return new SegmentTree(this.data, this.data.length, builder);
-  }
-
   /**
    * Creates a new ChartData instance.
    * @param data Initial dataset; must contain at least one point.
@@ -69,9 +60,17 @@ export class ChartData {
   }
 
   private rebuildSegmentTrees(): void {
-    this.treeNy = this.createSegmentTree(this.buildSegmentTreeTupleNy);
+    this.treeNy = new SegmentTree(
+      this.data,
+      this.data.length,
+      this.buildSegmentTreeTupleNy,
+    );
     this.treeSf = this.buildSegmentTreeTupleSf
-      ? this.createSegmentTree(this.buildSegmentTreeTupleSf)
+      ? new SegmentTree(
+          this.data,
+          this.data.length,
+          this.buildSegmentTreeTupleSf,
+        )
       : undefined;
   }
 
