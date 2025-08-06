@@ -31,15 +31,6 @@ export function initPaths(
   return { path, viewNy, viewSf };
 }
 
-export function createTransforms(paths: PathSet): TransformPair {
-  const ny = new ViewportTransform();
-  let sf: ViewportTransform | undefined;
-  if (paths.viewSf) {
-    sf = new ViewportTransform();
-  }
-  return { ny, sf };
-}
-
 export function renderPaths(
   state: RenderState,
   dataArr: Array<[number, number?]>,
