@@ -26,7 +26,7 @@ function buildSegmentTreeTupleSf(
 export function drawCharts(data: [number, number][], dualYAxis = false) {
   const charts: TimeSeriesChart[] = [];
 
-  const onZoom = (event: D3ZoomEvent<Element, unknown>) =>
+  const onZoom = (event: D3ZoomEvent<SVGRectElement, unknown>) =>
     charts.forEach((c) => c.zoom(event));
   const onMouseMove: (this: Element, event: MouseEvent) => void = function (
     this: Element,
