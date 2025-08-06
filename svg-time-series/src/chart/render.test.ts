@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { select } from "d3-selection";
-import { renderPaths } from "./render/paths.ts";
+import { renderPaths } from "./render/utils.ts";
 import type { RenderState } from "./render.ts";
 
 describe("renderPaths", () => {
