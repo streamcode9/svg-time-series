@@ -28,6 +28,44 @@ work is possible. Keep watching!
 - Open the URL in your browser. The Vite web server doesn't properly handle 404 errors, so if you see a blank page, the URL is likely incorrect.
 - Navigate to `demo1.html` or `demo2.html` in the list of links in the browser.
 
+## Y-axis modes
+
+Currently, charts require two data series. `TimeSeriesChart` accepts `data: Array<[number, number]>`, where each tuple represents values for separate Y-axes. Two helpers, `buildSegmentTreeTupleNy` and `buildSegmentTreeTupleSf`, read the first and second values respectively and feed independent segment trees, providing dual scales.
+
+```ts
+import { TimeSeriesChart, IMinMax } from "svg-time-series";
+
+function buildSegmentTreeTupleNy(
+  index: number,
+  elements: ReadonlyArray<[number, number]>,
+): IMinMax {
+  const ny = elements[index][0];
+  return { min: ny, max: ny };
+}
+
+function buildSegmentTreeTupleSf(
+  index: number,
+  elements: ReadonlyArray<[number, number]>,
+): IMinMax {
+  const sf = elements[index][1];
+  return { min: sf, max: sf };
+}
+
+const chart = new TimeSeriesChart(
+  svg,
+  legend,
+  startTime,
+  timeStep,
+  data,
+  buildSegmentTreeTupleNy,
+  buildSegmentTreeTupleSf,
+  onZoom,
+  onMouseMove,
+);
+```
+
+Single-axis charts are not yet implemented.
+
 ## Secrets of Speed
 
 - No legacy
