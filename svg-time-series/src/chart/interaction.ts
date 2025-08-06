@@ -58,6 +58,8 @@ export class ChartInteraction {
     private data: ChartData,
     zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void,
     mouseMoveHandler: (event: MouseEvent) => void,
+    private formatTime: (timestamp: number) => string = (timestamp) =>
+      new Date(timestamp).toLocaleString(),
   ) {
     this.legendTime = legend.select(".chart-legend__time");
     this.legendGreen = legend.select(".chart-legend__green_value");
@@ -129,12 +131,8 @@ export class ChartInteraction {
   private updateLegendAndDots() {
     const [greenData, blueData] =
       this.data.data[Math.round(this.highlightedDataIdx)];
-
-    this.legendTime.text(
-      new Date(
-        this.data.idxToTime.applyToPoint(this.highlightedDataIdx),
-      ).toLocaleString(),
-    );
+    const timestamp = this.data.idxToTime.applyToPoint(this.highlightedDataIdx);
+    this.legendTime.text(this.formatTime(timestamp));
 
     const dotScaleMatrixNy = this.state.transforms.ny.dotScaleMatrix(
       this.dotRadius,
@@ -199,6 +197,8 @@ export function setupInteraction(
   data: ChartData,
   zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void,
   mouseMoveHandler: (event: MouseEvent) => void,
+  formatTime: (timestamp: number) => string = (timestamp) =>
+    new Date(timestamp).toLocaleString(),
 ) {
   const interaction = new ChartInteraction(
     svg,
@@ -207,6 +207,7 @@ export function setupInteraction(
     data,
     zoomHandler,
     mouseMoveHandler,
+    formatTime,
   );
 
   return {

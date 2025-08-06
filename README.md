@@ -61,8 +61,13 @@ const chart = new TimeSeriesChart(
   buildSegmentTreeTupleSf,
   onZoom,
   onMouseMove,
+  (ts) => new Date(ts).toISOString(),
 );
 ```
+
+The last argument, `formatTime`, is optional and lets you customize how
+timestamps are displayed in the legend. If omitted, timestamps are formatted
+with `toLocaleString`.
 
 For a single Y-axis, supply data with one value per point and omit the second builder:
 
@@ -77,6 +82,7 @@ const chartSingle = new TimeSeriesChart(
   undefined,
   onZoom,
   onMouseMove,
+  (ts) => new Date(ts).toISOString(),
 );
 ```
 

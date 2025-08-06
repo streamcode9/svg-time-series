@@ -30,6 +30,8 @@ export class TimeSeriesChart {
     ) => IMinMax,
     zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void = () => {},
     mouseMoveHandler: (event: MouseEvent) => void = () => {},
+    formatTime: (timestamp: number) => string = (timestamp) =>
+      new Date(timestamp).toLocaleString(),
   ) {
     this.data = new ChartData(
       startTime,
@@ -47,6 +49,7 @@ export class TimeSeriesChart {
       this.data,
       zoomHandler,
       mouseMoveHandler,
+      formatTime,
     );
 
     this.zoom = zoom;

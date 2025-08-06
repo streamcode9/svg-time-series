@@ -82,7 +82,10 @@ vi.mock("d3-zoom", () => ({
   },
 }));
 
-function createChart(data: Array<[number, number]>) {
+function createChart(
+  data: Array<[number, number]>,
+  formatTime?: (timestamp: number) => string,
+) {
   currentDataLength = data.length;
   const parent = document.createElement("div");
   const w = Math.max(currentDataLength - 1, 0);
@@ -119,6 +122,7 @@ function createChart(data: Array<[number, number]>) {
     chartData,
     () => {},
     () => {},
+    formatTime,
   );
 
   drawNewData();
@@ -192,6 +196,24 @@ describe("chart interaction", () => {
     expect(greenTransform.ty).toBe(30);
     expect(blueTransform.tx).toBe(1);
     expect(blueTransform.ty).toBe(40);
+  });
+
+  it("uses custom time formatter when provided", () => {
+    const data: Array<[number, number]> = [
+      [10, 20],
+      [30, 40],
+    ];
+    const formatter = vi.fn((ts: number) => `ts:${ts}`);
+    const { onHover, legend } = createChart(data, formatter);
+    vi.runAllTimers();
+
+    onHover(1);
+    vi.runAllTimers();
+
+    expect(legend.querySelector(".chart-legend__time")!.textContent).toBe(
+      "ts:1",
+    );
+    expect(formatter).toHaveBeenCalledWith(1);
   });
 
   it("handles NaN data", () => {
