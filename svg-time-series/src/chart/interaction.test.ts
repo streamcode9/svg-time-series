@@ -212,6 +212,48 @@ describe("chart interaction", () => {
     expect(blueTransform.ty).toBe(0);
   });
 
+  it("clamps hover index to data bounds", () => {
+    const data: Array<[number, number]> = [
+      [10, 20],
+      [30, 40],
+      [50, 60],
+    ];
+    const { onHover, svgEl, legend } = createChart(data);
+    vi.runAllTimers();
+
+    onHover(-100);
+    vi.runAllTimers();
+    let circles = svgEl.querySelectorAll("circle");
+    let greenTransform = nodeTransforms.get(circles[0] as SVGCircleElement)!;
+    let blueTransform = nodeTransforms.get(circles[1] as SVGCircleElement)!;
+    expect(
+      legend.querySelector(".chart-legend__green_value")!.textContent,
+    ).toBe("10");
+    expect(legend.querySelector(".chart-legend__blue_value")!.textContent).toBe(
+      "20",
+    );
+    expect(greenTransform.tx).toBe(0);
+    expect(greenTransform.ty).toBe(10);
+    expect(blueTransform.tx).toBe(0);
+    expect(blueTransform.ty).toBe(20);
+
+    onHover(100);
+    vi.runAllTimers();
+    circles = svgEl.querySelectorAll("circle");
+    greenTransform = nodeTransforms.get(circles[0] as SVGCircleElement)!;
+    blueTransform = nodeTransforms.get(circles[1] as SVGCircleElement)!;
+    expect(
+      legend.querySelector(".chart-legend__green_value")!.textContent,
+    ).toBe("50");
+    expect(legend.querySelector(".chart-legend__blue_value")!.textContent).toBe(
+      "60",
+    );
+    expect(greenTransform.tx).toBe(2);
+    expect(greenTransform.ty).toBe(50);
+    expect(blueTransform.tx).toBe(2);
+    expect(blueTransform.ty).toBe(60);
+  });
+
   it("throws on zero-length dataset", () => {
     expect(() => {
       createChart([]);
