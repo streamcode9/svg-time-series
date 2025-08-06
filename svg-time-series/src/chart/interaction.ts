@@ -1,4 +1,4 @@
-import { BaseType, Selection, select } from "d3-selection";
+import { BaseType, Selection } from "d3-selection";
 import {
   zoom as d3zoom,
   D3ZoomEvent,
@@ -6,34 +6,20 @@ import {
   ZoomBehavior,
 } from "d3-zoom";
 import { drawProc } from "../utils/drawProc.ts";
-import { updateNode } from "../utils/domNodeTransform.ts";
 import type { ChartData } from "./data.ts";
 import type { RenderState } from "./render.ts";
 import { refreshChart } from "./render.ts";
 import { renderPaths } from "./render/paths.ts";
+import { LegendController } from "./legend.ts";
 
 export class ChartInteraction {
-  private legendTime: Selection<BaseType, unknown, HTMLElement, unknown>;
-  private legendGreen: Selection<BaseType, unknown, HTMLElement, unknown>;
-  private legendBlue: Selection<BaseType, unknown, HTMLElement, unknown>;
-
   private zoomBehavior: ZoomBehavior<SVGRectElement, unknown>;
   private zoomArea: Selection<SVGRectElement, unknown, BaseType, unknown>;
 
   private currentPanZoomTransformState: ZoomTransform | null = null;
 
-  private readonly dotRadius = 3;
-  private highlightedGreenDot: SVGCircleElement;
-  private highlightedBlueDot: SVGCircleElement | null;
-
-  private identityMatrix = document
-    .createElementNS("http://www.w3.org/2000/svg", "svg")
-    .createSVGMatrix();
-
-  private highlightedDataIdx = 0;
-
   private scheduleRefresh: () => void;
-  private schedulePointRefresh: () => void;
+  private legendController: LegendController;
 
   constructor(
     svg: Selection<BaseType, unknown, HTMLElement, unknown>,
@@ -42,13 +28,9 @@ export class ChartInteraction {
     private data: ChartData,
     zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void,
     mouseMoveHandler: (event: MouseEvent) => void,
-    private formatTime: (timestamp: number) => string = (timestamp) =>
+    formatTime: (timestamp: number) => string = (timestamp) =>
       new Date(timestamp).toLocaleString(),
   ) {
-    this.legendTime = legend.select(".chart-legend__time");
-    this.legendGreen = legend.select(".chart-legend__green_value");
-    this.legendBlue = legend.select(".chart-legend__blue_value");
-
     this.zoomBehavior = d3zoom<SVGRectElement, unknown>()
       .scaleExtent([1, 40])
       .translateExtent([
@@ -67,19 +49,6 @@ export class ChartInteraction {
       .attr("height", state.dimensions.height)
       .call(this.zoomBehavior);
     this.zoomArea.on("mousemove", mouseMoveHandler);
-
-    const makeDot = (view: SVGGElement) =>
-      select(view)
-        .append("circle")
-        .attr("cx", 0)
-        .attr("cy", 0)
-        .attr("r", 1)
-        .node() as SVGCircleElement;
-    this.highlightedGreenDot = makeDot(state.paths.viewNy);
-    this.highlightedBlueDot = state.paths.viewSf
-      ? makeDot(state.paths.viewSf)
-      : null;
-
     this.scheduleRefresh = drawProc(() => {
       if (this.currentPanZoomTransformState != null) {
         this.zoomBehavior.transform(
@@ -90,9 +59,12 @@ export class ChartInteraction {
       refreshChart(this.state, this.data);
     });
 
-    this.schedulePointRefresh = drawProc(() => {
-      this.updateLegendAndDots();
-    });
+    this.legendController = new LegendController(
+      legend,
+      state,
+      data,
+      formatTime,
+    );
   }
 
   public zoom = (event: D3ZoomEvent<Element, unknown>) => {
@@ -100,76 +72,24 @@ export class ChartInteraction {
     this.state.transforms.ny.onZoomPan(event.transform);
     this.state.transforms.sf?.onZoomPan(event.transform);
     this.scheduleRefresh();
-    this.schedulePointRefresh();
+    this.legendController.refresh();
   };
 
   public onHover = (x: number) => {
     const idx = this.state.transforms.ny.fromScreenToModelX(x);
-    this.highlightedDataIdx = Math.min(
-      Math.max(idx, 0),
-      this.data.data.length - 1,
-    );
-    this.schedulePointRefresh();
+    this.legendController.onHover(idx);
   };
-
-  private updateLegendAndDots() {
-    const [greenData, blueData] =
-      this.data.data[Math.round(this.highlightedDataIdx)];
-    const timestamp = this.data.idxToTime.applyToPoint(this.highlightedDataIdx);
-    this.legendTime.text(this.formatTime(timestamp));
-
-    const dotScaleMatrixNy = this.state.transforms.ny.dotScaleMatrix(
-      this.dotRadius,
-    );
-    const dotScaleMatrixSf = this.state.transforms.sf?.dotScaleMatrix(
-      this.dotRadius,
-    );
-    const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
-      isNaN(n) ? valueForNaN : n;
-    const updateDot = (
-      val: number,
-      legendSel: Selection<BaseType, unknown, HTMLElement, unknown>,
-      node: SVGGraphicsElement | null,
-      dotScaleMatrix?: SVGMatrix,
-    ) => {
-      legendSel.text(fixNaN(val, " "));
-      if (node && dotScaleMatrix) {
-        updateNode(
-          node,
-          this.identityMatrix
-            .translate(this.highlightedDataIdx, fixNaN(val, 0))
-            .multiply(dotScaleMatrix),
-        );
-      }
-    };
-
-    updateDot(
-      greenData,
-      this.legendGreen,
-      this.highlightedGreenDot,
-      dotScaleMatrixNy,
-    );
-    if (this.state.transforms.sf) {
-      updateDot(
-        blueData as number,
-        this.legendBlue,
-        this.highlightedBlueDot,
-        dotScaleMatrixSf,
-      );
-    }
-  }
 
   public drawNewData = () => {
     renderPaths(this.state, this.data.data);
     this.scheduleRefresh();
-    this.schedulePointRefresh();
+    this.legendController.refresh();
   };
 
   public destroy = () => {
     this.zoomBehavior.on("zoom", null);
     this.zoomArea.on("mousemove", null);
     this.zoomArea.remove();
-    this.highlightedGreenDot.remove();
-    this.highlightedBlueDot?.remove();
+    this.legendController.destroy();
   };
 }
