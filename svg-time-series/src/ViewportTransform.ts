@@ -74,7 +74,10 @@ export class ViewportTransform {
     const tp1 = new DOMPoint(dotRadius, dotRadius).matrixTransform(inv);
     const dotRadiusXModel = tp0.x - tp1.x;
     const dotRadiusYModel = tp0.y - tp1.y;
-    return new DOMMatrix().scale(dotRadiusXModel, dotRadiusYModel);
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    return svg
+      .createSVGMatrix()
+      .scaleNonUniform(dotRadiusXModel, dotRadiusYModel);
   }
 
   public fromScreenToModelBasisX(b: AR1Basis) {
