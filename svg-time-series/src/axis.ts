@@ -7,35 +7,37 @@
 
 const slice = Array.prototype.slice;
 
-const identity = (x: any) => x;
+const id = <T>(x: T) => x;
 
-function center(scale: any) {
-  const width = scale.bandwidth() / 2;
-  return (d: any) => scale(d) + width;
+const formatIdentity = (d: number | Date) => `${d}`;
+
+function center<D>(scale: Scale<D>) {
+  const width = (scale.bandwidth?.() ?? 0) / 2;
+  return (d: D) => scale(d) + width;
 }
 
-function translateX(scale0: any, scale1: any, d: any) {
+type PositionFn<D> = (d: D) => number;
+
+function translateX<D>(scale0: PositionFn<D>, scale1: PositionFn<D>, d: D) {
   const x = scale0(d);
   return "translate(" + (isFinite(x) ? x : scale1(d)) + ",0)";
 }
 
-function translateY(scale0: any, scale1: any, d: any) {
+function translateY<D>(scale0: PositionFn<D>, scale1: PositionFn<D>, d: D) {
   const y = scale0(d);
   return "translate(0," + (isFinite(y) ? y : scale1(d)) + ")";
 }
 
 import { Selection } from "d3-selection";
 
-import { ScaleLinear, ScaleTime } from "d3-scale";
+import { Scale } from "./scale";
 
-type ScaleType = (ScaleLinear<number, number> | ScaleTime<number, number>) & {
-  bandwidth?: () => number;
-};
+type ScaleType = Scale<number | Date>;
 
 export class MyAxis {
   private tickArguments: number[];
   private tickValues: number[] | null;
-  private tickFormat: ((d: number) => string) | null;
+  private tickFormat: ((d: number | Date) => string) | null;
   private tickSizeInner: number;
   private tickSizeOuter: number;
   private tickPadding: number;
@@ -55,18 +57,18 @@ export class MyAxis {
     this.tickPadding = 3;
   }
 
-  private primaryTickValue(d: any, active: number): number {
+  private primaryTickValue<T>(d: T | [T, number], active: number): T {
     if (Array.isArray(d)) {
-      return d.length > 2 ? d[active] : d[0];
+      return (d.length > 2 ? d[active] : d[0]) as T;
     }
     return d;
   }
 
-  private tickTransformFn(
-    transform: (a: any, b: any, c: any) => string,
-    positions: ((d: any) => number)[],
+  private tickTransformFn<T>(
+    transform: (a: PositionFn<T>, b: PositionFn<T>, c: T) => string,
+    positions: PositionFn<T>[],
   ) {
-    return (d: any) => {
+    return (d: T | [T, number]) => {
       const active =
         Array.isArray(d) && d.length === 2 && typeof d[1] === "number"
           ? d[1]
@@ -97,9 +99,9 @@ export class MyAxis {
 
     const createValuesFromScale = (scale: ScaleType): number[] => {
       const values = scale.ticks
-        ? scale.ticks.apply(scale, this.tickArguments)
+        ? scale.ticks(...this.tickArguments)
         : scale.domain();
-      return (values as (number | Date)[]).map((v) => +v);
+      return values.map((v) => +v);
     };
 
     for (const v of createValuesFromScale(scale1)) {
@@ -113,45 +115,49 @@ export class MyAxis {
     return result;
   }
 
-  private createFormat(scale: ScaleType): (d: number) => string {
-    const formatValue = (scale: ScaleType): ((d: number) => string) => {
+  private createFormat(scale: ScaleType): (d: number | Date) => string {
+    const formatValue = (scale: ScaleType): ((d: number | Date) => string) => {
       if (this.tickFormat) {
         return this.tickFormat;
       }
       return scale.tickFormat
-        ? scale.tickFormat.apply(scale, this.tickArguments)
-        : identity;
+        ? (scale.tickFormat(...this.tickArguments) as (
+            d: number | Date,
+          ) => string)
+        : formatIdentity;
     };
-    return (d: number) => formatValue(scale)(d);
+    return (d: number | Date) => formatValue(scale)(d);
   }
 
-  axis(context: Selection<SVGGElement, unknown, HTMLElement, any>) {
+  axis(context: Selection<SVGGElement, unknown, HTMLElement, unknown>) {
     const values = this.createValues(this.scale1, this.scale2),
       formats = [this.createFormat(this.scale1)],
-      spacing: any = Math.max(this.tickSizeInner, 0) + this.tickPadding,
-      transform: any =
+      spacing = Math.max(this.tickSizeInner, 0) + this.tickPadding,
+      transform: (
+        scale0: PositionFn<number | Date>,
+        scale1: PositionFn<number | Date>,
+        d: number | Date,
+      ) => string =
         this.orient === Orientation.Top || this.orient === Orientation.Bottom
           ? translateX
           : translateY,
-      positions: ((d: any) => number)[] = [
-        (this.scale1.bandwidth ? center : identity)(this.scale1.copy()),
+      positions: PositionFn<number | Date>[] = [
+        (this.scale1.bandwidth ? center : id)(this.scale1.copy()),
       ];
     if (this.scale2) {
       formats.push(this.createFormat(this.scale2));
-      positions.push(
-        (this.scale2.bandwidth ? center : identity)(this.scale2.copy()),
-      );
+      positions.push((this.scale2.bandwidth ? center : id)(this.scale2.copy()));
     }
     let tick = context
-        .selectAll(".tick")
+        .selectAll<SVGGElement, [number, number]>(".tick")
         .data(values, (d: [number, number]) =>
           d[1] === 0 ? this.scale1(d[0]) : (this.scale2 as ScaleType)(d[0]),
         )
         .order(),
       tickExit = tick.exit(),
       tickEnter = tick.enter().append("g").attr("class", "tick"),
-      line = tick.select("line"),
-      text = tick.select("text"),
+      line = tick.select<SVGLineElement>("line"),
+      text = tick.select<SVGTextElement>("text"),
       k =
         this.orient === Orientation.Top || this.orient === Orientation.Left
           ? -1
@@ -205,16 +211,20 @@ export class MyAxis {
       });
   }
 
-  axisUp(context: Selection<SVGGElement, unknown, HTMLElement, any>) {
+  axisUp(context: Selection<SVGGElement, unknown, HTMLElement, unknown>) {
     const values = this.createValues(this.scale1, this.scale2),
       formats = [this.createFormat(this.scale1)],
       spacing = Math.max(this.tickSizeInner, 0) + this.tickPadding,
-      transform =
+      transform: (
+        scale0: PositionFn<number | Date>,
+        scale1: PositionFn<number | Date>,
+        d: number | Date,
+      ) => string =
         this.orient === Orientation.Top || this.orient === Orientation.Bottom
           ? translateX
           : translateY,
-      positions: ((d: any) => number)[] = [
-        (this.scale1.bandwidth ? center : identity)(this.scale1.copy()),
+      positions: PositionFn<number | Date>[] = [
+        (this.scale1.bandwidth ? center : id)(this.scale1.copy()),
       ],
       k =
         this.orient === Orientation.Top || this.orient === Orientation.Left
@@ -222,20 +232,18 @@ export class MyAxis {
           : 1;
     if (this.scale2) {
       formats.push(this.createFormat(this.scale2));
-      positions.push(
-        (this.scale2.bandwidth ? center : identity)(this.scale2.copy()),
-      );
+      positions.push((this.scale2.bandwidth ? center : id)(this.scale2.copy()));
     }
     let tick = context
-        .selectAll(".tick")
+        .selectAll<SVGGElement, [number, number]>(".tick")
         .data(values, (d: [number, number]) =>
           d[1] === 0 ? this.scale1(d[0]) : (this.scale2 as ScaleType)(d[0]),
         )
         .order(),
       tickExit = tick.exit(),
       tickEnter = tick.enter().append("g").attr("class", "tick"),
-      line = tick.select("line"),
-      text = tick.select("text");
+      line = tick.select<SVGLineElement>("line"),
+      text = tick.select<SVGTextElement>("text");
 
     let x = "";
     const y =
@@ -296,7 +304,7 @@ export class MyAxis {
     return this;
   }
 
-  setTickFormat(format: ((d: number) => string) | null): this {
+  setTickFormat(format: ((d: number | Date) => string) | null): this {
     this.tickFormat = format;
     return this;
   }

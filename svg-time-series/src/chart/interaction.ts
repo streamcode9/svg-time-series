@@ -1,5 +1,10 @@
 import { BaseType, Selection, select } from "d3-selection";
-import { zoom as d3zoom, D3ZoomEvent, ZoomTransform } from "d3-zoom";
+import {
+  zoom as d3zoom,
+  D3ZoomEvent,
+  ZoomTransform,
+  ZoomBehavior,
+} from "d3-zoom";
 import { timeout as runTimeout } from "d3-timer";
 
 import { updateNode } from "../viewZoomTransform.ts";
@@ -35,26 +40,29 @@ export function setupInteraction(
   const legendGreen = legend.select(".chart-legend__green_value");
   const legendBlue = legend.select(".chart-legend__blue_value");
 
+  const zoomBehavior: ZoomBehavior<SVGRectElement, unknown> = d3zoom<
+    SVGRectElement,
+    unknown
+  >()
+    .scaleExtent([1, 40])
+    .translateExtent([
+      [0, 0],
+      [state.width, state.height],
+    ])
+    .on("zoom", (event: D3ZoomEvent<Element, unknown>) => {
+      zoomHandler(event);
+      zoom(event);
+    });
+
   const zoomArea = svg
     .append("rect")
     .attr("class", "zoom")
     .attr("width", state.width)
     .attr("height", state.height)
-    .call(
-      d3zoom()
-        .scaleExtent([1, 40])
-        .translateExtent([
-          [0, 0],
-          [state.width, state.height],
-        ])
-        .on("zoom", (event: D3ZoomEvent<Element, unknown>) => {
-          zoomHandler(event);
-          zoom(event);
-        }),
-    );
+    .call(zoomBehavior);
   zoomArea.on("mousemove", mouseMoveHandler);
 
-  let currentPanZoomTransformState: ZoomTransform = null;
+  let currentPanZoomTransformState: ZoomTransform | null = null;
   const dotRadius = 3;
   const makeDot = (view: SVGGElement) =>
     select(view)
@@ -74,7 +82,7 @@ export function setupInteraction(
 
   const scheduleRefresh = drawProc(() => {
     if (currentPanZoomTransformState != null) {
-      d3zoom().transform(zoomArea, currentPanZoomTransformState);
+      zoomBehavior.transform(zoomArea, currentPanZoomTransformState);
     }
     refreshChart(state, data);
   });

@@ -5,8 +5,8 @@ export type { IMinMax };
 
 export class ChartData {
   public data: Array<[number, number]>;
-  public treeNy: SegmentTree;
-  public treeSf: SegmentTree;
+  public treeNy!: SegmentTree;
+  public treeSf!: SegmentTree;
   public idxToTime: AR1;
   private idxShift: AR1;
   public bIndexFull: AR1Basis;
