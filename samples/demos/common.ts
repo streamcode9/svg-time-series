@@ -28,8 +28,11 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
 
   const onZoom = (event: D3ZoomEvent<Element, unknown>) =>
     charts.forEach((c) => c.zoom(event));
-  const onMouseMove = (event: MouseEvent) => {
-    const [x, _] = pointer(event, event.target);
+  const onMouseMove: (this: Element, event: MouseEvent) => void = function (
+    this: Element,
+    event: MouseEvent,
+  ) {
+    const [x] = pointer(event, this);
     charts.forEach((c) => c.onHover(x));
   };
 
