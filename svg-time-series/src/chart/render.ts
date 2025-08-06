@@ -5,14 +5,15 @@ import { ViewportTransform } from "../ViewportTransform.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import { AR1Basis, bPlaceholder } from "../math/affine.ts";
 import type { ChartData } from "./data.ts";
-import { createDimensions } from "./render/dimensions.ts";
 import {
+  createDimensions,
   createScales,
   updateScaleX,
   updateScaleY,
+  initPaths,
   type ScaleSet,
-} from "./render/scales.ts";
-import { initPaths, type PathSet } from "./render/paths.ts";
+  type PathSet,
+} from "./render/utils.ts";
 
 function setupAxes(
   svg: Selection<BaseType, unknown, HTMLElement, unknown>,

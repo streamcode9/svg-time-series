@@ -3,7 +3,7 @@ import { D3ZoomEvent } from "d3-zoom";
 import type { ChartData } from "./data.ts";
 import type { RenderState } from "./render.ts";
 import { refreshChart } from "./render.ts";
-import { renderPaths } from "./render/paths.ts";
+import { renderPaths } from "./render/utils.ts";
 import { LegendController } from "./legend.ts";
 import { ZoomState } from "./zoomState.ts";
 
