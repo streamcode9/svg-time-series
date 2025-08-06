@@ -48,6 +48,7 @@
     "prepare": "npm run build",
     "build": "tsc && vite build",
     "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview"
   }
 }

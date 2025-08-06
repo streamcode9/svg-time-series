@@ -5,6 +5,7 @@
     "build": "npm run build --workspace=svg-time-series",
     "dev": "npm run dev --workspace=samples",
     "lint": "npm run lint --workspace=svg-time-series",
+    "typecheck": "npm run typecheck --workspace=svg-time-series && npm run typecheck --workspace=samples",
     "test": "vitest run"
   },
   "type": "module",
