@@ -3,7 +3,7 @@ import { D3ZoomEvent } from "d3-zoom";
 
 import { ChartData, IMinMax } from "./chart/data.ts";
 import { setupRender } from "./chart/render.ts";
-import { setupInteraction } from "./chart/interaction.ts";
+import { ChartInteraction } from "./chart/interaction.ts";
 
 export type { IMinMax } from "./chart/data.ts";
 
@@ -42,7 +42,7 @@ export class TimeSeriesChart {
     );
 
     const renderState = setupRender(svg, this.data);
-    const { zoom, onHover, drawNewData, destroy } = setupInteraction(
+    const interaction = new ChartInteraction(
       svg,
       legend,
       renderState,
@@ -52,10 +52,10 @@ export class TimeSeriesChart {
       formatTime,
     );
 
-    this.zoom = zoom;
-    this.onHover = onHover;
-    this.drawNewData = drawNewData;
-    this.destroyInteraction = destroy;
+    this.zoom = interaction.zoom;
+    this.onHover = interaction.onHover;
+    this.drawNewData = interaction.drawNewData;
+    this.destroyInteraction = interaction.destroy;
 
     this.drawNewData();
     this.onHover(renderState.dimensions.width - 1);
