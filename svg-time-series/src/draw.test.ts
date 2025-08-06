@@ -7,7 +7,9 @@ let onHoverMock: ReturnType<typeof vi.fn>;
 let onHoverUsedData: Array<[number, number?]> | null;
 
 vi.mock("./chart/render.ts", () => ({
-  setupRender: vi.fn(() => ({ width: 100, height: 100 })),
+  setupRender: vi.fn(() => ({
+    dimensions: { width: 100, height: 100 },
+  })),
 }));
 
 vi.mock("./chart/interaction.ts", () => ({

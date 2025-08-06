@@ -67,7 +67,7 @@ export class ChartInteraction {
       .scaleExtent([1, 40])
       .translateExtent([
         [0, 0],
-        [state.width, state.height],
+        [state.dimensions.width, state.dimensions.height],
       ])
       .on("zoom", (event: D3ZoomEvent<Element, unknown>) => {
         zoomHandler(event);
@@ -77,8 +77,8 @@ export class ChartInteraction {
     this.zoomArea = svg
       .append("rect")
       .attr("class", "zoom")
-      .attr("width", state.width)
-      .attr("height", state.height)
+      .attr("width", state.dimensions.width)
+      .attr("height", state.dimensions.height)
       .call(this.zoomBehavior);
     this.zoomArea.on("mousemove", mouseMoveHandler);
 
@@ -89,8 +89,10 @@ export class ChartInteraction {
         .attr("cy", 0)
         .attr("r", 1)
         .node() as SVGCircleElement;
-    this.highlightedGreenDot = makeDot(state.viewNy);
-    this.highlightedBlueDot = state.viewSf ? makeDot(state.viewSf) : null;
+    this.highlightedGreenDot = makeDot(state.paths.viewNy);
+    this.highlightedBlueDot = state.paths.viewSf
+      ? makeDot(state.paths.viewSf)
+      : null;
 
     this.scheduleRefresh = drawProc(() => {
       if (this.currentPanZoomTransformState != null) {
@@ -109,14 +111,14 @@ export class ChartInteraction {
 
   public zoom = (event: D3ZoomEvent<Element, unknown>) => {
     this.currentPanZoomTransformState = event.transform;
-    this.state.pathTransformNy.onZoomPan(event.transform);
-    this.state.pathTransformSf?.onZoomPan(event.transform);
+    this.state.transforms.ny.onZoomPan(event.transform);
+    this.state.transforms.sf?.onZoomPan(event.transform);
     this.scheduleRefresh();
     this.schedulePointRefresh();
   };
 
   public onHover = (x: number) => {
-    const idx = this.state.pathTransformNy.fromScreenToModelX(x);
+    const idx = this.state.transforms.ny.fromScreenToModelX(x);
     this.highlightedDataIdx = Math.min(
       Math.max(idx, 0),
       this.data.data.length - 1,
@@ -134,10 +136,10 @@ export class ChartInteraction {
       ).toLocaleString(),
     );
 
-    const dotScaleMatrixNy = this.state.pathTransformNy.dotScaleMatrix(
+    const dotScaleMatrixNy = this.state.transforms.ny.dotScaleMatrix(
       this.dotRadius,
     );
-    const dotScaleMatrixSf = this.state.pathTransformSf?.dotScaleMatrix(
+    const dotScaleMatrixSf = this.state.transforms.sf?.dotScaleMatrix(
       this.dotRadius,
     );
     const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
@@ -165,7 +167,7 @@ export class ChartInteraction {
       this.highlightedGreenDot,
       dotScaleMatrixNy,
     );
-    if (this.state.pathTransformSf) {
+    if (this.state.transforms.sf) {
       updateDot(
         blueData as number,
         this.legendBlue,
