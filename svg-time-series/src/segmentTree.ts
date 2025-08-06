@@ -33,12 +33,4 @@ export class SegmentTree<
 
     super(minMaxData, buildMinMax, minMaxIdentity);
   }
-
-  query(fromPosition: number, toPosition: number): IMinMax {
-    return super.query(fromPosition, toPosition);
-  }
-
-  update(positionToUpdate: number, newValue: Readonly<IMinMax>): void {
-    super.update(positionToUpdate, newValue);
-  }
 }
