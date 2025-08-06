@@ -54,15 +54,16 @@ describe("ChartData", () => {
 
     cd.append([2, 2]);
     cd.append([3, 3]);
+    cd.append([4, 4]);
 
     expect(cd.data).toEqual([
-      [2, 2],
       [3, 3],
+      [4, 4],
     ]);
-    expect(cd.idxToTime.applyToPoint(0)).toBe(-2);
-    expect(cd.idxToTime.applyToPoint(1)).toBe(-1);
-    expect(cd.treeNy.getMinMax(0, 1)).toEqual({ min: 2, max: 3 });
-    expect(cd.treeSf.getMinMax(0, 1)).toEqual({ min: 2, max: 3 });
+    expect(cd.idxToTime.applyToPoint(0)).toBe(-3);
+    expect(cd.idxToTime.applyToPoint(1)).toBe(-2);
+    expect(cd.treeNy.getMinMax(0, 1)).toEqual({ min: 3, max: 4 });
+    expect(cd.treeSf.getMinMax(0, 1)).toEqual({ min: 3, max: 4 });
   });
 
   it("computes visible temperature bounds", () => {
@@ -101,6 +102,28 @@ describe("ChartData", () => {
     ]);
     expect(cd.bTemperatureVisible(fractionalRange, cd.treeSf).toArr()).toEqual([
       20, 40,
+    ]);
+  });
+
+  it("rounds up fractional bounds when computing temperature visibility", () => {
+    const cd = new ChartData(
+      0,
+      1,
+      [
+        [10, 20],
+        [30, 40],
+        [50, 60],
+      ],
+      buildNy,
+      buildSf,
+    );
+
+    const fractionalRange = new AR1Basis(0.51, 1.51);
+    expect(cd.bTemperatureVisible(fractionalRange, cd.treeNy).toArr()).toEqual([
+      30, 50,
+    ]);
+    expect(cd.bTemperatureVisible(fractionalRange, cd.treeSf).toArr()).toEqual([
+      40, 60,
     ]);
   });
 });
