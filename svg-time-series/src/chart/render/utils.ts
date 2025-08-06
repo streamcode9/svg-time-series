@@ -1,4 +1,4 @@
-import { BaseType, Selection } from "d3-selection";
+import { Selection } from "d3-selection";
 import { line } from "d3-shape";
 import { ScaleLinear, ScaleTime, scaleLinear, scaleTime } from "d3-scale";
 import { AR1Basis } from "../../math/affine.ts";
@@ -8,7 +8,7 @@ import type { ChartData } from "../data.ts";
 import type { RenderState } from "../render.ts";
 
 export function createDimensions(
-  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
+  svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
 ) {
   const node: SVGSVGElement = svg.node() as SVGSVGElement;
   const div: HTMLElement = node.parentNode as HTMLElement;
@@ -74,7 +74,7 @@ export function updateScaleY(
 }
 
 export interface PathSet {
-  path: Selection<SVGPathElement, number, any, unknown>;
+  path: Selection<SVGPathElement, number, SVGSVGElement, unknown>;
   viewNy: SVGGElement;
   viewSf?: SVGGElement;
 }
@@ -85,7 +85,7 @@ export interface TransformPair {
 }
 
 export function initPaths(
-  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
+  svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
   hasSf: boolean,
 ): PathSet {
   const views = svg

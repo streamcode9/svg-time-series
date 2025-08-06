@@ -1,4 +1,4 @@
-import { BaseType, Selection } from "d3-selection";
+import { Selection } from "d3-selection";
 import { D3ZoomEvent } from "d3-zoom";
 import type { ChartData } from "./data.ts";
 import type { RenderState } from "./render.ts";
@@ -8,16 +8,16 @@ import { LegendController } from "./legend.ts";
 import { ZoomState } from "./zoomState.ts";
 
 export class ChartInteraction {
-  private zoomArea: Selection<SVGRectElement, unknown, BaseType, unknown>;
+  private zoomArea: Selection<SVGRectElement, unknown, HTMLElement, unknown>;
   private zoomState: ZoomState;
   private legendController: LegendController;
 
   constructor(
-    svg: Selection<BaseType, unknown, HTMLElement, unknown>,
-    legend: Selection<BaseType, unknown, HTMLElement, unknown>,
+    svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
+    legend: Selection<HTMLElement, unknown, HTMLElement, unknown>,
     private state: RenderState,
     private data: ChartData,
-    zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void,
+    zoomHandler: (event: D3ZoomEvent<SVGRectElement, unknown>) => void,
     mouseMoveHandler: (event: MouseEvent) => void,
     formatTime: (timestamp: number) => string = (timestamp) =>
       new Date(timestamp).toLocaleString(),
@@ -47,7 +47,7 @@ export class ChartInteraction {
     );
   }
 
-  public zoom = (event: D3ZoomEvent<Element, unknown>) => {
+  public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
     this.zoomState.zoom(event, false);
     this.legendController.refresh();
   };

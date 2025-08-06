@@ -1,4 +1,4 @@
-import { BaseType, Selection } from "d3-selection";
+import { Selection } from "d3-selection";
 
 import { MyAxis, Orientation } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
@@ -16,7 +16,7 @@ import {
 } from "./render/utils.ts";
 
 function setupAxes(
-  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
+  svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
   scales: ScaleSet,
   width: number,
   height: number,
@@ -70,10 +70,10 @@ function setupAxes(
 interface AxisSet {
   x: MyAxis;
   y: MyAxis;
-  gX: Selection<SVGGElement, unknown, any, any>;
-  gY: Selection<SVGGElement, unknown, any, any>;
+  gX: Selection<SVGGElement, unknown, HTMLElement, unknown>;
+  gY: Selection<SVGGElement, unknown, HTMLElement, unknown>;
   yRight?: MyAxis;
-  gYRight?: Selection<SVGGElement, unknown, any, any>;
+  gYRight?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
 }
 
 interface TransformSet {
@@ -97,7 +97,7 @@ export interface RenderState {
 }
 
 export function setupRender(
-  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
+  svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
   data: ChartData,
   dualYAxis: boolean,
 ): RenderState {

@@ -1,4 +1,4 @@
-import { BaseType, Selection } from "d3-selection";
+import { Selection } from "d3-selection";
 import {
   zoom as d3zoom,
   D3ZoomEvent,
@@ -14,11 +14,11 @@ export class ZoomState {
   private scheduleRefresh: () => void;
 
   constructor(
-    private zoomArea: Selection<SVGRectElement, unknown, BaseType, unknown>,
+    private zoomArea: Selection<SVGRectElement, unknown, HTMLElement, unknown>,
     private state: RenderState,
     private refreshChart: () => void,
     private zoomCallback: (
-      event: D3ZoomEvent<Element, unknown>,
+      event: D3ZoomEvent<SVGRectElement, unknown>,
     ) => void = () => {},
   ) {
     this.zoomBehavior = d3zoom<SVGRectElement, unknown>()
@@ -27,7 +27,7 @@ export class ZoomState {
         [0, 0],
         [state.dimensions.width, state.dimensions.height],
       ])
-      .on("zoom", (event: D3ZoomEvent<Element, unknown>) => {
+      .on("zoom", (event: D3ZoomEvent<SVGRectElement, unknown>) => {
         this.zoom(event);
       });
 
@@ -44,7 +44,10 @@ export class ZoomState {
     });
   }
 
-  public zoom = (event: D3ZoomEvent<Element, unknown>, callCallback = true) => {
+  public zoom = (
+    event: D3ZoomEvent<SVGRectElement, unknown>,
+    callCallback = true,
+  ) => {
     this.currentPanZoomTransformState = event.transform;
     this.state.transforms.ny.onZoomPan(event.transform);
     this.state.transforms.sf?.onZoomPan(event.transform);

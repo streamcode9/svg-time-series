@@ -1,4 +1,4 @@
-import { BaseType, Selection } from "d3-selection";
+import { Selection } from "d3-selection";
 import { D3ZoomEvent } from "d3-zoom";
 
 import { ChartData, IMinMax } from "./chart/data.ts";
@@ -8,15 +8,15 @@ import { ChartInteraction } from "./chart/interaction.ts";
 export type { IMinMax } from "./chart/data.ts";
 
 export class TimeSeriesChart {
-  public zoom: (event: D3ZoomEvent<Element, unknown>) => void;
+  public zoom: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
   public onHover: (x: number) => void;
   private drawNewData: () => void;
   private data: ChartData;
   private destroyInteraction: () => void;
 
   constructor(
-    svg: Selection<BaseType, unknown, HTMLElement, unknown>,
-    legend: Selection<BaseType, unknown, HTMLElement, unknown>,
+    svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
+    legend: Selection<HTMLElement, unknown, HTMLElement, unknown>,
     startTime: number,
     timeStep: number,
     data: Array<[number, number?]>,
@@ -29,7 +29,9 @@ export class TimeSeriesChart {
       elements: ReadonlyArray<[number, number?]>,
     ) => IMinMax,
     dualYAxis = false,
-    zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void = () => {},
+    zoomHandler: (
+      event: D3ZoomEvent<SVGRectElement, unknown>,
+    ) => void = () => {},
     mouseMoveHandler: (event: MouseEvent) => void = () => {},
     formatTime: (timestamp: number) => string = (timestamp) =>
       new Date(timestamp).toLocaleString(),

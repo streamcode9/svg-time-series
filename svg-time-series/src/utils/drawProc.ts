@@ -1,11 +1,11 @@
 import { timeout as runTimeout } from "d3-timer";
 
-export function drawProc<T extends unknown[]>(
-  f: (...args: T) => void,
-): (...args: T) => void {
+export function drawProc<F extends (...args: unknown[]) => void>(
+  f: F,
+): (...args: Parameters<F>) => void {
   let requested = false;
 
-  return (...params: T) => {
+  return (...params: Parameters<F>) => {
     if (!requested) {
       requested = true;
       runTimeout(() => {

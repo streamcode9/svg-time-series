@@ -1,13 +1,13 @@
-import { BaseType, Selection, select } from "d3-selection";
+import { Selection, select } from "d3-selection";
 import { drawProc } from "../utils/drawProc.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import type { ChartData } from "./data.ts";
 import type { RenderState } from "./render.ts";
 
 export class LegendController {
-  private legendTime: Selection<BaseType, unknown, HTMLElement, unknown>;
-  private legendGreen: Selection<BaseType, unknown, HTMLElement, unknown>;
-  private legendBlue: Selection<BaseType, unknown, HTMLElement, unknown>;
+  private legendTime: Selection<HTMLElement, unknown, HTMLElement, unknown>;
+  private legendGreen: Selection<HTMLElement, unknown, HTMLElement, unknown>;
+  private legendBlue: Selection<HTMLElement, unknown, HTMLElement, unknown>;
 
   private readonly dotRadius = 3;
   private highlightedGreenDot: SVGCircleElement;
@@ -21,7 +21,7 @@ export class LegendController {
   private scheduleRefresh: () => void;
 
   constructor(
-    legend: Selection<BaseType, unknown, HTMLElement, unknown>,
+    legend: Selection<HTMLElement, unknown, HTMLElement, unknown>,
     private state: RenderState,
     private data: ChartData,
     private formatTime: (timestamp: number) => string = (timestamp) =>
@@ -76,7 +76,7 @@ export class LegendController {
       isNaN(n) ? valueForNaN : n;
     const updateDot = (
       val: number,
-      legendSel: Selection<BaseType, unknown, HTMLElement, unknown>,
+      legendSel: Selection<HTMLElement, unknown, HTMLElement, unknown>,
       node: SVGGraphicsElement | null,
       dotScaleMatrix?: SVGMatrix,
     ) => {
