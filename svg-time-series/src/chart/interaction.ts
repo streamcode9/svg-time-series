@@ -5,29 +5,12 @@ import {
   ZoomTransform,
   ZoomBehavior,
 } from "d3-zoom";
-import { timeout as runTimeout } from "d3-timer";
-
+import { drawProc } from "../utils/drawProc.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import type { ChartData } from "./data.ts";
 import type { RenderState } from "./render.ts";
 import { refreshChart } from "./render.ts";
 import { renderPaths } from "./render/paths.ts";
-
-export function drawProc<T extends unknown[]>(
-  f: (...args: T) => void,
-): (...args: T) => void {
-  let requested = false;
-
-  return (...params: T) => {
-    if (!requested) {
-      requested = true;
-      runTimeout(() => {
-        requested = false;
-        f(...params);
-      });
-    }
-  };
-}
 
 export class ChartInteraction {
   private legendTime: Selection<BaseType, unknown, HTMLElement, unknown>;
