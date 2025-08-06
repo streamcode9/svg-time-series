@@ -18,5 +18,5 @@
     "declaration": true,
     "declarationDir": "dist"
   },
-  "exclude": ["node_modules", "vite.config.ts", "**/*.test.ts"]
+  "exclude": ["vite.config.ts", "**/*.test.ts"]
 }

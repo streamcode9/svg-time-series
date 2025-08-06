@@ -6,10 +6,5 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true
-  },
-  "exclude": [
-    "misc/sine-recreate-dom",
-    "misc/sine-transform-d3",
-    "misc/sine-transform-dom"
-  ]
+  }
 }
