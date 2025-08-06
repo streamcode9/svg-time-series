@@ -36,7 +36,7 @@ export class TimeSeriesChart {
     animateBench((elapsed: number) => {
       const minX = animateCosDown(dataLength / 2, 0, elapsed);
       const maxX = minX + dataLength / 2;
-      const { min, max } = tree.getMinMax(minX, maxX);
+      const { min, max } = tree.query(minX, maxX);
       t.setViewWindow(minX, maxX, min, max);
     });
   }

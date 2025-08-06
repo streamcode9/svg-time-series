@@ -68,8 +68,8 @@ describe("ChartData", () => {
     ]);
     expect(cd.idxToTime.applyToPoint(0)).toBe(-3);
     expect(cd.idxToTime.applyToPoint(1)).toBe(-2);
-    expect(cd.treeNy.getMinMax(0, 1)).toEqual({ min: 3, max: 4 });
-    expect(cd.treeSf!.getMinMax(0, 1)).toEqual({ min: 3, max: 4 });
+    expect(cd.treeNy.query(0, 1)).toEqual({ min: 3, max: 4 });
+    expect(cd.treeSf!.query(0, 1)).toEqual({ min: 3, max: 4 });
   });
 
   it("computes visible temperature bounds", () => {
@@ -217,7 +217,7 @@ describe("ChartData", () => {
       expect(cd.data).toEqual([[0], [1]]);
       cd.append([2]);
       expect(cd.data).toEqual([[1], [2]]);
-      expect(cd.treeNy.getMinMax(0, 1)).toEqual({ min: 1, max: 2 });
+      expect(cd.treeNy.query(0, 1)).toEqual({ min: 1, max: 2 });
     });
   });
 });

@@ -89,7 +89,7 @@ export class ChartData {
     if (startIdx > endIdx) {
       [startIdx, endIdx] = [endIdx, startIdx];
     }
-    const { min, max } = tree.getMinMax(startIdx, endIdx);
+    const { min, max } = tree.query(startIdx, endIdx);
     return new AR1Basis(min, max);
   }
 }

@@ -34,7 +34,7 @@ export class SegmentTree<
     super(minMaxData, buildMinMax, minMaxIdentity);
   }
 
-  getMinMax(fromPosition: number, toPosition: number): IMinMax {
+  query(fromPosition: number, toPosition: number): IMinMax {
     return super.query(fromPosition, toPosition);
   }
 
