@@ -2,21 +2,6 @@ import { ZoomTransform } from "d3-zoom";
 import { AR1Basis, betweenTBasesAR1, bPlaceholder } from "./math/affine.ts";
 import { applyAR1ToMatrixX, applyAR1ToMatrixY } from "./utils/domMatrix.ts";
 
-export function composeReferenceMatrix(
-  viewPortX: AR1Basis,
-  viewPortY: AR1Basis,
-  refViewX: AR1Basis,
-  refViewY: AR1Basis,
-): DOMMatrix {
-  const affX = betweenTBasesAR1(refViewX, viewPortX);
-  const affY = betweenTBasesAR1(refViewY, viewPortY);
-  return applyAR1ToMatrixY(affY, applyAR1ToMatrixX(affX, new DOMMatrix()));
-}
-
-export function composeZoomMatrix(t: ZoomTransform): DOMMatrix {
-  return new DOMMatrix().translate(t.x, 0).scale(t.k, 1);
-}
-
 export class ViewportTransform {
   private viewPortPointsX: AR1Basis = bPlaceholder;
   private viewPortPointsY: AR1Basis = bPlaceholder;
@@ -29,11 +14,17 @@ export class ViewportTransform {
   private composedMatrix: DOMMatrix = new DOMMatrix();
 
   private updateReferenceTransform() {
-    this.referenceTransform = composeReferenceMatrix(
-      this.viewPortPointsX,
-      this.viewPortPointsY,
+    const affX = betweenTBasesAR1(
       this.referenceViewWindowPointsX,
+      this.viewPortPointsX,
+    );
+    const affY = betweenTBasesAR1(
       this.referenceViewWindowPointsY,
+      this.viewPortPointsY,
+    );
+    this.referenceTransform = applyAR1ToMatrixY(
+      affY,
+      applyAR1ToMatrixX(affX, new DOMMatrix()),
     );
     this.updateComposedMatrix();
   }
@@ -61,7 +52,7 @@ export class ViewportTransform {
   }
 
   public onZoomPan(t: ZoomTransform): void {
-    this.zoomTransform = composeZoomMatrix(t);
+    this.zoomTransform = new DOMMatrix().translate(t.x, 0).scale(t.k, 1);
     this.updateComposedMatrix();
   }
 
