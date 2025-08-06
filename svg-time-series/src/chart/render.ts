@@ -1,4 +1,3 @@
-import { ScaleLinear, ScaleTime } from "d3-scale";
 import { BaseType, Selection } from "d3-selection";
 
 import { MyAxis, Orientation } from "../axis.ts";
@@ -14,16 +13,6 @@ import {
   type ScaleSet,
 } from "./render/scales.ts";
 import { initPaths, createTransforms, type PathSet } from "./render/paths.ts";
-
-function bindAxisToDom(
-  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
-  axis: MyAxis,
-  scale1: ScaleLinear<number, number> | ScaleTime<number, number>,
-  scale2?: ScaleLinear<number, number> | ScaleTime<number, number>,
-) {
-  axis.setScale(scale1, scale2);
-  return svg.append("g").attr("class", "axis").call(axis.axis.bind(axis));
-}
 
 function setupAxes(
   svg: Selection<BaseType, unknown, HTMLElement, unknown>,
@@ -41,8 +30,10 @@ function setupAxes(
     .setTickSize(width)
     .setTickPadding(2 - width);
 
-  const gX = bindAxisToDom(svg, xAxis, scales.x);
-  const gY = bindAxisToDom(svg, yAxis, scales.yNy, scales.ySf);
+  xAxis.setScale(scales.x);
+  const gX = svg.append("g").attr("class", "axis").call(xAxis.axis.bind(xAxis));
+  yAxis.setScale(scales.yNy, scales.ySf);
+  const gY = svg.append("g").attr("class", "axis").call(yAxis.axis.bind(yAxis));
 
   return { x: xAxis, y: yAxis, gX, gY };
 }
