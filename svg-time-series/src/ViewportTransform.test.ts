@@ -57,59 +57,53 @@ class Point {
   }
 }
 
-let MyTransform: typeof import("./MyTransform.ts").MyTransform;
+let ViewportTransform: typeof import("./ViewportTransform.ts").ViewportTransform;
 
 beforeAll(async () => {
   (globalThis as any).DOMMatrix = Matrix;
   (globalThis as any).DOMPoint = Point;
-  ({ MyTransform } = await import("./MyTransform.ts"));
+  ({ ViewportTransform } = await import("./ViewportTransform.ts"));
 });
 
-describe("MyTransform", () => {
+describe("ViewportTransform", () => {
   it("composes zoom and reference transforms and inverts them", () => {
-    const svg = {} as unknown as SVGSVGElement;
-    const g = {} as unknown as SVGGElement;
-    const mt = new MyTransform(svg, g);
+    const vt = new ViewportTransform();
 
-    mt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
-    mt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
+    vt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
+    vt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
 
     // without zoom
-    expect(mt.fromScreenToModelX(50)).toBeCloseTo(5);
-    expect(mt.fromScreenToModelY(20)).toBeCloseTo(2);
+    expect(vt.fromScreenToModelX(50)).toBeCloseTo(5);
+    expect(vt.fromScreenToModelY(20)).toBeCloseTo(2);
 
     // apply zoom: translate 10 and scale 2 on X
-    mt.onZoomPan({ x: 10, k: 2 } as any);
-    expect(mt.fromScreenToModelX(70)).toBeCloseTo(3);
+    vt.onZoomPan({ x: 10, k: 2 } as any);
+    expect(vt.fromScreenToModelX(70)).toBeCloseTo(3);
     // Y axis unaffected by zoom transform
-    expect(mt.fromScreenToModelY(20)).toBeCloseTo(2);
+    expect(vt.fromScreenToModelY(20)).toBeCloseTo(2);
   });
 
   it("maps screen bases back to model bases through inverse transforms", () => {
-    const svg = {} as unknown as SVGSVGElement;
-    const g = {} as unknown as SVGGElement;
-    const mt = new MyTransform(svg, g);
+    const vt = new ViewportTransform();
 
-    mt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
-    mt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
-    mt.onZoomPan({ x: 10, k: 2 } as any);
+    vt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
+    vt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
+    vt.onZoomPan({ x: 10, k: 2 } as any);
 
-    const basis = mt.fromScreenToModelBasisX(new AR1Basis(20, 40));
+    const basis = vt.fromScreenToModelBasisX(new AR1Basis(20, 40));
     const [p1, p2] = basis.toArr();
     expect(p1).toBeCloseTo(0.5);
     expect(p2).toBeCloseTo(1.5);
   });
 
   it("converts screen points to model points", () => {
-    const svg = {} as unknown as SVGSVGElement;
-    const g = {} as unknown as SVGGElement;
-    const mt = new MyTransform(svg, g);
+    const vt = new ViewportTransform();
 
-    mt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
-    mt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
-    mt.onZoomPan({ x: 10, k: 2 } as any);
+    vt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
+    vt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
+    vt.onZoomPan({ x: 10, k: 2 } as any);
 
-    const p = (mt as any).toModelPoint(70, 20) as { x: number; y: number };
+    const p = (vt as any).toModelPoint(70, 20) as { x: number; y: number };
     expect(p.x).toBeCloseTo(3);
     expect(p.y).toBeCloseTo(2);
   });

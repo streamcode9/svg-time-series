@@ -5,7 +5,8 @@ import { timeout as runTimeout, timer as runTimer } from "d3-timer";
 import { zoomIdentity, zoom as d3zoom, ZoomTransform } from "d3-zoom";
 
 import { MyAxis, Orientation } from "../../../svg-time-series/src/axis.ts";
-import { MyTransform } from "../../../svg-time-series/src/MyTransform.ts";
+import { ViewportTransform } from "../../../svg-time-series/src/ViewportTransform.ts";
+import { applyViewportTransform } from "../../../svg-time-series/src/MyTransform.ts";
 import {
   IMinMax,
   SegmentTree,
@@ -198,10 +199,7 @@ export class TimeSeriesChart {
     const x = scaleTime().range(bScreenXVisible.toArr());
     const y = scaleLinear().range(bScreenYVisible.toArr());
     const viewNode: SVGGElement = view.node() as SVGGElement;
-    const pathTransform = new MyTransform(
-      svg.node() as SVGSVGElement,
-      viewNode,
-    );
+    const pathTransform = new ViewportTransform();
 
     // bIndexVisible is the visible ends of model
     // affine space at chart edges.
@@ -260,7 +258,7 @@ export class TimeSeriesChart {
       const bIndexVisible =
         pathTransform.fromScreenToModelBasisX(bScreenXVisible);
       updateScales(bIndexVisible);
-      pathTransform.updateViewNode();
+      applyViewportTransform(viewNode, pathTransform);
 
       xAxis.axisUp(gX);
       yAxis.axisUp(gY);
