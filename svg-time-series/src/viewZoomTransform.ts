@@ -1,34 +1,23 @@
 import { AR1, DirectProduct } from "./math/affine.ts";
 
-export interface MatrixLike {
-  translate(tx: number, ty: number): this;
-  scaleNonUniform(sx: number, sy: number): this;
-}
-
-export function applyAR1ToMatrixX<M extends MatrixLike>(
-  transform: AR1,
-  sm: M,
-): M {
+export function applyAR1ToMatrixX(transform: AR1, sm: DOMMatrix): DOMMatrix {
   const [a, b] = transform.m;
-  return sm.translate(b, 0).scaleNonUniform(a, 1);
+  return sm.translate(b, 0).scale(a, 1);
 }
 
-export function applyAR1ToMatrixY<M extends MatrixLike>(
-  transform: AR1,
-  sm: M,
-): M {
+export function applyAR1ToMatrixY(transform: AR1, sm: DOMMatrix): DOMMatrix {
   const [a, b] = transform.m;
-  return sm.translate(0, b).scaleNonUniform(1, a);
+  return sm.translate(0, b).scale(1, a);
 }
 
-export function applyDirectProductToMatrix<M extends MatrixLike>(
+export function applyDirectProductToMatrix(
   dp: DirectProduct,
-  sm: M,
-): M {
+  sm: DOMMatrix,
+): DOMMatrix {
   return applyAR1ToMatrixY(dp.s2, applyAR1ToMatrixX(dp.s1, sm));
 }
 
-export function updateNode(n: SVGGraphicsElement, m: SVGMatrix) {
+export function updateNode(n: SVGGraphicsElement, m: DOMMatrix) {
   const svgTranformList = n.transform.baseVal;
   const t = svgTranformList.createSVGTransformFromMatrix(m);
   svgTranformList.initialize(t);
