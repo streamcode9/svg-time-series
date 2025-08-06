@@ -28,10 +28,10 @@ test("SegmentTree operations", () => {
 
   // Test invalid update position
   expect(() => tree.update(-1, { min: 0, max: 0 })).toThrow(
-    "Position is not valid",
+    "Index is out of range",
   );
   expect(() => tree.update(5, { min: 0, max: 0 })).toThrow(
-    "Position is not valid",
+    "Index is out of range",
   );
 });
 
