@@ -2,10 +2,10 @@
   "name": "svg-time-series-monorepo",
   "private": true,
   "scripts": {
-    "build": "npm run build --workspace=segment-tree-rmq && npm run build --workspace=svg-time-series",
+    "build": "npm run build --workspaces --if-present",
     "dev": "npm run dev --workspace=samples",
-    "lint": "npm run lint --workspace=segment-tree-rmq && npm run lint --workspace=svg-time-series",
-    "typecheck": "npm run typecheck --workspace=segment-tree-rmq && npm run typecheck --workspace=svg-time-series && npm run typecheck --workspace=samples",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest run",
     "format": "prettier . --write",
     "format:check": "prettier . --check"
