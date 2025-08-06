@@ -48,7 +48,8 @@ export class ChartInteraction {
   }
 
   public zoom = (event: D3ZoomEvent<Element, unknown>) => {
-    this.zoomState.zoom(event);
+    this.zoomState.zoom(event, false);
+    this.legendController.refresh();
   };
 
   public onHover = (x: number) => {
