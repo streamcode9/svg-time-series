@@ -41,8 +41,12 @@ const chart = new TimeSeriesChart(
   (i, arr) => ({ min: arr[i][1], max: arr[i][1] }),
   () => {},
   () => {},
+  (ts) => new Date(ts).toISOString(),
 );
 ```
+
+The last parameter allows customizing how timestamps appear in the legend. If
+omitted, `TimeSeriesChart` uses `toLocaleString`.
 
 ## Demos
 
