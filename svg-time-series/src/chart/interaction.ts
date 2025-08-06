@@ -7,7 +7,7 @@ import type { ChartData } from "./data.ts";
 import type { RenderState } from "./render.ts";
 import { refreshChart, renderPaths } from "./render.ts";
 
-function drawProc<T extends unknown[]>(
+export function drawProc<T extends unknown[]>(
   f: (...args: T) => void,
 ): (...args: T) => void {
   let requested = false;
