@@ -6,7 +6,7 @@ import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
 import { ChartData } from "./data.ts";
 import { setupRender } from "./render.ts";
-import { setupInteraction } from "./interaction.ts";
+import { ChartInteraction } from "./interaction.ts";
 import { TimeSeriesChart } from "../draw.ts";
 
 class Matrix {
@@ -115,7 +115,7 @@ function createChart(
   );
 
   const renderState = setupRender(select(svgEl) as any, chartData);
-  const { zoom, onHover, drawNewData } = setupInteraction(
+  const interaction = new ChartInteraction(
     select(svgEl) as any,
     select(legend) as any,
     renderState,
@@ -125,10 +125,15 @@ function createChart(
     formatTime,
   );
 
-  drawNewData();
-  onHover(renderState.dimensions.width);
+  interaction.drawNewData();
+  interaction.onHover(renderState.dimensions.width);
 
-  return { zoom, onHover, svgEl, legend };
+  return {
+    zoom: interaction.zoom,
+    onHover: interaction.onHover,
+    svgEl,
+    legend,
+  };
 }
 
 beforeEach(() => {

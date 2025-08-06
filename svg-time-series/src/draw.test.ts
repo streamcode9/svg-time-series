@@ -5,6 +5,8 @@ import { select } from "d3-selection";
 let drawNewDataMock: ReturnType<typeof vi.fn>;
 let onHoverMock: ReturnType<typeof vi.fn>;
 let onHoverUsedData: Array<[number, number?]> | null;
+// eslint-disable-next-line no-var
+var ChartInteractionMock: ReturnType<typeof vi.fn>;
 
 vi.mock("./chart/render.ts", () => ({
   setupRender: vi.fn(() => ({
@@ -12,8 +14,8 @@ vi.mock("./chart/render.ts", () => ({
   })),
 }));
 
-vi.mock("./chart/interaction.ts", () => ({
-  setupInteraction: vi.fn(
+vi.mock("./chart/interaction.ts", () => {
+  ChartInteractionMock = vi.fn(
     (
       _svg: unknown,
       _legend: unknown,
@@ -28,10 +30,12 @@ vi.mock("./chart/interaction.ts", () => ({
         zoom: vi.fn(),
         onHover: onHoverMock,
         drawNewData: drawNewDataMock,
+        destroy: vi.fn(),
       };
     },
-  ),
-}));
+  );
+  return { ChartInteraction: ChartInteractionMock };
+});
 
 import { TimeSeriesChart } from "./draw.ts";
 import { ChartData } from "./chart/data.ts";

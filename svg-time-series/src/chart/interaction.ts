@@ -189,31 +189,3 @@ export class ChartInteraction {
     this.highlightedBlueDot?.remove();
   };
 }
-
-export function setupInteraction(
-  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
-  legend: Selection<BaseType, unknown, HTMLElement, unknown>,
-  state: RenderState,
-  data: ChartData,
-  zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void,
-  mouseMoveHandler: (event: MouseEvent) => void,
-  formatTime: (timestamp: number) => string = (timestamp) =>
-    new Date(timestamp).toLocaleString(),
-) {
-  const interaction = new ChartInteraction(
-    svg,
-    legend,
-    state,
-    data,
-    zoomHandler,
-    mouseMoveHandler,
-    formatTime,
-  );
-
-  return {
-    zoom: interaction.zoom,
-    onHover: interaction.onHover,
-    drawNewData: interaction.drawNewData,
-    destroy: interaction.destroy,
-  };
-}
