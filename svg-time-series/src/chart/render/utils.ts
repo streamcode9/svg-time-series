@@ -74,7 +74,7 @@ export function updateScaleY(
 }
 
 export interface PathSet {
-  path: Selection<SVGPathElement, number, SVGSVGElement, unknown>;
+  path: Selection<SVGPathElement, number, SVGGElement, unknown>;
   viewNy: SVGGElement;
   viewSf?: SVGGElement;
 }
