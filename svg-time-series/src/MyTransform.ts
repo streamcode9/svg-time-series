@@ -30,6 +30,8 @@ export class MyTransform {
   private identityTransform: SVGMatrix;
   private referenceTransform: SVGMatrix;
   private zoomTransform: SVGMatrix;
+  private composedMatrix: SVGMatrix;
+  private composedMatrixInverse: SVGMatrix;
   private svgNode: SVGSVGElement;
 
   private viewNode: SVGGElement;
@@ -40,6 +42,8 @@ export class MyTransform {
     this.svgNode = svgNode;
     this.zoomTransform = this.identityTransform;
     this.referenceTransform = this.identityTransform;
+    this.composedMatrix = this.identityTransform;
+    this.composedMatrixInverse = this.identityTransform;
     this.viewPortPointsX = bPlaceholder;
     this.viewPortPointsY = bPlaceholder;
     this.referenceViewWindowPointsX = bPlaceholder;
@@ -59,6 +63,13 @@ export class MyTransform {
       affY,
       applyAR1ToMatrixX(affX, this.identityTransform),
     );
+    this.updateComposedMatrix();
+  }
+
+  private updateComposedMatrix() {
+    const fwd = this.zoomTransform.multiply(this.referenceTransform);
+    this.composedMatrix = fwd;
+    this.composedMatrixInverse = fwd.inverse();
   }
 
   public onViewPortResize(
@@ -80,26 +91,21 @@ export class MyTransform {
   }
 
   public updateViewNode() {
-    updateNode(
-      this.viewNode,
-      this.zoomTransform.multiply(this.referenceTransform),
-    );
+    updateNode(this.viewNode, this.composedMatrix);
   }
 
   public onZoomPan(t: ZoomTransform): void {
     this.zoomTransform = this.identityTransform
       .translate(t.x, 0)
       .scaleNonUniform(t.k, 1);
+    this.updateComposedMatrix();
   }
 
   private toModelPoint(x: number, y: number) {
-    const fwd = this.zoomTransform.multiply(this.referenceTransform);
-    const bwd = fwd.inverse();
-
     const p = this.svgNode.createSVGPoint();
     p.x = x;
     p.y = y;
-    return p.matrixTransform(bwd);
+    return p.matrixTransform(this.composedMatrixInverse);
   }
 
   public fromScreenToModelX(x: number) {
@@ -111,18 +117,15 @@ export class MyTransform {
   }
 
   public dotScaleMatrix(dotRadius: number) {
-    const fwd = this.zoomTransform.multiply(this.referenceTransform);
-    const bwd = fwd.inverse();
-
     const p0 = this.svgNode.createSVGPoint();
     p0.x = 0;
     p0.y = 0;
-    const tp0 = p0.matrixTransform(bwd);
+    const tp0 = p0.matrixTransform(this.composedMatrixInverse);
 
     const p1 = this.svgNode.createSVGPoint();
     p1.x = dotRadius;
     p1.y = dotRadius;
-    const tp1 = p1.matrixTransform(bwd);
+    const tp1 = p1.matrixTransform(this.composedMatrixInverse);
 
     const dotRadiusXModel = tp0.x - tp1.x;
     const dotRadiusYModel = tp0.y - tp1.y;
