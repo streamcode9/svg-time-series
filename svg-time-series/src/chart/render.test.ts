@@ -3,7 +3,8 @@
  */
 import { describe, it, expect } from "vitest";
 import { select } from "d3-selection";
-import { renderPaths, type RenderState } from "./render.ts";
+import { renderPaths } from "./render/paths.ts";
+import type { RenderState } from "./render.ts";
 
 describe("renderPaths", () => {
   it("skips segments for NaN values", () => {

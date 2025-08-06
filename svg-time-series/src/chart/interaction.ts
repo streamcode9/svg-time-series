@@ -10,7 +10,8 @@ import { timeout as runTimeout } from "d3-timer";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import type { ChartData } from "./data.ts";
 import type { RenderState } from "./render.ts";
-import { refreshChart, renderPaths } from "./render.ts";
+import { refreshChart } from "./render.ts";
+import { renderPaths } from "./render/paths.ts";
 
 export function drawProc<T extends unknown[]>(
   f: (...args: T) => void,
