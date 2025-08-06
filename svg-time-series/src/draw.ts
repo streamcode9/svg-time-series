@@ -12,6 +12,7 @@ export class TimeSeriesChart {
   public onHover: (x: number) => void;
   private drawNewData: () => void;
   private data: ChartData;
+  private destroyInteraction: () => void;
 
   constructor(
     svg: Selection<BaseType, unknown, HTMLElement, unknown>,
@@ -39,7 +40,7 @@ export class TimeSeriesChart {
     );
 
     const renderState = setupRender(svg, this.data);
-    const { zoom, onHover, drawNewData } = setupInteraction(
+    const { zoom, onHover, drawNewData, destroy } = setupInteraction(
       svg,
       legend,
       renderState,
@@ -51,6 +52,7 @@ export class TimeSeriesChart {
     this.zoom = zoom;
     this.onHover = onHover;
     this.drawNewData = drawNewData;
+    this.destroyInteraction = destroy;
 
     this.drawNewData();
     this.onHover(renderState.width - 1);
@@ -59,5 +61,9 @@ export class TimeSeriesChart {
   public updateChartWithNewData(newData: [number, number?]) {
     this.data.append(newData);
     this.drawNewData();
+  }
+
+  public dispose() {
+    this.destroyInteraction();
   }
 }

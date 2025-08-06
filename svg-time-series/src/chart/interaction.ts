@@ -180,6 +180,14 @@ export class ChartInteraction {
     this.scheduleRefresh();
     this.schedulePointRefresh();
   };
+
+  public destroy = () => {
+    this.zoomBehavior.on("zoom", null);
+    this.zoomArea.on("mousemove", null);
+    this.zoomArea.remove();
+    this.highlightedGreenDot.remove();
+    this.highlightedBlueDot?.remove();
+  };
 }
 
 export function setupInteraction(
@@ -203,5 +211,6 @@ export function setupInteraction(
     zoom: interaction.zoom,
     onHover: interaction.onHover,
     drawNewData: interaction.drawNewData,
+    destroy: interaction.destroy,
   };
 }
