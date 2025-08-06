@@ -6,7 +6,9 @@
     "dev": "npm run dev --workspace=samples",
     "lint": "npm run lint --workspace=svg-time-series",
     "typecheck": "npm run typecheck --workspace=svg-time-series && npm run typecheck --workspace=samples",
-    "test": "vitest run"
+    "test": "vitest run",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "type": "module",
   "workspaces": [

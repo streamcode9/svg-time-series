@@ -96,14 +96,8 @@ export function setupRender(
     bScreenYVisible.toArr(),
   );
 
-  const pathTransformNy = new MyTransform(
-    svg.node() as SVGSVGElement,
-    viewNy,
-  );
-  const pathTransformSf = new MyTransform(
-    svg.node() as SVGSVGElement,
-    viewSf,
-  );
+  const pathTransformNy = new MyTransform(svg.node() as SVGSVGElement, viewNy);
+  const pathTransformSf = new MyTransform(svg.node() as SVGSVGElement, viewSf);
 
   updateScaleX(x, data.bIndexFull, data);
   updateScaleY(data.bIndexFull, data.treeNy, pathTransformNy, yNy, data);

@@ -1,4 +1,4 @@
-import { SegmentTreeHalf } from './segmentTreeHalf';
+import { SegmentTreeHalf } from "./segmentTreeHalf";
 
 export interface IMinMax {
   readonly min: number;
@@ -6,12 +6,15 @@ export interface IMinMax {
 }
 
 function buildMinMax(fst: Readonly<IMinMax>, snd: Readonly<IMinMax>): IMinMax {
-  return { min: Math.min(fst.min, snd.min), max: Math.max(fst.max, snd.max) } as const;
+  return {
+    min: Math.min(fst.min, snd.min),
+    max: Math.max(fst.max, snd.max),
+  } as const;
 }
 
 const minMaxIdentity: IMinMax = {
   min: Infinity,
-  max: -Infinity
+  max: -Infinity,
 };
 
 function assertOk(cond: boolean, message: string): asserts cond {

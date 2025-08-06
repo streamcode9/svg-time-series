@@ -7,7 +7,9 @@ import type { ChartData } from "./data.ts";
 import type { RenderState } from "./render.ts";
 import { refreshChart, renderPaths } from "./render.ts";
 
-function drawProc<T extends unknown[]>(f: (...args: T) => void): (...args: T) => void {
+function drawProc<T extends unknown[]>(
+  f: (...args: T) => void,
+): (...args: T) => void {
   let requested = false;
 
   return (...params: T) => {
@@ -98,7 +100,9 @@ export function setupInteraction(
     const [greenData, blueData] = data.data[Math.round(highlightedDataIdx)];
 
     legendTime.text(
-      new Date(data.idxToTime.applyToPoint(highlightedDataIdx)).toLocaleString(),
+      new Date(
+        data.idxToTime.applyToPoint(highlightedDataIdx),
+      ).toLocaleString(),
     );
 
     const dotScaleMatrixNy = state.pathTransformNy.dotScaleMatrix(dotRadius);

@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
-import { MyTransform } from './MyTransform.ts'
-import { AR1Basis } from './math/affine.ts'
+import { describe, expect, it } from "vitest";
+import { MyTransform } from "./MyTransform.ts";
+import { AR1Basis } from "./math/affine.ts";
 
 class Matrix {
   constructor(
@@ -20,19 +20,19 @@ class Matrix {
       this.b * m.c + this.d * m.d,
       this.a * m.e + this.c * m.f + this.e,
       this.b * m.e + this.d * m.f + this.f,
-    )
+    );
   }
 
   translate(tx: number, ty: number) {
-    return this.multiply(new Matrix(1, 0, 0, 1, tx, ty))
+    return this.multiply(new Matrix(1, 0, 0, 1, tx, ty));
   }
 
   scaleNonUniform(sx: number, sy: number) {
-    return this.multiply(new Matrix(sx, 0, 0, sy, 0, 0))
+    return this.multiply(new Matrix(sx, 0, 0, sy, 0, 0));
   }
 
   inverse() {
-    const det = this.a * this.d - this.b * this.c
+    const det = this.a * this.d - this.b * this.c;
     return new Matrix(
       this.d / det,
       -this.b / det,
@@ -40,59 +40,62 @@ class Matrix {
       this.a / det,
       (this.c * this.f - this.d * this.e) / det,
       (this.b * this.e - this.a * this.f) / det,
-    )
+    );
   }
 }
 
 class Point {
-  constructor(public x = 0, public y = 0) {}
+  constructor(
+    public x = 0,
+    public y = 0,
+  ) {}
 
   matrixTransform(m: Matrix) {
     return new Point(
       this.x * m.a + this.y * m.c + m.e,
       this.x * m.b + this.y * m.d + m.f,
-    )
+    );
   }
 }
 
-describe('MyTransform', () => {
-  it('composes zoom and reference transforms and inverts them', () => {
+describe("MyTransform", () => {
+  it("composes zoom and reference transforms and inverts them", () => {
     const svg = {
       createSVGMatrix: () => new Matrix(),
       createSVGPoint: () => new Point(),
-    } as unknown as SVGSVGElement
-    const g = {} as unknown as SVGGElement
-    const mt = new MyTransform(svg, g)
+    } as unknown as SVGSVGElement;
+    const g = {} as unknown as SVGGElement;
+    const mt = new MyTransform(svg, g);
 
-    mt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100))
-    mt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10))
+    mt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
+    mt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
 
     // without zoom
-    expect(mt.fromScreenToModelX(50)).toBeCloseTo(5)
-    expect(mt.fromScreenToModelY(20)).toBeCloseTo(2)
+    expect(mt.fromScreenToModelX(50)).toBeCloseTo(5);
+    expect(mt.fromScreenToModelY(20)).toBeCloseTo(2);
 
     // apply zoom: translate 10 and scale 2 on X
-    mt.onZoomPan({ x: 10, k: 2 } as any)
-    expect(mt.fromScreenToModelX(70)).toBeCloseTo(3)
+    mt.onZoomPan({ x: 10, k: 2 } as any);
+    expect(mt.fromScreenToModelX(70)).toBeCloseTo(3);
     // Y axis unaffected by zoom transform
-    expect(mt.fromScreenToModelY(20)).toBeCloseTo(2)
-  })
+    expect(mt.fromScreenToModelY(20)).toBeCloseTo(2);
+  });
 
-  it('maps screen bases back to model bases through inverse transforms', () => {
+  it("maps screen bases back to model bases through inverse transforms", () => {
     const svg = {
       createSVGMatrix: () => new Matrix(),
       createSVGPoint: () => new Point(),
-    } as unknown as SVGSVGElement
-    const g = {} as unknown as SVGGElement
-    const mt = new MyTransform(svg, g)
+    } as unknown as SVGSVGElement;
+    const g = {} as unknown as SVGGElement;
+    const mt = new MyTransform(svg, g);
 
-    mt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100))
-    mt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10))
-    mt.onZoomPan({ x: 10, k: 2 } as any)
+    mt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
+    mt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
+    mt.onZoomPan({ x: 10, k: 2 } as any);
 
-    const basis = mt.fromScreenToModelBasisX(new AR1Basis(20, 40))
-    const [p1, p2] = basis.toArr()
-    expect(p1).toBeCloseTo(0.5)
-    expect(p2).toBeCloseTo(1.5)
-  })
-})
+    const basis = mt.fromScreenToModelBasisX(new AR1Basis(20, 40));
+    const [p1, p2] = basis.toArr();
+    expect(p1).toBeCloseTo(0.5);
+    expect(p2).toBeCloseTo(1.5);
+  });
+});

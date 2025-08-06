@@ -66,4 +66,3 @@ function calcDate(index: number, offset: Date, step: number) {
   const d = new Date(index * step + offset.getTime()).getTime();
   return d;
 }
-
