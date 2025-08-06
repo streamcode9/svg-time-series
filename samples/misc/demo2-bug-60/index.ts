@@ -6,7 +6,7 @@ import { zoomIdentity, zoom as d3zoom, ZoomTransform } from "d3-zoom";
 
 import { MyAxis, Orientation } from "../../../svg-time-series/src/axis.ts";
 import { ViewportTransform } from "../../../svg-time-series/src/ViewportTransform.ts";
-import { updateNode } from "../../../svg-time-series/src/viewZoomTransform.ts";
+import { updateNode } from "../../../svg-time-series/src/utils/domNodeTransform.ts";
 import {
   IMinMax,
   SegmentTree,
