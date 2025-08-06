@@ -21,6 +21,10 @@ export class SegmentTree<T> {
   }
 
   update(index: number, value: T): void {
+    if (index < 0 || index >= this.size) {
+      throw new Error("Index is out of range");
+    }
+
     let i = index + this.size;
     this.tree[i] = value;
     while (i > 1) {

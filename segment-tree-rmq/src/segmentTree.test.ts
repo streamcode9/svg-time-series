@@ -90,6 +90,34 @@ describe("Segment Tree Tests", () => {
     expect(tree.query(0, 7)).toBe(38);
   });
 
+  it("should update a value at a valid index", () => {
+    const data = [1, 2, 3];
+    const sumOperator = (a: number, b: number) => a + b;
+    const identity = 0;
+    const tree = new SegmentTree(data, sumOperator, identity);
+
+    tree.update(1, 5);
+    expect(tree.query(0, 2)).toBe(9);
+  });
+
+  it("should throw an error when updating with a negative index", () => {
+    const data = [1, 2, 3];
+    const sumOperator = (a: number, b: number) => a + b;
+    const identity = 0;
+    const tree = new SegmentTree(data, sumOperator, identity);
+
+    expect(() => tree.update(-1, 5)).toThrow("Index is out of range");
+  });
+
+  it("should throw an error when updating with an index greater than or equal to the size", () => {
+    const data = [1, 2, 3];
+    const sumOperator = (a: number, b: number) => a + b;
+    const identity = 0;
+    const tree = new SegmentTree(data, sumOperator, identity);
+
+    expect(() => tree.update(3, 5)).toThrow("Index is out of range");
+  });
+
   it("should throw an error for invalid ranges", () => {
     const data = [1, 2, 3, 4, 5];
     const sumOperator = (a: number, b: number) => a + b;
