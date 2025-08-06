@@ -6,7 +6,7 @@ import { zoomIdentity, zoom as d3zoom, ZoomTransform } from "d3-zoom";
 
 import { MyAxis, Orientation } from "../../../svg-time-series/src/axis.ts";
 import { ViewportTransform } from "../../../svg-time-series/src/ViewportTransform.ts";
-import { applyViewportTransform } from "../../../svg-time-series/src/MyTransform.ts";
+import { updateNode } from "../../../svg-time-series/src/viewZoomTransform.ts";
 import {
   IMinMax,
   SegmentTree,
@@ -258,7 +258,7 @@ export class TimeSeriesChart {
       const bIndexVisible =
         pathTransform.fromScreenToModelBasisX(bScreenXVisible);
       updateScales(bIndexVisible);
-      applyViewportTransform(viewNode, pathTransform);
+      updateNode(viewNode, pathTransform.matrix);
 
       xAxis.axisUp(gX);
       yAxis.axisUp(gY);

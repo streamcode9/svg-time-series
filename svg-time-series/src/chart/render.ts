@@ -4,7 +4,7 @@ import { line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
-import { applyViewportTransform } from "../MyTransform.ts";
+import { updateNode } from "../viewZoomTransform.ts";
 import { AR1Basis, bPlaceholder } from "../math/affine.ts";
 import { SegmentTree } from "../segmentTree.ts";
 import type { ChartData } from "./data.ts";
@@ -256,9 +256,9 @@ export function refreshChart(state: RenderState, data: ChartData) {
       state.scales.ySf,
       data,
     );
-    applyViewportTransform(state.paths.viewSf!, state.transforms.sf);
+    updateNode(state.paths.viewSf!, state.transforms.sf.matrix);
   }
-  applyViewportTransform(state.paths.viewNy, state.transforms.ny);
+  updateNode(state.paths.viewNy, state.transforms.ny.matrix);
   state.axes.x.axisUp(state.axes.gX);
   state.axes.y.axisUp(state.axes.gY);
 }
