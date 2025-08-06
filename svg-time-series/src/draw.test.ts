@@ -47,8 +47,8 @@ function createChart(initialData: Array<[number, number?]>) {
       </div>
     </body>`,
   );
-  const svgSel = select(dom.window.document.querySelector("svg"));
-  const legendSel = select(dom.window.document.querySelector("#legend"));
+  const svgSel = select(dom.window.document.querySelector("svg")) as any;
+  const legendSel = select(dom.window.document.querySelector("#legend")) as any;
 
   const buildTuple = () => ({ min: 0, max: 0 });
 

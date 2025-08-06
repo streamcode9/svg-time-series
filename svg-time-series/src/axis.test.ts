@@ -23,7 +23,7 @@ describe("MyAxis tick creation", () => {
     const axis = new MyAxis(Orientation.Bottom, scale).setTickValues([
       0, 50, 100,
     ]);
-    axis.axis(select(g));
+    axis.axis(select(g) as any);
 
     const ticks = Array.from(g.querySelectorAll(".tick"));
     expect(ticks.map((t) => t.getAttribute("transform"))).toEqual([
@@ -40,7 +40,7 @@ describe("MyAxis tick creation", () => {
     const scale1 = scaleLinear().domain([0, 100]).range([0, 100]);
     const scale2 = scaleLinear().domain([0, 1]).range([0, 200]);
     const axis = new MyAxis(Orientation.Bottom, scale1, scale2).ticks(3);
-    axis.axis(select(g));
+    axis.axis(select(g) as any);
 
     const ticks = Array.from(g.querySelectorAll(".tick"));
     expect(ticks.length).toBe(6);
@@ -63,12 +63,12 @@ describe("MyAxis tick creation", () => {
     const scale1 = scaleLinear().domain([0, 100]).range([0, 100]);
     const scale2 = scaleLinear().domain([0, 1]).range([0, 200]);
     const axis = new MyAxis(Orientation.Bottom, scale1, scale2).ticks(3);
-    axis.axis(select(g));
+    axis.axis(select(g) as any);
 
     scale1.range([0, 200]);
     scale2.range([0, 400]);
     axis.setScale(scale1, scale2);
-    axis.axisUp(select(g));
+    axis.axisUp(select(g) as any);
 
     const ticks = Array.from(g.querySelectorAll(".tick"));
     expect(ticks.map((t) => t.getAttribute("transform"))).toEqual([

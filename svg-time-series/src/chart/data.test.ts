@@ -3,13 +3,13 @@ import { ChartData } from "./data.ts";
 import { AR1Basis } from "../math/affine.ts";
 
 describe("ChartData", () => {
-  const buildNy = (i: number, arr: Array<[number, number]>) => ({
+  const buildNy = (i: number, arr: ReadonlyArray<[number, number?]>) => ({
     min: arr[i][0],
     max: arr[i][0],
   });
-  const buildSf = (i: number, arr: Array<[number, number]>) => ({
-    min: arr[i][1],
-    max: arr[i][1],
+  const buildSf = (i: number, arr: ReadonlyArray<[number, number?]>) => ({
+    min: arr[i][1]!,
+    max: arr[i][1]!,
   });
 
   it("updates data and time mapping on append", () => {
@@ -63,7 +63,7 @@ describe("ChartData", () => {
     expect(cd.idxToTime.applyToPoint(0)).toBe(-3);
     expect(cd.idxToTime.applyToPoint(1)).toBe(-2);
     expect(cd.treeNy.getMinMax(0, 1)).toEqual({ min: 3, max: 4 });
-    expect(cd.treeSf.getMinMax(0, 1)).toEqual({ min: 3, max: 4 });
+    expect(cd.treeSf!.getMinMax(0, 1)).toEqual({ min: 3, max: 4 });
   });
 
   it("computes visible temperature bounds", () => {
@@ -80,7 +80,7 @@ describe("ChartData", () => {
     );
     const range = new AR1Basis(0, 2);
     expect(cd.bTemperatureVisible(range, cd.treeNy).toArr()).toEqual([10, 50]);
-    expect(cd.bTemperatureVisible(range, cd.treeSf).toArr()).toEqual([20, 60]);
+    expect(cd.bTemperatureVisible(range, cd.treeSf!).toArr()).toEqual([20, 60]);
   });
 
   it("rounds fractional bounds when computing temperature visibility", () => {
@@ -100,9 +100,9 @@ describe("ChartData", () => {
     expect(cd.bTemperatureVisible(fractionalRange, cd.treeNy).toArr()).toEqual([
       10, 30,
     ]);
-    expect(cd.bTemperatureVisible(fractionalRange, cd.treeSf).toArr()).toEqual([
-      20, 40,
-    ]);
+    expect(cd.bTemperatureVisible(fractionalRange, cd.treeSf!).toArr()).toEqual(
+      [20, 40],
+    );
   });
 
   it("rounds up fractional bounds when computing temperature visibility", () => {
@@ -122,13 +122,13 @@ describe("ChartData", () => {
     expect(cd.bTemperatureVisible(fractionalRange, cd.treeNy).toArr()).toEqual([
       30, 50,
     ]);
-    expect(cd.bTemperatureVisible(fractionalRange, cd.treeSf).toArr()).toEqual([
-      40, 60,
-    ]);
+    expect(cd.bTemperatureVisible(fractionalRange, cd.treeSf!).toArr()).toEqual(
+      [40, 60],
+    );
   });
 
   describe("single-axis", () => {
-    const buildNy = (i: number, arr: Array<[number]>) => ({
+    const buildNy = (i: number, arr: ReadonlyArray<[number, number?]>) => ({
       min: arr[i][0],
       max: arr[i][0],
     });
