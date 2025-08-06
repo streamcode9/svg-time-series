@@ -1,4 +1,4 @@
-import { SegmentTreeHalf } from "./segmentTreeHalf";
+import { SegmentTree as SegmentTreeCore } from "segment-tree-rmq";
 
 export interface IMinMax {
   readonly min: number;
@@ -25,7 +25,7 @@ function assertOk(cond: boolean, message: string): asserts cond {
 
 export class SegmentTree<T = [number, number]> {
   private readonly size: number;
-  private tree: SegmentTreeHalf<IMinMax>;
+  private tree: SegmentTreeCore<IMinMax>;
 
   constructor(
     data: ReadonlyArray<T>,
@@ -39,7 +39,7 @@ export class SegmentTree<T = [number, number]> {
       minMaxData[i] = buildTuple(i, data);
     }
 
-    this.tree = new SegmentTreeHalf(minMaxData, buildMinMax, minMaxIdentity);
+    this.tree = new SegmentTreeCore(minMaxData, buildMinMax, minMaxIdentity);
   }
 
   getMinMax(fromPosition: number, toPosition: number): IMinMax {

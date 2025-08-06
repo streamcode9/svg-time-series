@@ -1,6 +1,6 @@
 export type Operator<T> = (a: T, b: T) => T;
 
-export class SegmentTreeHalf<T> {
+export class SegmentTree<T> {
   private size: number;
   private tree: T[];
   private op: Operator<T>;
@@ -12,7 +12,6 @@ export class SegmentTreeHalf<T> {
     this.op = op;
     this.identity = identity;
 
-    // Build the tree
     for (let i = 0; i < this.size; i++) {
       this.tree[this.size + i] = data[i];
     }
