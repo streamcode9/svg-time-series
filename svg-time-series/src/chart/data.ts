@@ -4,32 +4,32 @@ import { IMinMax, SegmentTree } from "../segmentTree.ts";
 export type { IMinMax };
 
 export class ChartData {
-  public data: Array<[number, number]>;
-  public treeNy!: SegmentTree;
-  public treeSf!: SegmentTree;
+  public data: Array<[number, number?]>;
+  public treeNy!: SegmentTree<[number, number?]>;
+  public treeSf?: SegmentTree<[number, number?]>;
   public idxToTime: AR1;
   private idxShift: AR1;
   public bIndexFull: AR1Basis;
   private buildSegmentTreeTupleNy: (
     index: number,
-    elements: ReadonlyArray<[number, number]>,
+    elements: ReadonlyArray<[number, number?]>,
   ) => IMinMax;
-  private buildSegmentTreeTupleSf: (
+  private buildSegmentTreeTupleSf?: (
     index: number,
-    elements: ReadonlyArray<[number, number]>,
+    elements: ReadonlyArray<[number, number?]>,
   ) => IMinMax;
 
   constructor(
     startTime: number,
     timeStep: number,
-    data: Array<[number, number]>,
+    data: Array<[number, number?]>,
     buildSegmentTreeTupleNy: (
       index: number,
-      elements: ReadonlyArray<[number, number]>,
+      elements: ReadonlyArray<[number, number?]>,
     ) => IMinMax,
-    buildSegmentTreeTupleSf: (
+    buildSegmentTreeTupleSf?: (
       index: number,
-      elements: ReadonlyArray<[number, number]>,
+      elements: ReadonlyArray<[number, number?]>,
     ) => IMinMax,
   ) {
     this.data = data;
@@ -44,7 +44,7 @@ export class ChartData {
     this.rebuildSegmentTrees();
   }
 
-  append(newData: [number, number]): void {
+  append(newData: [number, number?]): void {
     this.data.push(newData);
     this.data.shift();
     this.idxToTime = this.idxToTime.composeWith(this.idxShift);
@@ -57,14 +57,21 @@ export class ChartData {
       this.data.length,
       this.buildSegmentTreeTupleNy,
     );
-    this.treeSf = new SegmentTree(
-      this.data,
-      this.data.length,
-      this.buildSegmentTreeTupleSf,
-    );
+    if (this.buildSegmentTreeTupleSf) {
+      this.treeSf = new SegmentTree(
+        this.data,
+        this.data.length,
+        this.buildSegmentTreeTupleSf,
+      );
+    } else {
+      this.treeSf = undefined;
+    }
   }
 
-  bTemperatureVisible(bIndexVisible: AR1Basis, tree: SegmentTree): AR1Basis {
+  bTemperatureVisible(
+    bIndexVisible: AR1Basis,
+    tree: SegmentTree<[number, number?]>,
+  ): AR1Basis {
     const [minIdxX, maxIdxX] = bIndexVisible.toArr();
     const { min, max } = tree.getMinMax(
       Math.round(minIdxX),

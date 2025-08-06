@@ -45,9 +45,9 @@ function updateScaleY(
 export interface RenderState {
   x: ScaleTime<number, number>;
   yNy: ScaleLinear<number, number>;
-  ySf: ScaleLinear<number, number>;
+  ySf?: ScaleLinear<number, number>;
   pathTransformNy: MyTransform;
-  pathTransformSf: MyTransform;
+  pathTransformSf?: MyTransform;
   xAxis: MyAxis;
   yAxis: MyAxis;
   gX: Selection<SVGGElement, unknown, any, any>;
@@ -57,7 +57,7 @@ export interface RenderState {
   width: number;
   height: number;
   viewNy: SVGGElement;
-  viewSf: SVGGElement;
+  viewSf?: SVGGElement;
 }
 
 export function setupRender(
@@ -73,13 +73,17 @@ export function setupRender(
   svg.attr("width", width);
   svg.attr("height", height);
 
+  const hasSf = data.treeSf != null;
+
   const views = svg
     .selectAll("g")
-    .data([0, 1])
+    .data(hasSf ? [0, 1] : [0])
     .enter()
     .append("g")
     .attr("class", "view");
-  const [viewNy, viewSf] = views.nodes() as SVGGElement[];
+  const nodes = views.nodes() as SVGGElement[];
+  const viewNy = nodes[0];
+  const viewSf = hasSf ? nodes[1] : undefined;
 
   const path = views.append("path");
 
@@ -92,16 +96,22 @@ export function setupRender(
   const yNy: ScaleLinear<number, number> = scaleLinear().range(
     bScreenYVisible.toArr(),
   );
-  const ySf: ScaleLinear<number, number> = scaleLinear().range(
-    bScreenYVisible.toArr(),
-  );
+  let ySf: ScaleLinear<number, number> | undefined;
+  if (hasSf) {
+    ySf = scaleLinear().range(bScreenYVisible.toArr());
+  }
 
   const pathTransformNy = new MyTransform(svg.node() as SVGSVGElement, viewNy);
-  const pathTransformSf = new MyTransform(svg.node() as SVGSVGElement, viewSf);
+  let pathTransformSf: MyTransform | undefined;
+  if (hasSf && viewSf) {
+    pathTransformSf = new MyTransform(svg.node() as SVGSVGElement, viewSf);
+  }
 
   updateScaleX(x, data.bIndexFull, data);
   updateScaleY(data.bIndexFull, data.treeNy, pathTransformNy, yNy, data);
-  updateScaleY(data.bIndexFull, data.treeSf, pathTransformSf, ySf, data);
+  if (hasSf && data.treeSf && pathTransformSf && ySf) {
+    updateScaleY(data.bIndexFull, data.treeSf, pathTransformSf, ySf, data);
+  }
 
   const xAxis = new MyAxis(Orientation.Bottom, x)
     .ticks(4)
@@ -117,9 +127,13 @@ export function setupRender(
   const gY = bindAxisToDom(svg, yAxis, yNy, ySf);
 
   pathTransformNy.onViewPortResize(bScreenXVisible, bScreenYVisible);
-  pathTransformSf.onViewPortResize(bScreenXVisible, bScreenYVisible);
+  if (pathTransformSf) {
+    pathTransformSf.onViewPortResize(bScreenXVisible, bScreenYVisible);
+  }
   pathTransformNy.onReferenceViewWindowResize(data.bIndexFull, bPlaceholder);
-  pathTransformSf.onReferenceViewWindowResize(data.bIndexFull, bPlaceholder);
+  if (pathTransformSf) {
+    pathTransformSf.onReferenceViewWindowResize(data.bIndexFull, bPlaceholder);
+  }
 
   return {
     x,
@@ -142,15 +156,15 @@ export function setupRender(
 
 export function renderPaths(
   state: RenderState,
-  dataArr: Array<[number, number]>,
+  dataArr: Array<[number, number?]>,
 ) {
   const drawLine = (cityIdx: number) =>
-    line()
-      .defined((d: [number, number]) => {
-        return !(isNaN(d[cityIdx]) || d[cityIdx] == null);
+    line<[number, number?]>()
+      .defined((d) => {
+        return !(isNaN(d[cityIdx]!) || d[cityIdx] == null);
       })
-      .x((d: [number, number], i: number) => i)
-      .y((d: [number, number]) => d[cityIdx]);
+      .x((d, i) => i)
+      .y((d) => d[cityIdx]!);
 
   state.path.attr(
     "d",
@@ -170,15 +184,17 @@ export function refreshChart(state: RenderState, data: ChartData) {
     state.yNy,
     data,
   );
-  updateScaleY(
-    bIndexVisible,
-    data.treeSf,
-    state.pathTransformSf,
-    state.ySf,
-    data,
-  );
+  if (state.pathTransformSf && state.ySf && data.treeSf) {
+    updateScaleY(
+      bIndexVisible,
+      data.treeSf,
+      state.pathTransformSf,
+      state.ySf,
+      data,
+    );
+    state.pathTransformSf.updateViewNode();
+  }
   state.pathTransformNy.updateViewNode();
-  state.pathTransformSf.updateViewNode();
   state.xAxis.axisUp(state.gX);
   state.yAxis.axisUp(state.gY);
 }

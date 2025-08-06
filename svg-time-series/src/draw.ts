@@ -18,17 +18,17 @@ export class TimeSeriesChart {
     legend: Selection<BaseType, unknown, HTMLElement, unknown>,
     startTime: number,
     timeStep: number,
-    data: Array<[number, number]>,
+    data: Array<[number, number?]>,
     buildSegmentTreeTupleNy: (
       index: number,
-      elements: ReadonlyArray<[number, number]>,
+      elements: ReadonlyArray<[number, number?]>,
     ) => IMinMax,
-    buildSegmentTreeTupleSf: (
+    buildSegmentTreeTupleSf?: (
       index: number,
-      elements: ReadonlyArray<[number, number]>,
+      elements: ReadonlyArray<[number, number?]>,
     ) => IMinMax,
-    zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void,
-    mouseMoveHandler: (event: MouseEvent) => void,
+    zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void = () => {},
+    mouseMoveHandler: (event: MouseEvent) => void = () => {},
   ) {
     this.data = new ChartData(
       startTime,
@@ -56,7 +56,7 @@ export class TimeSeriesChart {
     this.onHover(renderState.width);
   }
 
-  public updateChartWithNewData(newData: [number, number]) {
+  public updateChartWithNewData(newData: [number, number?]) {
     this.data.append(newData);
     this.drawNewData();
   }
