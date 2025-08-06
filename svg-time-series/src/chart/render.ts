@@ -3,7 +3,8 @@ import { BaseType, Selection, select } from "d3-selection";
 import { line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
-import { MyTransform } from "../MyTransform.ts";
+import { ViewportTransform } from "../ViewportTransform.ts";
+import { applyViewportTransform } from "../MyTransform.ts";
 import { AR1Basis, bPlaceholder } from "../math/affine.ts";
 import { SegmentTree } from "../segmentTree.ts";
 import type { ChartData } from "./data.ts";
@@ -30,7 +31,7 @@ function updateScaleX(
 function updateScaleY(
   bIndexVisible: AR1Basis,
   tree: SegmentTree,
-  pathTransform: MyTransform,
+  pathTransform: ViewportTransform,
   yScale: ScaleLinear<number, number>,
   data: ChartData,
 ) {
@@ -95,14 +96,14 @@ function createScales(
   return { x, yNy, ySf };
 }
 
-function createTransforms(
-  svgNode: SVGSVGElement,
-  paths: PathSet,
-): { ny: MyTransform; sf?: MyTransform } {
-  const ny = new MyTransform(svgNode, paths.viewNy);
-  let sf: MyTransform | undefined;
+function createTransforms(paths: PathSet): {
+  ny: ViewportTransform;
+  sf?: ViewportTransform;
+} {
+  const ny = new ViewportTransform();
+  let sf: ViewportTransform | undefined;
   if (paths.viewSf) {
-    sf = new MyTransform(svgNode, paths.viewSf);
+    sf = new ViewportTransform();
   }
   return { ny, sf };
 }
@@ -149,8 +150,8 @@ interface PathSet {
 }
 
 interface TransformSet {
-  ny: MyTransform;
-  sf?: MyTransform;
+  ny: ViewportTransform;
+  sf?: ViewportTransform;
   bScreenXVisible: AR1Basis;
 }
 
@@ -177,7 +178,7 @@ export function setupRender(
     createDimensions(svg);
   const paths = initPaths(svg, hasSf);
   const scales = createScales(bScreenXVisible, bScreenYVisible, hasSf);
-  const transformsInner = createTransforms(svg.node() as SVGSVGElement, paths);
+  const transformsInner = createTransforms(paths);
 
   updateScaleX(scales.x, data.bIndexFull, data);
   updateScaleY(
@@ -255,9 +256,9 @@ export function refreshChart(state: RenderState, data: ChartData) {
       state.scales.ySf,
       data,
     );
-    state.transforms.sf.updateViewNode();
+    applyViewportTransform(state.paths.viewSf!, state.transforms.sf);
   }
-  state.transforms.ny.updateViewNode();
+  applyViewportTransform(state.paths.viewNy, state.transforms.ny);
   state.axes.x.axisUp(state.axes.gX);
   state.axes.y.axisUp(state.axes.gY);
 }

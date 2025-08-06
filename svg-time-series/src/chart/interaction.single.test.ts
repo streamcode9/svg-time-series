@@ -25,17 +25,19 @@ class Matrix {
 }
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
+let updateNodeCalls = 0;
 vi.mock("../viewZoomTransform.ts", () => ({
   updateNode: (node: SVGGraphicsElement, matrix: Matrix) => {
+    updateNodeCalls++;
     nodeTransforms.set(node, matrix);
   },
 }));
 
 let currentDataLength = 0;
 const transformInstances: any[] = [];
-vi.mock("../MyTransform.ts", () => ({
-  MyTransform: class {
-    constructor(_svg: SVGSVGElement, _g: SVGGElement) {
+vi.mock("../ViewportTransform.ts", () => ({
+  ViewportTransform: class {
+    constructor() {
       transformInstances.push(this);
     }
     onZoomPan = vi.fn();
@@ -46,7 +48,6 @@ vi.mock("../MyTransform.ts", () => ({
     dotScaleMatrix = vi.fn(() => new Matrix());
     onViewPortResize = vi.fn();
     onReferenceViewWindowResize = vi.fn();
-    updateViewNode = vi.fn();
   },
 }));
 
@@ -124,6 +125,7 @@ function createChart(data: Array<[number]>) {
 beforeEach(() => {
   vi.useFakeTimers();
   nodeTransforms.clear();
+  updateNodeCalls = 0;
   transformInstances.length = 0;
   axisInstances.length = 0;
   (SVGSVGElement.prototype as any).createSVGMatrix = () => new Matrix();
@@ -144,13 +146,14 @@ describe("chart interaction single-axis", () => {
     const mtNy = transformInstances[0];
     const xCalls = xAxis.axisUpCalls;
     const yCalls = yAxis.axisUpCalls;
+    const callCount = updateNodeCalls;
 
     zoom({ transform: { x: 10, k: 2 } } as any);
     vi.runAllTimers();
 
     expect(mtNy.onZoomPan).toHaveBeenCalledWith({ x: 10, k: 2 });
     expect(transformInstances.length).toBe(1);
-    expect(mtNy.updateViewNode).toHaveBeenCalled();
+    expect(updateNodeCalls).toBeGreaterThan(callCount);
     expect(xAxis.axisUpCalls).toBeGreaterThan(xCalls);
     expect(yAxis.axisUpCalls).toBeGreaterThan(yCalls);
   });
