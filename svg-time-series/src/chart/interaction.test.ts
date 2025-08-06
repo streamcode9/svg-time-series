@@ -106,13 +106,13 @@ function createChart(data: Array<[number, number]>) {
     1,
     data,
     (i, arr) => ({ min: arr[i][0], max: arr[i][0] }),
-    (i, arr) => ({ min: arr[i][1], max: arr[i][1] }),
+    (i, arr) => ({ min: arr[i][1]!, max: arr[i][1]! }),
   );
 
-  const renderState = setupRender(select(svgEl), chartData);
+  const renderState = setupRender(select(svgEl) as any, chartData);
   const { zoom, onHover, drawNewData } = setupInteraction(
-    select(svgEl),
-    select(legend),
+    select(svgEl) as any,
+    select(legend) as any,
     renderState,
     chartData,
     () => {},

@@ -3,7 +3,7 @@ import { SegmentTree, IMinMax } from "./segmentTree.ts";
 
 test("SegmentTree operations", () => {
   const data = [1, 3, 2, 5, 4];
-  const buildTuple = (index: number, elements: number[]): IMinMax => ({
+  const buildTuple = (index: number, elements: readonly number[]): IMinMax => ({
     min: elements[index],
     max: elements[index],
   });
@@ -43,7 +43,7 @@ test("SegmentTree with IMinMax", () => {
     { min: 5, max: 6 },
     { min: 4, max: 7 },
   ];
-  const buildTuple = (index: number, elements: IMinMax[]): IMinMax =>
+  const buildTuple = (index: number, elements: readonly IMinMax[]): IMinMax =>
     elements[index];
 
   const tree = new SegmentTree(data, data.length, buildTuple);
