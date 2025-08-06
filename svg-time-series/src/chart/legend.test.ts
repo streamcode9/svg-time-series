@@ -102,7 +102,7 @@ function createLegend(
     (i, arr) => ({ min: arr[i][1]!, max: arr[i][1]! }),
   );
 
-  const renderState = setupRender(select(svgEl) as any, chartData);
+  const renderState = setupRender(select(svgEl) as any, chartData, true);
   const controller = new LegendController(
     select(legend) as any,
     renderState,

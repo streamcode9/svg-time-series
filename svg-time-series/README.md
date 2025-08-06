@@ -39,6 +39,7 @@ const chart = new TimeSeriesChart(
   data,
   (i, arr) => ({ min: arr[i][0], max: arr[i][0] }),
   (i, arr) => ({ min: arr[i][1], max: arr[i][1] }),
+  true, // enable dual Y axes
   () => {},
   () => {},
   (ts) => new Date(ts).toISOString(),

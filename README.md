@@ -30,7 +30,11 @@ work is possible. Keep watching!
 
 ## Y-axis modes
 
-Charts can display one or two data series. `TimeSeriesChart` accepts `data: Array<[number]>` for a single Y-axis or `data: Array<[number, number]>` for dual axes. Two helpers, `buildSegmentTreeTupleNy` and optionally `buildSegmentTreeTupleSf`, read the first and second values respectively and feed independent segment trees, providing scales for each series.
+Charts can display one or two data series. By default, all series share a single
+Y-axis whose scale is computed from the combined minimum and maximum of every
+series. To draw series with different units, pass `true` for the `dualYAxis`
+parameter of `TimeSeriesChart`, which enables independent left and right Y
+scales.
 
 ```ts
 import { TimeSeriesChart, IMinMax } from "svg-time-series";
@@ -59,6 +63,7 @@ const chart = new TimeSeriesChart(
   data,
   buildSegmentTreeTupleNy,
   buildSegmentTreeTupleSf,
+  true, // enable dual Y axes
   onZoom,
   onMouseMove,
   (ts) => new Date(ts).toISOString(),
@@ -69,7 +74,7 @@ The last argument, `formatTime`, is optional and lets you customize how
 timestamps are displayed in the legend. If omitted, timestamps are formatted
 with `toLocaleString`.
 
-For a single Y-axis, supply data with one value per point and omit the second builder:
+For two series sharing a single Y-axis, pass `false` for `dualYAxis`:
 
 ```ts
 const chartSingle = new TimeSeriesChart(
@@ -77,16 +82,18 @@ const chartSingle = new TimeSeriesChart(
   legend,
   startTime,
   timeStep,
-  singleData,
+  data,
   buildSegmentTreeTupleNy,
-  undefined,
+  buildSegmentTreeTupleSf,
+  false, // series share one axis
   onZoom,
   onMouseMove,
   (ts) => new Date(ts).toISOString(),
 );
 ```
 
-The chart will only build the second axis, path, and legend entries when a second series is provided.
+If you only have one series, supply data with a single value per point and omit
+the second builder; the chart will render a single path and axis.
 
 ## Secrets of Speed
 

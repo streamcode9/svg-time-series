@@ -114,7 +114,7 @@ function createChart(
     (i, arr) => ({ min: arr[i][1]!, max: arr[i][1]! }),
   );
 
-  const renderState = setupRender(select(svgEl) as any, chartData);
+  const renderState = setupRender(select(svgEl) as any, chartData, true);
   const interaction = new ChartInteraction(
     select(svgEl) as any,
     select(legend) as any,
@@ -322,6 +322,7 @@ describe("chart interaction", () => {
       ],
       (i, arr) => ({ min: arr[i][0], max: arr[i][0] }),
       (i, arr) => ({ min: arr[i][1]!, max: arr[i][1]! }),
+      true,
       () => {},
       mouseMoveHandler,
     );
