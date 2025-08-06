@@ -84,9 +84,9 @@ export function onCsv(f: (csv: [number, number][]) => void): void {
 
 interface Resize {
   interval: number;
-  request: () => void;
-  timer: number;
-  eval: () => void;
+  request: (() => void) | null;
+  timer: ReturnType<typeof setTimeout> | null;
+  eval: (() => void) | null;
 }
 
 const resize: Resize = { interval: 60, request: null, timer: null, eval: null };
