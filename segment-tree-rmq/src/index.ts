@@ -19,7 +19,7 @@ export class SegmentTree<T> {
       throw new Error("Data array must contain at least one element");
     }
     this.size = data.length;
-    this.tree = new Array(this.size * 2);
+    this.tree = new Array(this.size << 1);
     this.op = op;
     this.identity = identity;
 
@@ -27,7 +27,7 @@ export class SegmentTree<T> {
       this.tree[this.size + i] = data[i];
     }
     for (let i = this.size - 1; i > 0; i--) {
-      this.tree[i] = this.op(this.tree[i * 2], this.tree[i * 2 + 1]);
+      this.tree[i] = this.op(this.tree[i << 1], this.tree[(i << 1) | 1]);
     }
   }
 
@@ -39,8 +39,8 @@ export class SegmentTree<T> {
     let i = index + this.size;
     this.tree[i] = value;
     while (i > 1) {
-      i = Math.floor(i / 2);
-      this.tree[i] = this.op(this.tree[i * 2], this.tree[i * 2 + 1]);
+      i >>= 1;
+      this.tree[i] = this.op(this.tree[i << 1], this.tree[(i << 1) | 1]);
     }
   }
 
@@ -53,16 +53,16 @@ export class SegmentTree<T> {
     let result = this.identity;
 
     while (left < right) {
-      if (left % 2 === 1) {
+      if (left & 1) {
         result = this.op(result, this.tree[left]);
         left++;
       }
-      if (right % 2 === 0) {
+      if (!(right & 1)) {
         result = this.op(result, this.tree[right]);
         right--;
       }
-      left = Math.floor(left / 2);
-      right = Math.floor(right / 2);
+      left >>= 1;
+      right >>= 1;
     }
 
     if (left === right) {
