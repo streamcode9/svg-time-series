@@ -1,3 +1,3 @@
 import { loadAndDraw } from "./common.ts";
 
-loadAndDraw();
+loadAndDraw(false);

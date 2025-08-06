@@ -23,7 +23,7 @@ function buildSegmentTreeTupleSf(
   return { min: sfMinValue, max: sfMaxValue };
 }
 
-export function drawCharts(data: [number, number][]) {
+export function drawCharts(data: [number, number][], dualYAxis = false) {
   const charts: TimeSeriesChart[] = [];
 
   const onZoom = (event: D3ZoomEvent<Element, unknown>) =>
@@ -48,7 +48,7 @@ export function drawCharts(data: [number, number][]) {
       data.map((_) => _),
       buildSegmentTreeTupleNy,
       buildSegmentTreeTupleSf,
-      false,
+      dualYAxis,
       onZoom,
       onMouseMove,
     );
@@ -92,9 +92,9 @@ interface Resize {
 
 const resize: Resize = { interval: 60, request: null, timer: null, eval: null };
 
-export function loadAndDraw() {
+export function loadAndDraw(dualYAxis = false) {
   onCsv((data: [number, number][]) => {
-    drawCharts(data);
+    drawCharts(data, dualYAxis);
 
     resize.request = function () {
       resize.timer && clearTimeout(resize.timer);
@@ -106,7 +106,7 @@ export function loadAndDraw() {
         .append("svg")
         .append("g")
         .attr("class", "view");
-      drawCharts(data);
+      drawCharts(data, dualYAxis);
     };
   });
 }
