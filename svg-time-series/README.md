@@ -29,6 +29,8 @@ const data: [number, number][] = [
   [11, 13],
 ];
 
+// The data array must contain at least one entry.
+
 const chart = new TimeSeriesChart(
   svg,
   legend,

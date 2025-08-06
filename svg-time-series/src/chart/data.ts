@@ -19,6 +19,11 @@ export class ChartData {
     elements: ReadonlyArray<[number, number?]>,
   ) => IMinMax;
 
+  /**
+   * Creates a new ChartData instance.
+   * @param data Initial dataset; must contain at least one point.
+   * @throws if `data` is empty.
+   */
   constructor(
     startTime: number,
     timeStep: number,
@@ -32,6 +37,9 @@ export class ChartData {
       elements: ReadonlyArray<[number, number?]>,
     ) => IMinMax,
   ) {
+    if (data.length === 0) {
+      throw new Error("ChartData requires a non-empty data array");
+    }
     this.data = data;
     this.buildSegmentTreeTupleNy = buildSegmentTreeTupleNy;
     this.buildSegmentTreeTupleSf = buildSegmentTreeTupleSf;

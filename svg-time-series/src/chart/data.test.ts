@@ -12,6 +12,12 @@ describe("ChartData", () => {
     max: arr[i][1]!,
   });
 
+  it("throws if constructed with empty data", () => {
+    expect(() => new ChartData(0, 1, [], buildNy)).toThrow(
+      /non-empty data array/,
+    );
+  });
+
   it("updates data and time mapping on append", () => {
     const cd = new ChartData(
       0,
