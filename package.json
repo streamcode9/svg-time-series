@@ -9,7 +9,8 @@
     "test": "vitest run",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "commitlint": "commitlint --from=HEAD~1"
+    "commitlint": "commitlint --from=HEAD~1",
+    "prepare": "husky install"
   },
   "type": "module",
   "workspaces": [
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
     "vitest": "^3.2.4"
   }
