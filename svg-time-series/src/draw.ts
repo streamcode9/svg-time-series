@@ -55,7 +55,7 @@ export class TimeSeriesChart {
     this.destroyInteraction = destroy;
 
     this.drawNewData();
-    this.onHover(renderState.width - 1);
+    this.onHover(renderState.dimensions.width - 1);
   }
 
   public updateChartWithNewData(newData: [number, number?]) {

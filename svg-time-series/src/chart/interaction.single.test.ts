@@ -116,7 +116,7 @@ function createChart(data: Array<[number]>) {
   );
 
   drawNewData();
-  onHover(renderState.width);
+  onHover(renderState.dimensions.width);
 
   return { zoom, onHover, svgEl, legend };
 }

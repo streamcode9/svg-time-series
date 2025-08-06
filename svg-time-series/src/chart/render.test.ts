@@ -14,7 +14,7 @@ describe("renderPaths", () => {
       .enter()
       .append("path");
 
-    const state = { path: pathSelection } as unknown as RenderState;
+    const state = { paths: { path: pathSelection } } as unknown as RenderState;
     const data: Array<[number, number]> = [
       [0, 0],
       [NaN, NaN],
