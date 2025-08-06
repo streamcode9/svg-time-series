@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { drawProc } from "./interaction.ts";
+import { drawProc } from "../utils/drawProc.ts";
 
 describe("drawProc", () => {
   afterEach(() => {
