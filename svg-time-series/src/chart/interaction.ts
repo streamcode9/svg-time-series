@@ -1,24 +1,15 @@
 import { BaseType, Selection } from "d3-selection";
-import {
-  zoom as d3zoom,
-  D3ZoomEvent,
-  ZoomTransform,
-  ZoomBehavior,
-} from "d3-zoom";
-import { drawProc } from "../utils/drawProc.ts";
+import { D3ZoomEvent } from "d3-zoom";
 import type { ChartData } from "./data.ts";
 import type { RenderState } from "./render.ts";
 import { refreshChart } from "./render.ts";
 import { renderPaths } from "./render/paths.ts";
 import { LegendController } from "./legend.ts";
+import { ZoomState } from "./zoomState.ts";
 
 export class ChartInteraction {
-  private zoomBehavior: ZoomBehavior<SVGRectElement, unknown>;
   private zoomArea: Selection<SVGRectElement, unknown, BaseType, unknown>;
-
-  private currentPanZoomTransformState: ZoomTransform | null = null;
-
-  private scheduleRefresh: () => void;
+  private zoomState: ZoomState;
   private legendController: LegendController;
 
   constructor(
@@ -31,33 +22,12 @@ export class ChartInteraction {
     formatTime: (timestamp: number) => string = (timestamp) =>
       new Date(timestamp).toLocaleString(),
   ) {
-    this.zoomBehavior = d3zoom<SVGRectElement, unknown>()
-      .scaleExtent([1, 40])
-      .translateExtent([
-        [0, 0],
-        [state.dimensions.width, state.dimensions.height],
-      ])
-      .on("zoom", (event: D3ZoomEvent<Element, unknown>) => {
-        zoomHandler(event);
-        this.zoom(event);
-      });
-
     this.zoomArea = svg
       .append("rect")
       .attr("class", "zoom")
       .attr("width", state.dimensions.width)
-      .attr("height", state.dimensions.height)
-      .call(this.zoomBehavior);
+      .attr("height", state.dimensions.height);
     this.zoomArea.on("mousemove", mouseMoveHandler);
-    this.scheduleRefresh = drawProc(() => {
-      if (this.currentPanZoomTransformState != null) {
-        this.zoomBehavior.transform(
-          this.zoomArea,
-          this.currentPanZoomTransformState,
-        );
-      }
-      refreshChart(this.state, this.data);
-    });
 
     this.legendController = new LegendController(
       legend,
@@ -65,14 +35,20 @@ export class ChartInteraction {
       data,
       formatTime,
     );
+
+    this.zoomState = new ZoomState(
+      this.zoomArea,
+      state,
+      () => refreshChart(this.state, this.data),
+      (event) => {
+        zoomHandler(event);
+        this.legendController.refresh();
+      },
+    );
   }
 
   public zoom = (event: D3ZoomEvent<Element, unknown>) => {
-    this.currentPanZoomTransformState = event.transform;
-    this.state.transforms.ny.onZoomPan(event.transform);
-    this.state.transforms.sf?.onZoomPan(event.transform);
-    this.scheduleRefresh();
-    this.legendController.refresh();
+    this.zoomState.zoom(event);
   };
 
   public onHover = (x: number) => {
@@ -82,12 +58,12 @@ export class ChartInteraction {
 
   public drawNewData = () => {
     renderPaths(this.state, this.data.data);
-    this.scheduleRefresh();
+    this.zoomState.refresh();
     this.legendController.refresh();
   };
 
   public destroy = () => {
-    this.zoomBehavior.on("zoom", null);
+    this.zoomState.destroy();
     this.zoomArea.on("mousemove", null);
     this.zoomArea.remove();
     this.legendController.destroy();
