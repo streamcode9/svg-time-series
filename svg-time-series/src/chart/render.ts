@@ -4,7 +4,7 @@ import { line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
-import { updateNode } from "../viewZoomTransform.ts";
+import { updateNode } from "../utils/domNodeTransform.ts";
 import { AR1Basis, bPlaceholder } from "../math/affine.ts";
 import type { ChartData } from "./data.ts";
 import { createDimensions } from "./render/dimensions.ts";

@@ -27,7 +27,7 @@ class Matrix {
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
 let updateNodeCalls = 0;
-vi.mock("../viewZoomTransform.ts", () => ({
+vi.mock("../utils/domNodeTransform.ts", () => ({
   updateNode: (node: SVGGraphicsElement, matrix: Matrix) => {
     updateNodeCalls++;
     nodeTransforms.set(node, matrix);

@@ -7,7 +7,7 @@ import {
 } from "d3-zoom";
 import { timeout as runTimeout } from "d3-timer";
 
-import { updateNode } from "../viewZoomTransform.ts";
+import { updateNode } from "../utils/domNodeTransform.ts";
 import type { ChartData } from "./data.ts";
 import type { RenderState } from "./render.ts";
 import { refreshChart, renderPaths } from "./render.ts";

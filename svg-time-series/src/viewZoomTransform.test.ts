@@ -10,8 +10,8 @@ import {
   applyAR1ToMatrixX,
   applyAR1ToMatrixY,
   applyDirectProductToMatrix,
-  updateNode,
-} from "./viewZoomTransform.ts";
+} from "./utils/domMatrix.ts";
+import { updateNode } from "./utils/domNodeTransform.ts";
 
 class Matrix {
   constructor(

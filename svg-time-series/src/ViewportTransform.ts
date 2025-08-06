@@ -1,6 +1,6 @@
 import { ZoomTransform } from "d3-zoom";
 import { AR1Basis, betweenTBasesAR1, bPlaceholder } from "./math/affine.ts";
-import { applyAR1ToMatrixX, applyAR1ToMatrixY } from "./viewZoomTransform.ts";
+import { applyAR1ToMatrixX, applyAR1ToMatrixY } from "./utils/domMatrix.ts";
 
 export function composeReferenceMatrix(
   viewPortX: AR1Basis,
