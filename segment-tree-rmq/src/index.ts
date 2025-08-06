@@ -6,7 +6,18 @@ export class SegmentTree<T> {
   private op: Operator<T>;
   private identity: T;
 
+  /**
+   * Creates a new segment tree.
+   *
+   * @param data - Initial array to build the tree from. Must contain at least one element.
+   * @param op - The associative operator used for combining values.
+   * @param identity - Identity value for the operator.
+   * @throws {Error} If `data` is empty.
+   */
   constructor(data: T[], op: Operator<T>, identity: T) {
+    if (data.length === 0) {
+      throw new Error("Data array must contain at least one element");
+    }
     this.size = data.length;
     this.tree = new Array(this.size * 2);
     this.op = op;

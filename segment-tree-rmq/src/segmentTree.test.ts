@@ -70,6 +70,14 @@ describe("Segment Tree Tests", () => {
     expect(tree.query(0, 0)).toBe(42);
   });
 
+  it("should throw an error when constructed with an empty array", () => {
+    const sumOperator = (a: number, b: number) => a + b;
+    const identity = 0;
+    expect(() => new SegmentTree([], sumOperator, identity)).toThrow(
+      "Data array must contain at least one element",
+    );
+  });
+
   it("should handle a range that includes the very last element of the array", () => {
     const data = [1, 2, 3, 4, 5, 6, 7, 8];
     const sumOperator = (a: number, b: number) => a + b;
