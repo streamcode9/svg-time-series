@@ -41,8 +41,8 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
     _index,
     _groups,
   ) {
-    const svg = select(this).select("svg");
-    const legend = select(this).select(".chart-legend");
+    const svg = select(this).select<SVGSVGElement>("svg");
+    const legend = select(this).select<HTMLElement>(".chart-legend");
     const chart = new TimeSeriesChart(
       svg,
       legend,
