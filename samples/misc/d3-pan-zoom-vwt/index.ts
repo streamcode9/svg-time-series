@@ -6,8 +6,8 @@ import { betweenBasesAR1 } from "../../../svg-time-series/src/math/affine.ts";
 import {
   applyAR1ToMatrixX,
   applyAR1ToMatrixY,
-  updateNode,
-} from "../../../svg-time-series/src/viewZoomTransform.ts";
+} from "../../../svg-time-series/src/utils/domMatrix.ts";
+import { updateNode } from "../../../svg-time-series/src/utils/domNodeTransform.ts";
 
 const svg = select("svg"),
   width = +svg.attr("width"),
