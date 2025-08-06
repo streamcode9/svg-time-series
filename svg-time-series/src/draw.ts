@@ -53,7 +53,7 @@ export class TimeSeriesChart {
     this.drawNewData = drawNewData;
 
     this.drawNewData();
-    this.onHover(renderState.width);
+    this.onHover(renderState.width - 1);
   }
 
   public updateChartWithNewData(newData: [number, number?]) {
