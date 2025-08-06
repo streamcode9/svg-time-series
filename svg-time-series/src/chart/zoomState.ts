@@ -44,12 +44,14 @@ export class ZoomState {
     });
   }
 
-  public zoom = (event: D3ZoomEvent<Element, unknown>) => {
+  public zoom = (event: D3ZoomEvent<Element, unknown>, callCallback = true) => {
     this.currentPanZoomTransformState = event.transform;
     this.state.transforms.ny.onZoomPan(event.transform);
     this.state.transforms.sf?.onZoomPan(event.transform);
     this.scheduleRefresh();
-    this.zoomCallback(event);
+    if (callCallback) {
+      this.zoomCallback(event);
+    }
   };
 
   public refresh = () => {
