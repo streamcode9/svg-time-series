@@ -11,9 +11,8 @@
   "files": [
     "dist/*"
   ],
-  "main": "dist/index.js",
+  "main": "src/draw.ts",
   "type": "module",
-  "types": "dist/index.d.ts",
   "dependencies": {
     "d3-scale": "^4.0.2",
     "d3-selection": "^3.0.0",
