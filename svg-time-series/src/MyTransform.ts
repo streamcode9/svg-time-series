@@ -92,24 +92,22 @@ export class MyTransform {
       .scaleNonUniform(t.k, 1);
   }
 
-  public fromScreenToModelX(x: number) {
+  private toModelPoint(x: number, y: number) {
     const fwd = this.zoomTransform.multiply(this.referenceTransform);
     const bwd = fwd.inverse();
 
     const p = this.svgNode.createSVGPoint();
     p.x = x;
-    p.y = 0; // irrelevant
-    return p.matrixTransform(bwd).x;
+    p.y = y;
+    return p.matrixTransform(bwd);
+  }
+
+  public fromScreenToModelX(x: number) {
+    return this.toModelPoint(x, 0).x;
   }
 
   public fromScreenToModelY(y: number) {
-    const fwd = this.zoomTransform.multiply(this.referenceTransform);
-    const bwd = fwd.inverse();
-
-    const p = this.svgNode.createSVGPoint();
-    p.x = 0; // irrelevant
-    p.y = y;
-    return p.matrixTransform(bwd).y;
+    return this.toModelPoint(0, y).y;
   }
 
   public dotScaleMatrix(dotRadius: number) {
@@ -136,16 +134,7 @@ export class MyTransform {
   }
 
   public fromScreenToModelBasisX(b: AR1Basis) {
-    const fwd = this.zoomTransform.multiply(this.referenceTransform);
-    const bwd = fwd.inverse();
-
-    const p = this.svgNode.createSVGPoint();
-    p.y = 0; // irrelevant
-
-    const transformPoint = (x: number) => {
-      p.x = x;
-      return p.matrixTransform(bwd).x;
-    };
+    const transformPoint = (x: number) => this.toModelPoint(x, 0).x;
     const [p1, p2] = b.toArr().map(transformPoint);
     return new AR1Basis(p1, p2);
   }

@@ -98,4 +98,21 @@ describe("MyTransform", () => {
     expect(p1).toBeCloseTo(0.5);
     expect(p2).toBeCloseTo(1.5);
   });
+
+  it("converts screen points to model points", () => {
+    const svg = {
+      createSVGMatrix: () => new Matrix(),
+      createSVGPoint: () => new Point(),
+    } as unknown as SVGSVGElement;
+    const g = {} as unknown as SVGGElement;
+    const mt = new MyTransform(svg, g);
+
+    mt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
+    mt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
+    mt.onZoomPan({ x: 10, k: 2 } as any);
+
+    const p = (mt as any).toModelPoint(70, 20) as { x: number; y: number };
+    expect(p.x).toBeCloseTo(3);
+    expect(p.y).toBeCloseTo(2);
+  });
 });
