@@ -1,13 +1,20 @@
-import { ScaleLinear, ScaleTime, scaleLinear, scaleTime } from "d3-scale";
-import { BaseType, Selection, select } from "d3-selection";
+import { ScaleLinear, ScaleTime } from "d3-scale";
+import { BaseType, Selection } from "d3-selection";
 import { line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
 import { updateNode } from "../viewZoomTransform.ts";
 import { AR1Basis, bPlaceholder } from "../math/affine.ts";
-import { SegmentTree } from "../segmentTree.ts";
 import type { ChartData } from "./data.ts";
+import { createDimensions } from "./render/dimensions.ts";
+import {
+  createScales,
+  updateScaleX,
+  updateScaleY,
+  type ScaleSet,
+} from "./render/scales.ts";
+import { initPaths, createTransforms, type PathSet } from "./render/paths.ts";
 
 function bindAxisToDom(
   svg: Selection<BaseType, unknown, HTMLElement, unknown>,
@@ -17,95 +24,6 @@ function bindAxisToDom(
 ) {
   axis.setScale(scale1, scale2);
   return svg.append("g").attr("class", "axis").call(axis.axis.bind(axis));
-}
-
-function updateScaleX(
-  x: ScaleTime<number, number>,
-  bIndexVisible: AR1Basis,
-  data: ChartData,
-) {
-  const bTimeVisible = bIndexVisible.transformWith(data.idxToTime);
-  x.domain(bTimeVisible.toArr());
-}
-
-function updateScaleY(
-  bIndexVisible: AR1Basis,
-  tree: SegmentTree,
-  pathTransform: ViewportTransform,
-  yScale: ScaleLinear<number, number>,
-  data: ChartData,
-) {
-  const bTemperatureVisible = data.bTemperatureVisible(bIndexVisible, tree);
-  pathTransform.onReferenceViewWindowResize(
-    data.bIndexFull,
-    bTemperatureVisible,
-  );
-  yScale.domain(bTemperatureVisible.toArr());
-}
-
-function createDimensions(
-  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
-) {
-  const node: SVGSVGElement = svg.node() as SVGSVGElement;
-  const div: HTMLElement = node.parentNode as HTMLElement;
-
-  const width = div.clientWidth;
-  const height = div.clientHeight;
-
-  svg.attr("width", width);
-  svg.attr("height", height);
-
-  const bScreenXVisible = new AR1Basis(0, width);
-  const bScreenYVisible = new AR1Basis(height, 0);
-
-  return { width, height, bScreenXVisible, bScreenYVisible };
-}
-
-function initPaths(
-  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
-  hasSf: boolean,
-): PathSet {
-  const views = svg
-    .selectAll("g")
-    .data(hasSf ? [0, 1] : [0])
-    .enter()
-    .append("g")
-    .attr("class", "view");
-  const nodes = views.nodes() as SVGGElement[];
-  const viewNy = nodes[0];
-  const viewSf = hasSf ? nodes[1] : undefined;
-  const path = views.append("path");
-  return { path, viewNy, viewSf };
-}
-
-function createScales(
-  bScreenXVisible: AR1Basis,
-  bScreenYVisible: AR1Basis,
-  hasSf: boolean,
-): ScaleSet {
-  const x: ScaleTime<number, number> = scaleTime().range(
-    bScreenXVisible.toArr(),
-  );
-  const yNy: ScaleLinear<number, number> = scaleLinear().range(
-    bScreenYVisible.toArr(),
-  );
-  let ySf: ScaleLinear<number, number> | undefined;
-  if (hasSf) {
-    ySf = scaleLinear().range(bScreenYVisible.toArr());
-  }
-  return { x, yNy, ySf };
-}
-
-function createTransforms(paths: PathSet): {
-  ny: ViewportTransform;
-  sf?: ViewportTransform;
-} {
-  const ny = new ViewportTransform();
-  let sf: ViewportTransform | undefined;
-  if (paths.viewSf) {
-    sf = new ViewportTransform();
-  }
-  return { ny, sf };
 }
 
 function setupAxes(
@@ -130,23 +48,11 @@ function setupAxes(
   return { x: xAxis, y: yAxis, gX, gY };
 }
 
-interface ScaleSet {
-  x: ScaleTime<number, number>;
-  yNy: ScaleLinear<number, number>;
-  ySf?: ScaleLinear<number, number>;
-}
-
 interface AxisSet {
   x: MyAxis;
   y: MyAxis;
   gX: Selection<SVGGElement, unknown, any, any>;
   gY: Selection<SVGGElement, unknown, any, any>;
-}
-
-interface PathSet {
-  path: Selection<SVGPathElement, number, any, unknown>;
-  viewNy: SVGGElement;
-  viewSf?: SVGGElement;
 }
 
 interface TransformSet {
