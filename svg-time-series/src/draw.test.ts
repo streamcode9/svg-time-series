@@ -4,7 +4,7 @@ import { select } from "d3-selection";
 
 let drawNewDataMock: ReturnType<typeof vi.fn>;
 let onHoverMock: ReturnType<typeof vi.fn>;
-let onHoverUsedData: Array<[number, number]> | null;
+let onHoverUsedData: Array<[number, number?]> | null;
 
 vi.mock("./chart/render.ts", () => ({
   setupRender: vi.fn(() => ({ width: 100, height: 100 })),
@@ -16,7 +16,7 @@ vi.mock("./chart/interaction.ts", () => ({
       _svg: unknown,
       _legend: unknown,
       _state: unknown,
-      data: { data: Array<[number, number]> },
+      data: { data: Array<[number, number?]> },
     ) => {
       drawNewDataMock = vi.fn();
       onHoverMock = vi.fn(() => {
@@ -36,7 +36,7 @@ import { ChartData } from "./chart/data.ts";
 
 const appendSpy = vi.spyOn(ChartData.prototype, "append");
 
-function createChart(initialData: Array<[number, number]>) {
+function createChart(initialData: Array<[number, number?]>) {
   const dom = new JSDOM(
     `<body>
       <svg></svg>

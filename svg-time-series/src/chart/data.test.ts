@@ -126,4 +126,20 @@ describe("ChartData", () => {
       40, 60,
     ]);
   });
+
+  describe("single-axis", () => {
+    const buildNy = (i: number, arr: Array<[number]>) => ({
+      min: arr[i][0],
+      max: arr[i][0],
+    });
+
+    it("handles data without second series", () => {
+      const cd = new ChartData(0, 1, [[0], [1]], buildNy);
+      expect(cd.treeSf).toBeUndefined();
+      expect(cd.data).toEqual([[0], [1]]);
+      cd.append([2]);
+      expect(cd.data).toEqual([[1], [2]]);
+      expect(cd.treeNy.getMinMax(0, 1)).toEqual({ min: 1, max: 2 });
+    });
+  });
 });

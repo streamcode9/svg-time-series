@@ -72,7 +72,7 @@ export function setupInteraction(
       .attr("r", 1)
       .node() as SVGCircleElement;
   const highlightedGreenDot = makeDot(state.viewNy);
-  const highlightedBlueDot = makeDot(state.viewSf);
+  const highlightedBlueDot = state.viewSf ? makeDot(state.viewSf) : null;
 
   const identityMatrix = document
     .createElementNS("http://www.w3.org/2000/svg", "svg")
@@ -94,7 +94,7 @@ export function setupInteraction(
   function zoom(event: D3ZoomEvent<Element, unknown>) {
     currentPanZoomTransformState = event.transform;
     state.pathTransformNy.onZoomPan(event.transform);
-    state.pathTransformSf.onZoomPan(event.transform);
+    state.pathTransformSf?.onZoomPan(event.transform);
     scheduleRefresh();
     schedulePointRefresh();
   }
@@ -114,26 +114,35 @@ export function setupInteraction(
     );
 
     const dotScaleMatrixNy = state.pathTransformNy.dotScaleMatrix(dotRadius);
-    const dotScaleMatrixSf = state.pathTransformSf.dotScaleMatrix(dotRadius);
+    const dotScaleMatrixSf = state.pathTransformSf?.dotScaleMatrix(dotRadius);
     const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
       isNaN(n) ? valueForNaN : n;
     const updateDot = (
       val: number,
       legendSel: Selection<BaseType, unknown, HTMLElement, unknown>,
-      node: SVGGraphicsElement,
-      dotScaleMatrix: SVGMatrix,
+      node: SVGGraphicsElement | null,
+      dotScaleMatrix?: SVGMatrix,
     ) => {
       legendSel.text(fixNaN(val, " "));
-      updateNode(
-        node,
-        identityMatrix
-          .translate(highlightedDataIdx, fixNaN(val, 0))
-          .multiply(dotScaleMatrix),
-      );
+      if (node && dotScaleMatrix) {
+        updateNode(
+          node,
+          identityMatrix
+            .translate(highlightedDataIdx, fixNaN(val, 0))
+            .multiply(dotScaleMatrix),
+        );
+      }
     };
 
     updateDot(greenData, legendGreen, highlightedGreenDot, dotScaleMatrixNy);
-    updateDot(blueData, legendBlue, highlightedBlueDot, dotScaleMatrixSf);
+    if (state.pathTransformSf) {
+      updateDot(
+        blueData as number,
+        legendBlue,
+        highlightedBlueDot,
+        dotScaleMatrixSf,
+      );
+    }
   }
 
   function drawNewData() {

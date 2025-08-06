@@ -30,7 +30,7 @@ work is possible. Keep watching!
 
 ## Y-axis modes
 
-Currently, charts require two data series. `TimeSeriesChart` accepts `data: Array<[number, number]>`, where each tuple represents values for separate Y-axes. Two helpers, `buildSegmentTreeTupleNy` and `buildSegmentTreeTupleSf`, read the first and second values respectively and feed independent segment trees, providing dual scales.
+Charts can display one or two data series. `TimeSeriesChart` accepts `data: Array<[number]>` for a single Y-axis or `data: Array<[number, number]>` for dual axes. Two helpers, `buildSegmentTreeTupleNy` and optionally `buildSegmentTreeTupleSf`, read the first and second values respectively and feed independent segment trees, providing scales for each series.
 
 ```ts
 import { TimeSeriesChart, IMinMax } from "svg-time-series";
@@ -64,7 +64,23 @@ const chart = new TimeSeriesChart(
 );
 ```
 
-Single-axis charts are not yet implemented.
+For a single Y-axis, supply data with one value per point and omit the second builder:
+
+```ts
+const chartSingle = new TimeSeriesChart(
+  svg,
+  legend,
+  startTime,
+  timeStep,
+  singleData,
+  buildSegmentTreeTupleNy,
+  undefined,
+  onZoom,
+  onMouseMove,
+);
+```
+
+The chart will only build the second axis, path, and legend entries when a second series is provided.
 
 ## Secrets of Speed
 
