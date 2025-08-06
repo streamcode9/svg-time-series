@@ -3,7 +3,10 @@
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select } from "d3-selection";
-import { AR1Basis } from "./math/affine.ts";
+import { AR1Basis } from "../math/affine.ts";
+import { ChartData } from "./data.ts";
+import { setupRender } from "./render.ts";
+import { setupInteraction } from "./interaction.ts";
 
 class Matrix {
   constructor(
@@ -22,7 +25,7 @@ class Matrix {
 }
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
-vi.mock("./viewZoomTransform.ts", () => ({
+vi.mock("../viewZoomTransform.ts", () => ({
   updateNode: (node: SVGGraphicsElement, matrix: Matrix) => {
     nodeTransforms.set(node, matrix);
   },
@@ -30,7 +33,7 @@ vi.mock("./viewZoomTransform.ts", () => ({
 
 let currentDataLength = 0;
 const transformInstances: any[] = [];
-vi.mock("./MyTransform.ts", () => ({
+vi.mock("../MyTransform.ts", () => ({
   MyTransform: class {
     constructor(_svg: SVGSVGElement, _g: SVGGElement) {
       transformInstances.push(this);
@@ -48,7 +51,7 @@ vi.mock("./MyTransform.ts", () => ({
 }));
 
 const axisInstances: any[] = [];
-vi.mock("./axis.ts", () => ({
+vi.mock("../axis.ts", () => ({
   Orientation: { Bottom: 0, Right: 1 },
   MyAxis: class {
     axisUpCalls = 0;
@@ -77,8 +80,6 @@ vi.mock("d3-zoom", () => ({
   },
 }));
 
-import { TimeSeriesChart } from "./draw.ts";
-
 function createChart(data: Array<[number, number]>) {
   currentDataLength = data.length;
   const parent = document.createElement("div");
@@ -100,18 +101,28 @@ function createChart(data: Array<[number, number]>) {
     '<span class="chart-legend__green_value"></span>' +
     '<span class="chart-legend__blue_value"></span>';
 
-  const chart = new TimeSeriesChart(
-    select(svgEl),
-    select(legend),
+  const chartData = new ChartData(
     0,
     1,
     data,
     (i, arr) => ({ min: arr[i][0], max: arr[i][0] }),
     (i, arr) => ({ min: arr[i][1], max: arr[i][1] }),
+  );
+
+  const renderState = setupRender(select(svgEl), chartData);
+  const { zoom, onHover, drawNewData } = setupInteraction(
+    select(svgEl),
+    select(legend),
+    renderState,
+    chartData,
     () => {},
     () => {},
   );
-  return { chart, svgEl, legend };
+
+  drawNewData();
+  onHover(renderState.width);
+
+  return { zoom, onHover, svgEl, legend };
 }
 
 beforeEach(() => {
@@ -127,9 +138,9 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("TimeSeriesChart", () => {
+describe("chart interaction", () => {
   it("zoom updates transforms and axes", () => {
-    const { chart } = createChart([
+    const { zoom } = createChart([
       [0, 0],
       [1, 1],
     ]);
@@ -142,7 +153,7 @@ describe("TimeSeriesChart", () => {
     const xCalls = xAxis.axisUpCalls;
     const yCalls = yAxis.axisUpCalls;
 
-    chart.zoom({ transform: { x: 10, k: 2 } } as any);
+    zoom({ transform: { x: 10, k: 2 } } as any);
     vi.runAllTimers();
 
     expect(mtNy.onZoomPan).toHaveBeenCalledWith({ x: 10, k: 2 });
@@ -158,10 +169,10 @@ describe("TimeSeriesChart", () => {
       [10, 20],
       [30, 40],
     ];
-    const { chart, svgEl, legend } = createChart(data);
+    const { onHover, svgEl, legend } = createChart(data);
     vi.runAllTimers();
 
-    chart.onHover(1);
+    onHover(1);
     vi.runAllTimers();
 
     expect(
@@ -181,10 +192,10 @@ describe("TimeSeriesChart", () => {
   });
 
   it("handles NaN data", () => {
-    const { chart, svgEl, legend } = createChart([[NaN, NaN]]);
+    const { onHover, svgEl, legend } = createChart([[NaN, NaN]]);
     vi.runAllTimers();
 
-    chart.onHover(0);
+    onHover(0);
     vi.runAllTimers();
 
     expect(
