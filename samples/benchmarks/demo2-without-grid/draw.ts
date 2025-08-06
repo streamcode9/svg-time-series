@@ -102,7 +102,7 @@ export class TimeSeriesChart {
         domainX,
         this.chart.data[0].values.length,
       );
-      const minMax = this.tree.getMinMax(ySubInterval[0], ySubInterval[1]);
+      const minMax = this.tree.query(ySubInterval[0], ySubInterval[1]);
       const domainY = [minMax.min, minMax.max];
       const newRangeY = [this.chart.y(domainY[0]), this.chart.y(domainY[1])];
       const oldRangeY = this.chart.y.range();
@@ -145,7 +145,7 @@ export class TimeSeriesChart {
     );
 
     x.domain([this.minX, this.maxX]);
-    const minMax = this.tree.getMinMax(0, cities[0].values.length - 1);
+    const minMax = this.tree.query(0, cities[0].values.length - 1);
     y.domain([minMax.min, minMax.max]);
 
     const view = svg

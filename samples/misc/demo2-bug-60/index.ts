@@ -348,7 +348,7 @@ export class TimeSeriesChart {
   private bTemperatureVisible(bIndexVisible: AR1Basis): AR1Basis {
     // ������ ������� ����� ��������
     const [minIdxX, maxIdxX] = bIndexVisible.toArr();
-    const { min, max } = this.tree.getMinMax(minIdxX, maxIdxX);
+    const { min, max } = this.tree.query(minIdxX, maxIdxX);
     return new AR1Basis(min, max);
   }
 }
