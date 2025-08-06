@@ -68,7 +68,9 @@ export class MyAxis {
   ) {
     return (d: any) => {
       const active =
-        Array.isArray(d) && d.length === 2 && typeof d[1] === "number" ? d[1] : 0;
+        Array.isArray(d) && d.length === 2 && typeof d[1] === "number"
+          ? d[1]
+          : 0;
       const pos = positions[active];
       return transform(pos, pos, this.primaryTickValue(d, active));
     };
@@ -142,10 +144,8 @@ export class MyAxis {
     }
     let tick = context
         .selectAll(".tick")
-        .data(
-          values,
-          (d: [number, number]) =>
-            d[1] === 0 ? this.scale1(d[0]) : (this.scale2 as ScaleType)(d[0]),
+        .data(values, (d: [number, number]) =>
+          d[1] === 0 ? this.scale1(d[0]) : (this.scale2 as ScaleType)(d[0]),
         )
         .order(),
       tickExit = tick.exit(),
@@ -228,10 +228,8 @@ export class MyAxis {
     }
     let tick = context
         .selectAll(".tick")
-        .data(
-          values,
-          (d: [number, number]) =>
-            d[1] === 0 ? this.scale1(d[0]) : (this.scale2 as ScaleType)(d[0]),
+        .data(values, (d: [number, number]) =>
+          d[1] === 0 ? this.scale1(d[0]) : (this.scale2 as ScaleType)(d[0]),
         )
         .order(),
       tickExit = tick.exit(),

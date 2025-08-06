@@ -19,7 +19,10 @@ export class AR1 {
 }
 
 export class AR1Basis {
-  constructor(private p1: number, private p2: number) {}
+  constructor(
+    private p1: number,
+    private p2: number,
+  ) {}
 
   toArr(): [number, number] {
     return [this.p1, this.p2];
@@ -57,7 +60,10 @@ export function betweenTBasesAR1(b1: AR1Basis, b2: AR1Basis): AR1 {
 }
 
 export class DirectProduct {
-  constructor(public s1: AR1, public s2: AR1) {}
+  constructor(
+    public s1: AR1,
+    public s2: AR1,
+  ) {}
 }
 
 export class DirectProductBasis {

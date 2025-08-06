@@ -246,7 +246,7 @@ function myAxis(orient, scale) {
   };
 
   axis.ticks = function () {
-    return (tickArguments = slice.call(arguments)), axis;
+    return ((tickArguments = slice.call(arguments)), axis);
   };
 
   axis.tickArguments = function (_) {

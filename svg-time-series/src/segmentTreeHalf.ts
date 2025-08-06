@@ -6,11 +6,7 @@ export class SegmentTreeHalf<T> {
   private op: Operator<T>;
   private identity: T;
 
-  constructor(
-    data: T[],
-    op: Operator<T>,
-    identity: T
-  ) {
+  constructor(data: T[], op: Operator<T>, identity: T) {
     this.size = data.length;
     this.tree = new Array(this.size * 2);
     this.op = op;
@@ -36,7 +32,7 @@ export class SegmentTreeHalf<T> {
 
   query(left: number, right: number): T {
     if (left < 0 || right >= this.size || left > right) {
-      throw new Error('Range is not valid');
+      throw new Error("Range is not valid");
     }
     left += this.size;
     right += this.size;

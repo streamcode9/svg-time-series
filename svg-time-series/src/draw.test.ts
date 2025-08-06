@@ -1,12 +1,15 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { select } from 'd3-selection';
-import { AR1Basis } from './math/affine.ts';
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { select } from "d3-selection";
+import { AR1Basis } from "./math/affine.ts";
 
 class Matrix {
-  constructor(public tx = 0, public ty = 0) {}
+  constructor(
+    public tx = 0,
+    public ty = 0,
+  ) {}
   translate(tx: number, ty: number) {
     return new Matrix(this.tx + tx, this.ty + ty);
   }
@@ -19,7 +22,7 @@ class Matrix {
 }
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
-vi.mock('./viewZoomTransform.ts', () => ({
+vi.mock("./viewZoomTransform.ts", () => ({
   updateNode: (node: SVGGraphicsElement, matrix: Matrix) => {
     nodeTransforms.set(node, matrix);
   },
@@ -27,7 +30,7 @@ vi.mock('./viewZoomTransform.ts', () => ({
 
 let currentDataLength = 0;
 const transformInstances: any[] = [];
-vi.mock('./MyTransform.ts', () => ({
+vi.mock("./MyTransform.ts", () => ({
   MyTransform: class {
     constructor(_svg: SVGSVGElement, _g: SVGGElement) {
       transformInstances.push(this);
@@ -45,7 +48,7 @@ vi.mock('./MyTransform.ts', () => ({
 }));
 
 const axisInstances: any[] = [];
-vi.mock('./axis.ts', () => ({
+vi.mock("./axis.ts", () => ({
   Orientation: { Bottom: 0, Right: 1 },
   MyAxis: class {
     axisUpCalls = 0;
@@ -63,7 +66,7 @@ vi.mock('./axis.ts', () => ({
   },
 }));
 
-vi.mock('d3-zoom', () => ({
+vi.mock("d3-zoom", () => ({
   zoom: () => {
     const behavior: any = () => {};
     behavior.scaleExtent = () => behavior;
@@ -74,18 +77,24 @@ vi.mock('d3-zoom', () => ({
   },
 }));
 
-import { TimeSeriesChart } from './draw.ts';
+import { TimeSeriesChart } from "./draw.ts";
 
 function createChart(data: Array<[number, number]>) {
   currentDataLength = data.length;
-  const parent = document.createElement('div');
+  const parent = document.createElement("div");
   const w = Math.max(currentDataLength - 1, 0);
-  Object.defineProperty(parent, 'clientWidth', { value: w, configurable: true });
-  Object.defineProperty(parent, 'clientHeight', { value: 50, configurable: true });
-  const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  Object.defineProperty(parent, "clientWidth", {
+    value: w,
+    configurable: true,
+  });
+  Object.defineProperty(parent, "clientHeight", {
+    value: 50,
+    configurable: true,
+  });
+  const svgEl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   parent.appendChild(svgEl);
 
-  const legend = document.createElement('div');
+  const legend = document.createElement("div");
   legend.innerHTML =
     '<span class="chart-legend__time"></span>' +
     '<span class="chart-legend__green_value"></span>' +
@@ -118,8 +127,8 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('TimeSeriesChart', () => {
-  it('zoom updates transforms and axes', () => {
+describe("TimeSeriesChart", () => {
+  it("zoom updates transforms and axes", () => {
     const { chart } = createChart([
       [0, 0],
       [1, 1],
@@ -144,7 +153,7 @@ describe('TimeSeriesChart', () => {
     expect(yAxis.axisUpCalls).toBeGreaterThan(yCalls);
   });
 
-  it('onHover updates legend text and dot positions', () => {
+  it("onHover updates legend text and dot positions", () => {
     const data: Array<[number, number]> = [
       [10, 20],
       [30, 40],
@@ -156,13 +165,13 @@ describe('TimeSeriesChart', () => {
     vi.runAllTimers();
 
     expect(
-      legend.querySelector('.chart-legend__green_value')!.textContent,
-    ).toBe('30');
-    expect(
-      legend.querySelector('.chart-legend__blue_value')!.textContent,
-    ).toBe('40');
+      legend.querySelector(".chart-legend__green_value")!.textContent,
+    ).toBe("30");
+    expect(legend.querySelector(".chart-legend__blue_value")!.textContent).toBe(
+      "40",
+    );
 
-    const circles = svgEl.querySelectorAll('circle');
+    const circles = svgEl.querySelectorAll("circle");
     const greenTransform = nodeTransforms.get(circles[0] as SVGCircleElement)!;
     const blueTransform = nodeTransforms.get(circles[1] as SVGCircleElement)!;
     expect(greenTransform.tx).toBe(1);
@@ -171,7 +180,7 @@ describe('TimeSeriesChart', () => {
     expect(blueTransform.ty).toBe(40);
   });
 
-  it('handles NaN data', () => {
+  it("handles NaN data", () => {
     const { chart, svgEl, legend } = createChart([[NaN, NaN]]);
     vi.runAllTimers();
 
@@ -179,24 +188,23 @@ describe('TimeSeriesChart', () => {
     vi.runAllTimers();
 
     expect(
-      legend.querySelector('.chart-legend__green_value')!.textContent,
-    ).toBe(' ');
-    expect(
-      legend.querySelector('.chart-legend__blue_value')!.textContent,
-    ).toBe(' ');
+      legend.querySelector(".chart-legend__green_value")!.textContent,
+    ).toBe(" ");
+    expect(legend.querySelector(".chart-legend__blue_value")!.textContent).toBe(
+      " ",
+    );
 
-    const circles = svgEl.querySelectorAll('circle');
+    const circles = svgEl.querySelectorAll("circle");
     const greenTransform = nodeTransforms.get(circles[0] as SVGCircleElement)!;
     const blueTransform = nodeTransforms.get(circles[1] as SVGCircleElement)!;
     expect(greenTransform.ty).toBe(0);
     expect(blueTransform.ty).toBe(0);
   });
 
-  it('throws on zero-length dataset', () => {
+  it("throws on zero-length dataset", () => {
     expect(() => {
       createChart([]);
       vi.runAllTimers();
     }).toThrow();
   });
 });
-
