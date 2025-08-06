@@ -28,6 +28,7 @@ export class TimeSeriesChart {
       index: number,
       elements: ReadonlyArray<[number, number?]>,
     ) => IMinMax,
+    dualYAxis = false,
     zoomHandler: (event: D3ZoomEvent<Element, unknown>) => void = () => {},
     mouseMoveHandler: (event: MouseEvent) => void = () => {},
     formatTime: (timestamp: number) => string = (timestamp) =>
@@ -41,7 +42,7 @@ export class TimeSeriesChart {
       buildSegmentTreeTupleSf,
     );
 
-    const renderState = setupRender(svg, this.data);
+    const renderState = setupRender(svg, this.data, dualYAxis);
     const interaction = new ChartInteraction(
       svg,
       legend,

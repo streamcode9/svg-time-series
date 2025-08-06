@@ -106,7 +106,7 @@ function createChart(data: Array<[number]>) {
     max: arr[i][0],
   }));
 
-  const renderState = setupRender(select(svgEl) as any, chartData);
+  const renderState = setupRender(select(svgEl) as any, chartData, false);
   const interaction = new ChartInteraction(
     select(svgEl) as any,
     select(legend) as any,

@@ -95,7 +95,7 @@ function createLegend(data: Array<[number]>) {
     max: arr[i][0],
   }));
 
-  const renderState = setupRender(select(svgEl) as any, chartData);
+  const renderState = setupRender(select(svgEl) as any, chartData, false);
   const controller = new LegendController(
     select(legend) as any,
     renderState,

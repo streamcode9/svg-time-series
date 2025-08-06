@@ -34,7 +34,7 @@ export interface ScaleSet {
 export function createScales(
   bScreenXVisible: AR1Basis,
   bScreenYVisible: AR1Basis,
-  hasSf: boolean,
+  dualAxis: boolean,
 ): ScaleSet {
   const x: ScaleTime<number, number> = scaleTime().range(
     bScreenXVisible.toArr(),
@@ -43,7 +43,7 @@ export function createScales(
     bScreenYVisible.toArr(),
   );
   let ySf: ScaleLinear<number, number> | undefined;
-  if (hasSf) {
+  if (dualAxis) {
     ySf = scaleLinear().range(bScreenYVisible.toArr());
   }
   return { x, yNy, ySf };

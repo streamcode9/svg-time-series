@@ -48,6 +48,7 @@ export function drawCharts(data: [number, number][]) {
       data.map((_) => _),
       buildSegmentTreeTupleNy,
       buildSegmentTreeTupleSf,
+      false,
       onZoom,
       onMouseMove,
     );

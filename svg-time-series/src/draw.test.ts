@@ -66,6 +66,7 @@ function createChart(initialData: Array<[number, number?]>) {
     initialData,
     buildTuple,
     buildTuple,
+    false,
     vi.fn(),
     vi.fn(),
   );
