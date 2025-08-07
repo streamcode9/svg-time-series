@@ -344,8 +344,7 @@ describe("chart interaction", () => {
     const chart = new TimeSeriesChart(
       select(svgEl) as any,
       source,
-      (state, data) =>
-        new LegendController(select(legend) as any, state, data),
+      (state, data) => new LegendController(select(legend) as any, state, data),
       true,
       () => {},
       mouseMoveHandler,
