@@ -73,14 +73,16 @@ export class ChartData {
     this.rebuildSegmentTrees();
   }
 
-  append(ny: number, sf: number): void {
+  append(ny: number, sf?: number): void {
     if (ny == null || !Number.isFinite(ny)) {
       throw new Error("ChartData.append requires ny to be a finite number");
     }
-    if (sf == null || !Number.isFinite(sf)) {
-      throw new Error("ChartData.append requires sf to be a finite number");
+    if (this.hasSf) {
+      if (sf == null || !Number.isFinite(sf)) {
+        throw new Error("ChartData.append requires sf to be a finite number");
+      }
     }
-    this.data.push([ny, this.hasSf ? sf : undefined]);
+    this.data.push([ny, this.hasSf ? sf! : undefined]);
     this.data.shift();
     this.idxToTime = this.idxShift.composeWith(this.idxToTime);
     this.rebuildSegmentTrees();

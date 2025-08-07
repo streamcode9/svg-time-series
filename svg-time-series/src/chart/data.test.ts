@@ -247,12 +247,25 @@ describe("ChartData", () => {
         [0, undefined],
         [1, undefined],
       ]);
-      cd.append(2, 0);
+      cd.append(2);
       expect(cd.data).toEqual([
         [1, undefined],
         [2, undefined],
       ]);
       expect(cd.treeNy.query(0, 1)).toEqual({ min: 1, max: 2 });
+    });
+
+    it("ignores provided sf when single-axis", () => {
+      const source: IDataSource = {
+        startTime: 0,
+        timeStep: 1,
+        length: 1,
+        seriesCount: 1,
+        getSeries: (i) => [0][i],
+      };
+      const cd = new ChartData(source);
+      expect(() => cd.append(1, NaN)).not.toThrow();
+      expect(cd.data).toEqual([[1, undefined]]);
     });
   });
 });
