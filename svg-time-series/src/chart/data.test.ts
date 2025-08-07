@@ -40,9 +40,9 @@ describe("ChartData", () => {
       [1, 1],
       [2, 2],
     ]);
-    // appending shifts the index-to-time mapping one step backward
-    expect(cd.idxToTime.applyToPoint(0)).toBe(-1);
-    expect(cd.idxToTime.applyToPoint(1)).toBe(0);
+    // appending shifts the index-to-time mapping one step forward
+    expect(cd.idxToTime.applyToPoint(0)).toBe(1);
+    expect(cd.idxToTime.applyToPoint(1)).toBe(2);
   });
 
   it("provides clamped point data and timestamp", () => {
@@ -74,8 +74,8 @@ describe("ChartData", () => {
       [3, 3],
       [4, 4],
     ]);
-    expect(cd.idxToTime.applyToPoint(0)).toBe(-3);
-    expect(cd.idxToTime.applyToPoint(1)).toBe(-2);
+    expect(cd.idxToTime.applyToPoint(0)).toBe(3);
+    expect(cd.idxToTime.applyToPoint(1)).toBe(4);
     expect(cd.treeNy.query(0, 1)).toEqual({ min: 3, max: 4 });
     expect(cd.treeSf!.query(0, 1)).toEqual({ min: 3, max: 4 });
   });
