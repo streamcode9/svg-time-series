@@ -73,6 +73,11 @@ export class ChartData {
       console.warn(
         "ChartData: sf parameter provided but data source has only one series. sf value will be ignored.",
       );
+    } else if (this.hasSf && sf === undefined) {
+      console.warn(
+        "ChartData: sf parameter missing but data source has two series. Using NaN as fallback.",
+      );
+      sf = NaN;
     }
     this.data.push([ny, this.hasSf ? sf : undefined]);
     this.data.shift();

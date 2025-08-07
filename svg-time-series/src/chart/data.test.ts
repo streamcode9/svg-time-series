@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { ChartData, IDataSource } from "./data.ts";
 import { AR1Basis } from "../math/affine.ts";
 
@@ -78,6 +78,24 @@ describe("ChartData", () => {
     expect(cd.idxToTime.applyToPoint(1)).toBe(4);
     expect(cd.treeNy.query(0, 1)).toEqual({ min: 3, max: 4 });
     expect(cd.treeSf!.query(0, 1)).toEqual({ min: 3, max: 4 });
+  });
+
+  it("warns and uses NaN when sf is missing", () => {
+    const source = makeSource([
+      [0, 0],
+      [1, 1],
+    ]);
+    const cd = new ChartData(source);
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    cd.append(2);
+
+    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(cd.data).toEqual([
+      [1, 1],
+      [2, NaN],
+    ]);
+    warnSpy.mockRestore();
   });
 
   it("computes visible temperature bounds", () => {
