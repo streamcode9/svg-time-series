@@ -108,6 +108,7 @@ export function buildSeries(
   transforms: TransformPair,
   scales: ScaleSet,
   paths: PathSet,
+  hasSf: boolean,
   axes?: AxisSet,
   dualYAxis = false,
 ): Series[] {
@@ -123,7 +124,10 @@ export function buildSeries(
       gAxis: axes?.gY,
       line: lineNy,
     },
-    {
+  ];
+
+  if (hasSf) {
+    series.push({
       tree: data.treeSf,
       transform: dualYAxis && transforms.sf ? transforms.sf : transforms.ny,
       scale: dualYAxis && scales.ySf ? scales.ySf : scales.yNy,
@@ -132,8 +136,8 @@ export function buildSeries(
       axis: axes?.yRight ?? axes?.y,
       gAxis: axes?.gYRight ?? axes?.gY,
       line: lineSf,
-    },
-  ];
+    });
+  }
 
   return series;
 }
@@ -176,11 +180,12 @@ export function setupRender(
     transformsInner,
     scales,
     paths,
+    hasSf,
     undefined,
     dualYAxis,
   );
 
-  if (series[0].scale === series[1].scale && data.treeSf) {
+  if (series.length > 1 && series[0].scale === series[1].scale && data.treeSf) {
     const { combined, dp } = data.combinedTemperatureDp(data.bIndexFull);
     for (const s of series) {
       s.transform.onReferenceViewWindowResize(dp);
@@ -241,9 +246,15 @@ export function setupRender(
 
       // Update tree references in case data has changed
       series[0].tree = data.treeNy;
-      series[1].tree = data.treeSf;
+      if (series.length > 1) {
+        series[1].tree = data.treeSf;
+      }
 
-      if (series[0].scale === series[1].scale && data.treeSf) {
+      if (
+        series.length > 1 &&
+        series[0].scale === series[1].scale &&
+        data.treeSf
+      ) {
         const { combined, dp } = data.combinedTemperatureDp(bIndexVisible);
         for (const s of series) {
           s.transform.onReferenceViewWindowResize(dp);

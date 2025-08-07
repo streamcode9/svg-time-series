@@ -80,6 +80,37 @@ function createSvg() {
 }
 
 describe("buildSeries", () => {
+  it("returns single series when hasSf is false", () => {
+    const svg = createSvg();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      seriesCount: 1,
+      getSeries: (i) => [1, 2, 3][i],
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg as any, data, false);
+    const series = buildSeries(
+      data,
+      state.transforms,
+      state.scales,
+      state.paths,
+      false,
+      state.axes,
+      state.dualYAxis,
+    );
+    expect(series.length).toBe(1);
+    expect(series[0]).toMatchObject({
+      tree: data.treeNy,
+      transform: state.transforms.ny,
+      scale: state.scales.yNy,
+      view: state.paths.viewNy,
+      axis: state.axes.y,
+      gAxis: state.axes.gY,
+    });
+  });
+
   it("returns two series for combined axis", () => {
     const svg = createSvg();
     const source: IDataSource = {
@@ -97,6 +128,7 @@ describe("buildSeries", () => {
       state.transforms,
       state.scales,
       state.paths,
+      true,
       state.axes,
       state.dualYAxis,
     );
@@ -136,6 +168,7 @@ describe("buildSeries", () => {
       state.transforms,
       state.scales,
       state.paths,
+      true,
       state.axes,
       state.dualYAxis,
     );

@@ -42,10 +42,7 @@ describe("renderPaths", () => {
     const { path } = initPaths(svgSelection, false);
     const nodes = path.nodes() as SVGPathElement[];
     const state = {
-      series: [
-        { path: nodes[0], line: lineNy },
-        { path: undefined, line: lineSf },
-      ],
+      series: [{ path: nodes[0], line: lineNy }],
     } as unknown as RenderState;
     const pathNode = nodes[0];
     const spy = vi.spyOn(pathNode, "setAttribute");

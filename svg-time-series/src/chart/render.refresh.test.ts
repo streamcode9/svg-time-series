@@ -92,14 +92,14 @@ function createSvg() {
 }
 
 describe("RenderState.refresh", () => {
-  it("handles single series with secondary data", () => {
+  it("handles single series", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
       timeStep: 1,
       length: 3,
-      seriesCount: 2,
-      getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
+      seriesCount: 1,
+      getSeries: (i) => [1, 2, 3][i],
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
@@ -108,19 +108,13 @@ describe("RenderState.refresh", () => {
 
     state.refresh(data);
 
+    expect(state.series.length).toBe(1);
     expect(state.series[0].tree).toBe(data.treeNy);
-    expect(state.series[1].tree).toBe(data.treeSf);
-    expect(state.series[0].scale.domain()).toEqual([1, 30]);
-    expect(state.series[1].scale.domain()).toEqual([1, 30]);
-    expect(updateNodeMock).toHaveBeenCalledTimes(2);
+    expect(state.series[0].scale.domain()).toEqual([1, 3]);
+    expect(updateNodeMock).toHaveBeenCalledTimes(1);
     expect(updateNodeMock).toHaveBeenNthCalledWith(
       1,
       state.series[0].view,
-      state.transforms.ny.matrix,
-    );
-    expect(updateNodeMock).toHaveBeenNthCalledWith(
-      2,
-      state.series[1].view,
       state.transforms.ny.matrix,
     );
   });
