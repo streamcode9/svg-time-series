@@ -4,6 +4,7 @@ import {
   D3ZoomEvent,
   ZoomBehavior,
   ZoomTransform,
+  zoomIdentity,
 } from "d3-zoom";
 import { drawProc } from "../utils/drawProc.ts";
 import type { RenderState } from "./render.ts";
@@ -66,6 +67,11 @@ export class ZoomState {
 
   public refresh = () => {
     this.scheduleRefresh();
+  };
+
+  public reset = () => {
+    this.currentPanZoomTransformState = zoomIdentity;
+    this.zoomBehavior.transform(this.zoomArea, zoomIdentity);
   };
 
   public destroy = () => {

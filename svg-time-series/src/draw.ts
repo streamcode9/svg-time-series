@@ -13,6 +13,7 @@ export type { IMinMax } from "./chart/data.ts";
 export interface IPublicInteraction {
   zoom: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
   onHover: (x: number) => void;
+  resetZoom: () => void;
 }
 
 export class TimeSeriesChart {
@@ -83,7 +84,11 @@ export class TimeSeriesChart {
   }
 
   public get interaction(): IPublicInteraction {
-    return { zoom: this.zoom, onHover: this.onHover };
+    return {
+      zoom: this.zoom,
+      onHover: this.onHover,
+      resetZoom: this.resetZoom,
+    };
   }
 
   public updateChartWithNewData(newData: [number, number?]) {
@@ -101,6 +106,10 @@ export class TimeSeriesChart {
   public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
     this.zoomState.zoom(event, false);
     this.legendController.refresh();
+  };
+
+  public resetZoom = () => {
+    this.zoomState.reset();
   };
 
   public onHover = (x: number) => {
