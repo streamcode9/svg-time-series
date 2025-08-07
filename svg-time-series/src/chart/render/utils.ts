@@ -8,6 +8,18 @@ import type { IMinMax } from "../data.ts";
 import type { ChartData } from "../data.ts";
 import type { RenderState } from "../render.ts";
 
+const lineNy = line<[number, number?]>()
+  .defined((d) => !(isNaN(d[0]!) || d[0] == null))
+  .x((_, i) => i)
+  .y((d) => d[0]!);
+
+const lineSf = line<[number, number?]>()
+  .defined((d) => !(isNaN(d[1]!) || d[1] == null))
+  .x((_, i) => i)
+  .y((d) => d[1]!);
+
+const lineGenerators = [lineNy, lineSf];
+
 export function createDimensions(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
 ) {
@@ -108,10 +120,7 @@ export function renderPaths(
   const paths = state.paths.path.nodes() as SVGPathElement[];
   let cityIdx = 0;
   for (const path of paths) {
-    const drawLine = line<[number, number?]>()
-      .defined((d) => !(isNaN(d[cityIdx]!) || d[cityIdx] == null))
-      .x((_, i) => i)
-      .y((d) => d[cityIdx]!);
+    const drawLine = lineGenerators[cityIdx];
     path.setAttribute("d", drawLine(dataArr) ?? "");
     cityIdx++;
   }
