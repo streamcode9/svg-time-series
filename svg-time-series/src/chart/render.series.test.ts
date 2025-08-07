@@ -86,8 +86,9 @@ describe("buildSeries", () => {
       startTime: 0,
       timeStep: 1,
       length: 3,
-      getNy: (i) => [[1, 2, 3][i]],
-      getSf: (i) => [[10, 20, 30][i]],
+      seriesCount: 2,
+      getSeries: (i, seriesIdx) =>
+        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
@@ -116,8 +117,9 @@ describe("buildSeries", () => {
       startTime: 0,
       timeStep: 1,
       length: 3,
-      getNy: (i) => [[1, 2, 3][i]],
-      getSf: (i) => [[10, 20, 30][i]],
+      seriesCount: 2,
+      getSeries: (i, seriesIdx) =>
+        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, true);

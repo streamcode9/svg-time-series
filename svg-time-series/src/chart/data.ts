@@ -28,8 +28,8 @@ export interface IDataSource {
   readonly startTime: number;
   readonly timeStep: number;
   readonly length: number;
-  getNy(index: number): number[];
-  getSf?(index: number): number[];
+  readonly seriesCount: number;
+  getSeries(index: number, seriesIdx: number): number;
 }
 
 export class ChartData {
@@ -50,11 +50,11 @@ export class ChartData {
     if (source.length === 0) {
       throw new Error("ChartData requires a non-empty data array");
     }
-    this.hasSf = typeof source.getSf === "function";
+    this.hasSf = source.seriesCount > 1;
     this.data = new Array(source.length);
     for (let i = 0; i < source.length; i++) {
-      const ny = source.getNy(i)[0];
-      const sf = this.hasSf ? source.getSf!(i)[0] : undefined;
+      const ny = source.getSeries(i, 0);
+      const sf = this.hasSf ? source.getSeries(i, 1) : undefined;
       this.data[i] = [ny, sf];
     }
     this.idxToTime = betweenTBasesAR1(
@@ -71,7 +71,7 @@ export class ChartData {
   append(ny: number, sf?: number): void {
     if (!this.hasSf && sf !== undefined) {
       console.warn(
-        "ChartData: sf parameter provided but chart was initialized without getSf function. sf value will be ignored.",
+        "ChartData: sf parameter provided but data source has only one series. sf value will be ignored.",
       );
     }
     this.data.push([ny, this.hasSf ? sf : undefined]);

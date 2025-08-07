@@ -103,7 +103,8 @@ function createChart(data: Array<[number]>) {
     startTime: 0,
     timeStep: 1,
     length: data.length,
-    getNy: (i) => [data[i][0]],
+    seriesCount: 1,
+    getSeries: (i) => data[i][0],
   };
   const chart = new TimeSeriesChart(
     select(svgEl) as any,

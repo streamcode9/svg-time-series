@@ -7,8 +7,8 @@ describe("ChartData", () => {
     startTime: 0,
     timeStep: 1,
     length: data.length,
-    getNy: (i) => [data[i][0]],
-    getSf: (i) => [data[i][1]!],
+    seriesCount: data.some((d) => d[1] !== undefined) ? 2 : 1,
+    getSeries: (i, seriesIdx) => data[i][seriesIdx]!,
   });
 
   it("throws if constructed with empty data", () => {
@@ -16,7 +16,8 @@ describe("ChartData", () => {
       startTime: 0,
       timeStep: 1,
       length: 0,
-      getNy: () => [0],
+      seriesCount: 1,
+      getSeries: () => 0,
     };
     expect(() => new ChartData(source)).toThrow(/non-empty data array/);
   });
@@ -208,7 +209,8 @@ describe("ChartData", () => {
         startTime: 0,
         timeStep: 1,
         length: 2,
-        getNy: (i) => [[0, 1][i]],
+        seriesCount: 1,
+        getSeries: (i) => [0, 1][i],
       };
       const cd = new ChartData(source);
       expect(cd.treeSf).toBeUndefined();

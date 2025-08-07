@@ -58,8 +58,8 @@ const source: IDataSource = {
   startTime,
   timeStep,
   length: data.length,
-  getNy: (i) => [data[i][0]],
-  getSf: (i) => [data[i][1]],
+  seriesCount: 2,
+  getSeries: (i, seriesIdx) => data[i][seriesIdx],
 };
 
 const chart = new TimeSeriesChart(
@@ -75,9 +75,8 @@ const chart = new TimeSeriesChart(
 );
 ```
 
-The `getNy` and `getSf` callbacks return arrays of numbers so a data source
-can supply multiple lines for each axis. The current chart implementation uses
-only the first value from each array.
+`getSeries` returns the value for the specified series index, while
+`seriesCount` declares how many series are available from the data source.
 
 The third argument creates a legend controller, letting you customize how
 legend entries are rendered, including timestamp formatting.
@@ -89,8 +88,8 @@ const singleSource: IDataSource = {
   startTime,
   timeStep,
   length: data.length,
-  getNy: (i) => [data[i][0]],
-  getSf: (i) => [data[i][1]],
+  seriesCount: 2,
+  getSeries: (i, seriesIdx) => data[i][seriesIdx],
 };
 
 const chartSingle = new TimeSeriesChart(
@@ -106,7 +105,7 @@ const chartSingle = new TimeSeriesChart(
 );
 ```
 
-If you only have one series, supply a data source without `getSf`; the chart
+If you only have one series, set `seriesCount` to 1; the chart
 will render a single path and axis.
 
 ## Secrets of Speed

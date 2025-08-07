@@ -107,8 +107,8 @@ function createChart(
     startTime: 0,
     timeStep: 1,
     length: data.length,
-    getNy: (i) => [data[i][0]],
-    getSf: (i) => [data[i][1]],
+    seriesCount: 2,
+    getSeries: (i, seriesIdx) => data[i][seriesIdx],
   };
   const chart = new TimeSeriesChart(
     select(svgEl) as any,
@@ -338,8 +338,8 @@ describe("chart interaction", () => {
       startTime: 0,
       timeStep: 1,
       length: 2,
-      getNy: (i) => [[0, 1][i]],
-      getSf: (i) => [[0, 1][i]],
+      seriesCount: 2,
+      getSeries: (i) => [0, 1][i],
     };
     const chart = new TimeSeriesChart(
       select(svgEl) as any,
