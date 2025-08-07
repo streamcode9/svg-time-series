@@ -62,6 +62,7 @@ export class ZoomState {
   };
 
   public destroy = () => {
+    this.zoomArea.on(".zoom", null);
     this.zoomBehavior.on("zoom", null);
   };
 }
