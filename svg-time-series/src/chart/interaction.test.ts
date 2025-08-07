@@ -4,7 +4,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
-import { TimeSeriesChart } from "../draw.ts";
+import { TimeSeriesChart, IDataSource } from "../draw.ts";
 
 class Matrix {
   constructor(
@@ -103,14 +103,17 @@ function createChart(
     '<span class="chart-legend__green_value"></span>' +
     '<span class="chart-legend__blue_value"></span>';
 
+  const source: IDataSource = {
+    startTime: 0,
+    timeStep: 1,
+    length: data.length,
+    getNy: (i) => data[i][0],
+    getSf: (i) => data[i][1],
+  };
   const chart = new TimeSeriesChart(
     select(svgEl) as any,
     select(legend) as any,
-    0,
-    1,
-    data,
-    (i, arr) => ({ min: arr[i][0], max: arr[i][0] }),
-    (i, arr) => ({ min: arr[i][1]!, max: arr[i][1]! }),
+    source,
     true,
     () => {},
     () => {},
@@ -201,7 +204,7 @@ describe("chart interaction", () => {
     const { onHover, svgEl, legend, chart } = createChart(data);
     vi.runAllTimers();
 
-    chart.updateChartWithNewData([50, 60]);
+    chart.updateChartWithNewData(50, 60);
     vi.runAllTimers();
 
     onHover(1);
@@ -331,17 +334,17 @@ describe("chart interaction", () => {
 
     const mouseMoveHandler = vi.fn();
 
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 2,
+      getNy: (i) => [0, 1][i],
+      getSf: (i) => [0, 1][i],
+    };
     const chart = new TimeSeriesChart(
       select(svgEl) as any,
       select(legend) as any,
-      0,
-      1,
-      [
-        [0, 0],
-        [1, 1],
-      ],
-      (i, arr) => ({ min: arr[i][0], max: arr[i][0] }),
-      (i, arr) => ({ min: arr[i][1]!, max: arr[i][1]! }),
+      source,
       true,
       () => {},
       mouseMoveHandler,

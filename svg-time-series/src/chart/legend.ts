@@ -58,7 +58,8 @@ export class LegendController {
 
   private update() {
     const {
-      values: [greenData, blueData],
+      ny: greenData,
+      sf: blueData,
       timestamp,
     } = this.data.getPoint(this.highlightedDataIdx);
     this.legendTime.text(this.formatTime(timestamp));

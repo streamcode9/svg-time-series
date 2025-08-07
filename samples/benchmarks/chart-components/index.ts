@@ -1,22 +1,6 @@
-import { TimeSeriesChart, IMinMax } from "svg-time-series";
+import { TimeSeriesChart, IDataSource } from "svg-time-series";
 import { measureAll, onCsv, animateBench } from "../bench.ts";
 import { select, Selection } from "d3-selection";
-
-function buildSegmentTupleNy(
-  index: number,
-  elements: ReadonlyArray<[number, number]>,
-): IMinMax {
-  const ny = elements[index][0];
-  return { min: ny, max: ny };
-}
-
-function buildSegmentTupleSf(
-  index: number,
-  elements: ReadonlyArray<[number, number]>,
-): IMinMax {
-  const sf = elements[index][1];
-  return { min: sf, max: sf };
-}
 
 onCsv((data: [number, number][]) => {
   const svg = select(".chart-drawing svg") as Selection<
@@ -33,15 +17,14 @@ onCsv((data: [number, number][]) => {
   >;
 
   const start = performance.now();
-  const chart = new TimeSeriesChart(
-    svg,
-    legend,
-    Date.now(),
-    86400000,
-    data,
-    buildSegmentTupleNy,
-    buildSegmentTupleSf,
-  );
+  const source: IDataSource = {
+    startTime: Date.now(),
+    timeStep: 86400000,
+    length: data.length,
+    getNy: (i) => data[i][0],
+    getSf: (i) => data[i][1],
+  };
+  const chart = new TimeSeriesChart(svg, legend, source);
   const renderMs = performance.now() - start;
   document.getElementById("render-time")!.textContent =
     `render: ${renderMs.toFixed(1)}ms`;
@@ -49,7 +32,7 @@ onCsv((data: [number, number][]) => {
   let j = 0;
   animateBench(() => {
     const point = data[j % data.length];
-    chart.updateChartWithNewData(point);
+    chart.updateChartWithNewData(point[0], point[1]);
     j++;
   });
 

@@ -1,14 +1,14 @@
 import { Selection } from "d3-selection";
 import { D3ZoomEvent } from "d3-zoom";
 
-import { ChartData, IMinMax } from "./chart/data.ts";
+import { ChartData, IMinMax, IDataSource } from "./chart/data.ts";
 import { setupRender, refreshChart } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
 import { renderPaths } from "./chart/render/utils.ts";
 import { LegendController } from "./chart/legend.ts";
 import { ZoomState } from "./chart/zoomState.ts";
 
-export type { IMinMax } from "./chart/data.ts";
+export type { IMinMax, IDataSource } from "./chart/data.ts";
 
 export interface IPublicInteraction {
   zoom: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
@@ -26,17 +26,7 @@ export class TimeSeriesChart {
   constructor(
     svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
     legend: Selection<HTMLElement, unknown, HTMLElement, unknown>,
-    startTime: number,
-    timeStep: number,
-    data: Array<[number, number?]>,
-    buildSegmentTreeTupleNy: (
-      index: number,
-      elements: ReadonlyArray<[number, number?]>,
-    ) => IMinMax,
-    buildSegmentTreeTupleSf?: (
-      index: number,
-      elements: ReadonlyArray<[number, number?]>,
-    ) => IMinMax,
+    data: IDataSource,
     dualYAxis = false,
     zoomHandler: (
       event: D3ZoomEvent<SVGRectElement, unknown>,
@@ -45,13 +35,7 @@ export class TimeSeriesChart {
     formatTime: (timestamp: number) => string = (timestamp) =>
       new Date(timestamp).toLocaleString(),
   ) {
-    this.data = new ChartData(
-      startTime,
-      timeStep,
-      data,
-      buildSegmentTreeTupleNy,
-      buildSegmentTreeTupleSf,
-    );
+    this.data = new ChartData(data);
 
     this.state = setupRender(svg, this.data, dualYAxis);
 
@@ -91,8 +75,8 @@ export class TimeSeriesChart {
     };
   }
 
-  public updateChartWithNewData(newData: [number, number?]) {
-    this.data.append(newData);
+  public updateChartWithNewData(ny: number, sf?: number) {
+    this.data.append(ny, sf);
     this.drawNewData();
   }
 

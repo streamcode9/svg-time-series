@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { JSDOM } from "jsdom";
 import { select } from "d3-selection";
-import { ChartData } from "./data.ts";
+import { ChartData, IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
 
 class Matrix {
@@ -65,15 +65,6 @@ beforeAll(() => {
   (globalThis as any).DOMPoint = Point;
 });
 
-const buildNy = (i: number, arr: ReadonlyArray<[number, number?]>) => ({
-  min: arr[i][0],
-  max: arr[i][0],
-});
-const buildSf = (i: number, arr: ReadonlyArray<[number, number?]>) => ({
-  min: arr[i][1]!,
-  max: arr[i][1]!,
-});
-
 function createSvg() {
   const dom = new JSDOM(`<div id="c"><svg><g class="view"></g></svg></div>`, {
     pretendToBeVisual: true,
@@ -88,17 +79,14 @@ function createSvg() {
 describe("setupRender Y-axis modes", () => {
   it("combines series when dualYAxis is false", () => {
     const svg = createSvg();
-    const data = new ChartData(
-      0,
-      1,
-      [
-        [1, 10],
-        [2, 20],
-        [3, 30],
-      ],
-      buildNy,
-      buildSf,
-    );
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      getNy: (i) => [1, 2, 3][i],
+      getSf: (i) => [10, 20, 30][i],
+    };
+    const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
     expect(state.scales.yNy.domain()).toEqual([1, 30]);
     expect(state.scales.ySf).toBeUndefined();
@@ -106,17 +94,14 @@ describe("setupRender Y-axis modes", () => {
 
   it("separates scales when dualYAxis is true", () => {
     const svg = createSvg();
-    const data = new ChartData(
-      0,
-      1,
-      [
-        [1, 10],
-        [2, 20],
-        [3, 30],
-      ],
-      buildNy,
-      buildSf,
-    );
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      getNy: (i) => [1, 2, 3][i],
+      getSf: (i) => [10, 20, 30][i],
+    };
+    const data = new ChartData(source);
     const state = setupRender(svg as any, data, true);
     expect(state.scales.yNy.domain()).toEqual([1, 3]);
     expect(state.scales.ySf!.domain()).toEqual([10, 30]);

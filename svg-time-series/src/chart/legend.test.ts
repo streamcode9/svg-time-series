@@ -4,7 +4,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
-import { ChartData } from "./data.ts";
+import { ChartData, IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
 import { LegendController } from "./legend.ts";
 
@@ -94,13 +94,14 @@ function createLegend(
     '<span class="chart-legend__green_value"></span>' +
     '<span class="chart-legend__blue_value"></span>';
 
-  const chartData = new ChartData(
-    0,
-    1,
-    data,
-    (i, arr) => ({ min: arr[i][0], max: arr[i][0] }),
-    (i, arr) => ({ min: arr[i][1]!, max: arr[i][1]! }),
-  );
+  const source: IDataSource = {
+    startTime: 0,
+    timeStep: 1,
+    length: data.length,
+    getNy: (i) => data[i][0],
+    getSf: (i) => data[i][1],
+  };
+  const chartData = new ChartData(source);
 
   const renderState = setupRender(select(svgEl) as any, chartData, true);
   const controller = new LegendController(

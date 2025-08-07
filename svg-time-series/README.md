@@ -18,27 +18,27 @@ import { TimeSeriesChart } from "svg-time-series";
 
 ```ts
 import { select } from "d3-selection";
-import { TimeSeriesChart } from "svg-time-series";
+import { TimeSeriesChart, IDataSource } from "svg-time-series";
 
 const svg = select("#chart").append("svg").append("g").attr("class", "view");
 const legend = select("#legend");
 
-// example data: [value1, value2]
-const data: [number, number][] = [
-  [10, 12],
-  [11, 13],
-];
+// example data arrays
+const ny = [10, 11];
+const sf = [12, 13];
 
-// The data array must contain at least one entry.
+const source: IDataSource = {
+  startTime: Date.now(),
+  timeStep: 1000, // time step in ms
+  length: ny.length,
+  getNy: (i) => ny[i],
+  getSf: (i) => sf[i],
+};
 
 const chart = new TimeSeriesChart(
   svg,
   legend,
-  Date.now(),
-  1000, // time step in ms
-  data,
-  (i, arr) => ({ min: arr[i][0], max: arr[i][0] }),
-  (i, arr) => ({ min: arr[i][1], max: arr[i][1] }),
+  source,
   true, // enable dual Y axes
   () => {},
   () => {},

@@ -40,32 +40,20 @@ parameter of `TimeSeriesChart`, which enables independent left and right Y
 scales.
 
 ```ts
-import { TimeSeriesChart, IMinMax } from "svg-time-series";
+import { TimeSeriesChart, IDataSource } from "svg-time-series";
 
-function buildSegmentTreeTupleNy(
-  index: number,
-  elements: ReadonlyArray<[number, number]>,
-): IMinMax {
-  const ny = elements[index][0];
-  return { min: ny, max: ny };
-}
-
-function buildSegmentTreeTupleSf(
-  index: number,
-  elements: ReadonlyArray<[number, number]>,
-): IMinMax {
-  const sf = elements[index][1];
-  return { min: sf, max: sf };
-}
+const source: IDataSource = {
+  startTime,
+  timeStep,
+  length: data.length,
+  getNy: (i) => data[i][0],
+  getSf: (i) => data[i][1],
+};
 
 const chart = new TimeSeriesChart(
   svg,
   legend,
-  startTime,
-  timeStep,
-  data,
-  buildSegmentTreeTupleNy,
-  buildSegmentTreeTupleSf,
+  source,
   true, // enable dual Y axes
   onZoom,
   onMouseMove,
@@ -80,14 +68,18 @@ with `toLocaleString`.
 For two series sharing a single Y-axis, pass `false` for `dualYAxis`:
 
 ```ts
+const singleSource: IDataSource = {
+  startTime,
+  timeStep,
+  length: data.length,
+  getNy: (i) => data[i][0],
+  getSf: (i) => data[i][1],
+};
+
 const chartSingle = new TimeSeriesChart(
   svg,
   legend,
-  startTime,
-  timeStep,
-  data,
-  buildSegmentTreeTupleNy,
-  buildSegmentTreeTupleSf,
+  singleSource,
   false, // series share one axis
   onZoom,
   onMouseMove,
@@ -95,8 +87,8 @@ const chartSingle = new TimeSeriesChart(
 );
 ```
 
-If you only have one series, supply data with a single value per point and omit
-the second builder; the chart will render a single path and axis.
+If you only have one series, supply a data source without `getSf`; the chart
+will render a single path and axis.
 
 ## Secrets of Speed
 

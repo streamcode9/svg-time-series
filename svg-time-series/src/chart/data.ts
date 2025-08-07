@@ -7,6 +7,14 @@ import {
 } from "../math/affine.ts";
 import { IMinMax, SegmentTree } from "../segmentTree.ts";
 
+export interface IDataSource {
+  readonly startTime: number;
+  readonly timeStep: number;
+  readonly length: number;
+  getNy(index: number): number;
+  getSf?(index: number): number;
+}
+
 export type { IMinMax };
 
 export class ChartData {
@@ -16,50 +24,35 @@ export class ChartData {
   public idxToTime: AR1;
   private idxShift: AR1;
   public bIndexFull: AR1Basis;
-  private buildSegmentTreeTupleNy: (
-    index: number,
-    elements: ReadonlyArray<[number, number?]>,
-  ) => IMinMax;
-  private buildSegmentTreeTupleSf?: (
-    index: number,
-    elements: ReadonlyArray<[number, number?]>,
-  ) => IMinMax;
+  private hasSf: boolean;
 
   /**
    * Creates a new ChartData instance.
-   * @param data Initial dataset; must contain at least one point.
-   * @throws if `data` is empty.
+   * @param source Data source; must contain at least one point.
+   * @throws if the source has length 0.
    */
-  constructor(
-    startTime: number,
-    timeStep: number,
-    data: Array<[number, number?]>,
-    buildSegmentTreeTupleNy: (
-      index: number,
-      elements: ReadonlyArray<[number, number?]>,
-    ) => IMinMax,
-    buildSegmentTreeTupleSf?: (
-      index: number,
-      elements: ReadonlyArray<[number, number?]>,
-    ) => IMinMax,
-  ) {
-    if (data.length === 0) {
+  constructor(source: IDataSource) {
+    if (source.length === 0) {
       throw new Error("ChartData requires a non-empty data array");
     }
-    this.data = data;
-    this.buildSegmentTreeTupleNy = buildSegmentTreeTupleNy;
-    this.buildSegmentTreeTupleSf = buildSegmentTreeTupleSf;
+    this.hasSf = typeof source.getSf === "function";
+    this.data = new Array(source.length);
+    for (let i = 0; i < source.length; i++) {
+      const ny = source.getNy(i);
+      const sf = this.hasSf ? source.getSf!(i) : undefined;
+      this.data[i] = [ny, sf];
+    }
     this.idxToTime = betweenTBasesAR1(
       bUnit,
-      new AR1Basis(startTime, startTime + timeStep),
+      new AR1Basis(source.startTime, source.startTime + source.timeStep),
     );
     this.idxShift = betweenTBasesAR1(new AR1Basis(1, 2), bUnit);
-    this.bIndexFull = new AR1Basis(0, data.length - 1);
+    this.bIndexFull = new AR1Basis(0, this.data.length - 1);
     this.rebuildSegmentTrees();
   }
 
-  append(newData: [number, number?]): void {
-    this.data.push(newData);
+  append(ny: number, sf?: number): void {
+    this.data.push([ny, sf]);
     this.data.shift();
     this.idxToTime = this.idxToTime.composeWith(this.idxShift);
     this.rebuildSegmentTrees();
@@ -70,31 +63,32 @@ export class ChartData {
   }
 
   getPoint(idx: number): {
-    values: [number, number?];
+    ny: number;
+    sf?: number;
     timestamp: number;
   } {
     const clamped = Math.min(
       Math.max(Math.round(idx), 0),
       this.data.length - 1,
     );
+    const [ny, sf] = this.data[clamped];
     return {
-      values: this.data[clamped],
+      ny,
+      sf,
       timestamp: this.idxToTime.applyToPoint(clamped),
     };
   }
 
   private rebuildSegmentTrees(): void {
-    this.treeNy = new SegmentTree(
-      this.data,
-      this.data.length,
-      this.buildSegmentTreeTupleNy,
-    );
-    this.treeSf = this.buildSegmentTreeTupleSf
-      ? new SegmentTree(
-          this.data,
-          this.data.length,
-          this.buildSegmentTreeTupleSf,
-        )
+    this.treeNy = new SegmentTree(this.data, this.data.length, (i, arr) => {
+      const val = arr[i][0];
+      return { min: val, max: val } as IMinMax;
+    });
+    this.treeSf = this.hasSf
+      ? new SegmentTree(this.data, this.data.length, (i, arr) => {
+          const val = arr[i][1]!;
+          return { min: val, max: val } as IMinMax;
+        })
       : undefined;
   }
 

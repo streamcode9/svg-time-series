@@ -4,7 +4,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
-import { TimeSeriesChart } from "../draw.ts";
+import { TimeSeriesChart, IDataSource } from "../draw.ts";
 
 class Matrix {
   constructor(
@@ -99,14 +99,16 @@ function createChart(data: Array<[number]>) {
     '<span class="chart-legend__time"></span>' +
     '<span class="chart-legend__green_value"></span>';
 
+  const source: IDataSource = {
+    startTime: 0,
+    timeStep: 1,
+    length: data.length,
+    getNy: (i) => data[i][0],
+  };
   const chart = new TimeSeriesChart(
     select(svgEl) as any,
     select(legend) as any,
-    0,
-    1,
-    data as Array<[number, number?]>,
-    (i, arr) => ({ min: arr[i][0], max: arr[i][0] }),
-    undefined,
+    source,
     false,
     () => {},
     () => {},
@@ -180,7 +182,7 @@ describe("chart interaction single-axis", () => {
     const { onHover, svgEl, legend, chart } = createChart(data);
     vi.runAllTimers();
 
-    chart.updateChartWithNewData([50]);
+    chart.updateChartWithNewData(50);
     vi.runAllTimers();
 
     onHover(1);

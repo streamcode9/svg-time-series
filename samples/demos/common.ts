@@ -2,26 +2,8 @@ import { csv } from "d3-request";
 import { ValueFn, select, selectAll, pointer } from "d3-selection";
 import { D3ZoomEvent } from "d3-zoom";
 
-import { TimeSeriesChart, IMinMax } from "svg-time-series";
+import { TimeSeriesChart, IDataSource } from "svg-time-series";
 import { measure } from "../measure.ts";
-
-function buildSegmentTreeTupleNy(
-  index: number,
-  elements: ReadonlyArray<[number, number]>,
-): IMinMax {
-  const nyMinValue = isNaN(elements[index][0]) ? Infinity : elements[index][0];
-  const nyMaxValue = isNaN(elements[index][0]) ? -Infinity : elements[index][0];
-  return { min: nyMinValue, max: nyMaxValue };
-}
-
-function buildSegmentTreeTupleSf(
-  index: number,
-  elements: ReadonlyArray<[number, number]>,
-): IMinMax {
-  const sfMinValue = isNaN(elements[index][1]) ? Infinity : elements[index][1];
-  const sfMaxValue = isNaN(elements[index][1]) ? -Infinity : elements[index][1];
-  return { min: sfMinValue, max: sfMaxValue };
-}
 
 export function drawCharts(data: [number, number][], dualYAxis = false) {
   const charts: TimeSeriesChart[] = [];
@@ -43,14 +25,17 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
   ) {
     const svg = select(this).select<SVGSVGElement>("svg");
     const legend = select(this).select<HTMLElement>(".chart-legend");
+    const source: IDataSource = {
+      startTime: Date.now(),
+      timeStep: 86400000,
+      length: data.length,
+      getNy: (i) => data[i][0],
+      getSf: (i) => data[i][1],
+    };
     const chart = new TimeSeriesChart(
       svg,
       legend,
-      Date.now(),
-      86400000,
-      data.map((_) => _),
-      buildSegmentTreeTupleNy,
-      buildSegmentTreeTupleSf,
+      source,
       dualYAxis,
       onZoom,
       onMouseMove,
@@ -63,7 +48,7 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
   let j = 0;
   setInterval(function () {
     const newData = data[j % data.length];
-    charts.forEach((c) => c.updateChartWithNewData(newData));
+    charts.forEach((c) => c.updateChartWithNewData(newData[0], newData[1]));
     j++;
   }, 5000);
   measure(3, (fps) => {
