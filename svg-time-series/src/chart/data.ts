@@ -82,12 +82,16 @@ export class ChartData {
   private rebuildSegmentTrees(): void {
     this.treeNy = new SegmentTree(this.data, this.data.length, (i, arr) => {
       const val = arr[i][0];
-      return { min: val, max: val } as IMinMax;
+      const minVal = isNaN(val) ? Infinity : val;
+      const maxVal = isNaN(val) ? -Infinity : val;
+      return { min: minVal, max: maxVal } as IMinMax;
     });
     this.treeSf = this.hasSf
       ? new SegmentTree(this.data, this.data.length, (i, arr) => {
           const val = arr[i][1]!;
-          return { min: val, max: val } as IMinMax;
+          const minVal = isNaN(val) ? Infinity : val;
+          const maxVal = isNaN(val) ? -Infinity : val;
+          return { min: minVal, max: maxVal } as IMinMax;
         })
       : undefined;
   }
