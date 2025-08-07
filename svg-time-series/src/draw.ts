@@ -46,9 +46,12 @@ export class TimeSeriesChart {
       .attr("class", "zoom")
       .attr("width", this.state.dimensions.width)
       .attr("height", this.state.dimensions.height);
-    this.zoomArea.on("mousemove", mouseMoveHandler);
 
     this.legendController = legendControllerFactory(this.state, this.data);
+
+    this.zoomArea
+      .on("mousemove", mouseMoveHandler)
+      .on("mouseleave", () => this.legendController.clearHighlight());
 
     this.zoomState = new ZoomState(
       this.zoomArea,
@@ -79,7 +82,7 @@ export class TimeSeriesChart {
 
   public dispose() {
     this.zoomState.destroy();
-    this.zoomArea.on("mousemove", null);
+    this.zoomArea.on("mousemove", null).on("mouseleave", null);
     this.zoomArea.remove();
     this.legendController.destroy();
   }

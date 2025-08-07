@@ -60,6 +60,17 @@ export class LegendController implements ILegendController {
     this.scheduleRefresh();
   };
 
+  public clearHighlight = () => {
+    this.cancelRefresh();
+    this.legendTime.text("");
+    this.legendGreen.text("");
+    this.legendBlue.text("");
+    this.highlightedGreenDot.style.display = "none";
+    if (this.highlightedBlueDot) {
+      this.highlightedBlueDot.style.display = "none";
+    }
+  };
+
   private update() {
     const {
       ny: greenData,
@@ -79,6 +90,7 @@ export class LegendController implements ILegendController {
     ) => {
       legendSel.text(fixNaN(val, " "));
       if (node) {
+        node.style.display = "";
         const y = yScale(fixNaN(val, 0) as number);
         const ySafe = isNaN(y) ? 0 : y;
         updateNode(node, this.identityMatrix.translate(screenX, ySafe));
