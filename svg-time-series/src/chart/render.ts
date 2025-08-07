@@ -123,17 +123,8 @@ export function setupRender(
 
   updateScaleX(scales.x, data.bIndexFull, data);
   if (hasSf && !dualYAxis && data.treeSf) {
-    const bNy = data.bTemperatureVisible(data.bIndexFull, data.treeNy);
-    const bSf = data.bTemperatureVisible(data.bIndexFull, data.treeSf);
-    const [nyMin, nyMax] = bNy.toArr();
-    const [sfMin, sfMax] = bSf.toArr();
-    const combined = new AR1Basis(
-      Math.min(nyMin, sfMin),
-      Math.max(nyMax, sfMax),
-    );
-    transformsInner.ny.onReferenceViewWindowResize(
-      DirectProductBasis.fromProjections(data.bIndexFull, combined),
-    );
+    const { combined, dp } = data.combinedTemperatureDp(data.bIndexFull);
+    transformsInner.ny.onReferenceViewWindowResize(dp);
     scales.yNy.domain(combined.toArr());
   } else {
     updateScaleY(
@@ -206,20 +197,9 @@ export function refreshChart(state: RenderState, data: ChartData) {
     );
     updateNode(state.paths.viewSf!, state.transforms.sf.matrix);
   } else if (data.treeSf) {
-    const bNy = data.bTemperatureVisible(bIndexVisible, data.treeNy);
-    const bSf = data.bTemperatureVisible(bIndexVisible, data.treeSf);
-    const [nyMin, nyMax] = bNy.toArr();
-    const [sfMin, sfMax] = bSf.toArr();
-    const combined = new AR1Basis(
-      Math.min(nyMin, sfMin),
-      Math.max(nyMax, sfMax),
-    );
-    state.transforms.ny.onReferenceViewWindowResize(
-      DirectProductBasis.fromProjections(data.bIndexFull, combined),
-    );
-    state.transforms.sf?.onReferenceViewWindowResize(
-      DirectProductBasis.fromProjections(data.bIndexFull, combined),
-    );
+    const { combined, dp } = data.combinedTemperatureDp(bIndexVisible);
+    state.transforms.ny.onReferenceViewWindowResize(dp);
+    state.transforms.sf?.onReferenceViewWindowResize(dp);
     state.scales.yNy.domain(combined.toArr());
     if (state.paths.viewSf) {
       updateNode(state.paths.viewSf, state.transforms.ny.matrix);

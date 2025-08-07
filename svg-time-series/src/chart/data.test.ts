@@ -205,6 +205,24 @@ describe("ChartData", () => {
     ]);
   });
 
+  it("computes combined temperature basis and direct product", () => {
+    const cd = new ChartData(
+      0,
+      1,
+      [
+        [0, 10],
+        [5, 2],
+        [-3, 7],
+      ],
+      buildNy,
+      buildSf,
+    );
+    const { combined, dp } = cd.combinedTemperatureDp(cd.bIndexFull);
+    expect(combined.toArr()).toEqual([-3, 10]);
+    expect(dp.x().toArr()).toEqual([0, 2]);
+    expect(dp.y().toArr()).toEqual([-3, 10]);
+  });
+
   describe("single-axis", () => {
     const buildNy = (i: number, arr: ReadonlyArray<[number, number?]>) => ({
       min: arr[i][0],

@@ -1,4 +1,10 @@
-import { AR1, AR1Basis, betweenTBasesAR1, bUnit } from "../math/affine.ts";
+import {
+  AR1,
+  AR1Basis,
+  DirectProductBasis,
+  betweenTBasesAR1,
+  bUnit,
+} from "../math/affine.ts";
 import { IMinMax, SegmentTree } from "../segmentTree.ts";
 
 export type { IMinMax };
@@ -89,5 +95,24 @@ export class ChartData {
     }
     const { min, max } = tree.query(startIdx, endIdx);
     return new AR1Basis(min, max);
+  }
+
+  combinedTemperatureDp(bIndexVisible: AR1Basis): {
+    combined: AR1Basis;
+    dp: DirectProductBasis;
+  } {
+    if (!this.treeSf) {
+      throw new Error("Second series data is unavailable");
+    }
+    const bNy = this.bTemperatureVisible(bIndexVisible, this.treeNy);
+    const bSf = this.bTemperatureVisible(bIndexVisible, this.treeSf);
+    const [nyMin, nyMax] = bNy.toArr();
+    const [sfMin, sfMax] = bSf.toArr();
+    const combined = new AR1Basis(
+      Math.min(nyMin, sfMin),
+      Math.max(nyMax, sfMax),
+    );
+    const dp = DirectProductBasis.fromProjections(this.bIndexFull, combined);
+    return { combined, dp };
   }
 }
