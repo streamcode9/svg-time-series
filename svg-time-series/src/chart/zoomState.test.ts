@@ -8,8 +8,16 @@ vi.mock("d3-zoom", () => {
   const behavior: any = () => {};
   behavior.scaleExtent = () => behavior;
   behavior.translateExtent = () => behavior;
-  behavior.on = () => behavior;
-  behavior.transform = vi.fn();
+  behavior.on = (event: string, handler: any) => {
+    behavior._zoomHandler = handler;
+    return behavior;
+  };
+  behavior.transform = vi.fn((selection: any, transform: any) => {
+    // Simulate the zoom event being triggered
+    if (behavior._zoomHandler) {
+      behavior._zoomHandler({ transform });
+    }
+  });
   return { zoom: () => behavior, zoomIdentity: { k: 1, x: 0, y: 0 } };
 });
 
@@ -112,7 +120,7 @@ describe("ZoomState", () => {
     expect(refresh).toHaveBeenCalledTimes(1);
   });
 
-  it("reset sets transform to identity without event", () => {
+  it("reset sets transform to identity and triggers zoom event", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const rect = select(svg).append("rect");
     const ny = { onZoomPan: vi.fn() };
@@ -125,6 +133,8 @@ describe("ZoomState", () => {
 
     const transformSpy = zs.zoomBehavior.transform as any;
     transformSpy.mockClear();
+    ny.onZoomPan.mockClear();
+    refresh.mockClear();
 
     zs.reset();
     vi.runAllTimers();
@@ -133,9 +143,12 @@ describe("ZoomState", () => {
       rect,
       expect.objectContaining({ k: 1, x: 0, y: 0 }),
     );
-    expect(transformSpy.mock.calls[0][2]).toBeUndefined();
+    expect(ny.onZoomPan).toHaveBeenCalledWith(
+      expect.objectContaining({ k: 1, x: 0, y: 0 }),
+    );
     expect((zs as any).currentPanZoomTransformState).toEqual(
       expect.objectContaining({ k: 1, x: 0, y: 0 }),
     );
+    expect(refresh).toHaveBeenCalledTimes(1);
   });
 });
