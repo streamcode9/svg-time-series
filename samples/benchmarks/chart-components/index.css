@@ -1,0 +1,98 @@
+body {
+  margin: 0px;
+}
+
+path {
+  vector-effect: non-scaling-stroke;
+}
+
+svg {
+  width: 100%;
+  height: 100%;
+}
+.axis,
+.view,
+.zoom {
+  fill: none;
+}
+.axis line {
+  stroke-opacity: 0.3;
+  shape-rendering: crispEdges;
+  stroke-width: 2px;
+}
+.zoom {
+  pointer-events: all;
+}
+g.view:nth-child(1) > path {
+  stroke: rgb(136, 204, 91);
+}
+g.view:nth-child(2) > path {
+  stroke: rgb(96, 77, 196);
+}
+g.view:nth-child(1) > circle {
+  fill: rgb(136, 204, 91);
+}
+g.view:nth-child(2) > circle {
+  fill: rgb(96, 77, 196);
+}
+.tick line {
+  stroke: #a6a6a6;
+  opacity: 1;
+}
+.tick text {
+  fill: #454545;
+  font-size: 0.7rem;
+}
+
+#fps {
+  position: fixed;
+  background-color: #444;
+  color: #fff;
+  right: 0rem;
+  padding: 0.2rem;
+}
+
+.charts {
+  height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+}
+.chart {
+  height: calc(20% - 0.4rem);
+  margin: 0.2rem;
+  display: flex;
+}
+.chart-drawing {
+  width: 85%;
+  overflow: hidden;
+  border: 1px #ddd solid;
+}
+.chart-legend {
+  width: 14%;
+  margin-left: 1%;
+  color: #454545;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+.chart-legend__green_caption,
+.chart-legend__green_value {
+  color: rgb(136, 204, 91);
+}
+.chart-legend__blue_caption,
+.chart-legend__blue_value {
+  color: rgb(96, 77, 196);
+}
+
+/* Mobile 1080x1920 */
+@media only screen and (max-device-width: 1080px) and (min-device-height: 1920px) and (orientation: portrait) {
+  .tick text {
+    font-size: 1.5rem;
+  }
+}
+
+/* Desktop and Mobile 1920x1080 */
+@media only screen and (min-device-width: 1920px) and (max-device-height: 1080px) and (orientation: landscape) {
+  .tick text {
+    font-size: 1.2rem;
+  }
+}

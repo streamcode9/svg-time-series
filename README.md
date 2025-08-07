@@ -27,6 +27,9 @@ work is possible. Keep watching!
 - `cd samples; npx vite` to start the dev server
 - Open the URL in your browser. The Vite web server doesn't properly handle 404 errors, so if you see a blank page, the URL is likely incorrect.
 - Navigate to `demo1.html` or `demo2.html` in the list of links in the browser.
+- For a performance benchmark of core chart components, open
+  `benchmarks/chart-components/index.html` and observe the reported FPS and
+  render time in your browser.
 
 ## Y-axis modes
 
