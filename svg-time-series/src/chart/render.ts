@@ -146,6 +146,7 @@ export interface RenderState {
   transforms: TransformSet;
   dimensions: Dimensions;
   dualYAxis: boolean;
+  series: Series[];
 }
 
 export function setupRender(
@@ -197,6 +198,14 @@ export function setupRender(
 
   const axes = setupAxes(svg, scales, width, height, hasSf, dualYAxis);
 
+  // Attach axes to series after scales have been initialized
+  series[0].axis = axes.y;
+  series[0].gAxis = axes.gY;
+  if (series.length > 1) {
+    series[1].axis = axes.yRight;
+    series[1].gAxis = axes.gYRight;
+  }
+
   const bScreenVisibleDp = DirectProductBasis.fromProjections(
     bScreenXVisible,
     bScreenYVisible,
@@ -217,7 +226,7 @@ export function setupRender(
   };
   const dimensions: Dimensions = { width, height };
 
-  return { scales, axes, paths, transforms, dimensions, dualYAxis };
+  return { scales, axes, paths, transforms, dimensions, dualYAxis, series };
 }
 
 export function refreshChart(state: RenderState, data: ChartData) {
@@ -225,16 +234,15 @@ export function refreshChart(state: RenderState, data: ChartData) {
     state.transforms.bScreenXVisible,
   );
   updateScaleX(state.scales.x, bIndexVisible, data);
-  const series = buildSeries(
-    data,
-    state.transforms,
-    state.scales,
-    state.paths,
-    state.axes,
-    state.dualYAxis,
-  );
+  const series = state.series;
 
-  if (series.length === 1 && data.treeSf) {
+  // Update tree references in case data has changed
+  series[0].tree = data.treeNy;
+  if (series[1] && data.treeSf) {
+    series[1].tree = data.treeSf;
+  }
+
+  if (state.series.length === 1 && data.treeSf) {
     const { combined, dp } = data.combinedTemperatureDp(bIndexVisible);
     for (const s of series) {
       s.transform.onReferenceViewWindowResize(dp);
