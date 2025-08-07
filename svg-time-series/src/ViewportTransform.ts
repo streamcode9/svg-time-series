@@ -56,18 +56,6 @@ export class ViewportTransform {
     return this.toModelPoint(0, y).y;
   }
 
-  public dotScaleMatrix(dotRadius: number) {
-    const inv = this.composedMatrix.inverse();
-    const tp0 = new DOMPoint(0, 0).matrixTransform(inv);
-    const tp1 = new DOMPoint(dotRadius, dotRadius).matrixTransform(inv);
-    const dotRadiusXModel = tp0.x - tp1.x;
-    const dotRadiusYModel = tp0.y - tp1.y;
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    return svg
-      .createSVGMatrix()
-      .scaleNonUniform(dotRadiusXModel, dotRadiusYModel);
-  }
-
   public fromScreenToModelBasisX(b: AR1Basis) {
     const transformPoint = (x: number) => this.toModelPoint(x, 0).x;
     const [p1, p2] = b.toArr().map(transformPoint);

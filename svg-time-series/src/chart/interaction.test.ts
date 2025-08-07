@@ -43,7 +43,6 @@ vi.mock("../ViewportTransform.ts", () => ({
     fromScreenToModelBasisX = vi.fn(
       () => new AR1Basis(0, Math.max(currentDataLength - 1, 0)),
     );
-    dotScaleMatrix = vi.fn(() => new Matrix());
     onViewPortResize = vi.fn();
     onReferenceViewWindowResize = vi.fn();
   },
