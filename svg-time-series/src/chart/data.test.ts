@@ -22,6 +22,17 @@ describe("ChartData", () => {
     expect(() => new ChartData(source)).toThrow(/non-empty data array/);
   });
 
+  it("throws if seriesCount is not 1 or 2", () => {
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 1,
+      seriesCount: 3,
+      getSeries: () => 0,
+    };
+    expect(() => new ChartData(source)).toThrow(/1 or 2 series/);
+  });
+
   it("updates data and time mapping on append", () => {
     const source = makeSource([
       [0, 0],

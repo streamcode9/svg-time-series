@@ -44,7 +44,8 @@ work is possible. Keep watching!
 
 ## Y-axis modes
 
-Charts can display one or two data series. By default, all series share a single
+Charts can display one or two data series. The library supports at most two
+series; additional series are ignored. By default, all series share a single
 Y-axis whose scale is computed from the combined minimum and maximum of every
 series. To draw series with different units, pass `true` for the `dualYAxis`
 parameter of `TimeSeriesChart`, which enables independent left and right Y

@@ -1,6 +1,6 @@
 # svg-time-series
 
-A small library for rendering high-performance SVG time series charts with D3. It exports a single class, `TimeSeriesChart`, which handles drawing, zooming and hover interactions.
+A small library for rendering high-performance SVG time series charts with D3. It exports a single class, `TimeSeriesChart`, which handles drawing, zooming and hover interactions. The library supports at most two data series.
 
 ## Installation
 
@@ -50,8 +50,8 @@ const chart = new TimeSeriesChart(
 ```
 
 `getSeries` returns a value for the requested series index, while `seriesCount`
-declares how many series are available. At present, only the first two series
-are rendered.
+declares how many series are available. The library supports at most two series;
+additional series are ignored.
 
 The third argument lets you supply a custom legend controller. See
 `samples/LegendController.ts` for a reference implementation.

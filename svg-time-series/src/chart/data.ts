@@ -50,6 +50,11 @@ export class ChartData {
     if (source.length === 0) {
       throw new Error("ChartData requires a non-empty data array");
     }
+    if (source.seriesCount !== 1 && source.seriesCount !== 2) {
+      throw new Error(
+        `ChartData supports 1 or 2 series, but received ${source.seriesCount}`,
+      );
+    }
     this.hasSf = source.seriesCount > 1;
     this.data = new Array(source.length);
     for (let i = 0; i < source.length; i++) {
