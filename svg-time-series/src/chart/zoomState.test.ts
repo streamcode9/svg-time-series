@@ -12,12 +12,12 @@ vi.mock("d3-zoom", () => {
     behavior._zoomHandler = handler;
     return behavior;
   };
-  behavior.transform = vi.fn((selection: any, transform: any) => {
-    // Simulate the zoom event being triggered
+  behavior.transform = vi.fn();
+  behavior.triggerZoom = (transform: any) => {
     if (behavior._zoomHandler) {
       behavior._zoomHandler({ transform });
     }
-  });
+  };
   return { zoom: () => behavior, zoomIdentity: { k: 1, x: 0, y: 0 } };
 });
 
@@ -137,6 +137,8 @@ describe("ZoomState", () => {
     refresh.mockClear();
 
     zs.reset();
+    // Manually trigger the zoom event that would happen in real d3-zoom
+    (zs.zoomBehavior as any).triggerZoom({ k: 1, x: 0, y: 0 });
     vi.runAllTimers();
 
     expect(transformSpy).toHaveBeenCalledWith(
