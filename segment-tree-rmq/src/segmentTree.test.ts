@@ -136,4 +136,36 @@ describe("Segment Tree Tests", () => {
     expect(() => tree.query(-1, 2)).toThrow("Range is not valid");
     expect(() => tree.query(0, 5)).toThrow("Range is not valid");
   });
+
+  it("should support min queries and updates", () => {
+    const data = [5, 3, 8, 6, 2, 7];
+    const minOperator = (a: number, b: number) => Math.min(a, b);
+    const identity = Infinity;
+    const tree = new SegmentTree(data, minOperator, identity);
+
+    expect(tree.query(0, 5)).toBe(2);
+    expect(tree.query(1, 3)).toBe(3);
+
+    tree.update(4, 10);
+    expect(tree.query(0, 5)).toBe(3);
+
+    tree.update(0, 1);
+    expect(tree.query(0, 5)).toBe(1);
+  });
+
+  it("should support max queries and updates", () => {
+    const data = [5, 3, 8, 6, 2, 7];
+    const maxOperator = (a: number, b: number) => Math.max(a, b);
+    const identity = -Infinity;
+    const tree = new SegmentTree(data, maxOperator, identity);
+
+    expect(tree.query(0, 5)).toBe(8);
+    expect(tree.query(1, 3)).toBe(8);
+
+    tree.update(2, 0);
+    expect(tree.query(0, 5)).toBe(7);
+
+    tree.update(1, 9);
+    expect(tree.query(0, 5)).toBe(9);
+  });
 });
