@@ -70,6 +70,7 @@ export class ZoomState {
   };
 
   public reset = () => {
+    this.currentPanZoomTransformState = zoomIdentity;
     this.state.transforms.ny.onZoomPan(zoomIdentity);
     this.state.transforms.sf?.onZoomPan(zoomIdentity);
     this.zoomBehavior.transform(this.zoomArea, zoomIdentity);
