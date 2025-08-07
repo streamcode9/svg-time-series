@@ -28,8 +28,8 @@ export interface IDataSource {
   readonly startTime: number;
   readonly timeStep: number;
   readonly length: number;
-  getNy(index: number): number;
-  getSf?(index: number): number;
+  getNy(index: number): number[];
+  getSf?(index: number): number[];
 }
 
 export class ChartData {
@@ -53,8 +53,8 @@ export class ChartData {
     this.hasSf = typeof source.getSf === "function";
     this.data = new Array(source.length);
     for (let i = 0; i < source.length; i++) {
-      const ny = source.getNy(i);
-      const sf = this.hasSf ? source.getSf!(i) : undefined;
+      const ny = source.getNy(i)[0];
+      const sf = this.hasSf ? source.getSf!(i)[0] : undefined;
       this.data[i] = [ny, sf];
     }
     this.idxToTime = betweenTBasesAR1(

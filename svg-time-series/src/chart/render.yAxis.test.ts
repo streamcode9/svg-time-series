@@ -83,8 +83,8 @@ describe("setupRender Y-axis modes", () => {
       startTime: 0,
       timeStep: 1,
       length: 3,
-      getNy: (i) => [1, 2, 3][i],
-      getSf: (i) => [10, 20, 30][i],
+      getNy: (i) => [[1, 2, 3][i]],
+      getSf: (i) => [[10, 20, 30][i]],
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
@@ -98,8 +98,8 @@ describe("setupRender Y-axis modes", () => {
       startTime: 0,
       timeStep: 1,
       length: 3,
-      getNy: (i) => [1, 2, 3][i],
-      getSf: (i) => [10, 20, 30][i],
+      getNy: (i) => [[1, 2, 3][i]],
+      getSf: (i) => [[10, 20, 30][i]],
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, true);

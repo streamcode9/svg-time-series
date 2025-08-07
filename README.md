@@ -47,8 +47,8 @@ const source: IDataSource = {
   startTime,
   timeStep,
   length: data.length,
-  getNy: (i) => data[i][0],
-  getSf: (i) => data[i][1],
+  getNy: (i) => [data[i][0]],
+  getSf: (i) => [data[i][1]],
 };
 
 const chart = new TimeSeriesChart(
@@ -64,6 +64,10 @@ const chart = new TimeSeriesChart(
 );
 ```
 
+The `getNy` and `getSf` callbacks return arrays of numbers so a data source
+can supply multiple lines for each axis. The current chart implementation uses
+only the first value from each array.
+
 The third argument creates a legend controller, letting you customize how
 legend entries are rendered, including timestamp formatting.
 
@@ -74,8 +78,8 @@ const singleSource: IDataSource = {
   startTime,
   timeStep,
   length: data.length,
-  getNy: (i) => data[i][0],
-  getSf: (i) => data[i][1],
+  getNy: (i) => [data[i][0]],
+  getSf: (i) => [data[i][1]],
 };
 
 const chartSingle = new TimeSeriesChart(

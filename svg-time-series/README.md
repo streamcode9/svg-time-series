@@ -32,8 +32,8 @@ const source: IDataSource = {
   startTime: Date.now(),
   timeStep: 1000, // time step in ms
   length: ny.length,
-  getNy: (i) => ny[i],
-  getSf: (i) => sf[i],
+  getNy: (i) => [ny[i]],
+  getSf: (i) => [sf[i]],
 };
 
 const chart = new TimeSeriesChart(
@@ -48,6 +48,9 @@ const chart = new TimeSeriesChart(
   () => {},
 );
 ```
+
+`getNy` and `getSf` return arrays, allowing a data source to provide multiple
+series per axis. At present, only the first value in each array is rendered.
 
 The third argument lets you supply a custom legend controller. See
 `samples/LegendController.ts` for a reference implementation.

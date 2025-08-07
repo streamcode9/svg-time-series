@@ -22,8 +22,8 @@ onCsv((data: [number, number][]) => {
     startTime: Date.now(),
     timeStep: 86400000,
     length: data.length,
-    getNy: (i) => data[i][0],
-    getSf: (i) => data[i][1],
+    getNy: (i) => [data[i][0]],
+    getSf: (i) => [data[i][1]],
   };
   const chart = new TimeSeriesChart(
     svg,
