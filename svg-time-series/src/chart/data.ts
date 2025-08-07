@@ -89,16 +89,17 @@ export class ChartData {
     sf?: number;
     timestamp: number;
   } {
-    const clamped = Math.min(
-      Math.max(Math.round(idx), 0),
-      this.data.length - 1,
-    );
+    const clamped = this.clampIndex(Math.round(idx));
     const [ny, sf] = this.data[clamped];
     return {
       ny,
       sf,
       timestamp: this.idxToTime.applyToPoint(clamped),
     };
+  }
+
+  private clampIndex(idx: number): number {
+    return Math.min(Math.max(idx, 0), this.data.length - 1);
   }
 
   private rebuildSegmentTrees(): void {
@@ -132,9 +133,8 @@ export class ChartData {
     const [minIdxX, maxIdxX] = bIndexVisible.toArr();
     let startIdx = Math.floor(minIdxX);
     let endIdx = Math.ceil(maxIdxX);
-    const lastIdx = this.data.length - 1;
-    startIdx = Math.min(Math.max(startIdx, 0), lastIdx);
-    endIdx = Math.min(Math.max(endIdx, 0), lastIdx);
+    startIdx = this.clampIndex(startIdx);
+    endIdx = this.clampIndex(endIdx);
     if (startIdx > endIdx) {
       [startIdx, endIdx] = [endIdx, startIdx];
     }
