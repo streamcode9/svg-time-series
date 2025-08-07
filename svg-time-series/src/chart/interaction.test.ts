@@ -23,6 +23,18 @@ class Matrix {
   }
 }
 
+class Point {
+  constructor(
+    public x = 0,
+    public y = 0,
+  ) {}
+  matrixTransform(m: Matrix) {
+    return new Point(this.x + m.tx, this.y + m.ty);
+  }
+}
+
+(globalThis as any).DOMPoint = Point;
+
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
 let updateNodeCalls = 0;
 vi.mock("../utils/domNodeTransform.ts", () => ({
@@ -39,6 +51,7 @@ vi.mock("../ViewportTransform.ts", () => ({
     constructor() {
       transformInstances.push(this);
     }
+    matrix = new Matrix();
     onZoomPan = vi.fn();
     fromScreenToModelX = vi.fn((x: number) => x);
     fromScreenToModelBasisX = vi.fn(

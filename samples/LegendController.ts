@@ -10,7 +10,7 @@ export class LegendController implements ILegendController {
   private legendGreen: Selection<HTMLElement, unknown, HTMLElement, unknown>;
   private legendBlue: Selection<HTMLElement, unknown, HTMLElement, unknown>;
 
-  private readonly dotRadius = 3;
+  private readonly dotRadius = 2;
   private highlightedGreenDot: SVGCircleElement;
   private highlightedBlueDot: SVGCircleElement | null;
 
@@ -34,15 +34,24 @@ export class LegendController implements ILegendController {
     this.legendBlue = legend.select(".chart-legend__blue_value");
 
     const svg = state.paths.viewNy.ownerSVGElement!;
-    const makeDot = () =>
-      select(svg)
+    const makeDot = (path: SVGPathElement) => {
+      const color =
+        path.getAttribute("stroke") || getComputedStyle(path).stroke || "black";
+      return select(svg)
         .append("circle")
         .attr("cx", 0)
         .attr("cy", 0)
         .attr("r", this.dotRadius)
+        .attr("fill", color)
+        .attr("stroke", color)
         .node() as SVGCircleElement;
-    this.highlightedGreenDot = makeDot();
-    this.highlightedBlueDot = state.paths.viewSf ? makeDot() : null;
+    };
+    this.highlightedGreenDot = makeDot(
+      state.paths.viewNy.querySelector("path") as SVGPathElement,
+    );
+    this.highlightedBlueDot = state.paths.viewSf
+      ? makeDot(state.paths.viewSf.querySelector("path") as SVGPathElement)
+      : null;
 
     const { wrapped, cancel } = drawProc(() => {
       this.update();

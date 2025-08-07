@@ -89,7 +89,7 @@ function createSvgAndLegend() {
 }
 
 describe("LegendController", () => {
-  it("positions highlight dot using inverted y-axis", () => {
+  it("places highlight dot with correct y and color", () => {
     const { svg, legendDiv } = createSvgAndLegend();
     const source: IDataSource = {
       startTime: 0,
@@ -100,6 +100,7 @@ describe("LegendController", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
+    select(state.paths.viewNy).select("path").attr("stroke", "green");
     const lc = new LegendController(legendDiv as any, state, data);
 
     const updateSpy = vi
@@ -114,7 +115,12 @@ describe("LegendController", () => {
     const matrix = lastCall[1] as Matrix;
     const expectedY =
       state.dimensions.height - state.scales.yNy(data.getPoint(1).ny);
+    const screenX = state.scales.x(data.getPoint(1).timestamp);
+    expect(matrix.e).toBeCloseTo(screenX);
     expect(matrix.f).toBeCloseTo(expectedY);
+    const circle = svg.select("circle").node() as SVGCircleElement;
+    expect(circle.getAttribute("stroke")).toBe("green");
+    expect(circle.getAttribute("r")).toBe("2");
 
     vi.useRealTimers();
     updateSpy.mockRestore();
