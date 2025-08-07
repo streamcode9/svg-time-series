@@ -146,6 +146,7 @@ export interface RenderState {
   dimensions: Dimensions;
   dualYAxis: boolean;
   series: Series[];
+  refresh: (data: ChartData) => void;
 }
 
 export function setupRender(
@@ -223,41 +224,50 @@ export function setupRender(
   };
   const dimensions: Dimensions = { width, height };
 
-  return { scales, axes, paths, transforms, dimensions, dualYAxis, series };
-}
+  const state: RenderState = {
+    scales,
+    axes,
+    paths,
+    transforms,
+    dimensions,
+    dualYAxis,
+    series,
+    refresh(this: RenderState, data: ChartData) {
+      const bIndexVisible = this.transforms.ny.fromScreenToModelBasisX(
+        this.transforms.bScreenXVisible,
+      );
+      updateScaleX(this.scales.x, bIndexVisible, data);
+      const series = this.series;
 
-export function refreshChart(state: RenderState, data: ChartData) {
-  const bIndexVisible = state.transforms.ny.fromScreenToModelBasisX(
-    state.transforms.bScreenXVisible,
-  );
-  updateScaleX(state.scales.x, bIndexVisible, data);
-  const series = state.series;
+      // Update tree references in case data has changed
+      series[0].tree = data.treeNy;
+      series[1].tree = data.treeSf;
 
-  // Update tree references in case data has changed
-  series[0].tree = data.treeNy;
-  series[1].tree = data.treeSf;
-
-  if (series[0].scale === series[1].scale && data.treeSf) {
-    const { combined, dp } = data.combinedTemperatureDp(bIndexVisible);
-    for (const s of series) {
-      s.transform.onReferenceViewWindowResize(dp);
-      s.scale.domain(combined.toArr());
-    }
-  } else {
-    for (const s of series) {
-      if (s.tree) {
-        updateScaleY(bIndexVisible, s.tree, s.transform, s.scale, data);
+      if (series[0].scale === series[1].scale && data.treeSf) {
+        const { combined, dp } = data.combinedTemperatureDp(bIndexVisible);
+        for (const s of series) {
+          s.transform.onReferenceViewWindowResize(dp);
+          s.scale.domain(combined.toArr());
+        }
+      } else {
+        for (const s of series) {
+          if (s.tree) {
+            updateScaleY(bIndexVisible, s.tree, s.transform, s.scale, data);
+          }
+        }
       }
-    }
-  }
 
-  for (const s of series) {
-    if (s.view) {
-      updateNode(s.view, s.transform.matrix);
-    }
-    if (s.axis && s.gAxis) {
-      s.axis.axisUp(s.gAxis);
-    }
-  }
-  state.axes.x.axisUp(state.axes.gX);
+      for (const s of series) {
+        if (s.view) {
+          updateNode(s.view, s.transform.matrix);
+        }
+        if (s.axis && s.gAxis) {
+          s.axis.axisUp(s.gAxis);
+        }
+      }
+      this.axes.x.axisUp(this.axes.gX);
+    },
+  };
+
+  return state;
 }

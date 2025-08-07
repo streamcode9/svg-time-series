@@ -5,7 +5,7 @@ import { describe, it, expect, beforeAll, vi } from "vitest";
 import { JSDOM } from "jsdom";
 import { select } from "d3-selection";
 import { ChartData, IDataSource } from "./data.ts";
-import { setupRender, refreshChart } from "./render.ts";
+import { setupRender } from "./render.ts";
 import * as domNode from "../utils/domNodeTransform.ts";
 
 class Matrix {
@@ -80,7 +80,7 @@ function createSvg() {
   return select(div).select("svg");
 }
 
-describe("refreshChart integration", () => {
+describe("RenderState.refresh integration", () => {
   it("updates scales, axes and series views", () => {
     const svg = createSvg();
     const source: IDataSource = {
@@ -102,7 +102,7 @@ describe("refreshChart integration", () => {
     const ySfBefore = state.scales.ySf!.domain().slice();
 
     data.append(100, 200);
-    refreshChart(state, data);
+    state.refresh(data);
 
     const xAfter = state.scales.x.domain();
     const yNyAfter = state.scales.yNy.domain();

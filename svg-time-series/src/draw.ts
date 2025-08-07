@@ -2,7 +2,7 @@ import { Selection } from "d3-selection";
 import { D3ZoomEvent } from "d3-zoom";
 
 import { ChartData, IMinMax, IDataSource } from "./chart/data.ts";
-import { setupRender, refreshChart } from "./chart/render.ts";
+import { setupRender } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
 import { renderPaths } from "./chart/render/utils.ts";
 import type { ILegendController } from "./chart/legend.ts";
@@ -58,7 +58,7 @@ export class TimeSeriesChart {
     this.zoomState = new ZoomState(
       this.zoomArea,
       this.state,
-      () => refreshChart(this.state, this.data),
+      () => this.state.refresh(this.data),
       (event) => {
         zoomHandler(event);
         this.legendController.refresh();

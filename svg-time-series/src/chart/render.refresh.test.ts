@@ -21,7 +21,7 @@ vi.mock("../axis.ts", () => {
 import { JSDOM } from "jsdom";
 import { select } from "d3-selection";
 import { ChartData, type IDataSource } from "./data.ts";
-import { setupRender, refreshChart } from "./render.ts";
+import { setupRender } from "./render.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 
 class Matrix {
@@ -91,7 +91,7 @@ function createSvg() {
   return select(div).select("svg");
 }
 
-describe("refreshChart", () => {
+describe("RenderState.refresh", () => {
   it("handles single series with secondary data", () => {
     const svg = createSvg();
     const source: IDataSource = {
@@ -106,7 +106,7 @@ describe("refreshChart", () => {
     const updateNodeMock = vi.mocked(updateNode);
     updateNodeMock.mockClear();
 
-    refreshChart(state, data);
+    state.refresh(data);
 
     expect(state.series[0].tree).toBe(data.treeNy);
     expect(state.series[1].tree).toBe(data.treeSf);
@@ -139,7 +139,7 @@ describe("refreshChart", () => {
     const updateNodeMock = vi.mocked(updateNode);
     updateNodeMock.mockClear();
 
-    refreshChart(state, data);
+    state.refresh(data);
 
     expect(state.series[0].tree).toBe(data.treeNy);
     expect(state.series[1].tree).toBe(data.treeSf);
@@ -169,7 +169,7 @@ describe("refreshChart", () => {
     };
     const data1 = new ChartData(source1);
     const state = setupRender(svg as any, data1, true);
-    refreshChart(state, data1);
+    state.refresh(data1);
     const source2: IDataSource = {
       startTime: 0,
       timeStep: 1,
@@ -181,7 +181,7 @@ describe("refreshChart", () => {
     const updateNodeMock = vi.mocked(updateNode);
     updateNodeMock.mockClear();
 
-    refreshChart(state, data2);
+    state.refresh(data2);
 
     expect(state.series[0].tree).toBe(data2.treeNy);
     expect(state.series[1].tree).toBe(data2.treeSf);
