@@ -30,6 +30,10 @@ work is possible. Keep watching!
 - For a performance benchmark of core chart components, open
   `benchmarks/chart-components/index.html` and observe the reported FPS and
   render time in your browser.
+- To run automated browser benchmarks with
+  [Tachometer](https://github.com/Polymer/tachometer), execute
+  `node scripts/run-browser-benchmarks.mjs`. The script measures first
+  contentful paint and writes JSON results to `tachometer-results.json`.
 
 ## Y-axis modes
 
