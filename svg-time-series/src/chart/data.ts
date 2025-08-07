@@ -73,16 +73,12 @@ export class ChartData {
     this.rebuildSegmentTrees();
   }
 
-  append(ny: number, sf?: number): void {
-    if (!this.hasSf && sf !== undefined) {
-      console.warn(
-        "ChartData: sf parameter provided but data source has only one series. sf value will be ignored.",
-      );
-    } else if (this.hasSf && sf === undefined) {
-      console.warn(
-        "ChartData: sf parameter missing but data source has two series. Using NaN as fallback.",
-      );
-      sf = NaN;
+  append(ny: number, sf: number): void {
+    if (ny == null || !Number.isFinite(ny)) {
+      throw new Error("ChartData.append requires ny to be a finite number");
+    }
+    if (sf == null || !Number.isFinite(sf)) {
+      throw new Error("ChartData.append requires sf to be a finite number");
     }
     this.data.push([ny, this.hasSf ? sf : undefined]);
     this.data.shift();

@@ -72,7 +72,7 @@ export class TimeSeriesChart {
     };
   }
 
-  public updateChartWithNewData(ny: number, sf?: number) {
+  public updateChartWithNewData(ny: number, sf: number) {
     this.data.append(ny, sf);
     this.drawNewData();
   }

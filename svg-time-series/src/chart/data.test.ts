@@ -91,22 +91,22 @@ describe("ChartData", () => {
     expect(cd.treeSf!.query(0, 1)).toEqual({ min: 3, max: 4 });
   });
 
-  it("warns and uses NaN when sf is missing", () => {
+  it("throws when ny is invalid", () => {
     const source = makeSource([
       [0, 0],
       [1, 1],
     ]);
     const cd = new ChartData(source);
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(() => cd.append(undefined as unknown as number, 2)).toThrow(/ny/);
+  });
 
-    cd.append(2);
-
-    expect(warnSpy).toHaveBeenCalledOnce();
-    expect(cd.data).toEqual([
+  it("throws when sf is invalid", () => {
+    const source = makeSource([
+      [0, 0],
       [1, 1],
-      [2, NaN],
     ]);
-    warnSpy.mockRestore();
+    const cd = new ChartData(source);
+    expect(() => cd.append(2, undefined as unknown as number)).toThrow(/sf/);
   });
 
   it("computes visible temperature bounds", () => {
@@ -247,7 +247,7 @@ describe("ChartData", () => {
         [0, undefined],
         [1, undefined],
       ]);
-      cd.append(2);
+      cd.append(2, 0);
       expect(cd.data).toEqual([
         [1, undefined],
         [2, undefined],
