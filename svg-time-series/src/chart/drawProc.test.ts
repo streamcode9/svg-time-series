@@ -25,4 +25,21 @@ describe("drawProc", () => {
 
     expect(fn).toHaveBeenCalledTimes(1);
   });
+
+  it("uses latest parameters when called multiple times", () => {
+    vi.useFakeTimers();
+    const fn = vi.fn();
+    const wrapped = drawProc(fn);
+
+    wrapped("first");
+    wrapped("second");
+    wrapped("third");
+
+    expect(fn).not.toHaveBeenCalled();
+
+    vi.runAllTimers();
+
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledWith("third");
+  });
 });
