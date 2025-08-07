@@ -1,10 +1,4 @@
-import {
-  AR1,
-  AR1Basis,
-  DirectProductBasis,
-  betweenTBasesAR1,
-  bUnit,
-} from "../math/affine.ts";
+import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
 import { SegmentTree } from "segment-tree-rmq";
 
 export interface IMinMax {
@@ -36,10 +30,11 @@ export class ChartData {
   public data: Array<[number, number?]>;
   public treeNy!: SegmentTree<IMinMax>;
   public treeSf?: SegmentTree<IMinMax>;
-  public idxToTime: AR1;
-  private idxShift: AR1;
   public bIndexFull: AR1Basis;
   private hasSf: boolean;
+  public readonly startTime: number;
+  public readonly timeStep: number;
+  public startIndex: number;
 
   /**
    * Creates a new ChartData instance.
@@ -62,11 +57,9 @@ export class ChartData {
       const sf = this.hasSf ? source.getSeries(i, 1) : undefined;
       this.data[i] = [ny, sf];
     }
-    this.idxToTime = betweenTBasesAR1(
-      bUnit,
-      new AR1Basis(source.startTime, source.startTime + source.timeStep),
-    );
-    this.idxShift = betweenTBasesAR1(new AR1Basis(-1, 0), bUnit);
+    this.startTime = source.startTime;
+    this.timeStep = source.timeStep;
+    this.startIndex = 0;
     // bIndexFull represents the full range of data indices and remains constant
     // since append() maintains a sliding window of fixed length
     this.bIndexFull = new AR1Basis(0, this.data.length - 1);
@@ -85,7 +78,7 @@ export class ChartData {
     const point: [number, number?] = this.hasSf ? [ny, sf!] : [ny, undefined];
     this.data.push(point);
     this.data.shift();
-    this.idxToTime = this.idxShift.composeWith(this.idxToTime);
+    this.startIndex++;
     this.rebuildSegmentTrees();
   }
 
@@ -106,7 +99,7 @@ export class ChartData {
     return {
       ny,
       sf,
-      timestamp: this.idxToTime.applyToPoint(clamped),
+      timestamp: this.startTime + (this.startIndex + clamped) * this.timeStep,
     };
   }
 

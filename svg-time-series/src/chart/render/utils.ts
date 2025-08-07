@@ -65,8 +65,10 @@ export function updateScaleX(
   bIndexVisible: AR1Basis,
   data: ChartData,
 ) {
-  const bTimeVisible = bIndexVisible.transformWith(data.idxToTime);
-  x.domain(bTimeVisible.toArr());
+  const [minIdx, maxIdx] = bIndexVisible.toArr();
+  const start = data.startTime + (data.startIndex + minIdx) * data.timeStep;
+  const end = data.startTime + (data.startIndex + maxIdx) * data.timeStep;
+  x.domain([start, end]);
 }
 
 export function updateScaleY(
