@@ -19,6 +19,7 @@ import { TimeSeriesChart } from "svg-time-series";
 ```ts
 import { select } from "d3-selection";
 import { TimeSeriesChart, IDataSource } from "svg-time-series";
+import { LegendController } from "../samples/LegendController"; // example
 
 const svg = select("#chart").append("svg").append("g").attr("class", "view");
 const legend = select("#legend");
@@ -37,17 +38,19 @@ const source: IDataSource = {
 
 const chart = new TimeSeriesChart(
   svg,
-  legend,
   source,
+  (state, data) =>
+    new LegendController(legend, state, data, (ts) =>
+      new Date(ts).toISOString(),
+    ),
   true, // enable dual Y axes
   () => {},
   () => {},
-  (ts) => new Date(ts).toISOString(),
 );
 ```
 
-The last parameter allows customizing how timestamps appear in the legend. If
-omitted, `TimeSeriesChart` uses `toLocaleString`.
+The third argument lets you supply a custom legend controller. See
+`samples/LegendController.ts` for a reference implementation.
 
 ## Demos
 

@@ -5,6 +5,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart, IDataSource } from "../draw.ts";
+import { LegendController } from "../../../samples/LegendController.ts";
 
 class Matrix {
   constructor(
@@ -111,12 +112,12 @@ function createChart(
   };
   const chart = new TimeSeriesChart(
     select(svgEl) as any,
-    select(legend) as any,
     source,
+    (state, chartData) =>
+      new LegendController(select(legend) as any, state, chartData, formatTime),
     true,
     () => {},
     () => {},
-    formatTime,
   );
 
   return {
@@ -342,8 +343,9 @@ describe("chart interaction", () => {
     };
     const chart = new TimeSeriesChart(
       select(svgEl) as any,
-      select(legend) as any,
       source,
+      (state, data) =>
+        new LegendController(select(legend) as any, state, data),
       true,
       () => {},
       mouseMoveHandler,

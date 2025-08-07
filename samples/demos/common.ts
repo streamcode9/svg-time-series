@@ -3,6 +3,7 @@ import { ValueFn, select, selectAll, pointer } from "d3-selection";
 import { D3ZoomEvent } from "d3-zoom";
 
 import { TimeSeriesChart, IDataSource } from "svg-time-series";
+import { LegendController } from "../LegendController.ts";
 import { measure } from "../measure.ts";
 
 export function drawCharts(data: [number, number][], dualYAxis = false) {
@@ -34,8 +35,8 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
     };
     const chart = new TimeSeriesChart(
       svg,
-      legend,
       source,
+      (state, chartData) => new LegendController(legend, state, chartData),
       dualYAxis,
       onZoom,
       onMouseMove,

@@ -1,4 +1,5 @@
 import { TimeSeriesChart, IDataSource } from "svg-time-series";
+import { LegendController } from "../../LegendController.ts";
 import { measureAll, onCsv, animateBench } from "../bench.ts";
 import { select, Selection } from "d3-selection";
 
@@ -24,7 +25,11 @@ onCsv((data: [number, number][]) => {
     getNy: (i) => data[i][0],
     getSf: (i) => data[i][1],
   };
-  const chart = new TimeSeriesChart(svg, legend, source);
+  const chart = new TimeSeriesChart(
+    svg,
+    source,
+    (state, chartData) => new LegendController(legend, state, chartData),
+  );
   const renderMs = performance.now() - start;
   document.getElementById("render-time")!.textContent =
     `render: ${renderMs.toFixed(1)}ms`;

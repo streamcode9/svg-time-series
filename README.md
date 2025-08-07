@@ -41,6 +41,7 @@ scales.
 
 ```ts
 import { TimeSeriesChart, IDataSource } from "svg-time-series";
+import { LegendController } from "./LegendController"; // implement your own
 
 const source: IDataSource = {
   startTime,
@@ -52,18 +53,19 @@ const source: IDataSource = {
 
 const chart = new TimeSeriesChart(
   svg,
-  legend,
   source,
+  (state, data) =>
+    new LegendController(legend, state, data, (ts) =>
+      new Date(ts).toISOString(),
+    ),
   true, // enable dual Y axes
   onZoom,
   onMouseMove,
-  (ts) => new Date(ts).toISOString(),
 );
 ```
 
-The last argument, `formatTime`, is optional and lets you customize how
-timestamps are displayed in the legend. If omitted, timestamps are formatted
-with `toLocaleString`.
+The third argument creates a legend controller, letting you customize how
+legend entries are rendered, including timestamp formatting.
 
 For two series sharing a single Y-axis, pass `false` for `dualYAxis`:
 
@@ -78,12 +80,14 @@ const singleSource: IDataSource = {
 
 const chartSingle = new TimeSeriesChart(
   svg,
-  legend,
   singleSource,
+  (state, data) =>
+    new LegendController(legend, state, data, (ts) =>
+      new Date(ts).toISOString(),
+    ),
   false, // series share one axis
   onZoom,
   onMouseMove,
-  (ts) => new Date(ts).toISOString(),
 );
 ```
 
