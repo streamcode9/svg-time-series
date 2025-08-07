@@ -82,7 +82,8 @@ export class ChartData {
         throw new Error("ChartData.append requires sf to be a finite number");
       }
     }
-    this.data.push([ny, this.hasSf ? sf! : undefined]);
+    const point: [number, number?] = this.hasSf ? [ny, sf!] : [ny, undefined];
+    this.data.push(point);
     this.data.shift();
     this.idxToTime = this.idxShift.composeWith(this.idxToTime);
     this.rebuildSegmentTrees();

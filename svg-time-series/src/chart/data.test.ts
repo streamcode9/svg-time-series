@@ -297,7 +297,7 @@ describe("ChartData", () => {
         getSeries: (i) => [0][i],
       };
       const cd = new ChartData(source);
-      expect(() => cd.append(1, NaN)).not.toThrow();
+      expect(() => cd.append(1)).not.toThrow();
       expect(cd.data).toEqual([[1, undefined]]);
     });
   });
