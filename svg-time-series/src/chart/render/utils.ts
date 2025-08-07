@@ -105,14 +105,14 @@ export function renderPaths(
   state: RenderState,
   dataArr: Array<[number, number?]>,
 ) {
-  const drawLine = (cityIdx: number) =>
-    line<[number, number?]>()
+  const paths = state.paths.path.nodes() as SVGPathElement[];
+  let cityIdx = 0;
+  for (const path of paths) {
+    const drawLine = line<[number, number?]>()
       .defined((d) => !(isNaN(d[cityIdx]!) || d[cityIdx] == null))
       .x((_, i) => i)
       .y((d) => d[cityIdx]!);
-
-  state.paths.path.attr(
-    "d",
-    (cityIndex: number) => drawLine(cityIndex)(dataArr) ?? "",
-  );
+    path.setAttribute("d", drawLine(dataArr) ?? "");
+    cityIdx++;
+  }
 }

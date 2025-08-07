@@ -122,26 +122,30 @@ export function setupRender(
   };
 
   updateScaleX(scales.x, data.bIndexFull, data);
-  if (hasSf && !dualYAxis && data.treeSf) {
+  const series = [
+    {
+      tree: data.treeNy,
+      transform: transformsInner.ny,
+      scale: scales.yNy,
+    },
+  ];
+  if (hasSf && dualYAxis && data.treeSf && transformsInner.sf && scales.ySf) {
+    series.push({
+      tree: data.treeSf,
+      transform: transformsInner.sf,
+      scale: scales.ySf,
+    });
+  }
+
+  if (series.length === 1 && hasSf && data.treeSf) {
     const { combined, dp } = data.combinedTemperatureDp(data.bIndexFull);
-    transformsInner.ny.onReferenceViewWindowResize(dp);
-    scales.yNy.domain(combined.toArr());
+    for (const s of series) {
+      s.transform.onReferenceViewWindowResize(dp);
+      s.scale.domain(combined.toArr());
+    }
   } else {
-    updateScaleY(
-      data.bIndexFull,
-      data.treeNy,
-      transformsInner.ny,
-      scales.yNy,
-      data,
-    );
-    if (hasSf && dualYAxis && data.treeSf && transformsInner.sf && scales.ySf) {
-      updateScaleY(
-        data.bIndexFull,
-        data.treeSf,
-        transformsInner.sf,
-        scales.ySf,
-        data,
-      );
+    for (const s of series) {
+      updateScaleY(data.bIndexFull, s.tree, s.transform, s.scale, data);
     }
   }
 
@@ -175,46 +179,54 @@ export function refreshChart(state: RenderState, data: ChartData) {
     state.transforms.bScreenXVisible,
   );
   updateScaleX(state.scales.x, bIndexVisible, data);
+
+  const series = [
+    {
+      tree: data.treeNy,
+      transform: state.transforms.ny,
+      scale: state.scales.yNy,
+      view: state.paths.viewNy,
+      axis: state.axes.y,
+      gAxis: state.axes.gY,
+    },
+  ];
+
   if (
     state.axes.yRight &&
     state.scales.ySf &&
     state.transforms.sf &&
-    data.treeSf
+    data.treeSf &&
+    state.paths.viewSf &&
+    state.axes.gYRight
   ) {
-    updateScaleY(
-      bIndexVisible,
-      data.treeNy,
-      state.transforms.ny,
-      state.scales.yNy,
-      data,
-    );
-    updateScaleY(
-      bIndexVisible,
-      data.treeSf,
-      state.transforms.sf,
-      state.scales.ySf,
-      data,
-    );
-    updateNode(state.paths.viewSf!, state.transforms.sf.matrix);
-  } else if (data.treeSf) {
+    series.push({
+      tree: data.treeSf,
+      transform: state.transforms.sf,
+      scale: state.scales.ySf,
+      view: state.paths.viewSf,
+      axis: state.axes.yRight,
+      gAxis: state.axes.gYRight!,
+    });
+  }
+
+  if (series.length === 1 && data.treeSf) {
     const { combined, dp } = data.combinedTemperatureDp(bIndexVisible);
-    state.transforms.ny.onReferenceViewWindowResize(dp);
-    state.transforms.sf?.onReferenceViewWindowResize(dp);
-    state.scales.yNy.domain(combined.toArr());
+    for (const s of series) {
+      s.transform.onReferenceViewWindowResize(dp);
+      s.scale.domain(combined.toArr());
+    }
     if (state.paths.viewSf) {
       updateNode(state.paths.viewSf, state.transforms.ny.matrix);
     }
   } else {
-    updateScaleY(
-      bIndexVisible,
-      data.treeNy,
-      state.transforms.ny,
-      state.scales.yNy,
-      data,
-    );
+    for (const s of series) {
+      updateScaleY(bIndexVisible, s.tree, s.transform, s.scale, data);
+    }
   }
-  updateNode(state.paths.viewNy, state.transforms.ny.matrix);
+
+  for (const s of series) {
+    updateNode(s.view, s.transform.matrix);
+    s.axis.axisUp(s.gAxis);
+  }
   state.axes.x.axisUp(state.axes.gX);
-  state.axes.y.axisUp(state.axes.gY);
-  state.axes.yRight?.axisUp(state.axes.gYRight!);
 }
