@@ -32,6 +32,9 @@ export class SegmentTree<T> {
   }
 
   update(index: number, value: T): void {
+    if (!Number.isInteger(index)) {
+      throw new Error("Index must be an integer");
+    }
     if (index < 0 || index >= this.size) {
       throw new Error("Index is out of range");
     }
@@ -45,6 +48,12 @@ export class SegmentTree<T> {
   }
 
   query(left: number, right: number): T {
+    if (!Number.isInteger(left)) {
+      throw new Error("Left index must be an integer");
+    }
+    if (!Number.isInteger(right)) {
+      throw new Error("Right index must be an integer");
+    }
     if (left < 0 || right >= this.size || left > right) {
       throw new Error("Range is not valid");
     }
