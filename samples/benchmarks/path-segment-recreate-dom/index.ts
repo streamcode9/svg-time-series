@@ -119,11 +119,11 @@ onCsv((data) => {
     return new TimeSeriesChart(svg, dataLength, drawLine, i);
   });
 
-  measure(3, (fps) => {
-    document.getElementById("fps").textContent = fps;
+  measure(3, ({ fps }) => {
+    document.getElementById("fps").textContent = fps.toFixed(2);
   });
 
-  measureOnce(60, (fps) => {
-    alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`);
+  measureOnce(60, ({ fps }) => {
+    alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`);
   });
 });

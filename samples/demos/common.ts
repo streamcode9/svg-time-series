@@ -52,8 +52,8 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
     charts.forEach((c) => c.updateChartWithNewData(newData[0], newData[1]));
     j++;
   }, 5000);
-  measure(3, (fps) => {
-    document.getElementById("fps").textContent = fps;
+  measure(3, ({ fps }) => {
+    document.getElementById("fps").textContent = fps.toFixed(2);
   });
 }
 

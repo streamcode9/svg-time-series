@@ -1,46 +1,59 @@
-export interface FrameCounter {
-  read(): number;
+export interface FrameStats {
+  fps: number;
+  frameTime: number;
+}
+
+interface FrameCounter {
+  read(): { frames: number; total: number };
   reset(): void;
   stop(): void;
 }
 
-export function startFrameCounter(): FrameCounter {
-  let count = 0;
-  let handle = -1;
-
-  const tick = () => {
-    count++;
-    handle = requestAnimationFrame(tick);
-  };
-
-  handle = requestAnimationFrame(tick);
+function startFrameCounter(): FrameCounter {
+  const durations: number[] = [];
+  const observer = new PerformanceObserver((list) => {
+    for (const entry of list.getEntries()) {
+      durations.push(entry.duration);
+    }
+  });
+  // "frame" is not yet in the TypeScript lib definitions
+  (observer as any).observe({ type: "frame", buffered: true });
 
   return {
-    read: () => count,
+    read: () => ({
+      frames: durations.length,
+      total: durations.reduce((a, b) => a + b, 0),
+    }),
     reset: () => {
-      count = 0;
+      durations.length = 0;
     },
     stop: () => {
-      if (handle !== -1) {
-        cancelAnimationFrame(handle);
-        handle = -1;
-      }
+      observer.disconnect();
     },
   };
 }
 
-export function measure(sec: number, drawFPS: (fps: string) => void): void {
+export function measure(sec: number, draw: (stats: FrameStats) => void): void {
   const counter = startFrameCounter();
   setInterval(() => {
-    drawFPS((counter.read() / sec).toPrecision(3));
+    const { frames, total } = counter.read();
+    const fps = frames === 0 ? 0 : frames / sec;
+    const frameTime = frames === 0 ? 0 : total / frames;
+    draw({ fps, frameTime });
     counter.reset();
   }, 1000 * sec);
 }
 
-export function measureOnce(sec: number, drawFPS: (fps: string) => void): void {
+export function measureOnce(
+  sec: number,
+  draw: (stats: FrameStats) => void,
+): void {
   const counter = startFrameCounter();
   setTimeout(() => {
-    drawFPS((counter.read() / sec).toPrecision(3));
+    const { frames, total } = counter.read();
     counter.stop();
+    const fps = frames === 0 ? 0 : frames / sec;
+    const frameTime = frames === 0 ? 0 : total / frames;
+    draw({ fps, frameTime });
   }, 1000 * sec);
 }
