@@ -2,8 +2,11 @@ import { Selection } from "d3-selection";
 import { D3ZoomEvent } from "d3-zoom";
 
 import { ChartData, IMinMax } from "./chart/data.ts";
-import { setupRender } from "./chart/render.ts";
-import { ChartInteraction } from "./chart/interaction.ts";
+import { setupRender, refreshChart } from "./chart/render.ts";
+import type { RenderState } from "./chart/render.ts";
+import { renderPaths } from "./chart/render/utils.ts";
+import { LegendController } from "./chart/legend.ts";
+import { ZoomState } from "./chart/zoomState.ts";
 
 export type { IMinMax } from "./chart/data.ts";
 
@@ -14,7 +17,10 @@ export interface IPublicInteraction {
 
 export class TimeSeriesChart {
   private data: ChartData;
-  private _interaction: ChartInteraction;
+  private state: RenderState;
+  private zoomArea: Selection<SVGRectElement, unknown, HTMLElement, unknown>;
+  private zoomState: ZoomState;
+  private legendController: LegendController;
 
   constructor(
     svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
@@ -46,31 +52,65 @@ export class TimeSeriesChart {
       buildSegmentTreeTupleSf,
     );
 
-    const renderState = setupRender(svg, this.data, dualYAxis);
-    this._interaction = new ChartInteraction(
-      svg,
+    this.state = setupRender(svg, this.data, dualYAxis);
+
+    this.zoomArea = svg
+      .append("rect")
+      .attr("class", "zoom")
+      .attr("width", this.state.dimensions.width)
+      .attr("height", this.state.dimensions.height);
+    this.zoomArea.on("mousemove", mouseMoveHandler);
+
+    this.legendController = new LegendController(
       legend,
-      renderState,
+      this.state,
       this.data,
-      zoomHandler,
-      mouseMoveHandler,
       formatTime,
     );
 
-    this._interaction.drawNewData();
-    this._interaction.onHover(renderState.dimensions.width - 1);
+    this.zoomState = new ZoomState(
+      this.zoomArea,
+      this.state,
+      () => refreshChart(this.state, this.data),
+      (event) => {
+        zoomHandler(event);
+        this.legendController.refresh();
+      },
+    );
+
+    this.drawNewData();
+    this.onHover(this.state.dimensions.width - 1);
   }
 
   public get interaction(): IPublicInteraction {
-    return this._interaction;
+    return { zoom: this.zoom, onHover: this.onHover };
   }
 
   public updateChartWithNewData(newData: [number, number?]) {
     this.data.append(newData);
-    this._interaction.drawNewData();
+    this.drawNewData();
   }
 
   public dispose() {
-    this._interaction.destroy();
+    this.zoomState.destroy();
+    this.zoomArea.on("mousemove", null);
+    this.zoomArea.remove();
+    this.legendController.destroy();
   }
+
+  public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
+    this.zoomState.zoom(event, false);
+    this.legendController.refresh();
+  };
+
+  public onHover = (x: number) => {
+    const idx = this.state.transforms.ny.fromScreenToModelX(x);
+    this.legendController.onHover(idx);
+  };
+
+  private drawNewData = () => {
+    renderPaths(this.state, this.data.data);
+    this.zoomState.refresh();
+    this.legendController.refresh();
+  };
 }

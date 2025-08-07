@@ -4,9 +4,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
-import { ChartData } from "./data.ts";
-import { setupRender } from "./render.ts";
-import { ChartInteraction } from "./interaction.ts";
+import { TimeSeriesChart } from "../draw.ts";
 
 class Matrix {
   constructor(
@@ -101,31 +99,25 @@ function createChart(data: Array<[number]>) {
     '<span class="chart-legend__time"></span>' +
     '<span class="chart-legend__green_value"></span>';
 
-  const chartData = new ChartData(0, 1, data, (i, arr) => ({
-    min: arr[i][0],
-    max: arr[i][0],
-  }));
-
-  const renderState = setupRender(select(svgEl) as any, chartData, false);
-  const interaction = new ChartInteraction(
+  const chart = new TimeSeriesChart(
     select(svgEl) as any,
     select(legend) as any,
-    renderState,
-    chartData,
+    0,
+    1,
+    data as Array<[number, number?]>,
+    (i, arr) => ({ min: arr[i][0], max: arr[i][0] }),
+    undefined,
+    false,
     () => {},
     () => {},
   );
 
-  interaction.drawNewData();
-  interaction.onHover(renderState.dimensions.width);
-
   return {
-    zoom: interaction.zoom,
-    onHover: interaction.onHover,
+    zoom: chart.zoom,
+    onHover: chart.onHover,
     svgEl,
     legend,
-    chartData,
-    interaction,
+    chart,
   };
 }
 
@@ -185,12 +177,10 @@ describe("chart interaction single-axis", () => {
 
   it("updates circle after appending data", () => {
     const data: Array<[number]> = [[10], [30]];
-    const { onHover, svgEl, legend, chartData, interaction } =
-      createChart(data);
+    const { onHover, svgEl, legend, chart } = createChart(data);
     vi.runAllTimers();
 
-    chartData.append([50]);
-    interaction.drawNewData();
+    chart.updateChartWithNewData([50]);
     vi.runAllTimers();
 
     onHover(1);

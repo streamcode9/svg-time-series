@@ -4,9 +4,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
-import { ChartData } from "./data.ts";
-import { setupRender } from "./render.ts";
-import { ChartInteraction } from "./interaction.ts";
 import { TimeSeriesChart } from "../draw.ts";
 
 class Matrix {
@@ -106,35 +103,26 @@ function createChart(
     '<span class="chart-legend__green_value"></span>' +
     '<span class="chart-legend__blue_value"></span>';
 
-  const chartData = new ChartData(
+  const chart = new TimeSeriesChart(
+    select(svgEl) as any,
+    select(legend) as any,
     0,
     1,
     data,
     (i, arr) => ({ min: arr[i][0], max: arr[i][0] }),
     (i, arr) => ({ min: arr[i][1]!, max: arr[i][1]! }),
-  );
-
-  const renderState = setupRender(select(svgEl) as any, chartData, true);
-  const interaction = new ChartInteraction(
-    select(svgEl) as any,
-    select(legend) as any,
-    renderState,
-    chartData,
+    true,
     () => {},
     () => {},
     formatTime,
   );
 
-  interaction.drawNewData();
-  interaction.onHover(renderState.dimensions.width);
-
   return {
-    zoom: interaction.zoom,
-    onHover: interaction.onHover,
+    zoom: chart.zoom,
+    onHover: chart.onHover,
     svgEl,
     legend,
-    chartData,
-    interaction,
+    chart,
   };
 }
 
@@ -210,12 +198,10 @@ describe("chart interaction", () => {
       [10, 20],
       [30, 40],
     ];
-    const { onHover, svgEl, legend, chartData, interaction } =
-      createChart(data);
+    const { onHover, svgEl, legend, chart } = createChart(data);
     vi.runAllTimers();
 
-    chartData.append([50, 60]);
-    interaction.drawNewData();
+    chart.updateChartWithNewData([50, 60]);
     vi.runAllTimers();
 
     onHover(1);
