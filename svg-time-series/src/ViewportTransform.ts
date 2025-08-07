@@ -1,31 +1,27 @@
 import { ZoomTransform } from "d3-zoom";
-import { AR1Basis, betweenTBasesAR1, bPlaceholder } from "./math/affine.ts";
-import { applyAR1ToMatrixX, applyAR1ToMatrixY } from "./utils/domMatrix.ts";
+import {
+  AR1Basis,
+  DirectProductBasis,
+  betweenTBasesDirectProduct,
+  dpbPlaceholder,
+} from "./math/affine.ts";
+import { applyDirectProductToMatrix } from "./utils/domMatrix.ts";
 
 export class ViewportTransform {
-  private viewPortPointsX: AR1Basis = bPlaceholder;
-  private viewPortPointsY: AR1Basis = bPlaceholder;
+  private viewPortPoints: DirectProductBasis = dpbPlaceholder;
 
-  private referenceViewWindowPointsX: AR1Basis = bPlaceholder;
-  private referenceViewWindowPointsY: AR1Basis = bPlaceholder;
+  private referenceViewWindowPoints: DirectProductBasis = dpbPlaceholder;
 
   private zoomTransform: DOMMatrix = new DOMMatrix();
   private referenceTransform: DOMMatrix = new DOMMatrix();
   private composedMatrix: DOMMatrix = new DOMMatrix();
 
   private updateReferenceTransform() {
-    const affX = betweenTBasesAR1(
-      this.referenceViewWindowPointsX,
-      this.viewPortPointsX,
+    const dp = betweenTBasesDirectProduct(
+      this.referenceViewWindowPoints,
+      this.viewPortPoints,
     );
-    const affY = betweenTBasesAR1(
-      this.referenceViewWindowPointsY,
-      this.viewPortPointsY,
-    );
-    this.referenceTransform = applyAR1ToMatrixY(
-      affY,
-      applyAR1ToMatrixX(affX, new DOMMatrix()),
-    );
+    this.referenceTransform = applyDirectProductToMatrix(dp, new DOMMatrix());
     this.updateComposedMatrix();
   }
 
@@ -37,8 +33,10 @@ export class ViewportTransform {
     bScreenXVisible: AR1Basis,
     bScreenYVisible: AR1Basis,
   ): void {
-    this.viewPortPointsX = bScreenXVisible;
-    this.viewPortPointsY = bScreenYVisible;
+    this.viewPortPoints = DirectProductBasis.fromProjections(
+      bScreenXVisible,
+      bScreenYVisible,
+    );
     this.updateReferenceTransform();
   }
 
@@ -46,8 +44,10 @@ export class ViewportTransform {
     newPointsX: AR1Basis,
     newPointsY: AR1Basis,
   ) {
-    this.referenceViewWindowPointsX = newPointsX;
-    this.referenceViewWindowPointsY = newPointsY;
+    this.referenceViewWindowPoints = DirectProductBasis.fromProjections(
+      newPointsX,
+      newPointsY,
+    );
     this.updateReferenceTransform();
   }
 

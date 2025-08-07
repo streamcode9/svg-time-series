@@ -64,6 +64,21 @@ export class DirectProduct {
     public s1: AR1,
     public s2: AR1,
   ) {}
+
+  composeWith(dp2: DirectProduct): DirectProduct {
+    return new DirectProduct(
+      this.s1.composeWith(dp2.s1),
+      this.s2.composeWith(dp2.s2),
+    );
+  }
+
+  inverse(): DirectProduct {
+    return new DirectProduct(this.s1.inverse(), this.s2.inverse());
+  }
+
+  applyToPoint(p: [number, number]): [number, number] {
+    return [this.s1.applyToPoint(p[0]), this.s2.applyToPoint(p[1])];
+  }
 }
 
 export class DirectProductBasis {
@@ -89,6 +104,13 @@ export class DirectProductBasis {
 
   toArr() {
     return [this.x().toArr(), this.y().toArr()];
+  }
+
+  transformWith(dp: DirectProduct): DirectProductBasis {
+    return new DirectProductBasis(
+      dp.applyToPoint(this.p1),
+      dp.applyToPoint(this.p2),
+    );
   }
 
   static fromProjections(b1: AR1Basis, b2: AR1Basis): DirectProductBasis {
