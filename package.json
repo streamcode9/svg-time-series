@@ -7,6 +7,7 @@
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest run",
+    "bench": "npm run bench --workspaces --if-present",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "commitlint": "commitlint --from=HEAD~1",

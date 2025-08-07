@@ -39,6 +39,7 @@
     "build": "tsc && vite build",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "bench": "echo \"No benchmarks defined\""
   }
 }

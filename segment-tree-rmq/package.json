@@ -13,7 +13,8 @@
     "build": "tsc",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "bench:segment-tree": "vitest bench bench/segmentTree.bench.ts"
+    "bench": "npm run bench:segment-tree",
+    "bench:segment-tree": "vitest bench bench/segmentTree.bench.ts --run"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
