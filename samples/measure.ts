@@ -6,7 +6,7 @@ export interface FrameCounter {
 
 export function startFrameCounter(): FrameCounter {
   let count = 0;
-  let handle = 0;
+  let handle = -1;
 
   const tick = () => {
     count++;
@@ -21,9 +21,9 @@ export function startFrameCounter(): FrameCounter {
       count = 0;
     },
     stop: () => {
-      if (handle) {
+      if (handle !== -1) {
         cancelAnimationFrame(handle);
-        handle = 0;
+        handle = -1;
       }
     },
   };
