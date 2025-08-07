@@ -92,7 +92,7 @@ export class LegendController implements ILegendController {
       if (node) {
         node.style.display = "";
         const y = yScale(fixNaN(val, 0) as number);
-        const ySafe = isNaN(y) ? 0 : y;
+        const ySafe = isNaN(y) ? 0 : this.state.dimensions.height - y;
         updateNode(node, this.identityMatrix.translate(screenX, ySafe));
       }
     };
