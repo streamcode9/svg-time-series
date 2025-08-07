@@ -113,24 +113,23 @@ export class ChartData {
     return Math.min(Math.max(idx, 0), this.data.length - 1);
   }
 
-  private rebuildSegmentTrees(): void {
-    const nyData: IMinMax[] = new Array(this.data.length);
+  private buildSeriesMinMax(seriesIdx: 0 | 1): IMinMax[] {
+    const result: IMinMax[] = new Array(this.data.length);
     for (let i = 0; i < this.data.length; i++) {
-      const val = this.data[i][0];
+      const val = this.data[i][seriesIdx]!;
       const minVal = isNaN(val) ? Infinity : val;
       const maxVal = isNaN(val) ? -Infinity : val;
-      nyData[i] = { min: minVal, max: maxVal } as IMinMax;
+      result[i] = { min: minVal, max: maxVal } as IMinMax;
     }
+    return result;
+  }
+
+  private rebuildSegmentTrees(): void {
+    const nyData = this.buildSeriesMinMax(0);
     this.treeNy = new SegmentTree(nyData, buildMinMax, minMaxIdentity);
 
     if (this.hasSf) {
-      const sfData: IMinMax[] = new Array(this.data.length);
-      for (let i = 0; i < this.data.length; i++) {
-        const val = this.data[i][1]!;
-        const minVal = isNaN(val) ? Infinity : val;
-        const maxVal = isNaN(val) ? -Infinity : val;
-        sfData[i] = { min: minVal, max: maxVal } as IMinMax;
-      }
+      const sfData = this.buildSeriesMinMax(1);
       this.treeSf = new SegmentTree(sfData, buildMinMax, minMaxIdentity);
     } else {
       this.treeSf = undefined;
