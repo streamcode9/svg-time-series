@@ -1,6 +1,6 @@
 import { select } from "d3-selection";
 import { range } from "d3-array";
-import { measureAll } from "../../benchmarks/bench.ts";
+import { measure, measureOnce } from "../../benchmarks/bench.ts";
 import { zoom, ZoomTransform } from "d3-zoom";
 import { betweenBasesAR1 } from "../../../svg-time-series/src/math/affine.ts";
 import {
@@ -129,7 +129,13 @@ function drawProc(f: (time: number) => void) {
   };
 }
 
-measureAll();
+measure(3, (fps) => {
+  document.getElementById("fps").textContent = fps;
+});
+
+measureOnce(60, (fps) => {
+  alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`);
+});
 
 function test(svgNode: SVGSVGElement, viewNode: SVGGElement, width: number) {
   const id = svgNode.createSVGMatrix();

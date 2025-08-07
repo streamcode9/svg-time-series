@@ -1,4 +1,4 @@
-import * as measureFPS from "../../measure.ts";
+import { measure, measureOnce } from "../bench.ts";
 import * as common from "./common.ts";
 import { csv } from "d3-request";
 import { select, selectAll } from "d3-selection";
@@ -28,6 +28,10 @@ csv("../../demos/ny-vs-sf.csv")
     }
   });
 
-measureFPS.measure(3, (fps: any) => {
+measure(3, (fps: string) => {
   document.getElementById("fps").textContent = fps;
+});
+
+measureOnce(60, (fps: string) => {
+  alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`);
 });

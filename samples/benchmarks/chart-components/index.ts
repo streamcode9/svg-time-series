@@ -1,6 +1,6 @@
 import { TimeSeriesChart, IDataSource } from "svg-time-series";
 import { LegendController } from "../../LegendController.ts";
-import { measureAll, onCsv, animateBench } from "../bench.ts";
+import { measure, measureOnce, onCsv, animateBench } from "../bench.ts";
 import { select, Selection } from "d3-selection";
 
 onCsv((data: [number, number][]) => {
@@ -41,5 +41,11 @@ onCsv((data: [number, number][]) => {
     j++;
   });
 
-  measureAll();
+  measure(3, (fps) => {
+    document.getElementById("fps").textContent = fps;
+  });
+
+  measureOnce(60, (fps) => {
+    alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`);
+  });
 });

@@ -1,17 +1,7 @@
 import { csv } from "d3-request";
 import { timer as runTimer } from "d3-timer";
 
-import { measure, measureOnce } from "../measure.ts";
-
-export function measureAll(): void {
-  measure(3, (fps) => {
-    document.getElementById("fps").textContent = fps;
-  });
-
-  measureOnce(60, (fps) => {
-    alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`);
-  });
-}
+export { measure, measureOnce } from "../measure.ts";
 
 export function onCsv(f: (csv: number[][]) => void): void {
   csv("../../demos/ny-vs-sf.csv")

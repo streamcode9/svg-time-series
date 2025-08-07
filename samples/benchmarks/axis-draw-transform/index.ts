@@ -1,6 +1,6 @@
 import { select, selectAll } from "d3-selection";
 
-import { measureAll } from "../bench.ts";
+import { measure, measureOnce } from "../bench.ts";
 import { TimeSeriesChart } from "./draw.ts";
 
 function makeChart() {
@@ -8,4 +8,11 @@ function makeChart() {
 }
 
 selectAll("svg").each(makeChart);
-measureAll();
+
+measure(3, (fps) => {
+  document.getElementById("fps").textContent = fps;
+});
+
+measureOnce(60, (fps) => {
+  alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`);
+});

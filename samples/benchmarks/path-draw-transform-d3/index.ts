@@ -1,7 +1,7 @@
 ﻿import { select, selectAll } from "d3-selection";
 import { line } from "d3-shape";
 
-import { measureAll, onCsv } from "../bench.ts";
+import { measure, measureOnce, onCsv } from "../bench.ts";
 import { TimeSeriesChart } from "./draw.ts";
 
 onCsv((data: number[][]) => {
@@ -21,5 +21,12 @@ onCsv((data: number[][]) => {
   selectAll("svg").each(function () {
     return new TimeSeriesChart(select(this), data.length);
   });
-  measureAll();
+
+  measure(3, (fps) => {
+    document.getElementById("fps").textContent = fps;
+  });
+
+  measureOnce(60, (fps) => {
+    alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`);
+  });
 });

@@ -1,6 +1,6 @@
 ﻿import { select, selectAll } from "d3-selection";
 import { line } from "d3-shape";
-import { measureAll, onCsv } from "../bench.ts";
+import { measure, measureOnce, onCsv } from "../bench.ts";
 import { TimeSeriesChart } from "./draw.ts";
 
 onCsv((data) => {
@@ -26,5 +26,11 @@ onCsv((data) => {
     return new TimeSeriesChart(select(this), dataLength, drawLine);
   });
 
-  measureAll();
+  measure(3, (fps) => {
+    document.getElementById("fps").textContent = fps;
+  });
+
+  measureOnce(60, (fps) => {
+    alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps}`);
+  });
 });
