@@ -31,17 +31,16 @@ export class LegendController {
     this.legendGreen = legend.select(".chart-legend__green_value");
     this.legendBlue = legend.select(".chart-legend__blue_value");
 
-    const makeDot = (view: SVGGElement) =>
-      select(view)
+    const svg = state.paths.viewNy.ownerSVGElement!;
+    const makeDot = () =>
+      select(svg)
         .append("circle")
         .attr("cx", 0)
         .attr("cy", 0)
-        .attr("r", 1)
+        .attr("r", this.dotRadius)
         .node() as SVGCircleElement;
-    this.highlightedGreenDot = makeDot(state.paths.viewNy);
-    this.highlightedBlueDot = state.paths.viewSf
-      ? makeDot(state.paths.viewSf)
-      : null;
+    this.highlightedGreenDot = makeDot();
+    this.highlightedBlueDot = state.paths.viewSf ? makeDot() : null;
 
     this.scheduleRefresh = drawProc(() => {
       this.update();
@@ -64,24 +63,20 @@ export class LegendController {
     } = this.data.getPoint(this.highlightedDataIdx);
     this.legendTime.text(this.formatTime(timestamp));
 
-    const { ny: dotScaleMatrixNy, sf: dotScaleMatrixSf } =
-      this.state.transforms.getDotMatrices(this.dotRadius);
     const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
       isNaN(n) ? valueForNaN : n;
+    const screenX = this.state.scales.x(timestamp);
     const updateDot = (
       val: number,
       legendSel: Selection<HTMLElement, unknown, HTMLElement, unknown>,
       node: SVGGraphicsElement | null,
-      dotScaleMatrix?: SVGMatrix,
+      yScale: (n: number) => number,
     ) => {
       legendSel.text(fixNaN(val, " "));
-      if (node && dotScaleMatrix) {
-        updateNode(
-          node,
-          this.identityMatrix
-            .translate(this.highlightedDataIdx, fixNaN(val, 0))
-            .multiply(dotScaleMatrix),
-        );
+      if (node) {
+        const y = yScale(fixNaN(val, 0) as number);
+        const ySafe = isNaN(y) ? 0 : y;
+        updateNode(node, this.identityMatrix.translate(screenX, ySafe));
       }
     };
 
@@ -89,14 +84,14 @@ export class LegendController {
       greenData,
       this.legendGreen,
       this.highlightedGreenDot,
-      dotScaleMatrixNy,
+      this.state.scales.yNy,
     );
-    if (dotScaleMatrixSf) {
+    if (this.highlightedBlueDot) {
       updateDot(
         blueData as number,
         this.legendBlue,
         this.highlightedBlueDot,
-        dotScaleMatrixSf,
+        this.state.scales.ySf ?? this.state.scales.yNy,
       );
     }
   }

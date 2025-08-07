@@ -80,10 +80,6 @@ interface TransformSet {
   ny: ViewportTransform;
   sf?: ViewportTransform;
   bScreenXVisible: AR1Basis;
-  getDotMatrices: (radius: number) => {
-    ny: SVGMatrix;
-    sf?: SVGMatrix;
-  };
 }
 
 interface Dimensions {
@@ -168,10 +164,6 @@ export function setupRender(
     ny: transformsInner.ny,
     sf: transformsInner.sf,
     bScreenXVisible,
-    getDotMatrices: (radius: number) => ({
-      ny: transformsInner.ny.dotScaleMatrix(radius),
-      sf: transformsInner.sf?.dotScaleMatrix(radius),
-    }),
   };
   const dimensions: Dimensions = { width, height };
 

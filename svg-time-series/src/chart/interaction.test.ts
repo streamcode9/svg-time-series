@@ -188,9 +188,9 @@ describe("chart interaction", () => {
     const greenTransform = nodeTransforms.get(circles[0] as SVGCircleElement)!;
     const blueTransform = nodeTransforms.get(circles[1] as SVGCircleElement)!;
     expect(greenTransform.tx).toBe(1);
-    expect(greenTransform.ty).toBe(30);
+    expect(greenTransform.ty).toBe(0);
     expect(blueTransform.tx).toBe(1);
-    expect(blueTransform.ty).toBe(40);
+    expect(blueTransform.ty).toBe(0);
   });
 
   it("updates circles after appending data", () => {
@@ -218,9 +218,9 @@ describe("chart interaction", () => {
     const greenTransform = nodeTransforms.get(circles[0] as SVGCircleElement)!;
     const blueTransform = nodeTransforms.get(circles[1] as SVGCircleElement)!;
     expect(greenTransform.tx).toBe(1);
-    expect(greenTransform.ty).toBe(50);
+    expect(greenTransform.ty).toBe(0);
     expect(blueTransform.tx).toBe(1);
-    expect(blueTransform.ty).toBe(60);
+    expect(blueTransform.ty).toBe(0);
   });
 
   it("uses custom time formatter when provided", () => {
@@ -283,9 +283,9 @@ describe("chart interaction", () => {
       "20",
     );
     expect(greenTransform.tx).toBe(0);
-    expect(greenTransform.ty).toBe(10);
+    expect(greenTransform.ty).toBe(50);
     expect(blueTransform.tx).toBe(0);
-    expect(blueTransform.ty).toBe(20);
+    expect(blueTransform.ty).toBe(50);
 
     onHover(100);
     vi.runAllTimers();
@@ -299,9 +299,9 @@ describe("chart interaction", () => {
       "60",
     );
     expect(greenTransform.tx).toBe(2);
-    expect(greenTransform.ty).toBe(50);
+    expect(greenTransform.ty).toBe(0);
     expect(blueTransform.tx).toBe(2);
-    expect(blueTransform.ty).toBe(60);
+    expect(blueTransform.ty).toBe(0);
   });
 
   it("throws on zero-length dataset", () => {

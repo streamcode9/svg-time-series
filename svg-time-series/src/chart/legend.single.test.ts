@@ -134,7 +134,7 @@ describe("legend controller single-axis", () => {
     const circle = svgEl.querySelector("circle")! as SVGCircleElement;
     const transform = nodeTransforms.get(circle)!;
     expect(transform.tx).toBe(1);
-    expect(transform.ty).toBe(30);
+    expect(transform.ty).toBe(0);
   });
 
   it("handles NaN data", () => {
@@ -165,7 +165,7 @@ describe("legend controller single-axis", () => {
       legend.querySelector(".chart-legend__green_value")!.textContent,
     ).toBe("10");
     expect(transform.tx).toBe(0);
-    expect(transform.ty).toBe(10);
+    expect(transform.ty).toBe(50);
 
     controller.onHover(100);
     vi.runAllTimers();
@@ -175,6 +175,6 @@ describe("legend controller single-axis", () => {
       legend.querySelector(".chart-legend__green_value")!.textContent,
     ).toBe("30");
     expect(transform.tx).toBe(1);
-    expect(transform.ty).toBe(30);
+    expect(transform.ty).toBe(0);
   });
 });

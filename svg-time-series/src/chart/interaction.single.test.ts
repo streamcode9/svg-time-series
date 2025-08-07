@@ -172,7 +172,7 @@ describe("chart interaction single-axis", () => {
     const circle = svgEl.querySelector("circle")! as SVGCircleElement;
     const transform = nodeTransforms.get(circle)!;
     expect(transform.tx).toBe(1);
-    expect(transform.ty).toBe(30);
+    expect(transform.ty).toBe(0);
   });
 
   it("updates circle after appending data", () => {
@@ -193,7 +193,7 @@ describe("chart interaction single-axis", () => {
     const circle = svgEl.querySelector("circle")! as SVGCircleElement;
     const transform = nodeTransforms.get(circle)!;
     expect(transform.tx).toBe(1);
-    expect(transform.ty).toBe(50);
+    expect(transform.ty).toBe(0);
   });
 
   it("handles NaN data", () => {
