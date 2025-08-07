@@ -51,16 +51,16 @@ export class LegendController implements ILegendController {
     this.cancelRefresh = cancel;
   }
 
-  public highlightIndex = (idx: number) => {
+  public highlightIndex(idx: number): void {
     this.highlightedDataIdx = Math.min(Math.max(idx, 0), this.data.length - 1);
     this.scheduleRefresh();
-  };
+  }
 
-  public refresh = () => {
+  public refresh(): void {
     this.scheduleRefresh();
-  };
+  }
 
-  public clearHighlight = () => {
+  public clearHighlight(): void {
     this.cancelRefresh();
     this.legendTime.text("");
     this.legendGreen.text("");
@@ -69,7 +69,7 @@ export class LegendController implements ILegendController {
     if (this.highlightedBlueDot) {
       this.highlightedBlueDot.style.display = "none";
     }
-  };
+  }
 
   private update() {
     const {
@@ -113,9 +113,9 @@ export class LegendController implements ILegendController {
     }
   }
 
-  public destroy = () => {
+  public destroy(): void {
     this.cancelRefresh();
     this.highlightedGreenDot.remove();
     this.highlightedBlueDot?.remove();
-  };
+  }
 }
