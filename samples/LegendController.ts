@@ -20,6 +20,7 @@ export class LegendController implements ILegendController {
 
   private highlightedDataIdx = 0;
   private scheduleRefresh: () => void;
+  private cancelRefresh: () => void;
 
   constructor(
     legend: Selection<HTMLElement, unknown, HTMLElement, unknown>,
@@ -43,9 +44,11 @@ export class LegendController implements ILegendController {
     this.highlightedGreenDot = makeDot();
     this.highlightedBlueDot = state.paths.viewSf ? makeDot() : null;
 
-    this.scheduleRefresh = drawProc(() => {
+    const { wrapped, cancel } = drawProc(() => {
       this.update();
     });
+    this.scheduleRefresh = wrapped;
+    this.cancelRefresh = cancel;
   }
 
   public onHover = (idx: number) => {
@@ -99,6 +102,7 @@ export class LegendController implements ILegendController {
   }
 
   public destroy = () => {
+    this.cancelRefresh();
     this.highlightedGreenDot.remove();
     this.highlightedBlueDot?.remove();
   };

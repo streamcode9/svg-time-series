@@ -13,6 +13,7 @@ export class ZoomState {
   public zoomBehavior: ZoomBehavior<SVGRectElement, unknown>;
   private currentPanZoomTransformState: ZoomTransform | null = null;
   private scheduleRefresh: () => void;
+  private cancelRefresh: () => void;
   private internalEvent = false;
 
   constructor(
@@ -35,7 +36,7 @@ export class ZoomState {
 
     this.zoomArea.call(this.zoomBehavior);
 
-    this.scheduleRefresh = drawProc(() => {
+    const { wrapped, cancel } = drawProc(() => {
       if (this.currentPanZoomTransformState != null) {
         this.internalEvent = true;
         this.zoomBehavior.transform(
@@ -46,6 +47,8 @@ export class ZoomState {
       }
       this.refreshChart();
     });
+    this.scheduleRefresh = wrapped;
+    this.cancelRefresh = cancel;
   }
 
   public zoom = (
@@ -74,6 +77,7 @@ export class ZoomState {
   };
 
   public destroy = () => {
+    this.cancelRefresh();
     this.zoomArea.on(".zoom", null);
     this.zoomBehavior.on("zoom", null);
   };

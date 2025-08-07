@@ -13,7 +13,7 @@ describe("drawProc", () => {
   it("executes underlying function only once", () => {
     vi.useFakeTimers();
     const fn = vi.fn();
-    const wrapped = drawProc(fn);
+    const { wrapped } = drawProc(fn);
 
     wrapped();
     wrapped();
@@ -29,7 +29,7 @@ describe("drawProc", () => {
   it("uses latest parameters when called multiple times", () => {
     vi.useFakeTimers();
     const fn = vi.fn();
-    const wrapped = drawProc(fn);
+    const { wrapped } = drawProc(fn);
 
     wrapped("first");
     wrapped("second");
@@ -41,5 +41,18 @@ describe("drawProc", () => {
 
     expect(fn).toHaveBeenCalledTimes(1);
     expect(fn).toHaveBeenCalledWith("third");
+  });
+
+  it("cancels scheduled execution", () => {
+    vi.useFakeTimers();
+    const fn = vi.fn();
+    const { wrapped, cancel } = drawProc(fn);
+
+    wrapped();
+    cancel();
+
+    vi.runAllTimers();
+
+    expect(fn).not.toHaveBeenCalled();
   });
 });
