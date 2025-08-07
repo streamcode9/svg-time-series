@@ -17,6 +17,20 @@ import {
   type TransformPair,
 } from "./render/utils.ts";
 
+function createYAxis(
+  orientation: Orientation,
+  scale: ScaleLinear<number, number>,
+  width: number,
+): MyAxis {
+  const axis = new MyAxis(orientation, scale)
+    .ticks(4, "s")
+    .setTickSize(width)
+    .setTickPadding(2 - width);
+
+  axis.setScale(scale);
+  return axis;
+}
+
 function setupAxes(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
   scales: ScaleSet,
@@ -34,17 +48,8 @@ function setupAxes(
   const gX = svg.append("g").attr("class", "axis").call(xAxis.axis.bind(xAxis));
 
   if (hasSf && dualYAxis && scales.ySf) {
-    const yLeft = new MyAxis(Orientation.Left, scales.yNy)
-      .ticks(4, "s")
-      .setTickSize(width)
-      .setTickPadding(2 - width);
-    const yRight = new MyAxis(Orientation.Right, scales.ySf)
-      .ticks(4, "s")
-      .setTickSize(width)
-      .setTickPadding(2 - width);
-
-    yLeft.setScale(scales.yNy);
-    yRight.setScale(scales.ySf);
+    const yLeft = createYAxis(Orientation.Left, scales.yNy, width);
+    const yRight = createYAxis(Orientation.Right, scales.ySf, width);
 
     const gY = svg
       .append("g")
@@ -58,12 +63,7 @@ function setupAxes(
     return { x: xAxis, y: yLeft, gX, gY, yRight, gYRight };
   }
 
-  const yAxis = new MyAxis(Orientation.Right, scales.yNy)
-    .ticks(4, "s")
-    .setTickSize(width)
-    .setTickPadding(2 - width);
-
-  yAxis.setScale(scales.yNy);
+  const yAxis = createYAxis(Orientation.Right, scales.yNy, width);
   const gY = svg.append("g").attr("class", "axis").call(yAxis.axis.bind(yAxis));
 
   return { x: xAxis, y: yAxis, gX, gY };
