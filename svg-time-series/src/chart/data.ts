@@ -47,12 +47,17 @@ export class ChartData {
       new AR1Basis(source.startTime, source.startTime + source.timeStep),
     );
     this.idxShift = betweenTBasesAR1(new AR1Basis(1, 2), bUnit);
+    // bIndexFull represents the full range of data indices and remains constant
+    // since append() maintains a sliding window of fixed length
     this.bIndexFull = new AR1Basis(0, this.data.length - 1);
     this.rebuildSegmentTrees();
   }
 
   append(ny: number, sf?: number): void {
-    this.data.push([ny, sf]);
+    if (!this.hasSf && sf !== undefined) {
+      console.warn("ChartData: sf parameter provided but chart was initialized without getSf function. sf value will be ignored.");
+    }
+    this.data.push([ny, this.hasSf ? sf : undefined]);
     this.data.shift();
     this.idxToTime = this.idxToTime.composeWith(this.idxShift);
     this.rebuildSegmentTrees();
