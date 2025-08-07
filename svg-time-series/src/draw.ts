@@ -7,12 +7,14 @@ import { ChartInteraction } from "./chart/interaction.ts";
 
 export type { IMinMax } from "./chart/data.ts";
 
+export interface IPublicInteraction {
+  zoom: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
+  onHover: (x: number) => void;
+}
+
 export class TimeSeriesChart {
-  public zoom: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
-  public onHover: (x: number) => void;
-  private drawNewData: () => void;
   private data: ChartData;
-  private destroyInteraction: () => void;
+  private _interaction: ChartInteraction;
 
   constructor(
     svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
@@ -45,7 +47,7 @@ export class TimeSeriesChart {
     );
 
     const renderState = setupRender(svg, this.data, dualYAxis);
-    const interaction = new ChartInteraction(
+    this._interaction = new ChartInteraction(
       svg,
       legend,
       renderState,
@@ -55,21 +57,20 @@ export class TimeSeriesChart {
       formatTime,
     );
 
-    this.zoom = interaction.zoom;
-    this.onHover = interaction.onHover;
-    this.drawNewData = interaction.drawNewData;
-    this.destroyInteraction = interaction.destroy;
+    this._interaction.drawNewData();
+    this._interaction.onHover(renderState.dimensions.width - 1);
+  }
 
-    this.drawNewData();
-    this.onHover(renderState.dimensions.width - 1);
+  public get interaction(): IPublicInteraction {
+    return this._interaction;
   }
 
   public updateChartWithNewData(newData: [number, number?]) {
     this.data.append(newData);
-    this.drawNewData();
+    this._interaction.drawNewData();
   }
 
   public dispose() {
-    this.destroyInteraction();
+    this._interaction.destroy();
   }
 }

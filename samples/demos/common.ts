@@ -27,13 +27,13 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
   const charts: TimeSeriesChart[] = [];
 
   const onZoom = (event: D3ZoomEvent<SVGRectElement, unknown>) =>
-    charts.forEach((c) => c.zoom(event));
+    charts.forEach((c) => c.interaction.zoom(event));
   const onMouseMove: (this: Element, event: MouseEvent) => void = function (
     this: Element,
     event: MouseEvent,
   ) {
     const [x] = pointer(event, this);
-    charts.forEach((c) => c.onHover(x));
+    charts.forEach((c) => c.interaction.onHover(x));
   };
 
   const onSelectChart: ValueFn<HTMLElement, unknown, void> = function (

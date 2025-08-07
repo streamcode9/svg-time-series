@@ -99,7 +99,7 @@ describe("TimeSeriesChart", () => {
     ]);
 
     chart.updateChartWithNewData([2, 2]);
-    chart.onHover(0);
+    chart.interaction.onHover(0);
 
     expect(onHoverUsedData).toEqual([
       [1, 1],
