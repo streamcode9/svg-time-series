@@ -12,7 +12,7 @@ vi.mock("d3-zoom", () => {
     behavior._zoomHandler = handler;
     return behavior;
   };
-  behavior.transform = vi.fn();
+  behavior.transform = vi.fn(() => behavior);
   behavior.triggerZoom = (transform: any) => {
     if (behavior._zoomHandler) {
       behavior._zoomHandler({ transform });
