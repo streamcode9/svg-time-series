@@ -49,7 +49,7 @@ describe("renderPaths", () => {
 
     renderPaths(state, [[0], [1]]);
 
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(state.series.length);
     expect(path.attr("d")).not.toBe("");
     expect(svg.querySelectorAll("path").length).toBe(1);
 

@@ -126,7 +126,7 @@ export function buildSeries(
     },
   ];
 
-  if (hasSf) {
+  if (hasSf && data.treeSf && nodes[1]) {
     series.push({
       tree: data.treeSf,
       transform: dualYAxis && transforms.sf ? transforms.sf : transforms.ny,
@@ -202,8 +202,12 @@ export function setupRender(
   const axes = setupAxes(svg, scales, width, height, hasSf, dualYAxis);
 
   // Attach axes to series after scales have been initialized
-  const axisArr = [axes.y, axes.yRight ?? axes.y];
-  const gAxisArr = [axes.gY, axes.gYRight ?? axes.gY];
+  const axisArr = [axes.y];
+  const gAxisArr = [axes.gY];
+  if (series.length > 1) {
+    axisArr.push(axes.yRight ?? axes.y);
+    gAxisArr.push(axes.gYRight ?? axes.gY);
+  }
   series.forEach((s, i) => {
     s.axis = axisArr[i];
     s.gAxis = gAxisArr[i];

@@ -3,9 +3,10 @@
  */
 import { describe, it, expect, beforeAll } from "vitest";
 import { JSDOM } from "jsdom";
-import { select } from "d3-selection";
+import { select, type Selection } from "d3-selection";
 import { ChartData, IDataSource } from "./data.ts";
 import { setupRender, buildSeries } from "./render.ts";
+import { initPaths } from "./render/utils.ts";
 
 class Matrix {
   constructor(
@@ -189,5 +190,33 @@ describe("buildSeries", () => {
       axis: state.axes.yRight,
       gAxis: state.axes.gYRight,
     });
+  });
+
+  it("omits secondary series when path is missing", () => {
+    const svg = createSvg();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      seriesCount: 2,
+      getSeries: (i, seriesIdx) =>
+        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg as any, data, false);
+    const svg2 = select(document.createElement("div")).append(
+      "svg",
+    ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
+    const singlePaths = initPaths(svg2, false);
+    const series = buildSeries(
+      data,
+      state.transforms,
+      state.scales,
+      singlePaths,
+      true,
+      state.axes,
+      state.dualYAxis,
+    );
+    expect(series.length).toBe(1);
   });
 });

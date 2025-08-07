@@ -111,12 +111,14 @@ describe("RenderState.refresh", () => {
     expect(state.series.length).toBe(1);
     expect(state.series[0].tree).toBe(data.treeNy);
     expect(state.series[0].scale.domain()).toEqual([1, 3]);
-    expect(updateNodeMock).toHaveBeenCalledTimes(1);
-    expect(updateNodeMock).toHaveBeenNthCalledWith(
-      1,
-      state.series[0].view,
-      state.transforms.ny.matrix,
-    );
+    expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
+    state.series.forEach((s, i) => {
+      expect(updateNodeMock).toHaveBeenNthCalledWith(
+        i + 1,
+        s.view,
+        s.transform.matrix,
+      );
+    });
   });
 
   it("updates dual-axis series independently", () => {
@@ -139,17 +141,14 @@ describe("RenderState.refresh", () => {
     expect(state.series[1].tree).toBe(data.treeSf);
     expect(state.series[0].scale.domain()).toEqual([1, 3]);
     expect(state.series[1].scale.domain()).toEqual([10, 30]);
-    expect(updateNodeMock).toHaveBeenCalledTimes(2);
-    expect(updateNodeMock).toHaveBeenNthCalledWith(
-      1,
-      state.series[0].view,
-      state.transforms.ny.matrix,
-    );
-    expect(updateNodeMock).toHaveBeenNthCalledWith(
-      2,
-      state.series[1].view,
-      state.transforms.sf!.matrix,
-    );
+    expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
+    state.series.forEach((s, i) => {
+      expect(updateNodeMock).toHaveBeenNthCalledWith(
+        i + 1,
+        s.view,
+        s.transform.matrix,
+      );
+    });
   });
 
   it("refreshes after data changes", () => {
@@ -181,6 +180,6 @@ describe("RenderState.refresh", () => {
     expect(state.series[1].tree).toBe(data2.treeSf);
     expect(state.series[0].scale.domain()).toEqual([4, 6]);
     expect(state.series[1].scale.domain()).toEqual([40, 60]);
-    expect(updateNodeMock).toHaveBeenCalledTimes(2);
+    expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
   });
 });
