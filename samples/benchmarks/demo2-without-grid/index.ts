@@ -11,7 +11,7 @@ csv("../../demos/ny-vs-sf.csv")
     SF: parseFloat(d.SF.split(";")[0]),
   }))
   .get((error: any, data: any[]) => {
-    if (error != null) alert("Data can't be downloaded or parsed");
+    if (error != null) console.error("Data can't be downloaded or parsed");
     else {
       common.drawCharts(data);
 
@@ -33,5 +33,7 @@ measure(3, ({ fps }) => {
 });
 
 measureOnce(60, ({ fps }) => {
-  alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`);
+  console.log(
+    `${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`,
+  );
 });

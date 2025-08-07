@@ -46,6 +46,8 @@ onCsv((data: [number, number][]) => {
   });
 
   measureOnce(60, ({ fps }) => {
-    alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`);
+    console.log(
+      `${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`,
+    );
   });
 });

@@ -14,7 +14,7 @@ csv("../../demos/ny-vs-sf.csv")
   ])
   .get((error: any, data: any[]) => {
     if (error != null) {
-      alert("Data can't be downloaded or parsed");
+      console.error("Data can't be downloaded or parsed");
       return;
     }
 
