@@ -7,7 +7,7 @@ import * as draw from "./draw.ts";
 import * as drawModelCS from "./drawModelCS.ts";
 
 const startDate = new Date();
-csv("ny-vs-sf.csv")
+csv("../../demos/ny-vs-sf.csv")
   .row((d: any) => [
     parseFloat(d.NY.split(";")[0]),
     parseFloat(d.SF.split(";")[0]),

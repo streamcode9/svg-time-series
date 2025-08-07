@@ -58,7 +58,7 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
 }
 
 export function onCsv(f: (csv: [number, number][]) => void): void {
-  csv("ny-vs-sf.csv")
+  csv("./ny-vs-sf.csv")
     .row((d: { NY: string; SF: string }) => [
       parseFloat(d.NY.split(";")[0]),
       parseFloat(d.SF.split(";")[0]),

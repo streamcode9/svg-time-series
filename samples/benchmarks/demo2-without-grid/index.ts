@@ -5,7 +5,7 @@ import { select, selectAll } from "d3-selection";
 
 const resize: any = { interval: 60 };
 
-csv("ny-vs-sf.csv")
+csv("../../demos/ny-vs-sf.csv")
   .row((d: any) => ({
     NY: parseFloat(d.NY.split(";")[0]),
     SF: parseFloat(d.SF.split(";")[0]),

@@ -14,7 +14,7 @@ export function measureAll(): void {
 }
 
 export function onCsv(f: (csv: number[][]) => void): void {
-  csv("ny-vs-sf.csv")
+  csv("../../demos/ny-vs-sf.csv")
     .row((d: { NY: string; SF: string }) => [
       parseFloat(d.NY.split(";")[0]),
       parseFloat(d.SF.split(";")[0]),
