@@ -80,7 +80,7 @@ function createSvg() {
 }
 
 describe("buildSeries", () => {
-  it("returns single series for combined axis", () => {
+  it("returns two series for combined axis", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
@@ -100,12 +100,20 @@ describe("buildSeries", () => {
       state.axes,
       state.dualYAxis,
     );
-    expect(series.length).toBe(1);
+    expect(series.length).toBe(2);
     expect(series[0]).toMatchObject({
       tree: data.treeNy,
       transform: state.transforms.ny,
       scale: state.scales.yNy,
       view: state.paths.viewNy,
+      axis: state.axes.y,
+      gAxis: state.axes.gY,
+    });
+    expect(series[1]).toMatchObject({
+      tree: data.treeSf,
+      transform: state.transforms.ny,
+      scale: state.scales.yNy,
+      view: state.paths.viewSf,
       axis: state.axes.y,
       gAxis: state.axes.gY,
     });
@@ -142,8 +150,8 @@ describe("buildSeries", () => {
     });
     expect(series[1]).toMatchObject({
       tree: data.treeSf,
-      transform: state.transforms.sf,
-      scale: state.scales.ySf,
+      transform: state.transforms.sf!,
+      scale: state.scales.ySf!,
       view: state.paths.viewSf,
       axis: state.axes.yRight,
       gAxis: state.axes.gYRight,

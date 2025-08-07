@@ -109,16 +109,18 @@ describe("refreshChart", () => {
     refreshChart(state, data);
 
     expect(state.series[0].tree).toBe(data.treeNy);
+    expect(state.series[1].tree).toBe(data.treeSf);
     expect(state.series[0].scale.domain()).toEqual([1, 30]);
+    expect(state.series[1].scale.domain()).toEqual([1, 30]);
     expect(updateNodeMock).toHaveBeenCalledTimes(2);
     expect(updateNodeMock).toHaveBeenNthCalledWith(
       1,
-      state.paths.viewSf,
+      state.series[0].view,
       state.transforms.ny.matrix,
     );
     expect(updateNodeMock).toHaveBeenNthCalledWith(
       2,
-      state.series[0].view,
+      state.series[1].view,
       state.transforms.ny.matrix,
     );
   });

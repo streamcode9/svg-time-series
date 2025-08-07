@@ -8,20 +8,15 @@ import type { IMinMax } from "../data.ts";
 import type { ChartData } from "../data.ts";
 import type { RenderState } from "../render.ts";
 
-const lineNy = line<[number, number?]>()
+export const lineNy = line<[number, number?]>()
   .defined((d) => !(isNaN(d[0]!) || d[0] == null))
   .x((_, i) => i)
   .y((d) => d[0]!);
 
-const lineSf = line<[number, number?]>()
+export const lineSf = line<[number, number?]>()
   .defined((d) => !(isNaN(d[1]!) || d[1] == null))
   .x((_, i) => i)
   .y((d) => d[1]!);
-
-const lineGenerators = {
-  ny: lineNy,
-  sf: lineSf,
-} as const;
 
 export function createDimensions(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
@@ -120,19 +115,9 @@ export function renderPaths(
   state: RenderState,
   dataArr: Array<[number, number?]>,
 ) {
-  const paths = state.paths.path.nodes() as SVGPathElement[];
-  const pathMap: Record<
-    keyof typeof lineGenerators,
-    SVGPathElement | undefined
-  > = {
-    ny: paths[0],
-    sf: paths[1],
-  };
-
-  for (const [seriesKey, generator] of Object.entries(lineGenerators)) {
-    const path = pathMap[seriesKey as keyof typeof lineGenerators];
-    if (path) {
-      path.setAttribute("d", generator(dataArr) ?? "");
+  for (const s of state.series) {
+    if (s.path) {
+      s.path.setAttribute("d", s.line(dataArr) ?? "");
     }
   }
 }

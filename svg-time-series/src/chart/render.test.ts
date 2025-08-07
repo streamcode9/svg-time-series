@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, vi } from "vitest";
 import { select, type Selection } from "d3-selection";
-import { initPaths, renderPaths } from "./render/utils.ts";
+import { initPaths, renderPaths, lineNy, lineSf } from "./render/utils.ts";
 import type { RenderState } from "./render.ts";
 
 describe("renderPaths", () => {
@@ -14,8 +14,13 @@ describe("renderPaths", () => {
       .data([0, 1])
       .enter()
       .append("path");
-
-    const state = { paths: { path: pathSelection } } as unknown as RenderState;
+    const nodes = pathSelection.nodes() as SVGPathElement[];
+    const state = {
+      series: [
+        { path: nodes[0], line: lineNy },
+        { path: nodes[1], line: lineSf },
+      ],
+    } as unknown as RenderState;
     const data: Array<[number, number]> = [
       [0, 0],
       [NaN, NaN],
@@ -35,8 +40,14 @@ describe("renderPaths", () => {
     ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
     const svg = svgSelection.node()!;
     const { path } = initPaths(svgSelection, false);
-    const state = { paths: { path } } as unknown as RenderState;
-    const pathNode = path.node()!;
+    const nodes = path.nodes() as SVGPathElement[];
+    const state = {
+      series: [
+        { path: nodes[0], line: lineNy },
+        { path: undefined, line: lineSf },
+      ],
+    } as unknown as RenderState;
+    const pathNode = nodes[0];
     const spy = vi.spyOn(pathNode, "setAttribute");
 
     renderPaths(state, [[0], [1]]);

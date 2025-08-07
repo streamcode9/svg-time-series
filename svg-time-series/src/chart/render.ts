@@ -1,5 +1,6 @@
 import { Selection } from "d3-selection";
 import type { ScaleLinear } from "d3-scale";
+import type { Line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
@@ -12,6 +13,8 @@ import {
   updateScaleX,
   updateScaleY,
   initPaths,
+  lineNy,
+  lineSf,
   type ScaleSet,
   type PathSet,
   type TransformPair,
@@ -90,12 +93,14 @@ interface Dimensions {
 }
 
 export interface Series {
-  tree: ChartData["treeNy"];
+  tree?: ChartData["treeNy"];
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
-  view: SVGGElement;
+  view?: SVGGElement;
+  path?: SVGPathElement;
   axis?: MyAxis;
   gAxis?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
+  line: Line<[number, number?]>;
 }
 
 export function buildSeries(
@@ -106,35 +111,29 @@ export function buildSeries(
   axes?: AxisSet,
   dualYAxis = false,
 ): Series[] {
-  const hasSf = data.treeSf != null;
+  const nodes = paths.path.nodes() as SVGPathElement[];
   const series: Series[] = [
     {
       tree: data.treeNy,
       transform: transforms.ny,
       scale: scales.yNy,
       view: paths.viewNy,
+      path: nodes[0],
       axis: axes?.y,
       gAxis: axes?.gY,
+      line: lineNy,
+    },
+    {
+      tree: data.treeSf,
+      transform: dualYAxis && transforms.sf ? transforms.sf : transforms.ny,
+      scale: dualYAxis && scales.ySf ? scales.ySf : scales.yNy,
+      view: paths.viewSf,
+      path: nodes[1],
+      axis: axes?.yRight ?? axes?.y,
+      gAxis: axes?.gYRight ?? axes?.gY,
+      line: lineSf,
     },
   ];
-
-  if (
-    hasSf &&
-    dualYAxis &&
-    data.treeSf &&
-    transforms.sf &&
-    scales.ySf &&
-    paths.viewSf
-  ) {
-    series.push({
-      tree: data.treeSf,
-      transform: transforms.sf,
-      scale: scales.ySf,
-      view: paths.viewSf,
-      axis: axes?.yRight,
-      gAxis: axes?.gYRight,
-    });
-  }
 
   return series;
 }
@@ -167,11 +166,7 @@ export function setupRender(
   const sharedTransform = new ViewportTransform();
   const transformsInner: TransformPair = {
     ny: sharedTransform,
-    sf: hasSf
-      ? dualYAxis
-        ? new ViewportTransform()
-        : sharedTransform
-      : undefined,
+    sf: hasSf && dualYAxis ? new ViewportTransform() : sharedTransform,
   };
 
   updateScaleX(scales.x, data.bIndexFull, data);
@@ -184,7 +179,7 @@ export function setupRender(
     dualYAxis,
   );
 
-  if (series.length === 1 && hasSf && data.treeSf) {
+  if (series[0].scale === series[1].scale && data.treeSf) {
     const { combined, dp } = data.combinedTemperatureDp(data.bIndexFull);
     for (const s of series) {
       s.transform.onReferenceViewWindowResize(dp);
@@ -192,19 +187,21 @@ export function setupRender(
     }
   } else {
     for (const s of series) {
-      updateScaleY(data.bIndexFull, s.tree, s.transform, s.scale, data);
+      if (s.tree) {
+        updateScaleY(data.bIndexFull, s.tree, s.transform, s.scale, data);
+      }
     }
   }
 
   const axes = setupAxes(svg, scales, width, height, hasSf, dualYAxis);
 
   // Attach axes to series after scales have been initialized
-  series[0].axis = axes.y;
-  series[0].gAxis = axes.gY;
-  if (series.length > 1) {
-    series[1].axis = axes.yRight;
-    series[1].gAxis = axes.gYRight;
-  }
+  const axisArr = [axes.y, axes.yRight ?? axes.y];
+  const gAxisArr = [axes.gY, axes.gYRight ?? axes.gY];
+  series.forEach((s, i) => {
+    s.axis = axisArr[i];
+    s.gAxis = gAxisArr[i];
+  });
 
   const bScreenVisibleDp = DirectProductBasis.fromProjections(
     bScreenXVisible,
@@ -212,12 +209,12 @@ export function setupRender(
   );
   transformsInner.ny.onViewPortResize(bScreenVisibleDp);
   transformsInner.sf?.onViewPortResize(bScreenVisibleDp);
-  transformsInner.ny.onReferenceViewWindowResize(
-    DirectProductBasis.fromProjections(data.bIndexFull, bPlaceholder),
+  const refDp = DirectProductBasis.fromProjections(
+    data.bIndexFull,
+    bPlaceholder,
   );
-  transformsInner.sf?.onReferenceViewWindowResize(
-    DirectProductBasis.fromProjections(data.bIndexFull, bPlaceholder),
-  );
+  transformsInner.ny.onReferenceViewWindowResize(refDp);
+  transformsInner.sf?.onReferenceViewWindowResize(refDp);
 
   const transforms: TransformSet = {
     ny: transformsInner.ny,
@@ -238,28 +235,29 @@ export function refreshChart(state: RenderState, data: ChartData) {
 
   // Update tree references in case data has changed
   series[0].tree = data.treeNy;
-  if (series[1] && data.treeSf) {
-    series[1].tree = data.treeSf;
-  }
+  series[1].tree = data.treeSf;
 
-  if (state.series.length === 1 && data.treeSf) {
+  if (series[0].scale === series[1].scale && data.treeSf) {
     const { combined, dp } = data.combinedTemperatureDp(bIndexVisible);
     for (const s of series) {
       s.transform.onReferenceViewWindowResize(dp);
       s.scale.domain(combined.toArr());
     }
-    if (state.paths.viewSf) {
-      updateNode(state.paths.viewSf, state.transforms.ny.matrix);
-    }
   } else {
     for (const s of series) {
-      updateScaleY(bIndexVisible, s.tree, s.transform, s.scale, data);
+      if (s.tree) {
+        updateScaleY(bIndexVisible, s.tree, s.transform, s.scale, data);
+      }
     }
   }
 
   for (const s of series) {
-    updateNode(s.view, s.transform.matrix);
-    s.axis!.axisUp(s.gAxis!);
+    if (s.view) {
+      updateNode(s.view, s.transform.matrix);
+    }
+    if (s.axis && s.gAxis) {
+      s.axis.axisUp(s.gAxis);
+    }
   }
   state.axes.x.axisUp(state.axes.gX);
 }
