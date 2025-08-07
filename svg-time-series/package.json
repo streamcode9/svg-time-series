@@ -40,6 +40,6 @@
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
-    "bench": "echo \"No benchmarks defined\""
+    "bench": "vitest bench bench/*.bench.ts"
   }
 }
