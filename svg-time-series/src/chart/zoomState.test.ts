@@ -12,7 +12,10 @@ vi.mock("d3-zoom", () => {
     behavior._zoomHandler = handler;
     return behavior;
   };
-  behavior.transform = vi.fn(() => behavior);
+  behavior.transform = vi.fn((_s: any, transform: any) => {
+    behavior._zoomHandler?.({ transform });
+    return behavior;
+  });
   behavior.triggerZoom = (transform: any) => {
     if (behavior._zoomHandler) {
       behavior._zoomHandler({ transform });
@@ -53,26 +56,11 @@ describe("ZoomState", () => {
     expect(ny.onZoomPan).toHaveBeenCalledWith({ x: 5, k: 2 });
     expect(sf.onZoomPan).toHaveBeenCalledWith({ x: 5, k: 2 });
     expect(refresh).toHaveBeenCalledTimes(1);
-    expect(zoomCb).toHaveBeenCalledWith(event);
-  });
-
-  it("skips callback when flag is false", () => {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    const rect = select(svg).append("rect");
-    const ny = { onZoomPan: vi.fn() };
-    const state: any = {
-      dimensions: { width: 10, height: 10 },
-      transforms: { ny },
-    };
-    const refresh = vi.fn();
-    const zoomCb = vi.fn();
-    const zs = new ZoomState(rect as any, state, refresh, zoomCb);
-
-    const event = { transform: { x: 1, k: 1 }, sourceEvent: {} } as any;
-    zs.zoom(event, false);
-    vi.runAllTimers();
-
-    expect(zoomCb).not.toHaveBeenCalled();
+    expect(zoomCb).toHaveBeenCalledTimes(2);
+    expect(zoomCb).toHaveBeenNthCalledWith(1, event);
+    const internalEvent = zoomCb.mock.calls[1][0];
+    expect(internalEvent).toMatchObject({ transform: { x: 5, k: 2 } });
+    expect(internalEvent.sourceEvent).toBeUndefined();
   });
 
   it("does not reschedule for programmatic transform", () => {
@@ -84,15 +72,19 @@ describe("ZoomState", () => {
       transforms: { ny },
     };
     const refresh = vi.fn();
-    const zs = new ZoomState(rect as any, state, refresh);
+    const zoomCb = vi.fn();
+    const zs = new ZoomState(rect as any, state, refresh, zoomCb);
 
     const transformSpy = zs.zoomBehavior.transform as any;
     transformSpy.mockClear();
-    zs.zoom({ transform: { x: 2, k: 3 } } as any);
+    const event = { transform: { x: 2, k: 3 } } as any;
+    zs.zoom(event);
     vi.runAllTimers();
 
     expect(transformSpy).not.toHaveBeenCalled();
     expect(refresh).toHaveBeenCalledTimes(1);
+    expect(zoomCb).toHaveBeenCalledTimes(1);
+    expect(zoomCb).toHaveBeenCalledWith(event);
   });
 
   it("refresh re-applies transform and triggers refresh callback", () => {
@@ -137,8 +129,6 @@ describe("ZoomState", () => {
     refresh.mockClear();
 
     zs.reset();
-    // Manually trigger the zoom event that would happen in real d3-zoom
-    (zs.zoomBehavior as any).triggerZoom({ k: 1, x: 0, y: 0 });
     vi.runAllTimers();
 
     expect(transformSpy).toHaveBeenCalledWith(

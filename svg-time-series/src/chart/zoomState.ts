@@ -14,7 +14,6 @@ export class ZoomState {
   private currentPanZoomTransformState: ZoomTransform | null = null;
   private scheduleRefresh: () => void;
   private cancelRefresh: () => void;
-  private internalEvent = false;
 
   constructor(
     private zoomArea: Selection<SVGRectElement, unknown, HTMLElement, unknown>,
@@ -38,34 +37,29 @@ export class ZoomState {
 
     const { wrapped, cancel } = drawProc(() => {
       if (this.currentPanZoomTransformState != null) {
-        this.internalEvent = true;
         this.zoomBehavior.transform(
           this.zoomArea,
           this.currentPanZoomTransformState,
         );
-        this.internalEvent = false;
+      } else {
+        this.refreshChart();
       }
-      this.refreshChart();
     });
     this.scheduleRefresh = wrapped;
     this.cancelRefresh = cancel;
   }
 
-  public zoom = (
-    event: D3ZoomEvent<SVGRectElement, unknown>,
-    callCallback = true,
-  ) => {
+  public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
     this.currentPanZoomTransformState = event.transform;
     this.state.transforms.ny.onZoomPan(event.transform);
     this.state.transforms.sf?.onZoomPan(event.transform);
     if (event.sourceEvent) {
       this.scheduleRefresh();
-    } else if (!this.internalEvent) {
+    }
+    if (!event.sourceEvent) {
       this.refreshChart();
     }
-    if (callCallback) {
-      this.zoomCallback(event);
-    }
+    this.zoomCallback(event);
   };
 
   public refresh = () => {

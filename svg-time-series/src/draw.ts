@@ -85,8 +85,7 @@ export class TimeSeriesChart {
   }
 
   public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
-    this.zoomState.zoom(event, false);
-    this.legendController.refresh();
+    this.zoomState.zoom(event);
   };
 
   public resetZoom = () => {
