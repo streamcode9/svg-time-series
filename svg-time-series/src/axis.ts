@@ -5,15 +5,13 @@
   Left,
 }
 
-const slice = Array.prototype.slice;
-
 const id = <T>(x: T) => x;
 
 const formatIdentity = (d: number | Date) => `${d}`;
 
-function center<D>(scale: Scale<D>) {
+function center(scale: ScaleType) {
   const width = (scale.bandwidth?.() ?? 0) / 2;
-  return (d: D) => scale(d) + width;
+  return (d: number | Date) => scale(d as any) + width;
 }
 
 type PositionFn<D> = (d: D) => number;
@@ -29,10 +27,13 @@ function translateY<D>(scale0: PositionFn<D>, scale1: PositionFn<D>, d: D) {
 }
 
 import { Selection } from "d3-selection";
+import type { ScaleContinuousNumeric, ScaleLinear, ScaleTime } from "d3-scale";
 
-import { Scale } from "./scale";
-
-type ScaleType = Scale<number | Date>;
+type ScaleType = (
+  | ScaleContinuousNumeric<number, number>
+  | ScaleTime<number, number>
+  | ScaleLinear<number, number>
+) & { bandwidth?: () => number };
 
 export class MyAxis {
   private tickArguments: number[];
