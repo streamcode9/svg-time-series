@@ -97,6 +97,9 @@ export class ChartData {
     sf?: number;
     timestamp: number;
   } {
+    if (!Number.isFinite(idx)) {
+      throw new Error("ChartData.getPoint requires idx to be a finite number");
+    }
     const clamped = this.clampIndex(Math.round(idx));
     const [ny, sf] = this.data[clamped];
     return {

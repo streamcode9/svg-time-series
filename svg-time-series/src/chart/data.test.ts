@@ -69,6 +69,39 @@ describe("ChartData", () => {
     expect(cd.getPoint(-5)).toEqual({ ny: 10, sf: 20, timestamp: 0 });
   });
 
+  it("throws when index is not finite", () => {
+    const cd = new ChartData(
+      makeSource([
+        [10, 20],
+        [30, 40],
+        [50, 60],
+      ]),
+    );
+    expect(() => cd.getPoint(NaN)).toThrow(/idx/);
+    expect(() => cd.getPoint(Infinity)).toThrow(/idx/);
+    expect(() => cd.getPoint(-Infinity)).toThrow(/idx/);
+  });
+
+  it("clamps extreme out-of-range indices", () => {
+    const cd = new ChartData(
+      makeSource([
+        [10, 20],
+        [30, 40],
+        [50, 60],
+      ]),
+    );
+    expect(cd.getPoint(1_000_000)).toEqual({
+      ny: 50,
+      sf: 60,
+      timestamp: 2,
+    });
+    expect(cd.getPoint(-1_000_000)).toEqual({
+      ny: 10,
+      sf: 20,
+      timestamp: 0,
+    });
+  });
+
   it("reflects latest window after multiple appends", () => {
     const cd = new ChartData(
       makeSource([
