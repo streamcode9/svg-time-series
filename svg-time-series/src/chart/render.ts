@@ -1,4 +1,5 @@
 import { Selection } from "d3-selection";
+import type { ScaleLinear } from "d3-scale";
 
 import { MyAxis, Orientation } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
@@ -13,6 +14,7 @@ import {
   initPaths,
   type ScaleSet,
   type PathSet,
+  type TransformPair,
 } from "./render/utils.ts";
 
 function setupAxes(
@@ -87,6 +89,56 @@ interface Dimensions {
   height: number;
 }
 
+export interface Series {
+  tree: ChartData["treeNy"];
+  transform: ViewportTransform;
+  scale: ScaleLinear<number, number>;
+  view: SVGGElement;
+  axis?: MyAxis;
+  gAxis?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
+}
+
+export function buildSeries(
+  data: ChartData,
+  transforms: TransformPair,
+  scales: ScaleSet,
+  paths: PathSet,
+  axes?: AxisSet,
+  dualYAxis = false,
+): Series[] {
+  const hasSf = data.treeSf != null;
+  const series: Series[] = [
+    {
+      tree: data.treeNy,
+      transform: transforms.ny,
+      scale: scales.yNy,
+      view: paths.viewNy,
+      axis: axes?.y,
+      gAxis: axes?.gY,
+    },
+  ];
+
+  if (
+    hasSf &&
+    dualYAxis &&
+    data.treeSf &&
+    transforms.sf &&
+    scales.ySf &&
+    paths.viewSf
+  ) {
+    series.push({
+      tree: data.treeSf,
+      transform: transforms.sf,
+      scale: scales.ySf,
+      view: paths.viewSf,
+      axis: axes?.yRight,
+      gAxis: axes?.gYRight,
+    });
+  }
+
+  return series;
+}
+
 export interface RenderState {
   scales: ScaleSet;
   axes: AxisSet;
@@ -112,7 +164,7 @@ export function setupRender(
     hasSf && dualYAxis,
   );
   const sharedTransform = new ViewportTransform();
-  const transformsInner = {
+  const transformsInner: TransformPair = {
     ny: sharedTransform,
     sf: hasSf
       ? dualYAxis
@@ -122,20 +174,14 @@ export function setupRender(
   };
 
   updateScaleX(scales.x, data.bIndexFull, data);
-  const series = [
-    {
-      tree: data.treeNy,
-      transform: transformsInner.ny,
-      scale: scales.yNy,
-    },
-  ];
-  if (hasSf && dualYAxis && data.treeSf && transformsInner.sf && scales.ySf) {
-    series.push({
-      tree: data.treeSf,
-      transform: transformsInner.sf,
-      scale: scales.ySf,
-    });
-  }
+  const series = buildSeries(
+    data,
+    transformsInner,
+    scales,
+    paths,
+    undefined,
+    dualYAxis,
+  );
 
   if (series.length === 1 && hasSf && data.treeSf) {
     const { combined, dp } = data.combinedTemperatureDp(data.bIndexFull);
@@ -179,35 +225,14 @@ export function refreshChart(state: RenderState, data: ChartData) {
     state.transforms.bScreenXVisible,
   );
   updateScaleX(state.scales.x, bIndexVisible, data);
-
-  const series = [
-    {
-      tree: data.treeNy,
-      transform: state.transforms.ny,
-      scale: state.scales.yNy,
-      view: state.paths.viewNy,
-      axis: state.axes.y,
-      gAxis: state.axes.gY,
-    },
-  ];
-
-  if (
-    state.axes.yRight &&
-    state.scales.ySf &&
-    state.transforms.sf &&
-    data.treeSf &&
-    state.paths.viewSf &&
-    state.axes.gYRight
-  ) {
-    series.push({
-      tree: data.treeSf,
-      transform: state.transforms.sf,
-      scale: state.scales.ySf,
-      view: state.paths.viewSf,
-      axis: state.axes.yRight,
-      gAxis: state.axes.gYRight!,
-    });
-  }
+  const series = buildSeries(
+    data,
+    state.transforms,
+    state.scales,
+    state.paths,
+    state.axes,
+    state.dualYAxis,
+  );
 
   if (series.length === 1 && data.treeSf) {
     const { combined, dp } = data.combinedTemperatureDp(bIndexVisible);
@@ -226,7 +251,7 @@ export function refreshChart(state: RenderState, data: ChartData) {
 
   for (const s of series) {
     updateNode(s.view, s.transform.matrix);
-    s.axis.axisUp(s.gAxis);
+    s.axis!.axisUp(s.gAxis!);
   }
   state.axes.x.axisUp(state.axes.gX);
 }

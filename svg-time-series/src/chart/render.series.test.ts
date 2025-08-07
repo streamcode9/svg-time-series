@@ -1,8 +1,11 @@
+/**
+ * @vitest-environment jsdom
+ */
 import { describe, it, expect, beforeAll } from "vitest";
 import { JSDOM } from "jsdom";
 import { select } from "d3-selection";
 import { ChartData, IDataSource } from "./data.ts";
-import { setupRender } from "./render.ts";
+import { setupRender, buildSeries } from "./render.ts";
 
 class Matrix {
   constructor(
@@ -76,8 +79,8 @@ function createSvg() {
   return select(div).select("svg");
 }
 
-describe("setupRender Y-axis modes", () => {
-  it("combines series when dualYAxis is false", () => {
+describe("buildSeries", () => {
+  it("returns single series for combined axis", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
@@ -88,11 +91,26 @@ describe("setupRender Y-axis modes", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
-    expect(state.scales.yNy.domain()).toEqual([1, 30]);
-    expect(state.scales.ySf).toBeUndefined();
+    const series = buildSeries(
+      data,
+      state.transforms,
+      state.scales,
+      state.paths,
+      state.axes,
+      state.dualYAxis,
+    );
+    expect(series.length).toBe(1);
+    expect(series[0]).toMatchObject({
+      tree: data.treeNy,
+      transform: state.transforms.ny,
+      scale: state.scales.yNy,
+      view: state.paths.viewNy,
+      axis: state.axes.y,
+      gAxis: state.axes.gY,
+    });
   });
 
-  it("separates scales when dualYAxis is true", () => {
+  it("returns two series for dualYAxis", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
@@ -103,7 +121,30 @@ describe("setupRender Y-axis modes", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, true);
-    expect(state.scales.yNy.domain()).toEqual([1, 3]);
-    expect(state.scales.ySf!.domain()).toEqual([10, 30]);
+    const series = buildSeries(
+      data,
+      state.transforms,
+      state.scales,
+      state.paths,
+      state.axes,
+      state.dualYAxis,
+    );
+    expect(series.length).toBe(2);
+    expect(series[0]).toMatchObject({
+      tree: data.treeNy,
+      transform: state.transforms.ny,
+      scale: state.scales.yNy,
+      view: state.paths.viewNy,
+      axis: state.axes.y,
+      gAxis: state.axes.gY,
+    });
+    expect(series[1]).toMatchObject({
+      tree: data.treeSf,
+      transform: state.transforms.sf,
+      scale: state.scales.ySf,
+      view: state.paths.viewSf,
+      axis: state.axes.yRight,
+      gAxis: state.axes.gYRight,
+    });
   });
 });
