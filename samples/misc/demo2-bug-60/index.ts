@@ -7,10 +7,8 @@ import { zoomIdentity, zoom as d3zoom, ZoomTransform } from "d3-zoom";
 import { MyAxis, Orientation } from "../../../svg-time-series/src/axis.ts";
 import { ViewportTransform } from "../../../svg-time-series/src/ViewportTransform.ts";
 import { updateNode } from "../../../svg-time-series/src/utils/domNodeTransform.ts";
-import {
-  IMinMax,
-  SegmentTree,
-} from "../../../svg-time-series/src/segmentTree.ts";
+import { SegmentTree } from "segment-tree-rmq";
+import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
 import {
   AR1Basis,
   AR1,
@@ -30,6 +28,23 @@ function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
     min: Math.min(nyMinValue, sfMinValue),
     max: Math.max(nyMaxValue, sfMaxValue),
   };
+}
+
+function buildMinMax(a: IMinMax, b: IMinMax): IMinMax {
+  return { min: Math.min(a.min, b.min), max: Math.max(a.max, b.max) };
+}
+
+const minMaxIdentity: IMinMax = { min: Infinity, max: -Infinity };
+
+function createSegmentTree(
+  elements: number[][],
+  size: number,
+): SegmentTree<IMinMax> {
+  const data: IMinMax[] = new Array(size);
+  for (let i = 0; i < size; i++) {
+    data[i] = buildSegmentTreeTuple(i, elements);
+  }
+  return new SegmentTree(data, buildMinMax, minMaxIdentity);
 }
 
 export function drawCharts(data: [number, number][]) {
@@ -89,7 +104,7 @@ export class TimeSeriesChart {
   private data: Array<[number, number]>;
 
   // updated when a new point is added
-  private tree: SegmentTree;
+  private tree: SegmentTree<IMinMax>;
 
   // Updated when a new point is added
   // used to convert indices to dates shown by X axis
@@ -229,11 +244,7 @@ export class TimeSeriesChart {
       y.domain(bTemperatureVisible.toArr());
     };
 
-    this.tree = new SegmentTree(
-      this.data,
-      this.data.length,
-      this.buildSegmentTreeTuple,
-    );
+    this.tree = createSegmentTree(this.data, this.data.length);
 
     // � ����������� ���� ����� ��� ������, �������
     // �������� bIndexFull � �������� bIndexVisible
@@ -295,11 +306,7 @@ export class TimeSeriesChart {
     this.drawNewData = () => {
       // �������� ������ �� ������
       // ������������� ��� �������� �����
-      this.tree = new SegmentTree(
-        this.data,
-        this.data.length,
-        this.buildSegmentTreeTuple,
-      );
+      this.tree = createSegmentTree(this.data, this.data.length);
       const drawLine = (cityIdx: number) =>
         line()
           .defined((d: [number, number]) => {

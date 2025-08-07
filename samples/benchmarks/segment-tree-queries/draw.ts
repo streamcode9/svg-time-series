@@ -1,9 +1,7 @@
-﻿import { BaseType, Selection } from "d3-selection";
+import { BaseType, Selection } from "d3-selection";
 
-import {
-  IMinMax,
-  SegmentTree,
-} from "../../../svg-time-series/src/segmentTree.ts";
+import { SegmentTree } from "segment-tree-rmq";
+import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
 import { animateBench, animateCosDown } from "../bench.ts";
 import { ViewWindowTransform } from "../../ViewWindowTransform.ts";
 
@@ -18,6 +16,23 @@ function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {
   };
 }
 
+function buildMinMax(a: IMinMax, b: IMinMax): IMinMax {
+  return { min: Math.min(a.min, b.min), max: Math.max(a.max, b.max) };
+}
+
+const minMaxIdentity: IMinMax = { min: Infinity, max: -Infinity };
+
+function createSegmentTree(
+  elements: number[][],
+  size: number,
+): SegmentTree<IMinMax> {
+  const data: IMinMax[] = new Array(size);
+  for (let i = 0; i < size; i++) {
+    data[i] = buildSegmentTreeTuple(i, elements);
+  }
+  return new SegmentTree(data, buildMinMax, minMaxIdentity);
+}
+
 export class TimeSeriesChart {
   constructor(
     svg: Selection<BaseType, {}, HTMLElement, any>,
@@ -28,7 +43,7 @@ export class TimeSeriesChart {
     const viewNode: SVGGElement = svg.select("g").node() as SVGGElement;
 
     const dataLength = data.length;
-    const tree = new SegmentTree(data, dataLength, buildSegmentTreeTuple);
+    const tree = createSegmentTree(data, dataLength);
 
     const t = new ViewWindowTransform(viewNode.transform.baseVal);
     t.setViewPort(div.clientWidth, div.clientHeight);

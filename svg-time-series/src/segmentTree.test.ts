@@ -1,5 +1,24 @@
 import { expect, test } from "vitest";
-import { SegmentTree, IMinMax } from "./segmentTree.ts";
+import { SegmentTree } from "segment-tree-rmq";
+import type { IMinMax } from "./chart/data.ts";
+
+function buildMinMax(a: IMinMax, b: IMinMax): IMinMax {
+  return { min: Math.min(a.min, b.min), max: Math.max(a.max, b.max) };
+}
+
+const minMaxIdentity: IMinMax = { min: Infinity, max: -Infinity };
+
+function createSegmentTree<T>(
+  elements: ReadonlyArray<T>,
+  size: number,
+  buildTuple: (index: number, elements: ReadonlyArray<T>) => IMinMax,
+): SegmentTree<IMinMax> {
+  const data: IMinMax[] = new Array(size);
+  for (let i = 0; i < size; i++) {
+    data[i] = buildTuple(i, elements);
+  }
+  return new SegmentTree(data, buildMinMax, minMaxIdentity);
+}
 
 test("SegmentTree operations", () => {
   const data = [1, 3, 2, 5, 4];
@@ -8,7 +27,7 @@ test("SegmentTree operations", () => {
     max: elements[index],
   });
 
-  const tree = new SegmentTree(data, data.length, buildTuple);
+  const tree = createSegmentTree(data, data.length, buildTuple);
 
   // Test initial state
   expect(tree.query(0, data.length - 1)).toEqual({ min: 1, max: 5 });
@@ -44,7 +63,7 @@ test("SegmentTree with IMinMax", () => {
   const buildTuple = (index: number, elements: readonly IMinMax[]): IMinMax =>
     elements[index];
 
-  const tree = new SegmentTree(data, data.length, buildTuple);
+  const tree = createSegmentTree(data, data.length, buildTuple);
 
   // Test initial state
   expect(tree.query(0, data.length - 1)).toEqual({ min: 1, max: 7 });

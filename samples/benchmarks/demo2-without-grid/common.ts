@@ -1,12 +1,9 @@
-﻿import * as draw from "./draw.ts";
-import * as segmentTree from "../../../svg-time-series/src/segmentTree.ts";
+import * as draw from "./draw.ts";
+import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
 import { D3ZoomEvent } from "d3-zoom";
 import { select, selectAll } from "d3-selection";
 
-function buildSegmentTreeTuple(
-  index: number,
-  elements: any,
-): segmentTree.IMinMax {
+function buildSegmentTreeTuple(index: number, elements: any): IMinMax {
   const nyMinValue = isNaN(elements[0].values[index])
     ? Infinity
     : elements[0].values[index];

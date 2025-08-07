@@ -2,8 +2,9 @@ import { Selection } from "d3-selection";
 import { line } from "d3-shape";
 import { ScaleLinear, ScaleTime, scaleLinear, scaleTime } from "d3-scale";
 import { AR1Basis, DirectProductBasis } from "../../math/affine.ts";
-import { SegmentTree } from "../../segmentTree.ts";
+import { SegmentTree } from "segment-tree-rmq";
 import { ViewportTransform } from "../../ViewportTransform.ts";
+import type { IMinMax } from "../data.ts";
 import type { ChartData } from "../data.ts";
 import type { RenderState } from "../render.ts";
 
@@ -60,7 +61,7 @@ export function updateScaleX(
 
 export function updateScaleY(
   bIndexVisible: AR1Basis,
-  tree: SegmentTree,
+  tree: SegmentTree<IMinMax>,
   pathTransform: ViewportTransform,
   yScale: ScaleLinear<number, number>,
   data: ChartData,

@@ -1,5 +1,6 @@
-﻿import { D3ZoomEvent, zoom } from "d3-zoom";
-import * as segmentTree from "../../../svg-time-series/src/segmentTree.ts";
+import { D3ZoomEvent, zoom } from "d3-zoom";
+import { SegmentTree } from "segment-tree-rmq";
+import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
 import { timeout as runTimeout } from "d3-timer";
 import { selectAll } from "d3-selection";
 import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
@@ -22,6 +23,24 @@ interface IChartParameters {
   color: Function;
 }
 
+function buildMinMax(a: IMinMax, b: IMinMax): IMinMax {
+  return { min: Math.min(a.min, b.min), max: Math.max(a.max, b.max) };
+}
+
+const minMaxIdentity: IMinMax = { min: Infinity, max: -Infinity };
+
+function createSegmentTree<T>(
+  elements: ReadonlyArray<T>,
+  size: number,
+  buildTuple: (index: number, elements: ReadonlyArray<T>) => IMinMax,
+): SegmentTree<IMinMax> {
+  const data: IMinMax[] = new Array(size);
+  for (let i = 0; i < size; i++) {
+    data[i] = buildTuple(i, elements);
+  }
+  return new SegmentTree(data, buildMinMax, minMaxIdentity);
+}
+
 function drawProc(f: any) {
   let requested = false;
 
@@ -42,11 +61,8 @@ export class TimeSeriesChart {
   private maxX: Date;
   private missedStepsCount: number;
   private stepX: number;
-  private tree: segmentTree.SegmentTree;
-  private buildSegmentTreeTuple: (
-    index: number,
-    elements: any,
-  ) => segmentTree.IMinMax;
+  private tree: SegmentTree<IMinMax>;
+  private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax;
   private zoomHandler: (event: D3ZoomEvent<any, any>) => void;
 
   constructor(
@@ -54,10 +70,7 @@ export class TimeSeriesChart {
     minX: Date,
     stepX: number,
     data: any[],
-    buildSegmentTreeTuple: (
-      index: number,
-      elements: any,
-    ) => segmentTree.IMinMax,
+    buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
     zoomHandler: (event: D3ZoomEvent<any, any>) => void,
   ) {
     this.stepX = stepX;
@@ -80,7 +93,7 @@ export class TimeSeriesChart {
     this.chart.data[0].values.shift();
     this.chart.data[1].values.shift();
 
-    this.tree = new segmentTree.SegmentTree(
+    this.tree = createSegmentTree(
       this.chart.data,
       this.chart.data[0].values.length,
       this.buildSegmentTreeTuple,
@@ -138,7 +151,7 @@ export class TimeSeriesChart {
       };
     });
 
-    this.tree = new segmentTree.SegmentTree(
+    this.tree = createSegmentTree(
       cities,
       cities[0].values.length,
       this.buildSegmentTreeTuple,

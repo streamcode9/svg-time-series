@@ -5,7 +5,24 @@ import {
   betweenTBasesAR1,
   bUnit,
 } from "../math/affine.ts";
-import { IMinMax, SegmentTree } from "../segmentTree.ts";
+import { SegmentTree } from "segment-tree-rmq";
+
+export interface IMinMax {
+  readonly min: number;
+  readonly max: number;
+}
+
+function buildMinMax(fst: Readonly<IMinMax>, snd: Readonly<IMinMax>): IMinMax {
+  return {
+    min: Math.min(fst.min, snd.min),
+    max: Math.max(fst.max, snd.max),
+  } as const;
+}
+
+const minMaxIdentity: IMinMax = {
+  min: Infinity,
+  max: -Infinity,
+};
 
 export interface IDataSource {
   readonly startTime: number;
@@ -15,12 +32,10 @@ export interface IDataSource {
   getSf?(index: number): number;
 }
 
-export type { IMinMax };
-
 export class ChartData {
   public data: Array<[number, number?]>;
-  public treeNy!: SegmentTree<[number, number?]>;
-  public treeSf?: SegmentTree<[number, number?]>;
+  public treeNy!: SegmentTree<IMinMax>;
+  public treeSf?: SegmentTree<IMinMax>;
   public idxToTime: AR1;
   private idxShift: AR1;
   public bIndexFull: AR1Basis;
@@ -87,25 +102,32 @@ export class ChartData {
   }
 
   private rebuildSegmentTrees(): void {
-    this.treeNy = new SegmentTree(this.data, this.data.length, (i, arr) => {
-      const val = arr[i][0];
+    const nyData: IMinMax[] = new Array(this.data.length);
+    for (let i = 0; i < this.data.length; i++) {
+      const val = this.data[i][0];
       const minVal = isNaN(val) ? Infinity : val;
       const maxVal = isNaN(val) ? -Infinity : val;
-      return { min: minVal, max: maxVal } as IMinMax;
-    });
-    this.treeSf = this.hasSf
-      ? new SegmentTree(this.data, this.data.length, (i, arr) => {
-          const val = arr[i][1]!;
-          const minVal = isNaN(val) ? Infinity : val;
-          const maxVal = isNaN(val) ? -Infinity : val;
-          return { min: minVal, max: maxVal } as IMinMax;
-        })
-      : undefined;
+      nyData[i] = { min: minVal, max: maxVal } as IMinMax;
+    }
+    this.treeNy = new SegmentTree(nyData, buildMinMax, minMaxIdentity);
+
+    if (this.hasSf) {
+      const sfData: IMinMax[] = new Array(this.data.length);
+      for (let i = 0; i < this.data.length; i++) {
+        const val = this.data[i][1]!;
+        const minVal = isNaN(val) ? Infinity : val;
+        const maxVal = isNaN(val) ? -Infinity : val;
+        sfData[i] = { min: minVal, max: maxVal } as IMinMax;
+      }
+      this.treeSf = new SegmentTree(sfData, buildMinMax, minMaxIdentity);
+    } else {
+      this.treeSf = undefined;
+    }
   }
 
   bTemperatureVisible(
     bIndexVisible: AR1Basis,
-    tree: SegmentTree<[number, number?]>,
+    tree: SegmentTree<IMinMax>,
   ): AR1Basis {
     const [minIdxX, maxIdxX] = bIndexVisible.toArr();
     let startIdx = Math.floor(minIdxX);
