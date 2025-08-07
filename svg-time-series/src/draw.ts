@@ -92,6 +92,15 @@ export class TimeSeriesChart {
     this.zoomState.reset();
   };
 
+  public resize = (dimensions: { width: number; height: number }) => {
+    this.state.dimensions.width = dimensions.width;
+    this.state.dimensions.height = dimensions.height;
+    this.zoomArea
+      .attr("width", dimensions.width)
+      .attr("height", dimensions.height);
+    this.zoomState.updateExtents(dimensions);
+  };
+
   public onHover = (x: number) => {
     const idx = this.state.transforms.ny.fromScreenToModelX(x);
     this.legendController.onHover(idx);

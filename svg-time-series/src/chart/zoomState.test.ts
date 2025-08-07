@@ -5,9 +5,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { select } from "d3-selection";
 
 vi.mock("d3-zoom", () => {
-  const behavior: any = () => {};
-  behavior.scaleExtent = () => behavior;
-  behavior.translateExtent = () => behavior;
+  const behavior: any = vi.fn();
+  behavior.scaleExtent = vi.fn().mockReturnValue(behavior);
+  behavior.translateExtent = vi.fn().mockReturnValue(behavior);
   behavior.on = (event: string, handler: any) => {
     behavior._zoomHandler = handler;
     return behavior;
@@ -142,5 +142,30 @@ describe("ZoomState", () => {
       expect.objectContaining({ k: 1, x: 0, y: 0 }),
     );
     expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("updates zoom extents on resize", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const ny = { onZoomPan: vi.fn() };
+    const state: any = {
+      dimensions: { width: 10, height: 10 },
+      transforms: { ny },
+    };
+    const zs = new ZoomState(rect as any, state, vi.fn());
+
+    const scaleSpy = (zs.zoomBehavior as any).scaleExtent as any;
+    const translateSpy = (zs.zoomBehavior as any).translateExtent as any;
+
+    scaleSpy.mockClear();
+    translateSpy.mockClear();
+
+    zs.updateExtents({ width: 20, height: 30 });
+
+    expect(scaleSpy).toHaveBeenCalledWith([1, 40]);
+    expect(translateSpy).toHaveBeenCalledWith([
+      [0, 0],
+      [20, 30],
+    ]);
   });
 });
