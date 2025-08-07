@@ -12,6 +12,7 @@ export class ZoomState {
   public zoomBehavior: ZoomBehavior<SVGRectElement, unknown>;
   private currentPanZoomTransformState: ZoomTransform | null = null;
   private scheduleRefresh: () => void;
+  private internalEvent = false;
 
   constructor(
     private zoomArea: Selection<SVGRectElement, unknown, HTMLElement, unknown>,
@@ -35,10 +36,12 @@ export class ZoomState {
 
     this.scheduleRefresh = drawProc(() => {
       if (this.currentPanZoomTransformState != null) {
+        this.internalEvent = true;
         this.zoomBehavior.transform(
           this.zoomArea,
           this.currentPanZoomTransformState,
         );
+        this.internalEvent = false;
       }
       this.refreshChart();
     });
@@ -51,7 +54,11 @@ export class ZoomState {
     this.currentPanZoomTransformState = event.transform;
     this.state.transforms.ny.onZoomPan(event.transform);
     this.state.transforms.sf?.onZoomPan(event.transform);
-    this.scheduleRefresh();
+    if (event.sourceEvent) {
+      this.scheduleRefresh();
+    } else if (!this.internalEvent) {
+      this.refreshChart();
+    }
     if (callCallback) {
       this.zoomCallback(event);
     }

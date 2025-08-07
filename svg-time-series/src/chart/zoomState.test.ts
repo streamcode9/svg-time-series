@@ -38,7 +38,7 @@ describe("ZoomState", () => {
     const zoomCb = vi.fn();
     const zs = new ZoomState(rect as any, state, refresh, zoomCb);
 
-    const event = { transform: { x: 5, k: 2 } } as any;
+    const event = { transform: { x: 5, k: 2 }, sourceEvent: {} } as any;
     zs.zoom(event);
     vi.runAllTimers();
 
@@ -60,11 +60,31 @@ describe("ZoomState", () => {
     const zoomCb = vi.fn();
     const zs = new ZoomState(rect as any, state, refresh, zoomCb);
 
-    const event = { transform: { x: 1, k: 1 } } as any;
+    const event = { transform: { x: 1, k: 1 }, sourceEvent: {} } as any;
     zs.zoom(event, false);
     vi.runAllTimers();
 
     expect(zoomCb).not.toHaveBeenCalled();
+  });
+
+  it("does not reschedule for programmatic transform", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const ny = { onZoomPan: vi.fn() };
+    const state: any = {
+      dimensions: { width: 10, height: 10 },
+      transforms: { ny },
+    };
+    const refresh = vi.fn();
+    const zs = new ZoomState(rect as any, state, refresh);
+
+    const transformSpy = zs.zoomBehavior.transform as any;
+    transformSpy.mockClear();
+    zs.zoom({ transform: { x: 2, k: 3 } } as any);
+    vi.runAllTimers();
+
+    expect(transformSpy).not.toHaveBeenCalled();
+    expect(refresh).toHaveBeenCalledTimes(1);
   });
 
   it("refresh re-applies transform and triggers refresh callback", () => {
