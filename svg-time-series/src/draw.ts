@@ -6,10 +6,11 @@ import { setupRender, refreshChart } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
 import { renderPaths } from "./chart/render/utils.ts";
 import type { ILegendController } from "./chart/legend.ts";
-import { ZoomState } from "./chart/zoomState.ts";
+import { ZoomState, IZoomStateOptions } from "./chart/zoomState.ts";
 
 export type { IMinMax, IDataSource } from "./chart/data.ts";
 export type { ILegendController } from "./chart/legend.ts";
+export type { IZoomStateOptions } from "./chart/zoomState.ts";
 
 export interface IPublicInteraction {
   zoom: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
@@ -36,6 +37,7 @@ export class TimeSeriesChart {
       event: D3ZoomEvent<SVGRectElement, unknown>,
     ) => void = () => {},
     mouseMoveHandler: (event: MouseEvent) => void = () => {},
+    zoomOptions: IZoomStateOptions = {},
   ) {
     this.data = new ChartData(data);
 
@@ -61,6 +63,7 @@ export class TimeSeriesChart {
         zoomHandler(event);
         this.legendController.refresh();
       },
+      zoomOptions,
     );
 
     this.drawNewData();

@@ -9,11 +9,16 @@ import {
 import { drawProc } from "../utils/drawProc.ts";
 import type { RenderState } from "./render.ts";
 
+export interface IZoomStateOptions {
+  scaleExtent?: [number, number];
+}
+
 export class ZoomState {
   public zoomBehavior: ZoomBehavior<SVGRectElement, unknown>;
   private currentPanZoomTransformState: ZoomTransform | null = null;
   private scheduleRefresh: () => void;
   private cancelRefresh: () => void;
+  private scaleExtent: [number, number];
 
   constructor(
     private zoomArea: Selection<SVGRectElement, unknown, HTMLElement, unknown>,
@@ -22,9 +27,11 @@ export class ZoomState {
     private zoomCallback: (
       event: D3ZoomEvent<SVGRectElement, unknown>,
     ) => void = () => {},
+    options: IZoomStateOptions = {},
   ) {
+    this.scaleExtent = options.scaleExtent ?? [1, 40];
     this.zoomBehavior = d3zoom<SVGRectElement, unknown>()
-      .scaleExtent([1, 40])
+      .scaleExtent(this.scaleExtent)
       .translateExtent([
         [0, 0],
         [state.dimensions.width, state.dimensions.height],
@@ -69,7 +76,7 @@ export class ZoomState {
   public updateExtents = (dimensions: { width: number; height: number }) => {
     this.state.dimensions.width = dimensions.width;
     this.state.dimensions.height = dimensions.height;
-    this.zoomBehavior.scaleExtent([1, 40]).translateExtent([
+    this.zoomBehavior.scaleExtent(this.scaleExtent).translateExtent([
       [0, 0],
       [dimensions.width, dimensions.height],
     ]);

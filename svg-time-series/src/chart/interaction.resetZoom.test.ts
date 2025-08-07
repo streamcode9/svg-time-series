@@ -62,6 +62,7 @@ vi.mock("../axis.ts", () => ({
 
 let zoomReset: any;
 let legendRefresh: any;
+let zoomOptions: any;
 vi.mock("../../../samples/LegendController.ts", () => ({
   LegendController: class {
     refresh = vi.fn();
@@ -92,16 +93,18 @@ vi.mock("./zoomState.ts", () => ({
       state: any,
       refreshChart: () => void,
       zoomCallback: (e: any) => void,
+      options?: any,
     ) {
       this.state = state;
       this.refreshChart = refreshChart;
       this.zoomCallback = zoomCallback;
       zoomReset = this.reset;
+      zoomOptions = options;
     }
   },
 }));
 
-function createChart(data: Array<[number, number]>) {
+function createChart(data: Array<[number, number]>, options?: any) {
   currentDataLength = data.length;
   const parent = document.createElement("div");
   const w = Math.max(currentDataLength - 1, 0);
@@ -137,6 +140,7 @@ function createChart(data: Array<[number, number]>) {
     true,
     () => {},
     () => {},
+    options,
   );
 
   return { interaction: chart.interaction };
@@ -146,6 +150,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   nodeTransforms.clear();
   transformInstances.length = 0;
+  zoomOptions = undefined;
   (SVGSVGElement.prototype as any).createSVGMatrix = () => new Matrix();
 });
 
@@ -171,5 +176,18 @@ describe("interaction.resetZoom", () => {
     expect(zoomReset).toHaveBeenCalled();
     expect(transform.onZoomPan).toHaveBeenCalledWith({ x: 0, k: 1 });
     expect(legendRefresh).toHaveBeenCalled();
+  });
+});
+
+describe("TimeSeriesChart zoom options", () => {
+  it("forwards custom scale extents to ZoomState", () => {
+    createChart(
+      [
+        [10, 20],
+        [30, 40],
+      ],
+      { scaleExtent: [2, 80] },
+    );
+    expect(zoomOptions).toEqual({ scaleExtent: [2, 80] });
   });
 });
