@@ -27,13 +27,20 @@ work is possible. Keep watching!
 - `cd samples; npx vite` to start the dev server
 - Open the URL in your browser. The Vite web server doesn't properly handle 404 errors, so if you see a blank page, the URL is likely incorrect.
 - Navigate to `demo1.html` or `demo2.html` in the list of links in the browser.
+
+## Benchmarking
+
 - For a performance benchmark of core chart components, open
-  `benchmarks/chart-components/index.html` and observe the reported FPS and
-  render time in your browser.
+  `benchmarks/chart-components/index.html` after starting the dev server and
+  observe the reported FPS and render time in your browser.
+- Run `npm run bench` to execute the Vitest micro-benchmark suite. Results are
+  printed to the terminal, showing operations per second and relative
+  performance for each test.
 - To run automated browser benchmarks with
   [Tachometer](https://github.com/Polymer/tachometer), execute
   `node scripts/run-browser-benchmarks.mjs`. The script measures first
-  contentful paint and writes JSON results to `tachometer-results.json`.
+  contentful paint and writes JSON results to `tachometer-results.json`. Inspect
+  this file to compare performance across runs.
 
 ## Y-axis modes
 
