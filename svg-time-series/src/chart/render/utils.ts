@@ -18,7 +18,10 @@ const lineSf = line<[number, number?]>()
   .x((_, i) => i)
   .y((d) => d[1]!);
 
-const lineGenerators = [lineNy, lineSf];
+const lineGenerators = {
+  ny: lineNy,
+  sf: lineSf,
+} as const;
 
 export function createDimensions(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
@@ -118,10 +121,18 @@ export function renderPaths(
   dataArr: Array<[number, number?]>,
 ) {
   const paths = state.paths.path.nodes() as SVGPathElement[];
-  let cityIdx = 0;
-  for (const path of paths) {
-    const drawLine = lineGenerators[cityIdx];
-    path.setAttribute("d", drawLine(dataArr) ?? "");
-    cityIdx++;
+  const pathMap: Record<
+    keyof typeof lineGenerators,
+    SVGPathElement | undefined
+  > = {
+    ny: paths[0],
+    sf: paths[1],
+  };
+
+  for (const [seriesKey, generator] of Object.entries(lineGenerators)) {
+    const path = pathMap[seriesKey as keyof typeof lineGenerators];
+    if (path) {
+      path.setAttribute("d", generator(dataArr) ?? "");
+    }
   }
 }

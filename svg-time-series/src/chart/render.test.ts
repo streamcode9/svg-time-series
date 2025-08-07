@@ -11,7 +11,7 @@ describe("renderPaths", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const pathSelection = select(svg)
       .selectAll("path")
-      .data([0])
+      .data([0, 1])
       .enter()
       .append("path");
 
