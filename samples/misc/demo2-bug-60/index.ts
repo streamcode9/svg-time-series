@@ -14,6 +14,7 @@ import {
 import {
   AR1Basis,
   AR1,
+  DirectProductBasis,
   betweenTBasesAR1,
   bPlaceholder,
   bUnit,
@@ -217,8 +218,10 @@ export class TimeSeriesChart {
       // ����������� �� � � Y � ������� ������������
       // ������e��� �� ������ �������������
       pathTransform.onReferenceViewWindowResize(
-        this.bIndexFull,
-        bTemperatureVisible,
+        DirectProductBasis.fromProjections(
+          this.bIndexFull,
+          bTemperatureVisible,
+        ),
       );
 
       const bTimeVisible = bIndexVisible.transformWith(this.idxToTime);
@@ -263,8 +266,12 @@ export class TimeSeriesChart {
       xAxis.axisUp(gX);
       yAxis.axisUp(gY);
     });
-    pathTransform.onViewPortResize(bScreenXVisible, bScreenYVisible);
-    pathTransform.onReferenceViewWindowResize(this.bIndexFull, bPlaceholder);
+    pathTransform.onViewPortResize(
+      DirectProductBasis.fromProjections(bScreenXVisible, bScreenYVisible),
+    );
+    pathTransform.onReferenceViewWindowResize(
+      DirectProductBasis.fromProjections(this.bIndexFull, bPlaceholder),
+    );
     svg
       .append("rect")
       .attr("class", "zoom")

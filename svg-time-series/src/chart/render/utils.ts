@@ -1,7 +1,7 @@
 import { Selection } from "d3-selection";
 import { line } from "d3-shape";
 import { ScaleLinear, ScaleTime, scaleLinear, scaleTime } from "d3-scale";
-import { AR1Basis } from "../../math/affine.ts";
+import { AR1Basis, DirectProductBasis } from "../../math/affine.ts";
 import { SegmentTree } from "../../segmentTree.ts";
 import { ViewportTransform } from "../../ViewportTransform.ts";
 import type { ChartData } from "../data.ts";
@@ -67,8 +67,7 @@ export function updateScaleY(
 ) {
   const bTemperatureVisible = data.bTemperatureVisible(bIndexVisible, tree);
   pathTransform.onReferenceViewWindowResize(
-    data.bIndexFull,
-    bTemperatureVisible,
+    DirectProductBasis.fromProjections(data.bIndexFull, bTemperatureVisible),
   );
   yScale.domain(bTemperatureVisible.toArr());
 }

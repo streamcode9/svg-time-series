@@ -3,7 +3,7 @@ import { Selection } from "d3-selection";
 import { MyAxis, Orientation } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
-import { AR1Basis, bPlaceholder } from "../math/affine.ts";
+import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
 import type { ChartData } from "./data.ts";
 import {
   createDimensions,
@@ -131,7 +131,9 @@ export function setupRender(
       Math.min(nyMin, sfMin),
       Math.max(nyMax, sfMax),
     );
-    transformsInner.ny.onReferenceViewWindowResize(data.bIndexFull, combined);
+    transformsInner.ny.onReferenceViewWindowResize(
+      DirectProductBasis.fromProjections(data.bIndexFull, combined),
+    );
     scales.yNy.domain(combined.toArr());
   } else {
     updateScaleY(
@@ -154,12 +156,17 @@ export function setupRender(
 
   const axes = setupAxes(svg, scales, width, height, hasSf, dualYAxis);
 
-  transformsInner.ny.onViewPortResize(bScreenXVisible, bScreenYVisible);
-  transformsInner.sf?.onViewPortResize(bScreenXVisible, bScreenYVisible);
-  transformsInner.ny.onReferenceViewWindowResize(data.bIndexFull, bPlaceholder);
+  const bScreenVisibleDp = DirectProductBasis.fromProjections(
+    bScreenXVisible,
+    bScreenYVisible,
+  );
+  transformsInner.ny.onViewPortResize(bScreenVisibleDp);
+  transformsInner.sf?.onViewPortResize(bScreenVisibleDp);
+  transformsInner.ny.onReferenceViewWindowResize(
+    DirectProductBasis.fromProjections(data.bIndexFull, bPlaceholder),
+  );
   transformsInner.sf?.onReferenceViewWindowResize(
-    data.bIndexFull,
-    bPlaceholder,
+    DirectProductBasis.fromProjections(data.bIndexFull, bPlaceholder),
   );
 
   const transforms: TransformSet = {
@@ -207,8 +214,12 @@ export function refreshChart(state: RenderState, data: ChartData) {
       Math.min(nyMin, sfMin),
       Math.max(nyMax, sfMax),
     );
-    state.transforms.ny.onReferenceViewWindowResize(data.bIndexFull, combined);
-    state.transforms.sf?.onReferenceViewWindowResize(data.bIndexFull, combined);
+    state.transforms.ny.onReferenceViewWindowResize(
+      DirectProductBasis.fromProjections(data.bIndexFull, combined),
+    );
+    state.transforms.sf?.onReferenceViewWindowResize(
+      DirectProductBasis.fromProjections(data.bIndexFull, combined),
+    );
     state.scales.yNy.domain(combined.toArr());
     if (state.paths.viewSf) {
       updateNode(state.paths.viewSf, state.transforms.ny.matrix);

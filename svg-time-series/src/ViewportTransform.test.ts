@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { AR1Basis } from "./math/affine.ts";
+import { AR1Basis, DirectProductBasis } from "./math/affine.ts";
 
 class Matrix {
   constructor(
@@ -69,8 +69,18 @@ describe("ViewportTransform", () => {
   it("composes zoom and reference transforms and inverts them", () => {
     const vt = new ViewportTransform();
 
-    vt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
-    vt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
+    vt.onViewPortResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 100),
+        new AR1Basis(0, 100),
+      ),
+    );
+    vt.onReferenceViewWindowResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 10),
+        new AR1Basis(0, 10),
+      ),
+    );
 
     // without zoom
     expect(vt.fromScreenToModelX(50)).toBeCloseTo(5);
@@ -86,8 +96,18 @@ describe("ViewportTransform", () => {
   it("maps screen bases back to model bases through inverse transforms", () => {
     const vt = new ViewportTransform();
 
-    vt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
-    vt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
+    vt.onViewPortResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 100),
+        new AR1Basis(0, 100),
+      ),
+    );
+    vt.onReferenceViewWindowResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 10),
+        new AR1Basis(0, 10),
+      ),
+    );
     vt.onZoomPan({ x: 10, k: 2 } as any);
 
     const basis = vt.fromScreenToModelBasisX(new AR1Basis(20, 40));
@@ -99,8 +119,18 @@ describe("ViewportTransform", () => {
   it("converts screen points to model points", () => {
     const vt = new ViewportTransform();
 
-    vt.onViewPortResize(new AR1Basis(0, 100), new AR1Basis(0, 100));
-    vt.onReferenceViewWindowResize(new AR1Basis(0, 10), new AR1Basis(0, 10));
+    vt.onViewPortResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 100),
+        new AR1Basis(0, 100),
+      ),
+    );
+    vt.onReferenceViewWindowResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 10),
+        new AR1Basis(0, 10),
+      ),
+    );
     vt.onZoomPan({ x: 10, k: 2 } as any);
 
     const p = (vt as any).toModelPoint(70, 20) as { x: number; y: number };
