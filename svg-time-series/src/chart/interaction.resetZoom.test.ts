@@ -65,7 +65,7 @@ let legendRefresh: any;
 vi.mock("../../../samples/LegendController.ts", () => ({
   LegendController: class {
     refresh = vi.fn();
-    onHover = vi.fn();
+    highlightIndex = vi.fn();
     destroy = vi.fn();
     constructor() {
       legendRefresh = this.refresh;

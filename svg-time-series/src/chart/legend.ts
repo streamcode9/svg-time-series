@@ -1,5 +1,5 @@
 export interface ILegendController {
-  onHover: (idx: number) => void;
+  highlightIndex: (idx: number) => void;
   refresh: () => void;
   clearHighlight: () => void;
   destroy: () => void;

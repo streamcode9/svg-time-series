@@ -51,7 +51,7 @@ export class LegendController implements ILegendController {
     this.cancelRefresh = cancel;
   }
 
-  public onHover = (idx: number) => {
+  public highlightIndex = (idx: number) => {
     this.highlightedDataIdx = Math.min(Math.max(idx, 0), this.data.length - 1);
     this.scheduleRefresh();
   };
