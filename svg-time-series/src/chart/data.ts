@@ -55,7 +55,9 @@ export class ChartData {
 
   append(ny: number, sf?: number): void {
     if (!this.hasSf && sf !== undefined) {
-      console.warn("ChartData: sf parameter provided but chart was initialized without getSf function. sf value will be ignored.");
+      console.warn(
+        "ChartData: sf parameter provided but chart was initialized without getSf function. sf value will be ignored.",
+      );
     }
     this.data.push([ny, this.hasSf ? sf : undefined]);
     this.data.shift();
