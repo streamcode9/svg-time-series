@@ -46,6 +46,23 @@ describe("ChartData", () => {
     expect(cd.idxToTime.applyToPoint(1)).toBe(0);
   });
 
+  it("provides clamped point data and timestamp", () => {
+    const cd = new ChartData(
+      0,
+      1,
+      [
+        [10, 20],
+        [30, 40],
+        [50, 60],
+      ],
+      buildNy,
+      buildSf,
+    );
+    expect(cd.getPoint(1)).toEqual({ values: [30, 40], timestamp: 1 });
+    expect(cd.getPoint(10)).toEqual({ values: [50, 60], timestamp: 2 });
+    expect(cd.getPoint(-5)).toEqual({ values: [10, 20], timestamp: 0 });
+  });
+
   it("reflects latest window after multiple appends", () => {
     const cd = new ChartData(
       0,

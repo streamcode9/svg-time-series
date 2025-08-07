@@ -49,10 +49,7 @@ export class LegendController {
   }
 
   public onHover = (idx: number) => {
-    this.highlightedDataIdx = Math.min(
-      Math.max(idx, 0),
-      this.data.data.length - 1,
-    );
+    this.highlightedDataIdx = Math.min(Math.max(idx, 0), this.data.length - 1);
     this.scheduleRefresh();
   };
 
@@ -61,17 +58,14 @@ export class LegendController {
   };
 
   private update() {
-    const [greenData, blueData] =
-      this.data.data[Math.round(this.highlightedDataIdx)];
-    const timestamp = this.data.idxToTime.applyToPoint(this.highlightedDataIdx);
+    const {
+      values: [greenData, blueData],
+      timestamp,
+    } = this.data.getPoint(this.highlightedDataIdx);
     this.legendTime.text(this.formatTime(timestamp));
 
-    const dotScaleMatrixNy = this.state.transforms.ny.dotScaleMatrix(
-      this.dotRadius,
-    );
-    const dotScaleMatrixSf = this.state.transforms.sf?.dotScaleMatrix(
-      this.dotRadius,
-    );
+    const { ny: dotScaleMatrixNy, sf: dotScaleMatrixSf } =
+      this.state.transforms.getDotMatrices(this.dotRadius);
     const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
       isNaN(n) ? valueForNaN : n;
     const updateDot = (
@@ -97,7 +91,7 @@ export class LegendController {
       this.highlightedGreenDot,
       dotScaleMatrixNy,
     );
-    if (this.state.transforms.sf) {
+    if (dotScaleMatrixSf) {
       updateDot(
         blueData as number,
         this.legendBlue,

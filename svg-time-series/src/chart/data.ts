@@ -65,6 +65,24 @@ export class ChartData {
     this.rebuildSegmentTrees();
   }
 
+  get length(): number {
+    return this.data.length;
+  }
+
+  getPoint(idx: number): {
+    values: [number, number?];
+    timestamp: number;
+  } {
+    const clamped = Math.min(
+      Math.max(Math.round(idx), 0),
+      this.data.length - 1,
+    );
+    return {
+      values: this.data[clamped],
+      timestamp: this.idxToTime.applyToPoint(clamped),
+    };
+  }
+
   private rebuildSegmentTrees(): void {
     this.treeNy = new SegmentTree(
       this.data,
