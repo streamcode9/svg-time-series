@@ -12,10 +12,10 @@ export default tsEslint.config(
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-empty-object-type": "off",
-      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/no-unsafe-function-type": "off",
-      "prefer-const": "off",
-      "prefer-spread": "off",
+      "prefer-const": "warn",
+      "prefer-spread": "warn",
     },
   },
 );
