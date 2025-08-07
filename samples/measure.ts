@@ -20,7 +20,12 @@ export function startFrameCounter(): FrameCounter {
     reset: () => {
       count = 0;
     },
-    stop: () => cancelAnimationFrame(handle),
+    stop: () => {
+      if (handle) {
+        cancelAnimationFrame(handle);
+        handle = 0;
+      }
+    },
   };
 }
 
