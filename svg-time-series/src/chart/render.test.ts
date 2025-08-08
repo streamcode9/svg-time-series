@@ -38,8 +38,8 @@ describe("renderPaths", () => {
     const svgSelection = select(document.createElement("div")).append(
       "svg",
     ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
-    const svg = svgSelection.node()!;
-    const { path } = initPaths(svgSelection, false);
+    const svg = svgSelection.node() as SVGSVGElement;
+    const { path } = initPaths(svgSelection, 1);
     const nodes = path.nodes() as SVGPathElement[];
     const state = {
       series: [{ path: nodes[0], line: lineNy }],
@@ -62,10 +62,11 @@ describe("initPaths", () => {
     const svgSelection = select(document.createElement("div")).append(
       "svg",
     ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
-    const { path, viewNy, viewSf } = initPaths(svgSelection, false);
+    const { path, nodes } = initPaths(svgSelection, 1);
 
     expect(path.size()).toBe(1);
-    expect(viewNy.tagName).toBe("g");
-    expect(viewSf).toBeUndefined();
+    expect(nodes).toHaveLength(1);
+    expect(nodes[0].tagName).toBe("g");
+    expect(nodes[1]).toBeUndefined();
   });
 });

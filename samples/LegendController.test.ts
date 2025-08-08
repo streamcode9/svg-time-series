@@ -101,7 +101,7 @@ describe("LegendController", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
-    select(state.paths.viewNy).select("path").attr("stroke", "green");
+    select(state.paths.nodes[0]).select("path").attr("stroke", "green");
     const lc = new LegendController(legendDiv as any, state, data);
 
     const updateSpy = vi
@@ -143,7 +143,7 @@ describe("LegendController", () => {
       return [timestamp, ...values] as any;
     }) as any;
     const state = setupRender(svg as any, data, false);
-    select(state.paths.viewNy).select("path").attr("stroke", "green");
+    select(state.paths.nodes[0]).select("path").attr("stroke", "green");
     const lc = new LegendController(legendDiv as any, state, data);
 
     const updateSpy = vi
@@ -174,7 +174,7 @@ describe("LegendController", () => {
       return { timestamp } as any;
     }) as any;
     const state = setupRender(svg as any, data, false);
-    select(state.paths.viewNy).select("path").attr("stroke", "green");
+    select(state.paths.nodes[0]).select("path").attr("stroke", "green");
     const lc = new LegendController(legendDiv as any, state, data);
 
     expect(() => {

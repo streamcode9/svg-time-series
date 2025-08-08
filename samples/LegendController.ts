@@ -30,7 +30,7 @@ export class LegendController implements ILegendController {
     this.legendGreen = legend.select(".chart-legend__green_value");
     this.legendBlue = legend.select(".chart-legend__blue_value");
 
-    const svg = state.paths.viewNy.ownerSVGElement as SVGSVGElement;
+    const svg = state.paths.nodes[0].ownerSVGElement as SVGSVGElement;
     if (!svg) {
       throw new Error("SVG element not found");
     }
@@ -47,10 +47,10 @@ export class LegendController implements ILegendController {
         .node() as SVGCircleElement;
     };
     this.highlightedGreenDot = makeDot(
-      state.paths.viewNy.querySelector("path") as SVGPathElement,
+      state.paths.nodes[0].querySelector("path") as SVGPathElement,
     );
-    this.highlightedBlueDot = state.paths.viewSf
-      ? makeDot(state.paths.viewSf.querySelector("path") as SVGPathElement)
+    this.highlightedBlueDot = state.paths.nodes[1]
+      ? makeDot(state.paths.nodes[1].querySelector("path") as SVGPathElement)
       : null;
   }
 

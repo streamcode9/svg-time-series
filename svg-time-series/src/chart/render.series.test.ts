@@ -107,7 +107,7 @@ describe("buildSeries", () => {
       tree: data.treeAxis0,
       transform: state.transforms.ny,
       scale: state.scales.y[0],
-      view: state.paths.viewNy,
+      view: state.paths.nodes[0],
       axis: state.axes.y,
       gAxis: state.axes.gY,
     });
@@ -139,7 +139,7 @@ describe("buildSeries", () => {
       tree: data.treeAxis0,
       transform: state.transforms.ny,
       scale: state.scales.y[0],
-      view: state.paths.viewNy,
+      view: state.paths.nodes[0],
       axis: state.axes.y,
       gAxis: state.axes.gY,
     });
@@ -147,7 +147,7 @@ describe("buildSeries", () => {
       tree: data.treeAxis1,
       transform: state.transforms.ny,
       scale: state.scales.y[0],
-      view: state.paths.viewSf,
+      view: state.paths.nodes[1],
       axis: state.axes.y,
       gAxis: state.axes.gY,
     });
@@ -179,7 +179,7 @@ describe("buildSeries", () => {
       tree: data.treeAxis0,
       transform: state.transforms.ny,
       scale: state.scales.y[0],
-      view: state.paths.viewNy,
+      view: state.paths.nodes[0],
       axis: state.axes.y,
       gAxis: state.axes.gY,
     });
@@ -187,7 +187,7 @@ describe("buildSeries", () => {
       tree: data.treeAxis1,
       transform: state.transforms.sf!,
       scale: state.scales.y[1],
-      view: state.paths.viewSf,
+      view: state.paths.nodes[1],
       axis: state.axes.yRight,
       gAxis: state.axes.gYRight,
     });
@@ -208,7 +208,7 @@ describe("buildSeries", () => {
     const svg2 = select(document.createElement("div")).append(
       "svg",
     ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
-    const singlePaths = initPaths(svg2, false);
+    const singlePaths = initPaths(svg2, 1);
     const series = buildSeries(
       data,
       state.transforms,

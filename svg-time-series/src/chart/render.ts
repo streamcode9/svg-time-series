@@ -113,27 +113,28 @@ export function buildSeries(
   axes?: AxisSet,
   dualYAxis = false,
 ): Series[] {
-  const nodes = paths.path.nodes() as SVGPathElement[];
+  const pathNodes = paths.path.nodes() as SVGPathElement[];
+  const views = paths.nodes;
   const series: Series[] = [
     {
       tree: data.treeAxis0,
       transform: transforms.ny,
       scale: scales.y[0],
-      view: paths.viewNy,
-      path: nodes[0],
+      view: views[0],
+      path: pathNodes[0],
       axis: axes?.y,
       gAxis: axes?.gY,
       line: lineNy,
     },
   ];
 
-  if (hasSf && data.treeAxis1 && nodes[1]) {
+  if (hasSf && data.treeAxis1 && pathNodes[1] && views[1]) {
     series.push({
       tree: data.treeAxis1,
       transform: dualYAxis && transforms.sf ? transforms.sf : transforms.ny,
       scale: dualYAxis && scales.y[1] ? scales.y[1] : scales.y[0],
-      view: paths.viewSf,
-      path: nodes[1],
+      view: views[1],
+      path: pathNodes[1],
       axis: axes?.yRight ?? axes?.y,
       gAxis: axes?.gYRight ?? axes?.gY,
       line: lineSf,
@@ -181,13 +182,15 @@ export function setupRender(
 ): RenderState {
   const hasSf = data.treeAxis1 != null;
 
+  const seriesCount = data.seriesCount;
+
   const { width, height, bScreenXVisible, bScreenYVisible } =
     createDimensions(svg);
   const bScreenVisibleDp = DirectProductBasis.fromProjections(
     bScreenXVisible,
     bScreenYVisible,
   );
-  const paths = initPaths(svg, hasSf);
+  const paths = initPaths(svg, seriesCount);
   const scales = createScales(bScreenVisibleDp, hasSf && dualYAxis ? 2 : 1);
   const sharedTransform = new ViewportTransform();
   const transformsInner: TransformPair = {

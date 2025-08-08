@@ -81,8 +81,7 @@ export function updateScaleY(
 
 export interface PathSet {
   path: Selection<SVGPathElement, number, SVGGElement, unknown>;
-  viewNy: SVGGElement;
-  viewSf?: SVGGElement;
+  nodes: SVGGElement[];
 }
 
 export interface TransformPair {
@@ -92,19 +91,17 @@ export interface TransformPair {
 
 export function initPaths(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
-  hasSf: boolean,
+  seriesCount: number,
 ): PathSet {
   const views = svg
-    .selectAll("g")
-    .data(hasSf ? [0, 1] : [0])
+    .selectAll<SVGGElement, number>("g")
+    .data(Array.from({ length: seriesCount }, (_, i) => i))
     .enter()
     .append("g")
     .attr("class", "view");
   const nodes = views.nodes() as SVGGElement[];
-  const viewNy = nodes[0];
-  const viewSf = hasSf ? nodes[1] : undefined;
-  const path = views.append("path");
-  return { path, viewNy, viewSf };
+  const path = views.append<SVGPathElement>("path");
+  return { path, nodes };
 }
 
 export function renderPaths(state: RenderState, dataArr: number[][]) {

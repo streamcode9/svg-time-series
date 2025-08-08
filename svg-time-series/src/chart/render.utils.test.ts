@@ -114,10 +114,11 @@ describe("initPaths", () => {
       HTMLElement,
       unknown
     >;
-    const { path, viewNy, viewSf } = initPaths(selection, false);
+    const { path, nodes } = initPaths(selection, 1);
     expect(path.nodes()).toHaveLength(1);
-    expect(viewNy.tagName).toBe("g");
-    expect(viewSf).toBeUndefined();
+    expect(nodes).toHaveLength(1);
+    expect(nodes[0].tagName).toBe("g");
+    expect(nodes[1]).toBeUndefined();
     expect(svg.querySelectorAll("g.view")).toHaveLength(1);
     expect(svg.querySelectorAll("path")).toHaveLength(1);
   });
@@ -130,10 +131,11 @@ describe("initPaths", () => {
       HTMLElement,
       unknown
     >;
-    const { path, viewNy, viewSf } = initPaths(selection, true);
+    const { path, nodes } = initPaths(selection, 2);
     expect(path.nodes()).toHaveLength(2);
-    expect(viewNy.tagName).toBe("g");
-    expect(viewSf?.tagName).toBe("g");
+    expect(nodes).toHaveLength(2);
+    expect(nodes[0].tagName).toBe("g");
+    expect(nodes[1].tagName).toBe("g");
     expect(svg.querySelectorAll("g.view")).toHaveLength(2);
     expect(svg.querySelectorAll("path")).toHaveLength(2);
   });
