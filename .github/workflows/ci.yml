@@ -7,7 +7,7 @@ on:
     branches: [main, master]
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,4 +28,16 @@ jobs:
             BASE_REF="${{ github.ref_name }}"
           fi
           npm run commitlint -- --from origin/$BASE_REF --to HEAD
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+      - run: npm ci
       - run: npm test
