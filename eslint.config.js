@@ -3,7 +3,7 @@
 import eslint from "@eslint/js";
 import tsEslint from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
-import vitest from "eslint-plugin-vitest";
+import vitest from "@vitest/eslint-plugin";
 
 export default tsEslint.config(
   eslint.configs.recommended,
