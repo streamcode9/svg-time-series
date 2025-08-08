@@ -237,7 +237,7 @@ describe("ChartData", () => {
     expect(dp.y().toArr()).toEqual([-3, 10]);
   });
 
-  it("returns neutral min/max when both series are all NaN", () => {
+  it("returns Infinity/-Infinity min/max when both series are all NaN", () => {
     const cd = new ChartData(
       makeSource([
         [NaN, NaN],
@@ -245,10 +245,27 @@ describe("ChartData", () => {
       ]),
     );
     const range = new AR1Basis(0, 1);
-    expect(cd.treeAxis0.query(0, 1)).toEqual({ min: 0, max: 0 });
-    expect(cd.treeAxis1!.query(0, 1)).toEqual({ min: 0, max: 0 });
-    expect(cd.bAxisVisible(range, 0).toArr()).toEqual([0, 0]);
-    expect(cd.bAxisVisible(range, 1).toArr()).toEqual([0, 0]);
+    expect(cd.treeAxis0.query(0, 1)).toEqual({ min: Infinity, max: -Infinity });
+    expect(cd.treeAxis1!.query(0, 1)).toEqual({
+      min: Infinity,
+      max: -Infinity,
+    });
+    expect(cd.bAxisVisible(range, 0).toArr()).toEqual([Infinity, -Infinity]);
+    expect(cd.bAxisVisible(range, 1).toArr()).toEqual([Infinity, -Infinity]);
+  });
+
+  it("ignores NaN values when computing min/max", () => {
+    const cd = new ChartData(
+      makeSource([
+        [NaN, NaN],
+        [5, 3],
+      ]),
+    );
+    const range = new AR1Basis(0, 1);
+    expect(cd.treeAxis0.query(0, 1)).toEqual({ min: 5, max: 5 });
+    expect(cd.treeAxis1!.query(0, 1)).toEqual({ min: 3, max: 3 });
+    expect(cd.bAxisVisible(range, 0).toArr()).toEqual([5, 5]);
+    expect(cd.bAxisVisible(range, 1).toArr()).toEqual([3, 3]);
   });
 
   describe("single-axis", () => {
@@ -281,11 +298,14 @@ describe("ChartData", () => {
       expect(cd.data).toEqual([[1]]);
     });
 
-    it("returns neutral min/max when data is all NaN", () => {
+    it("returns Infinity/-Infinity min/max when data is all NaN", () => {
       const cd = new ChartData(makeSource([[NaN], [NaN]]));
       const range = new AR1Basis(0, 1);
-      expect(cd.treeAxis0.query(0, 1)).toEqual({ min: 0, max: 0 });
-      expect(cd.bAxisVisible(range, 0).toArr()).toEqual([0, 0]);
+      expect(cd.treeAxis0.query(0, 1)).toEqual({
+        min: Infinity,
+        max: -Infinity,
+      });
+      expect(cd.bAxisVisible(range, 0).toArr()).toEqual([Infinity, -Infinity]);
     });
   });
 

@@ -135,8 +135,8 @@ export class ChartData {
     return Math.min(Math.max(idx, 0), this.data.length - 1);
   }
 
-  private buildAxisMinMax(axis: number): IMinMax[] {
-    const result: IMinMax[] = new Array(this.data.length);
+  private buildAxisMinMax(axis: number): Array<IMinMax | undefined> {
+    const result: Array<IMinMax | undefined> = new Array(this.data.length);
     const idxs = this.seriesByAxis[axis];
 
     for (let i = 0; i < this.data.length; i++) {
@@ -149,9 +149,7 @@ export class ChartData {
           if (val > max) max = val;
         }
       }
-      if (min === Infinity) {
-        result[i] = { min: 0, max: 0 } as IMinMax;
-      } else {
+      if (min !== Infinity) {
         result[i] = { min, max } as IMinMax;
       }
     }
@@ -159,10 +157,16 @@ export class ChartData {
   }
 
   private rebuildSegmentTrees(): void {
-    const axis0 = this.buildAxisMinMax(0);
+    const axis0 = Array.from(
+      this.buildAxisMinMax(0),
+      (v) => v ?? minMaxIdentity,
+    );
     this.trees = [new SegmentTree(axis0, buildMinMax, minMaxIdentity)];
     if (this.seriesAxes.includes(1)) {
-      const axis1 = this.buildAxisMinMax(1);
+      const axis1 = Array.from(
+        this.buildAxisMinMax(1),
+        (v) => v ?? minMaxIdentity,
+      );
       this.trees.push(new SegmentTree(axis1, buildMinMax, minMaxIdentity));
     }
   }

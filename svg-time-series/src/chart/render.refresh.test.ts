@@ -215,7 +215,7 @@ describe("RenderState.refresh", () => {
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
     state.refresh(data);
-    expect(state.series[0].scale.domain()).toEqual([0, 0]);
+    expect(state.series[0].scale.domain()).toEqual([Infinity, -Infinity]);
   });
 
   it("produces finite domains for dual-axis all NaN data", () => {
@@ -230,7 +230,7 @@ describe("RenderState.refresh", () => {
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, true);
     state.refresh(data);
-    expect(state.series[0].scale.domain()).toEqual([0, 0]);
-    expect(state.series[1].scale.domain()).toEqual([0, 0]);
+    expect(state.series[0].scale.domain()).toEqual([Infinity, -Infinity]);
+    expect(state.series[1].scale.domain()).toEqual([Infinity, -Infinity]);
   });
 });
