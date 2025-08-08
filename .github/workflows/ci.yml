@@ -26,5 +26,10 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm run typecheck
-      - run: npm run commitlint -- --from origin/${{ github.base_ref }} --to HEAD
+      - run: |
+          BASE_REF="${{ github.base_ref }}"
+          if [ -z "$BASE_REF" ]; then
+            BASE_REF="${{ github.ref_name }}"
+          fi
+          npm run commitlint -- --from origin/$BASE_REF --to HEAD
       - run: npm test
