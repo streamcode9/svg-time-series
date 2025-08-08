@@ -10,7 +10,7 @@
     "bench": "npm run bench --workspaces --if-present",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "commitlint": "commitlint --from=HEAD~1",
+    "commitlint": "commitlint",
     "prepare": "husky install"
   },
   "type": "module",
