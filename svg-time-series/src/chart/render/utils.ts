@@ -38,26 +38,19 @@ export function createDimensions(
 
 export interface ScaleSet {
   x: ScaleTime<number, number>;
-  yNy: ScaleLinear<number, number>;
-  ySf?: ScaleLinear<number, number>;
+  y: ScaleLinear<number, number>[];
 }
 
 export function createScales(
-  bScreenXVisible: AR1Basis,
-  bScreenYVisible: AR1Basis,
-  dualAxis: boolean,
+  bScreenVisible: DirectProductBasis,
+  yScaleCount: number,
 ): ScaleSet {
-  const x: ScaleTime<number, number> = scaleTime().range(
-    bScreenXVisible.toArr(),
+  const [xRange, yRange] = bScreenVisible.toArr();
+  const x: ScaleTime<number, number> = scaleTime().range(xRange);
+  const y = Array.from({ length: yScaleCount }, () =>
+    scaleLinear<number, number>().range(yRange),
   );
-  const yNy: ScaleLinear<number, number> = scaleLinear().range(
-    bScreenYVisible.toArr(),
-  );
-  let ySf: ScaleLinear<number, number> | undefined;
-  if (dualAxis) {
-    ySf = scaleLinear().range(bScreenYVisible.toArr());
-  }
-  return { x, yNy, ySf };
+  return { x, y };
 }
 
 export function updateScaleX(

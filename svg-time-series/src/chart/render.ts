@@ -51,9 +51,9 @@ function setupAxes(
   xAxis.setScale(scales.x);
   const gX = svg.append("g").attr("class", "axis").call(xAxis.axis.bind(xAxis));
 
-  if (hasSf && dualYAxis && scales.ySf) {
-    const yLeft = createYAxis(Orientation.Left, scales.yNy, width);
-    const yRight = createYAxis(Orientation.Right, scales.ySf, width);
+  if (hasSf && dualYAxis && scales.y[1]) {
+    const yLeft = createYAxis(Orientation.Left, scales.y[0], width);
+    const yRight = createYAxis(Orientation.Right, scales.y[1], width);
 
     const gY = svg
       .append("g")
@@ -67,7 +67,7 @@ function setupAxes(
     return { x: xAxis, y: yLeft, gX, gY, yRight, gYRight };
   }
 
-  const yAxis = createYAxis(Orientation.Right, scales.yNy, width);
+  const yAxis = createYAxis(Orientation.Right, scales.y[0], width);
   const gY = svg.append("g").attr("class", "axis").call(yAxis.axis.bind(yAxis));
 
   return { x: xAxis, y: yAxis, gX, gY };
@@ -118,7 +118,7 @@ export function buildSeries(
     {
       tree: data.treeAxis0,
       transform: transforms.ny,
-      scale: scales.yNy,
+      scale: scales.y[0],
       view: paths.viewNy,
       path: nodes[0],
       axis: axes?.y,
@@ -131,7 +131,7 @@ export function buildSeries(
     series.push({
       tree: data.treeAxis1,
       transform: dualYAxis && transforms.sf ? transforms.sf : transforms.ny,
-      scale: dualYAxis && scales.ySf ? scales.ySf : scales.yNy,
+      scale: dualYAxis && scales.y[1] ? scales.y[1] : scales.y[0],
       view: paths.viewSf,
       path: nodes[1],
       axis: axes?.yRight ?? axes?.y,
@@ -183,12 +183,12 @@ export function setupRender(
 
   const { width, height, bScreenXVisible, bScreenYVisible } =
     createDimensions(svg);
-  const paths = initPaths(svg, hasSf);
-  const scales = createScales(
+  const bScreenVisibleDp = DirectProductBasis.fromProjections(
     bScreenXVisible,
     bScreenYVisible,
-    hasSf && dualYAxis,
   );
+  const paths = initPaths(svg, hasSf);
+  const scales = createScales(bScreenVisibleDp, hasSf && dualYAxis ? 2 : 1);
   const sharedTransform = new ViewportTransform();
   const transformsInner: TransformPair = {
     ny: sharedTransform,
@@ -222,10 +222,6 @@ export function setupRender(
     s.gAxis = gAxisArr[i];
   });
 
-  const bScreenVisibleDp = DirectProductBasis.fromProjections(
-    bScreenXVisible,
-    bScreenYVisible,
-  );
   transformsInner.ny.onViewPortResize(bScreenVisibleDp);
   transformsInner.sf?.onViewPortResize(bScreenVisibleDp);
   const refDp = DirectProductBasis.fromProjections(

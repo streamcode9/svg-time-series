@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll, vi } from "vitest";
 import { JSDOM } from "jsdom";
 import { select } from "d3-selection";
@@ -98,15 +99,15 @@ describe("RenderState.refresh integration", () => {
       .mockImplementation(() => {});
 
     const xBefore = state.scales.x.domain().slice();
-    const yNyBefore = state.scales.yNy.domain().slice();
-    const ySfBefore = state.scales.ySf!.domain().slice();
+    const yNyBefore = state.scales.y[0].domain().slice();
+    const ySfBefore = state.scales.y[1].domain().slice();
 
     data.append(100, 200);
     state.refresh(data);
 
     const xAfter = state.scales.x.domain();
-    const yNyAfter = state.scales.yNy.domain();
-    const ySfAfter = state.scales.ySf!.domain();
+    const yNyAfter = state.scales.y[0].domain();
+    const ySfAfter = state.scales.y[1].domain();
 
     expect(xAfter).not.toEqual(xBefore);
     expect(yNyAfter).not.toEqual(yNyBefore);

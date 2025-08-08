@@ -106,7 +106,7 @@ describe("buildSeries", () => {
     expect(series[0]).toMatchObject({
       tree: data.treeAxis0,
       transform: state.transforms.ny,
-      scale: state.scales.yNy,
+      scale: state.scales.y[0],
       view: state.paths.viewNy,
       axis: state.axes.y,
       gAxis: state.axes.gY,
@@ -138,7 +138,7 @@ describe("buildSeries", () => {
     expect(series[0]).toMatchObject({
       tree: data.treeAxis0,
       transform: state.transforms.ny,
-      scale: state.scales.yNy,
+      scale: state.scales.y[0],
       view: state.paths.viewNy,
       axis: state.axes.y,
       gAxis: state.axes.gY,
@@ -146,7 +146,7 @@ describe("buildSeries", () => {
     expect(series[1]).toMatchObject({
       tree: data.treeAxis1,
       transform: state.transforms.ny,
-      scale: state.scales.yNy,
+      scale: state.scales.y[0],
       view: state.paths.viewSf,
       axis: state.axes.y,
       gAxis: state.axes.gY,
@@ -178,7 +178,7 @@ describe("buildSeries", () => {
     expect(series[0]).toMatchObject({
       tree: data.treeAxis0,
       transform: state.transforms.ny,
-      scale: state.scales.yNy,
+      scale: state.scales.y[0],
       view: state.paths.viewNy,
       axis: state.axes.y,
       gAxis: state.axes.gY,
@@ -186,7 +186,7 @@ describe("buildSeries", () => {
     expect(series[1]).toMatchObject({
       tree: data.treeAxis1,
       transform: state.transforms.sf!,
-      scale: state.scales.ySf!,
+      scale: state.scales.y[1],
       view: state.paths.viewSf,
       axis: state.axes.yRight,
       gAxis: state.axes.gYRight,

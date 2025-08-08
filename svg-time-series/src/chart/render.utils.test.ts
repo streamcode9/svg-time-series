@@ -4,7 +4,7 @@
 import { describe, it, expect } from "vitest";
 import { select, Selection } from "d3-selection";
 import { scaleLinear, scaleTime } from "d3-scale";
-import { AR1Basis } from "../math/affine.ts";
+import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
 import { ChartData, IDataSource } from "./data.ts";
 import type { ViewportTransform } from "../ViewportTransform.ts";
 import { vi } from "vitest";
@@ -50,18 +50,19 @@ describe("createDimensions", () => {
 describe("createScales", () => {
   const bX = new AR1Basis(0, 100);
   const bY = new AR1Basis(100, 0);
+  const b = DirectProductBasis.fromProjections(bX, bY);
 
-  it("omits ySf when dual axis disabled", () => {
-    const scales = createScales(bX, bY, false);
-    expect(scales.ySf).toBeUndefined();
+  it("creates single y scale when count is 1", () => {
+    const scales = createScales(b, 1);
+    expect(scales.y).toHaveLength(1);
     expect(scales.x.range()).toEqual([0, 100]);
-    expect(scales.yNy.range()).toEqual([100, 0]);
+    expect(scales.y[0].range()).toEqual([100, 0]);
   });
 
-  it("creates ySf when dual axis enabled", () => {
-    const scales = createScales(bX, bY, true);
-    expect(scales.ySf).toBeDefined();
-    expect(scales.ySf?.range()).toEqual([100, 0]);
+  it("creates multiple y scales when count > 1", () => {
+    const scales = createScales(b, 2);
+    expect(scales.y).toHaveLength(2);
+    expect(scales.y[1].range()).toEqual([100, 0]);
   });
 });
 
