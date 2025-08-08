@@ -90,19 +90,20 @@ export class LegendController implements ILegendController {
 
     const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
       isNaN(n) ? valueForNaN : n;
-    const screenX = this.state.scales.x(timestamp);
+    const x = this.highlightedDataIdx;
     const updateDot = (
       val: number,
       legendSel: Selection<HTMLElement, unknown, HTMLElement, unknown>,
       node: SVGGraphicsElement | null,
-      yScale: (n: number) => number,
+      matrix: DOMMatrix,
     ) => {
       legendSel.text(fixNaN(val, " "));
       if (node) {
         node.style.display = "";
-        const y = yScale(fixNaN(val, 0) as number);
-        const ySafe = isNaN(y) ? 0 : this.state.dimensions.height - y;
-        updateNode(node, this.identityMatrix.translate(screenX, ySafe));
+        const point = new DOMPoint(x, fixNaN(val, 0) as number).matrixTransform(
+          matrix,
+        );
+        updateNode(node, this.identityMatrix.translate(point.x, point.y));
       }
     };
 
@@ -110,14 +111,15 @@ export class LegendController implements ILegendController {
       greenData,
       this.legendGreen,
       this.highlightedGreenDot,
-      this.state.scales.yNy,
+      this.state.transforms.ny.matrix,
     );
     if (this.highlightedBlueDot) {
+      const tf = this.state.transforms.sf ?? this.state.transforms.ny;
       updateDot(
         blueData as number,
         this.legendBlue,
         this.highlightedBlueDot,
-        this.state.scales.ySf ?? this.state.scales.yNy,
+        tf.matrix,
       );
     }
   }

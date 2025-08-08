@@ -113,11 +113,12 @@ describe("LegendController", () => {
 
     const lastCall = updateSpy.mock.calls[updateSpy.mock.calls.length - 1];
     const matrix = lastCall[1] as Matrix;
-    const expectedY =
-      state.dimensions.height - state.scales.yNy(data.getPoint(1).ny);
-    const screenX = state.scales.x(data.getPoint(1).timestamp);
-    expect(matrix.e).toBeCloseTo(screenX);
-    expect(matrix.f).toBeCloseTo(expectedY);
+    const modelPoint = new Point(1, data.getPoint(1).ny);
+    const expected = modelPoint.matrixTransform(
+      state.transforms.ny.matrix as any,
+    );
+    expect(matrix.e).toBeCloseTo(expected.x);
+    expect(matrix.f).toBeCloseTo(expected.y);
     const circle = svg.select("circle").node() as SVGCircleElement;
     expect(circle.getAttribute("stroke")).toBe("green");
     expect(circle.getAttribute("r")).toBe("2");
