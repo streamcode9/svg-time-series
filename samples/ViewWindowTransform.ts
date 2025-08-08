@@ -22,9 +22,6 @@
     this.uMax = uMax;
     this.vMin = vMin;
     this.vMax = vMax;
-
-    const uMinString = new Date(uMin).toDateString();
-
     this.updateNPC();
   }
 

@@ -33,7 +33,10 @@ export class LegendController implements ILegendController {
     this.legendGreen = legend.select(".chart-legend__green_value");
     this.legendBlue = legend.select(".chart-legend__blue_value");
 
-    const svg = state.paths.viewNy.ownerSVGElement!;
+    const svg = state.paths.viewNy.ownerSVGElement;
+    if (!svg) {
+      throw new Error("SVG element not found");
+    }
     const makeDot = (path: SVGPathElement) => {
       const color =
         path.getAttribute("stroke") || getComputedStyle(path).stroke || "black";
