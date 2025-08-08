@@ -11,7 +11,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint src",
+    "lint": "eslint --max-warnings=0 src",
     "typecheck": "tsc --noEmit",
     "bench": "npm run bench:segment-tree",
     "bench:segment-tree": "vitest bench bench/segmentTree.bench.ts --run"
