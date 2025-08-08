@@ -152,6 +152,25 @@ describe("RenderState.refresh", () => {
     });
   });
 
+  it("updates combined series on shared scale", () => {
+    const svg = createSvg();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      seriesCount: 2,
+      getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg as any, data, false);
+
+    state.refresh(data);
+
+    expect(state.series[0].scale).toBe(state.series[1].scale);
+    expect(state.series[0].scale.domain()).toEqual([1, 30]);
+    expect(state.series[1].scale.domain()).toEqual([1, 30]);
+  });
+
   it("refreshes after data changes", () => {
     const svg = createSvg();
     const source1: IDataSource = {

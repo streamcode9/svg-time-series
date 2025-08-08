@@ -154,6 +154,26 @@ export interface RenderState {
   refresh: (data: ChartData) => void;
 }
 
+function updateYScales(series: Series[], bIndex: AR1Basis, data: ChartData) {
+  if (
+    series.length > 1 &&
+    series[0].scale === series[1].scale &&
+    data.treeAxis1
+  ) {
+    const { combined, dp } = data.combinedAxisDp(bIndex);
+    for (const s of series) {
+      s.transform.onReferenceViewWindowResize(dp);
+      s.scale.domain(combined.toArr());
+    }
+  } else {
+    for (const s of series) {
+      if (s.tree) {
+        updateScaleY(bIndex, s.tree, s.transform, s.scale, data);
+      }
+    }
+  }
+}
+
 export function setupRender(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
   data: ChartData,
@@ -186,23 +206,7 @@ export function setupRender(
     dualYAxis,
   );
 
-  if (
-    series.length > 1 &&
-    series[0].scale === series[1].scale &&
-    data.treeAxis1
-  ) {
-    const { combined, dp } = data.combinedAxisDp(data.bIndexFull);
-    for (const s of series) {
-      s.transform.onReferenceViewWindowResize(dp);
-      s.scale.domain(combined.toArr());
-    }
-  } else {
-    for (const s of series) {
-      if (s.tree) {
-        updateScaleY(data.bIndexFull, s.tree, s.transform, s.scale, data);
-      }
-    }
-  }
+  updateYScales(series, data.bIndexFull, data);
 
   const axes = setupAxes(svg, scales, width, height, hasSf, dualYAxis);
 
@@ -259,23 +263,7 @@ export function setupRender(
         series[1].tree = data.treeAxis1;
       }
 
-      if (
-        series.length > 1 &&
-        series[0].scale === series[1].scale &&
-        data.treeAxis1
-      ) {
-        const { combined, dp } = data.combinedAxisDp(bIndexVisible);
-        for (const s of series) {
-          s.transform.onReferenceViewWindowResize(dp);
-          s.scale.domain(combined.toArr());
-        }
-      } else {
-        for (const s of series) {
-          if (s.tree) {
-            updateScaleY(bIndexVisible, s.tree, s.transform, s.scale, data);
-          }
-        }
-      }
+      updateYScales(series, bIndexVisible, data);
 
       for (const s of series) {
         if (s.view) {
