@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -25,4 +27,5 @@ jobs:
       - run: npm run format:check
       - run: npm run typecheck
       - run: npm run commitlint -- --from origin/${{ github.base_ref }} --to HEAD
+        if: ${{ github.event_name == 'pull_request' }}
       - run: npm test
