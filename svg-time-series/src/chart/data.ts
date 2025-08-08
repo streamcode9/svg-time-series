@@ -74,7 +74,12 @@ export class ChartData {
     }
     for (let i = 0; i < this.seriesAxes.length; i++) {
       const axis = this.seriesAxes[i];
-      this.seriesByAxis[axis]?.push(i);
+      if (axis !== 0 && axis !== 1) {
+        throw new Error(
+          `ChartData seriesAxes[${i}] must be 0 or 1; received ${axis}`,
+        );
+      }
+      this.seriesByAxis[axis as 0 | 1].push(i);
     }
     this.data = new Array(source.length);
     for (let i = 0; i < source.length; i++) {

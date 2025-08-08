@@ -23,6 +23,22 @@ describe("ChartData", () => {
     expect(() => new ChartData(source)).toThrow(/non-empty data array/);
   });
 
+  it("throws when seriesAxes length does not match seriesCount", () => {
+    const source = makeSource([
+      [0, 0],
+      [1, 1],
+    ]);
+    expect(() => new ChartData(source, [0])).toThrow(/seriesAxes length/);
+  });
+
+  it("throws when seriesAxes contains unsupported axis index", () => {
+    const source = makeSource([
+      [0, 0],
+      [1, 1],
+    ]);
+    expect(() => new ChartData(source, [0, 2])).toThrow(/0 or 1/);
+  });
+
   it("updates data and time mapping on append", () => {
     const source = makeSource([
       [0, 0],
