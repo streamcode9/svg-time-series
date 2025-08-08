@@ -105,6 +105,9 @@ export class TimeSeriesChart {
       .attr("width", dimensions.width)
       .attr("height", dimensions.height);
     this.zoomState.updateExtents(dimensions);
+    this.state.refresh(this.data);
+    renderPaths(this.state, this.data.data);
+    this.legendController.refresh();
   };
 
   public onHover = (x: number) => {
