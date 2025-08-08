@@ -190,4 +190,25 @@ describe("ZoomState", () => {
 
     expect(scaleSpy).toHaveBeenCalledWith([0.5, 20]);
   });
+
+  it("updates scale extent at runtime", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const ny = { onZoomPan: vi.fn() };
+    const state: any = {
+      dimensions: { width: 10, height: 10 },
+      transforms: { ny },
+    };
+    const zs = new ZoomState(rect as any, state, vi.fn());
+
+    const scaleSpy = (zs.zoomBehavior as any).scaleExtent as any;
+    scaleSpy.mockClear();
+
+    zs.setScaleExtent([2, 80]);
+    expect(scaleSpy).toHaveBeenCalledWith([2, 80]);
+
+    scaleSpy.mockClear();
+    zs.updateExtents({ width: 20, height: 30 });
+    expect(scaleSpy).toHaveBeenCalledWith([2, 80]);
+  });
 });

@@ -73,6 +73,11 @@ export class ZoomState {
     this.scheduleRefresh();
   };
 
+  public setScaleExtent = (extent: [number, number]) => {
+    this.scaleExtent = extent;
+    this.zoomBehavior.scaleExtent(extent);
+  };
+
   public updateExtents = (dimensions: { width: number; height: number }) => {
     this.state.dimensions.width = dimensions.width;
     this.state.dimensions.height = dimensions.height;
