@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 import { describe, it, expect, beforeAll } from "vitest";
 import { JSDOM } from "jsdom";
 import { select, type Selection } from "d3-selection";
@@ -103,7 +104,7 @@ describe("buildSeries", () => {
     );
     expect(series.length).toBe(1);
     expect(series[0]).toMatchObject({
-      tree: data.treeNy,
+      tree: data.treeAxis0,
       transform: state.transforms.ny,
       scale: state.scales.yNy,
       view: state.paths.viewNy,
@@ -135,7 +136,7 @@ describe("buildSeries", () => {
     );
     expect(series.length).toBe(2);
     expect(series[0]).toMatchObject({
-      tree: data.treeNy,
+      tree: data.treeAxis0,
       transform: state.transforms.ny,
       scale: state.scales.yNy,
       view: state.paths.viewNy,
@@ -143,7 +144,7 @@ describe("buildSeries", () => {
       gAxis: state.axes.gY,
     });
     expect(series[1]).toMatchObject({
-      tree: data.treeSf,
+      tree: data.treeAxis1,
       transform: state.transforms.ny,
       scale: state.scales.yNy,
       view: state.paths.viewSf,
@@ -175,7 +176,7 @@ describe("buildSeries", () => {
     );
     expect(series.length).toBe(2);
     expect(series[0]).toMatchObject({
-      tree: data.treeNy,
+      tree: data.treeAxis0,
       transform: state.transforms.ny,
       scale: state.scales.yNy,
       view: state.paths.viewNy,
@@ -183,7 +184,7 @@ describe("buildSeries", () => {
       gAxis: state.axes.gY,
     });
     expect(series[1]).toMatchObject({
-      tree: data.treeSf,
+      tree: data.treeAxis1,
       transform: state.transforms.sf!,
       scale: state.scales.ySf!,
       view: state.paths.viewSf,

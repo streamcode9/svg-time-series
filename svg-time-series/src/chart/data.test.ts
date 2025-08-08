@@ -1,13 +1,14 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { ChartData, IDataSource } from "./data.ts";
 import { AR1Basis } from "../math/affine.ts";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 describe("ChartData", () => {
-  const makeSource = (data: Array<[number, number?]>): IDataSource => ({
+  const makeSource = (data: number[][]): IDataSource => ({
     startTime: 0,
     timeStep: 1,
     length: data.length,
-    seriesCount: data.some((d) => d[1] !== undefined) ? 2 : 1,
+    seriesCount: data[0]?.length ?? 0,
     getSeries: (i, seriesIdx) => data[i][seriesIdx]!,
   });
 
@@ -20,17 +21,6 @@ describe("ChartData", () => {
       getSeries: () => 0,
     };
     expect(() => new ChartData(source)).toThrow(/non-empty data array/);
-  });
-
-  it("throws if seriesCount is not 1 or 2", () => {
-    const source: IDataSource = {
-      startTime: 0,
-      timeStep: 1,
-      length: 1,
-      seriesCount: 3,
-      getSeries: () => 0,
-    };
-    expect(() => new ChartData(source)).toThrow(/1 or 2 series/);
   });
 
   it("updates data and time mapping on append", () => {
@@ -64,9 +54,9 @@ describe("ChartData", () => {
         [50, 60],
       ]),
     );
-    expect(cd.getPoint(1)).toEqual({ ny: 30, sf: 40, timestamp: 1 });
-    expect(cd.getPoint(10)).toEqual({ ny: 50, sf: 60, timestamp: 2 });
-    expect(cd.getPoint(-5)).toEqual({ ny: 10, sf: 20, timestamp: 0 });
+    expect(cd.getPoint(1)).toEqual({ values: [30, 40], timestamp: 1 });
+    expect(cd.getPoint(10)).toEqual({ values: [50, 60], timestamp: 2 });
+    expect(cd.getPoint(-5)).toEqual({ values: [10, 20], timestamp: 0 });
   });
 
   it("throws when index is not finite", () => {
@@ -91,13 +81,11 @@ describe("ChartData", () => {
       ]),
     );
     expect(cd.getPoint(1_000_000)).toEqual({
-      ny: 50,
-      sf: 60,
+      values: [50, 60],
       timestamp: 2,
     });
     expect(cd.getPoint(-1_000_000)).toEqual({
-      ny: 10,
-      sf: 20,
+      values: [10, 20],
       timestamp: 0,
     });
   });
@@ -120,8 +108,8 @@ describe("ChartData", () => {
     ]);
     expect(cd.getPoint(0).timestamp).toBe(3);
     expect(cd.getPoint(1).timestamp).toBe(4);
-    expect(cd.treeNy.query(0, 1)).toEqual({ min: 3, max: 4 });
-    expect(cd.treeSf!.query(0, 1)).toEqual({ min: 3, max: 4 });
+    expect(cd.treeAxis0.query(0, 1)).toEqual({ min: 3, max: 4 });
+    expect(cd.treeAxis1!.query(0, 1)).toEqual({ min: 3, max: 4 });
   });
 
   it("throws when ny is invalid", () => {
@@ -130,7 +118,9 @@ describe("ChartData", () => {
       [1, 1],
     ]);
     const cd = new ChartData(source);
-    expect(() => cd.append(undefined as unknown as number, 2)).toThrow(/ny/);
+    expect(() => cd.append(undefined as unknown as number, 2)).toThrow(
+      /series 0/,
+    );
   });
 
   it("throws when sf is invalid", () => {
@@ -139,7 +129,9 @@ describe("ChartData", () => {
       [1, 1],
     ]);
     const cd = new ChartData(source);
-    expect(() => cd.append(2, undefined as unknown as number)).toThrow(/sf/);
+    expect(() => cd.append(2, undefined as unknown as number)).toThrow(
+      /series 1/,
+    );
   });
 
   it("computes visible temperature bounds", () => {
@@ -151,8 +143,8 @@ describe("ChartData", () => {
       ]),
     );
     const range = new AR1Basis(0, 2);
-    expect(cd.bTemperatureVisible(range, cd.treeNy).toArr()).toEqual([10, 50]);
-    expect(cd.bTemperatureVisible(range, cd.treeSf!).toArr()).toEqual([20, 60]);
+    expect(cd.bAxisVisible(range, 0).toArr()).toEqual([10, 50]);
+    expect(cd.bAxisVisible(range, 1).toArr()).toEqual([20, 60]);
   });
 
   it("floors and ceils fractional bounds when computing temperature visibility", () => {
@@ -165,12 +157,8 @@ describe("ChartData", () => {
     );
 
     const fractionalRange = new AR1Basis(0.49, 1.49);
-    expect(cd.bTemperatureVisible(fractionalRange, cd.treeNy).toArr()).toEqual([
-      10, 50,
-    ]);
-    expect(cd.bTemperatureVisible(fractionalRange, cd.treeSf!).toArr()).toEqual(
-      [20, 60],
-    );
+    expect(cd.bAxisVisible(fractionalRange, 0).toArr()).toEqual([10, 50]);
+    expect(cd.bAxisVisible(fractionalRange, 1).toArr()).toEqual([20, 60]);
   });
 
   it("handles fractional bounds in the middle of the dataset", () => {
@@ -183,12 +171,8 @@ describe("ChartData", () => {
     );
 
     const fractionalRange = new AR1Basis(1.1, 1.7);
-    expect(cd.bTemperatureVisible(fractionalRange, cd.treeNy).toArr()).toEqual([
-      30, 50,
-    ]);
-    expect(cd.bTemperatureVisible(fractionalRange, cd.treeSf!).toArr()).toEqual(
-      [40, 60],
-    );
+    expect(cd.bAxisVisible(fractionalRange, 0).toArr()).toEqual([30, 50]);
+    expect(cd.bAxisVisible(fractionalRange, 1).toArr()).toEqual([40, 60]);
   });
 
   it("clamps bounds that extend past the data range", () => {
@@ -201,14 +185,10 @@ describe("ChartData", () => {
     );
 
     const outOfRange = new AR1Basis(-0.5, 3.5);
-    expect(() => cd.bTemperatureVisible(outOfRange, cd.treeNy)).not.toThrow();
-    expect(() => cd.bTemperatureVisible(outOfRange, cd.treeSf!)).not.toThrow();
-    expect(cd.bTemperatureVisible(outOfRange, cd.treeNy).toArr()).toEqual([
-      10, 50,
-    ]);
-    expect(cd.bTemperatureVisible(outOfRange, cd.treeSf!).toArr()).toEqual([
-      20, 60,
-    ]);
+    expect(() => cd.bAxisVisible(outOfRange, 0)).not.toThrow();
+    expect(() => cd.bAxisVisible(outOfRange, 1)).not.toThrow();
+    expect(cd.bAxisVisible(outOfRange, 0).toArr()).toEqual([10, 50]);
+    expect(cd.bAxisVisible(outOfRange, 1).toArr()).toEqual([20, 60]);
   });
 
   it("clamps bounds completely to the left of the data range", () => {
@@ -221,14 +201,10 @@ describe("ChartData", () => {
     );
 
     const leftRange = new AR1Basis(-5, -1);
-    expect(() => cd.bTemperatureVisible(leftRange, cd.treeNy)).not.toThrow();
-    expect(() => cd.bTemperatureVisible(leftRange, cd.treeSf!)).not.toThrow();
-    expect(cd.bTemperatureVisible(leftRange, cd.treeNy).toArr()).toEqual([
-      10, 10,
-    ]);
-    expect(cd.bTemperatureVisible(leftRange, cd.treeSf!).toArr()).toEqual([
-      20, 20,
-    ]);
+    expect(() => cd.bAxisVisible(leftRange, 0)).not.toThrow();
+    expect(() => cd.bAxisVisible(leftRange, 1)).not.toThrow();
+    expect(cd.bAxisVisible(leftRange, 0).toArr()).toEqual([10, 10]);
+    expect(cd.bAxisVisible(leftRange, 1).toArr()).toEqual([20, 20]);
   });
 
   it("clamps bounds completely to the right of the data range", () => {
@@ -241,14 +217,10 @@ describe("ChartData", () => {
     );
 
     const rightRange = new AR1Basis(5, 10);
-    expect(() => cd.bTemperatureVisible(rightRange, cd.treeNy)).not.toThrow();
-    expect(() => cd.bTemperatureVisible(rightRange, cd.treeSf!)).not.toThrow();
-    expect(cd.bTemperatureVisible(rightRange, cd.treeNy).toArr()).toEqual([
-      50, 50,
-    ]);
-    expect(cd.bTemperatureVisible(rightRange, cd.treeSf!).toArr()).toEqual([
-      60, 60,
-    ]);
+    expect(() => cd.bAxisVisible(rightRange, 0)).not.toThrow();
+    expect(() => cd.bAxisVisible(rightRange, 1)).not.toThrow();
+    expect(cd.bAxisVisible(rightRange, 0).toArr()).toEqual([50, 50]);
+    expect(cd.bAxisVisible(rightRange, 1).toArr()).toEqual([60, 60]);
   });
 
   it("computes combined temperature basis and direct product", () => {
@@ -259,7 +231,7 @@ describe("ChartData", () => {
         [-3, 7],
       ]),
     );
-    const { combined, dp } = cd.combinedTemperatureDp(cd.bIndexFull);
+    const { combined, dp } = cd.combinedAxisDp(cd.bIndexFull);
     expect(combined.toArr()).toEqual([-3, 10]);
     expect(dp.x().toArr()).toEqual([0, 2]);
     expect(dp.y().toArr()).toEqual([-3, 10]);
@@ -273,10 +245,10 @@ describe("ChartData", () => {
       ]),
     );
     const range = new AR1Basis(0, 1);
-    expect(cd.treeNy.query(0, 1)).toEqual({ min: 0, max: 0 });
-    expect(cd.treeSf!.query(0, 1)).toEqual({ min: 0, max: 0 });
-    expect(cd.bTemperatureVisible(range, cd.treeNy).toArr()).toEqual([0, 0]);
-    expect(cd.bTemperatureVisible(range, cd.treeSf!).toArr()).toEqual([0, 0]);
+    expect(cd.treeAxis0.query(0, 1)).toEqual({ min: 0, max: 0 });
+    expect(cd.treeAxis1!.query(0, 1)).toEqual({ min: 0, max: 0 });
+    expect(cd.bAxisVisible(range, 0).toArr()).toEqual([0, 0]);
+    expect(cd.bAxisVisible(range, 1).toArr()).toEqual([0, 0]);
   });
 
   describe("single-axis", () => {
@@ -289,17 +261,11 @@ describe("ChartData", () => {
         getSeries: (i) => [0, 1][i],
       };
       const cd = new ChartData(source);
-      expect(cd.treeSf).toBeUndefined();
-      expect(cd.data).toEqual([
-        [0, undefined],
-        [1, undefined],
-      ]);
+      expect(cd.treeAxis1).toBeUndefined();
+      expect(cd.data).toEqual([[0], [1]]);
       cd.append(2);
-      expect(cd.data).toEqual([
-        [1, undefined],
-        [2, undefined],
-      ]);
-      expect(cd.treeNy.query(0, 1)).toEqual({ min: 1, max: 2 });
+      expect(cd.data).toEqual([[1], [2]]);
+      expect(cd.treeAxis0.query(0, 1)).toEqual({ min: 1, max: 2 });
     });
 
     it("ignores provided sf when single-axis", () => {
@@ -312,14 +278,39 @@ describe("ChartData", () => {
       };
       const cd = new ChartData(source);
       expect(() => cd.append(1)).not.toThrow();
-      expect(cd.data).toEqual([[1, undefined]]);
+      expect(cd.data).toEqual([[1]]);
     });
 
     it("returns neutral min/max when data is all NaN", () => {
       const cd = new ChartData(makeSource([[NaN], [NaN]]));
       const range = new AR1Basis(0, 1);
-      expect(cd.treeNy.query(0, 1)).toEqual({ min: 0, max: 0 });
-      expect(cd.bTemperatureVisible(range, cd.treeNy).toArr()).toEqual([0, 0]);
+      expect(cd.treeAxis0.query(0, 1)).toEqual({ min: 0, max: 0 });
+      expect(cd.bAxisVisible(range, 0).toArr()).toEqual([0, 0]);
+    });
+  });
+
+  it("aggregates segment trees per axis", () => {
+    const cd = new ChartData(
+      makeSource([
+        [0, 10, 5, 100, 200],
+        [1, 20, 15, 110, 220],
+      ]),
+      [0, 0, 0, 1, 1],
+    );
+    expect(cd.trees).toHaveLength(2);
+    expect(cd.treeAxis0.query(0, 1)).toEqual({ min: 0, max: 20 });
+    expect(cd.treeAxis1!.query(0, 1)).toEqual({ min: 100, max: 220 });
+
+    cd.append(2, 30, 25, 130, 230);
+    expect(cd.data).toEqual([
+      [1, 20, 15, 110, 220],
+      [2, 30, 25, 130, 230],
+    ]);
+    expect(cd.treeAxis0.query(0, 1)).toEqual({ min: 1, max: 30 });
+    expect(cd.treeAxis1!.query(0, 1)).toEqual({ min: 110, max: 230 });
+    expect(cd.getPoint(1)).toEqual({
+      values: [2, 30, 25, 130, 230],
+      timestamp: 2,
     });
   });
 });

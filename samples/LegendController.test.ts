@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import { JSDOM } from "jsdom";
 import { select } from "d3-selection";
@@ -107,13 +108,11 @@ describe("LegendController", () => {
       .spyOn(domNode, "updateNode")
       .mockImplementation(() => {});
 
-    vi.useFakeTimers();
     lc.highlightIndex(1);
-    vi.runAllTimers();
 
     const lastCall = updateSpy.mock.calls[updateSpy.mock.calls.length - 1];
     const matrix = lastCall[1] as Matrix;
-    const modelPoint = new Point(1, data.getPoint(1).ny);
+    const modelPoint = new Point(1, data.getPoint(1).values[0]);
     const expected = modelPoint.matrixTransform(
       state.transforms.ny.matrix as any,
     );
@@ -123,8 +122,64 @@ describe("LegendController", () => {
     expect(circle.getAttribute("stroke")).toBe("green");
     expect(circle.getAttribute("r")).toBe("2");
 
-    vi.useRealTimers();
     updateSpy.mockRestore();
+    lc.destroy();
+  });
+
+  it("handles legacy tuple return from getPoint", () => {
+    const { svg, legendDiv } = createSvgAndLegend();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 2,
+      seriesCount: 1,
+      getSeries: (i) => [10, 20][i],
+    };
+    const data = new ChartData(source);
+    const originalGetPoint = data.getPoint.bind(data);
+    // mimic old API returning [timestamp, value...]
+    data.getPoint = ((idx: number) => {
+      const { values, timestamp } = originalGetPoint(idx);
+      return [timestamp, ...values] as any;
+    }) as any;
+    const state = setupRender(svg as any, data, false);
+    select(state.paths.viewNy).select("path").attr("stroke", "green");
+    const lc = new LegendController(legendDiv as any, state, data);
+
+    const updateSpy = vi
+      .spyOn(domNode, "updateNode")
+      .mockImplementation(() => {});
+
+    expect(() => {
+      lc.highlightIndex(1);
+    }).not.toThrow();
+    updateSpy.mockRestore();
+    lc.destroy();
+  });
+
+  it("ignores results missing values array", () => {
+    const { svg, legendDiv } = createSvgAndLegend();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 2,
+      seriesCount: 1,
+      getSeries: (i) => [10, 20][i],
+    };
+    const data = new ChartData(source);
+    const originalGetPoint = data.getPoint.bind(data);
+    // mimic buggy API returning only a timestamp
+    data.getPoint = ((idx: number) => {
+      const { timestamp } = originalGetPoint(idx);
+      return { timestamp } as any;
+    }) as any;
+    const state = setupRender(svg as any, data, false);
+    select(state.paths.viewNy).select("path").attr("stroke", "green");
+    const lc = new LegendController(legendDiv as any, state, data);
+
+    expect(() => {
+      lc.highlightIndex(1);
+    }).not.toThrow();
     lc.destroy();
   });
 });

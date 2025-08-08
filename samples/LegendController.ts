@@ -1,5 +1,4 @@
 import { Selection, select } from "d3-selection";
-import { drawProc } from "../svg-time-series/src/utils/drawProc.ts";
 import { updateNode } from "../svg-time-series/src/utils/domNodeTransform.ts";
 import type { ChartData } from "../svg-time-series/src/chart/data.ts";
 import type { RenderState } from "../svg-time-series/src/chart/render.ts";
@@ -19,8 +18,6 @@ export class LegendController implements ILegendController {
     .createSVGMatrix();
 
   private highlightedDataIdx = 0;
-  private scheduleRefresh: () => void;
-  private cancelRefresh: () => void;
 
   constructor(
     legend: Selection<HTMLElement, unknown, HTMLElement, unknown>,
@@ -33,7 +30,7 @@ export class LegendController implements ILegendController {
     this.legendGreen = legend.select(".chart-legend__green_value");
     this.legendBlue = legend.select(".chart-legend__blue_value");
 
-    const svg = state.paths.viewNy.ownerSVGElement;
+    const svg = state.paths.viewNy.ownerSVGElement as SVGSVGElement;
     if (!svg) {
       throw new Error("SVG element not found");
     }
@@ -55,25 +52,20 @@ export class LegendController implements ILegendController {
     this.highlightedBlueDot = state.paths.viewSf
       ? makeDot(state.paths.viewSf.querySelector("path") as SVGPathElement)
       : null;
-
-    const { wrapped, cancel } = drawProc(() => {
-      this.update();
-    });
-    this.scheduleRefresh = wrapped;
-    this.cancelRefresh = cancel;
   }
 
   public highlightIndex(idx: number): void {
-    this.highlightedDataIdx = Math.min(Math.max(idx, 0), this.data.length - 1);
-    this.scheduleRefresh();
+    this.highlightedDataIdx = Math.round(
+      Math.min(Math.max(idx, 0), this.data.length - 1),
+    );
+    this.update();
   }
 
   public refresh(): void {
-    this.scheduleRefresh();
+    this.update();
   }
 
   public clearHighlight(): void {
-    this.cancelRefresh();
     this.legendTime.text("");
     this.legendGreen.text("");
     this.legendBlue.text("");
@@ -84,11 +76,29 @@ export class LegendController implements ILegendController {
   }
 
   private update() {
-    const {
-      ny: greenData,
-      sf: blueData,
-      timestamp,
-    } = this.data.getPoint(this.highlightedDataIdx);
+    const rawPoint = this.data.getPoint(this.highlightedDataIdx) as unknown;
+    let values: number[] | undefined;
+    let timestamp: number | undefined;
+    if (Array.isArray(rawPoint)) {
+      const arr = rawPoint as number[];
+      timestamp = arr[0];
+      values = arr.slice(1);
+    } else if (
+      rawPoint &&
+      typeof rawPoint === "object" &&
+      "values" in (rawPoint as Record<string, unknown>) &&
+      "timestamp" in (rawPoint as Record<string, unknown>)
+    ) {
+      ({ values, timestamp } = rawPoint as {
+        values: number[];
+        timestamp: number;
+      });
+    }
+    if (!values || timestamp === undefined) {
+      return;
+    }
+    const greenData = values[0];
+    const blueData = values[1];
     this.legendTime.text(this.formatTime(timestamp));
 
     const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
@@ -128,7 +138,6 @@ export class LegendController implements ILegendController {
   }
 
   public destroy(): void {
-    this.cancelRefresh();
     this.highlightedGreenDot.remove();
     this.highlightedBlueDot?.remove();
   }

@@ -27,35 +27,62 @@ export interface IDataSource {
 }
 
 export class ChartData {
-  public data: Array<[number, number?]>;
-  public treeNy!: SegmentTree<IMinMax>;
-  public treeSf?: SegmentTree<IMinMax>;
+  public data: number[][];
+  public trees: SegmentTree<IMinMax>[] = [];
+  public readonly seriesByAxis: number[][] = [[], []];
   public bIndexFull: AR1Basis;
-  private hasSf: boolean;
   public readonly startTime: number;
   public readonly timeStep: number;
   public startIndex: number;
+  public readonly seriesCount: number;
+  public readonly seriesAxes: number[];
+
+  public get treeAxis0(): SegmentTree<IMinMax> {
+    return this.trees[0];
+  }
+
+  public get treeAxis1(): SegmentTree<IMinMax> | undefined {
+    return this.trees[1];
+  }
+
+  public getTree(axis: number): SegmentTree<IMinMax> | undefined {
+    return this.trees[axis];
+  }
 
   /**
    * Creates a new ChartData instance.
    * @param source Data source; must contain at least one point.
    * @throws if the source has length 0.
    */
-  constructor(source: IDataSource) {
+  constructor(source: IDataSource, seriesAxes?: number[]) {
     if (source.length === 0) {
       throw new Error("ChartData requires a non-empty data array");
     }
-    if (source.seriesCount !== 1 && source.seriesCount !== 2) {
+    if (source.seriesCount < 1) {
+      throw new Error("ChartData requires at least one series");
+    }
+    this.seriesCount = source.seriesCount;
+    const defaultAxes: number[] = new Array(this.seriesCount).fill(0);
+    if (this.seriesCount > 1) {
+      defaultAxes[1] = 1;
+    }
+    this.seriesAxes = seriesAxes ?? defaultAxes;
+    if (this.seriesAxes.length !== this.seriesCount) {
       throw new Error(
-        `ChartData supports 1 or 2 series, but received ${source.seriesCount}`,
+        `ChartData requires seriesAxes length to match seriesCount (${this.seriesCount})`,
       );
     }
-    this.hasSf = source.seriesCount > 1;
+    for (let i = 0; i < this.seriesAxes.length; i++) {
+      const axis = this.seriesAxes[i];
+      this.seriesByAxis[axis]?.push(i);
+    }
     this.data = new Array(source.length);
     for (let i = 0; i < source.length; i++) {
-      const ny = source.getSeries(i, 0);
-      const sf = this.hasSf ? source.getSeries(i, 1) : undefined;
-      this.data[i] = [ny, sf];
+      const point: number[] = new Array(this.seriesCount);
+      for (let j = 0; j < this.seriesCount; j++) {
+        point[j] = source.getSeries(i, j);
+      }
+      this.data[i] = point;
     }
     this.startTime = source.startTime;
     this.timeStep = source.timeStep;
@@ -66,17 +93,21 @@ export class ChartData {
     this.rebuildSegmentTrees();
   }
 
-  append(ny: number, sf?: number): void {
-    if (ny == null || !Number.isFinite(ny)) {
-      throw new Error("ChartData.append requires ny to be a finite number");
+  append(...values: number[]): void {
+    if (values.length !== this.seriesCount) {
+      throw new Error(
+        `ChartData.append requires ${this.seriesCount} values, received ${values.length}`,
+      );
     }
-    if (this.hasSf) {
-      if (sf == null || !Number.isFinite(sf)) {
-        throw new Error("ChartData.append requires sf to be a finite number");
+    for (let i = 0; i < values.length; i++) {
+      const val = values[i];
+      if (val == null || !Number.isFinite(val)) {
+        throw new Error(
+          `ChartData.append requires series ${i} value to be a finite number`,
+        );
       }
     }
-    const point: [number, number?] = this.hasSf ? [ny, sf!] : [ny, undefined];
-    this.data.push(point);
+    this.data.push(values);
     this.data.shift();
     this.startIndex++;
     this.rebuildSegmentTrees();
@@ -87,18 +118,15 @@ export class ChartData {
   }
 
   getPoint(idx: number): {
-    ny: number;
-    sf?: number;
+    values: number[];
     timestamp: number;
   } {
     if (!Number.isFinite(idx)) {
       throw new Error("ChartData.getPoint requires idx to be a finite number");
     }
     const clamped = this.clampIndex(Math.round(idx));
-    const [ny, sf] = this.data[clamped];
     return {
-      ny,
-      sf,
+      values: this.data[clamped],
       timestamp: this.startTime + (this.startIndex + clamped) * this.timeStep,
     };
   }
@@ -107,42 +135,43 @@ export class ChartData {
     return Math.min(Math.max(idx, 0), this.data.length - 1);
   }
 
-  private buildSeriesMinMax(seriesIdx: 0 | 1): IMinMax[] {
+  private buildAxisMinMax(axis: number): IMinMax[] {
     const result: IMinMax[] = new Array(this.data.length);
-    let hasFinite = false;
+    const idxs = this.seriesByAxis[axis];
+
     for (let i = 0; i < this.data.length; i++) {
-      const val = this.data[i][seriesIdx]!;
-      if (Number.isNaN(val) || !Number.isFinite(val)) {
-        result[i] = { min: Infinity, max: -Infinity } as IMinMax;
-      } else {
-        hasFinite = true;
-        result[i] = { min: val, max: val } as IMinMax;
+      let min = Infinity;
+      let max = -Infinity;
+      for (const j of idxs) {
+        const val = this.data[i][j];
+        if (Number.isFinite(val)) {
+          if (val < min) min = val;
+          if (val > max) max = val;
+        }
       }
-    }
-    if (!hasFinite) {
-      for (let i = 0; i < result.length; i++) {
+      if (min === Infinity) {
         result[i] = { min: 0, max: 0 } as IMinMax;
+      } else {
+        result[i] = { min, max } as IMinMax;
       }
     }
     return result;
   }
 
   private rebuildSegmentTrees(): void {
-    const nyData = this.buildSeriesMinMax(0);
-    this.treeNy = new SegmentTree(nyData, buildMinMax, minMaxIdentity);
-
-    if (this.hasSf) {
-      const sfData = this.buildSeriesMinMax(1);
-      this.treeSf = new SegmentTree(sfData, buildMinMax, minMaxIdentity);
-    } else {
-      this.treeSf = undefined;
+    const axis0 = this.buildAxisMinMax(0);
+    this.trees = [new SegmentTree(axis0, buildMinMax, minMaxIdentity)];
+    if (this.seriesAxes.includes(1)) {
+      const axis1 = this.buildAxisMinMax(1);
+      this.trees.push(new SegmentTree(axis1, buildMinMax, minMaxIdentity));
     }
   }
 
-  bTemperatureVisible(
-    bIndexVisible: AR1Basis,
-    tree: SegmentTree<IMinMax>,
-  ): AR1Basis {
+  bAxisVisible(bIndexVisible: AR1Basis, axis: number): AR1Basis {
+    const tree = this.trees[axis];
+    if (!tree) {
+      throw new Error(`Axis ${axis} data is unavailable`);
+    }
     const [minIdxX, maxIdxX] = bIndexVisible.toArr();
     let startIdx = Math.floor(minIdxX);
     let endIdx = Math.ceil(maxIdxX);
@@ -155,21 +184,18 @@ export class ChartData {
     return new AR1Basis(min, max);
   }
 
-  combinedTemperatureDp(bIndexVisible: AR1Basis): {
+  combinedAxisDp(bIndexVisible: AR1Basis): {
     combined: AR1Basis;
     dp: DirectProductBasis;
   } {
-    if (!this.treeSf) {
-      throw new Error("Second series data is unavailable");
+    if (!this.treeAxis1) {
+      throw new Error("Second axis data is unavailable");
     }
-    const bNy = this.bTemperatureVisible(bIndexVisible, this.treeNy);
-    const bSf = this.bTemperatureVisible(bIndexVisible, this.treeSf);
-    const [nyMin, nyMax] = bNy.toArr();
-    const [sfMin, sfMax] = bSf.toArr();
-    const combined = new AR1Basis(
-      Math.min(nyMin, sfMin),
-      Math.max(nyMax, sfMax),
-    );
+    const b0 = this.bAxisVisible(bIndexVisible, 0);
+    const b1 = this.bAxisVisible(bIndexVisible, 1);
+    const [min0, max0] = b0.toArr();
+    const [min1, max1] = b1.toArr();
+    const combined = new AR1Basis(Math.min(min0, min1), Math.max(max0, max1));
     const dp = DirectProductBasis.fromProjections(this.bIndexFull, combined);
     return { combined, dp };
   }

@@ -61,12 +61,12 @@ describe("createScales", () => {
   it("creates ySf when dual axis enabled", () => {
     const scales = createScales(bX, bY, true);
     expect(scales.ySf).toBeDefined();
-    expect(scales.ySf!.range()).toEqual([100, 0]);
+    expect(scales.ySf?.range()).toEqual([100, 0]);
   });
 });
 
 describe("updateScaleX", () => {
-  const makeSource = (data: Array<[number, number?]>): IDataSource => ({
+  const makeSource = (data: number[][]): IDataSource => ({
     startTime: 0,
     timeStep: 1,
     length: data.length,
@@ -85,7 +85,7 @@ describe("updateScaleX", () => {
 });
 
 describe("updateScaleY", () => {
-  const makeSource = (data: Array<[number, number?]>): IDataSource => ({
+  const makeSource = (data: number[][]): IDataSource => ({
     startTime: 0,
     timeStep: 1,
     length: data.length,
@@ -99,7 +99,7 @@ describe("updateScaleY", () => {
     const vt = {
       onReferenceViewWindowResize: vi.fn(),
     } as unknown as ViewportTransform;
-    updateScaleY(new AR1Basis(0, 2), cd.treeNy, vt, y, cd);
+    updateScaleY(new AR1Basis(0, 2), cd.treeAxis0, vt, y, cd);
     expect(y.domain()).toEqual([10, 40]);
   });
 });
@@ -132,7 +132,7 @@ describe("initPaths", () => {
     const { path, viewNy, viewSf } = initPaths(selection, true);
     expect(path.nodes()).toHaveLength(2);
     expect(viewNy.tagName).toBe("g");
-    expect(viewSf!.tagName).toBe("g");
+    expect(viewSf?.tagName).toBe("g");
     expect(svg.querySelectorAll("g.view")).toHaveLength(2);
     expect(svg.querySelectorAll("path")).toHaveLength(2);
   });

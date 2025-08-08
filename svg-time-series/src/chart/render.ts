@@ -6,7 +6,8 @@ import { MyAxis, Orientation } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
-import type { ChartData } from "./data.ts";
+import type { ChartData, IMinMax } from "./data.ts";
+import type { SegmentTree } from "segment-tree-rmq";
 import {
   createDimensions,
   createScales,
@@ -93,14 +94,14 @@ interface Dimensions {
 }
 
 export interface Series {
-  tree?: ChartData["treeNy"];
+  tree?: SegmentTree<IMinMax>;
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
   view?: SVGGElement;
   path?: SVGPathElement;
   axis?: MyAxis;
   gAxis?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
-  line: Line<[number, number?]>;
+  line: Line<number[]>;
 }
 
 export function buildSeries(
@@ -115,7 +116,7 @@ export function buildSeries(
   const nodes = paths.path.nodes() as SVGPathElement[];
   const series: Series[] = [
     {
-      tree: data.treeNy,
+      tree: data.treeAxis0,
       transform: transforms.ny,
       scale: scales.yNy,
       view: paths.viewNy,
@@ -126,9 +127,9 @@ export function buildSeries(
     },
   ];
 
-  if (hasSf && data.treeSf && nodes[1]) {
+  if (hasSf && data.treeAxis1 && nodes[1]) {
     series.push({
-      tree: data.treeSf,
+      tree: data.treeAxis1,
       transform: dualYAxis && transforms.sf ? transforms.sf : transforms.ny,
       scale: dualYAxis && scales.ySf ? scales.ySf : scales.yNy,
       view: paths.viewSf,
@@ -158,7 +159,7 @@ export function setupRender(
   data: ChartData,
   dualYAxis: boolean,
 ): RenderState {
-  const hasSf = data.treeSf != null;
+  const hasSf = data.treeAxis1 != null;
 
   const { width, height, bScreenXVisible, bScreenYVisible } =
     createDimensions(svg);
@@ -185,8 +186,12 @@ export function setupRender(
     dualYAxis,
   );
 
-  if (series.length > 1 && series[0].scale === series[1].scale && data.treeSf) {
-    const { combined, dp } = data.combinedTemperatureDp(data.bIndexFull);
+  if (
+    series.length > 1 &&
+    series[0].scale === series[1].scale &&
+    data.treeAxis1
+  ) {
+    const { combined, dp } = data.combinedAxisDp(data.bIndexFull);
     for (const s of series) {
       s.transform.onReferenceViewWindowResize(dp);
       s.scale.domain(combined.toArr());
@@ -249,17 +254,17 @@ export function setupRender(
       const series = this.series;
 
       // Update tree references in case data has changed
-      series[0].tree = data.treeNy;
+      series[0].tree = data.treeAxis0;
       if (series.length > 1) {
-        series[1].tree = data.treeSf;
+        series[1].tree = data.treeAxis1;
       }
 
       if (
         series.length > 1 &&
         series[0].scale === series[1].scale &&
-        data.treeSf
+        data.treeAxis1
       ) {
-        const { combined, dp } = data.combinedTemperatureDp(bIndexVisible);
+        const { combined, dp } = data.combinedAxisDp(bIndexVisible);
         for (const s of series) {
           s.transform.onReferenceViewWindowResize(dp);
           s.scale.domain(combined.toArr());

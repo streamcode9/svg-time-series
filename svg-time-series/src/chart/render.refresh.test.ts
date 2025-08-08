@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll, vi } from "vitest";
 
 vi.mock("../utils/domNodeTransform.ts", () => ({ updateNode: vi.fn() }));
@@ -109,7 +110,7 @@ describe("RenderState.refresh", () => {
     state.refresh(data);
 
     expect(state.series.length).toBe(1);
-    expect(state.series[0].tree).toBe(data.treeNy);
+    expect(state.series[0].tree).toBe(data.treeAxis0);
     expect(state.series[0].scale.domain()).toEqual([1, 3]);
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
     state.series.forEach((s, i) => {
@@ -137,8 +138,8 @@ describe("RenderState.refresh", () => {
 
     state.refresh(data);
 
-    expect(state.series[0].tree).toBe(data.treeNy);
-    expect(state.series[1].tree).toBe(data.treeSf);
+    expect(state.series[0].tree).toBe(data.treeAxis0);
+    expect(state.series[1].tree).toBe(data.treeAxis1);
     expect(state.series[0].scale.domain()).toEqual([1, 3]);
     expect(state.series[1].scale.domain()).toEqual([10, 30]);
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
@@ -176,8 +177,8 @@ describe("RenderState.refresh", () => {
 
     state.refresh(data2);
 
-    expect(state.series[0].tree).toBe(data2.treeNy);
-    expect(state.series[1].tree).toBe(data2.treeSf);
+    expect(state.series[0].tree).toBe(data2.treeAxis0);
+    expect(state.series[1].tree).toBe(data2.treeAxis1);
     expect(state.series[0].scale.domain()).toEqual([4, 6]);
     expect(state.series[1].scale.domain()).toEqual([40, 60]);
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);

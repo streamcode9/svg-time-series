@@ -8,15 +8,15 @@ import type { IMinMax } from "../data.ts";
 import type { ChartData } from "../data.ts";
 import type { RenderState } from "../render.ts";
 
-export const lineNy = line<[number, number?]>()
-  .defined((d) => !(isNaN(d[0]!) || d[0] == null))
+export const lineNy = line<number[]>()
+  .defined((d) => !(isNaN(d[0]) || d[0] == null))
   .x((_, i) => i)
-  .y((d) => d[0]!);
+  .y((d) => d[0] as number);
 
-export const lineSf = line<[number, number?]>()
-  .defined((d) => !(isNaN(d[1]!) || d[1] == null))
+export const lineSf = line<number[]>()
+  .defined((d) => !(isNaN(d[1]) || d[1] == null))
   .x((_, i) => i)
-  .y((d) => d[1]!);
+  .y((d) => d[1] as number);
 
 export function createDimensions(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
@@ -78,11 +78,12 @@ export function updateScaleY(
   yScale: ScaleLinear<number, number>,
   data: ChartData,
 ) {
-  const bTemperatureVisible = data.bTemperatureVisible(bIndexVisible, tree);
+  const axis = data.trees.indexOf(tree);
+  const bAxisVisible = data.bAxisVisible(bIndexVisible, axis);
   pathTransform.onReferenceViewWindowResize(
-    DirectProductBasis.fromProjections(data.bIndexFull, bTemperatureVisible),
+    DirectProductBasis.fromProjections(data.bIndexFull, bAxisVisible),
   );
-  yScale.domain(bTemperatureVisible.toArr());
+  yScale.domain(bAxisVisible.toArr());
 }
 
 export interface PathSet {
@@ -113,10 +114,7 @@ export function initPaths(
   return { path, viewNy, viewSf };
 }
 
-export function renderPaths(
-  state: RenderState,
-  dataArr: Array<[number, number?]>,
-) {
+export function renderPaths(state: RenderState, dataArr: number[][]) {
   const series = state.series;
   for (let i = 0; i < series.length; i++) {
     const s = series[i];

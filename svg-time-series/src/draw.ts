@@ -1,7 +1,7 @@
 import { Selection } from "d3-selection";
 import { D3ZoomEvent } from "d3-zoom";
 
-import { ChartData, IMinMax, IDataSource } from "./chart/data.ts";
+import { ChartData, IDataSource } from "./chart/data.ts";
 import { setupRender } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
 import { renderPaths } from "./chart/render/utils.ts";
@@ -78,8 +78,8 @@ export class TimeSeriesChart {
     };
   }
 
-  public updateChartWithNewData(ny: number, sf?: number): void {
-    this.data.append(ny, sf);
+  public updateChartWithNewData(...values: number[]): void {
+    this.data.append(...values);
     this.drawNewData();
   }
 
