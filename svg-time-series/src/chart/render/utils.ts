@@ -106,8 +106,7 @@ export function initPaths(
 
 export function renderPaths(state: RenderState, dataArr: number[][]) {
   const series = state.series;
-  for (let i = 0; i < series.length; i++) {
-    const s = series[i];
+  for (const s of series) {
     if (s.path) {
       s.path.setAttribute("d", s.line(dataArr) ?? "");
     }
