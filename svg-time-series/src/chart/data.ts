@@ -109,11 +109,20 @@ export class ChartData {
 
   private buildSeriesMinMax(seriesIdx: 0 | 1): IMinMax[] {
     const result: IMinMax[] = new Array(this.data.length);
+    let hasFinite = false;
     for (let i = 0; i < this.data.length; i++) {
       const val = this.data[i][seriesIdx]!;
-      const minVal = isNaN(val) ? Infinity : val;
-      const maxVal = isNaN(val) ? -Infinity : val;
-      result[i] = { min: minVal, max: maxVal } as IMinMax;
+      if (Number.isNaN(val) || !Number.isFinite(val)) {
+        result[i] = { min: Infinity, max: -Infinity } as IMinMax;
+      } else {
+        hasFinite = true;
+        result[i] = { min: val, max: val } as IMinMax;
+      }
+    }
+    if (!hasFinite) {
+      for (let i = 0; i < result.length; i++) {
+        result[i] = { min: 0, max: 0 } as IMinMax;
+      }
     }
     return result;
   }

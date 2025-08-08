@@ -182,4 +182,35 @@ describe("RenderState.refresh", () => {
     expect(state.series[1].scale.domain()).toEqual([40, 60]);
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
   });
+
+  it("produces finite domain when series is all NaN", () => {
+    const svg = createSvg();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 2,
+      seriesCount: 1,
+      getSeries: () => NaN,
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg as any, data, false);
+    state.refresh(data);
+    expect(state.series[0].scale.domain()).toEqual([0, 0]);
+  });
+
+  it("produces finite domains for dual-axis all NaN data", () => {
+    const svg = createSvg();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 2,
+      seriesCount: 2,
+      getSeries: () => NaN,
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg as any, data, true);
+    state.refresh(data);
+    expect(state.series[0].scale.domain()).toEqual([0, 0]);
+    expect(state.series[1].scale.domain()).toEqual([0, 0]);
+  });
 });

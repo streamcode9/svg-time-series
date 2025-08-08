@@ -265,6 +265,20 @@ describe("ChartData", () => {
     expect(dp.y().toArr()).toEqual([-3, 10]);
   });
 
+  it("returns neutral min/max when both series are all NaN", () => {
+    const cd = new ChartData(
+      makeSource([
+        [NaN, NaN],
+        [NaN, NaN],
+      ]),
+    );
+    const range = new AR1Basis(0, 1);
+    expect(cd.treeNy.query(0, 1)).toEqual({ min: 0, max: 0 });
+    expect(cd.treeSf!.query(0, 1)).toEqual({ min: 0, max: 0 });
+    expect(cd.bTemperatureVisible(range, cd.treeNy).toArr()).toEqual([0, 0]);
+    expect(cd.bTemperatureVisible(range, cd.treeSf!).toArr()).toEqual([0, 0]);
+  });
+
   describe("single-axis", () => {
     it("handles data without second series", () => {
       const source: IDataSource = {
@@ -299,6 +313,13 @@ describe("ChartData", () => {
       const cd = new ChartData(source);
       expect(() => cd.append(1)).not.toThrow();
       expect(cd.data).toEqual([[1, undefined]]);
+    });
+
+    it("returns neutral min/max when data is all NaN", () => {
+      const cd = new ChartData(makeSource([[NaN], [NaN]]));
+      const range = new AR1Basis(0, 1);
+      expect(cd.treeNy.query(0, 1)).toEqual({ min: 0, max: 0 });
+      expect(cd.bTemperatureVisible(range, cd.treeNy).toArr()).toEqual([0, 0]);
     });
   });
 });
