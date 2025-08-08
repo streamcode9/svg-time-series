@@ -15,10 +15,5 @@
     "typecheck": "tsc --noEmit",
     "bench": "npm run bench:segment-tree",
     "bench:segment-tree": "vitest bench bench/segmentTree.bench.ts --run"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.32.0",
-    "eslint-config-prettier": "^10.1.8",
-    "typescript-eslint": "^8.39.0"
   }
 }
