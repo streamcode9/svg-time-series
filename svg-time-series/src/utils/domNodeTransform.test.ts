@@ -1,15 +1,34 @@
 import { describe, it, expect } from "vitest";
-import { JSDOM } from "jsdom";
 import { updateNode } from "./domNodeTransform.ts";
 
+class FakeSVGMatrix {
+  constructor(
+    public a = 1,
+    public b = 0,
+    public c = 0,
+    public d = 1,
+    public e = 0,
+    public f = 0,
+  ) {}
+}
+
+class FakeSVGSVGElement {
+  createSVGMatrix() {
+    return new FakeSVGMatrix();
+  }
+}
+
 interface FakeTransform {
-  matrix: unknown;
+  matrix: FakeSVGMatrix;
 }
 
 class FakeTransformList {
-  last: unknown;
+  last?: FakeSVGMatrix;
 
   createSVGTransformFromMatrix(matrix: unknown): FakeTransform {
+    if (!(matrix instanceof FakeSVGMatrix)) {
+      throw new TypeError("parameter 1 is not of type 'SVGMatrix'");
+    }
     return { matrix };
   }
 
@@ -19,51 +38,47 @@ class FakeTransformList {
 }
 
 function createNode() {
-  const { document } = new JSDOM("<svg></svg>").window;
-  const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  (g as unknown as { transform: { baseVal: FakeTransformList } }).transform = {
-    baseVal: new FakeTransformList(),
-  };
-  return g as unknown as SVGGraphicsElement & {
+  const svg = new FakeSVGSVGElement();
+  return {
+    transform: { baseVal: new FakeTransformList() },
+    ownerSVGElement: svg,
+  } as unknown as SVGGraphicsElement & {
     transform: { baseVal: FakeTransformList };
+    ownerSVGElement: FakeSVGSVGElement;
   };
 }
 
 describe("updateNode", () => {
   it("applies matrix to transform list", () => {
     const node = createNode();
-    const matrix = {
-      a: 1,
-      b: 0,
-      c: 0,
-      d: 1,
-      e: 10,
-      f: 20,
-    } as unknown as SVGMatrix;
-    updateNode(node, matrix);
+    const matrix = new FakeSVGMatrix();
+    matrix.e = 10;
+    matrix.f = 20;
+    updateNode(node, matrix as unknown as SVGMatrix);
     expect(node.transform.baseVal.last).toBe(matrix);
   });
 
-  it("replaces existing transform", () => {
+  it("converts DOMMatrix to SVGMatrix", () => {
     const node = createNode();
-    const first = {
-      a: 1,
-      b: 0,
-      c: 0,
-      d: 1,
-      e: 5,
-      f: 5,
-    } as unknown as SVGMatrix;
-    const second = {
-      a: 1,
-      b: 0,
-      c: 0,
-      d: 1,
-      e: 10,
-      f: 10,
-    } as unknown as SVGMatrix;
-    updateNode(node, first);
-    updateNode(node, second);
-    expect(node.transform.baseVal.last).toBe(second);
+    const domMatrix = new (class {
+      constructor(
+        public a = 1,
+        public b = 0,
+        public c = 0,
+        public d = 1,
+        public e = 0,
+        public f = 0,
+      ) {}
+      translate(tx: number, ty: number) {
+        this.e += tx;
+        this.f += ty;
+        return this;
+      }
+    })().translate(5, 6) as unknown as DOMMatrix;
+    updateNode(node, domMatrix);
+    const last = node.transform.baseVal.last as FakeSVGMatrix;
+    expect(last).toBeInstanceOf(FakeSVGMatrix);
+    expect(last.e).toBeCloseTo(5);
+    expect(last.f).toBeCloseTo(6);
   });
 });

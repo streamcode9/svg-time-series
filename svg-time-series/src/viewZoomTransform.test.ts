@@ -126,6 +126,7 @@ describe("viewZoomTransform helpers", () => {
     };
     const node = {
       transform: { baseVal },
+      ownerSVGElement: { createSVGMatrix: () => new Matrix() },
     } as unknown as SVGGraphicsElement;
     const matrix = new Matrix(1, 0, 0, 1, 2, 3) as unknown as DOMMatrix;
 
