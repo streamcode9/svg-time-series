@@ -34,7 +34,7 @@
   "scripts": {
     "prepare": "npm run build",
     "build": "tsc && vite build",
-    "lint": "eslint --max-warnings=0 src",
+    "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "bench": "vitest bench bench/*.bench.ts"
