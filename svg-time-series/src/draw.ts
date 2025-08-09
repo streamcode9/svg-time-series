@@ -4,7 +4,11 @@ import { D3ZoomEvent } from "d3-zoom";
 import { ChartData, IDataSource } from "./chart/data.ts";
 import { setupRender } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
-import { renderPaths } from "./chart/render/utils.ts";
+import {
+  createDimensions,
+  renderPaths,
+  updateScaleX,
+} from "./chart/render/utils.ts";
 import type { ILegendController, LegendContext } from "./chart/legend.ts";
 import { ZoomState, IZoomStateOptions } from "./chart/zoomState.ts";
 
@@ -19,6 +23,7 @@ export interface IPublicInteraction {
 }
 
 export class TimeSeriesChart {
+  private svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
   private data: ChartData;
   private state: RenderState;
   private zoomArea: Selection<SVGRectElement, unknown, HTMLElement, unknown>;
@@ -36,6 +41,7 @@ export class TimeSeriesChart {
     mouseMoveHandler: (event: MouseEvent) => void = () => {},
     zoomOptions: IZoomStateOptions = {},
   ) {
+    this.svg = svg;
     this.data = new ChartData(data);
 
     this.state = setupRender(svg, this.data, dualYAxis);
@@ -124,13 +130,30 @@ export class TimeSeriesChart {
     this.zoomState.reset();
   };
 
-  public resize = (dimensions: { width: number; height: number }) => {
-    this.state.dimensions.width = dimensions.width;
-    this.state.dimensions.height = dimensions.height;
-    this.zoomArea
-      .attr("width", dimensions.width)
-      .attr("height", dimensions.height);
-    this.zoomState.updateExtents(dimensions);
+  public resize = (_dimensions: { width: number; height: number }) => {
+    void _dimensions;
+    const bScreenVisible = createDimensions(this.svg);
+    this.state.bScreenXVisible = bScreenVisible.x();
+
+    const width = this.state.bScreenXVisible.getRange();
+    const height = bScreenVisible.y().getRange();
+
+    this.state.dimensions.width = width;
+    this.state.dimensions.height = height;
+
+    this.zoomArea.attr("width", width).attr("height", height);
+    this.zoomState.updateExtents({ width, height });
+
+    for (const a of this.state.axes.y) {
+      a.transform.onViewPortResize(bScreenVisible);
+    }
+
+    const bIndexVisible =
+      this.state.axes.y[0].transform.fromScreenToModelBasisX(
+        this.state.bScreenXVisible,
+      );
+    updateScaleX(this.state.axes.x.scale, bIndexVisible, this.data);
+
     this.state.refresh(this.data);
     renderPaths(this.state, this.data.data);
     this.legendController.refresh();
