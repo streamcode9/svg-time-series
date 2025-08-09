@@ -5,6 +5,7 @@ import {
   betweenTBasesAR1,
 } from "../math/affine.ts";
 import { SegmentTree } from "segment-tree-rmq";
+import { SlidingWindow } from "./slidingWindow.ts";
 
 export interface IMinMax {
   readonly min: number;
@@ -37,12 +38,11 @@ export interface IDataSource {
 }
 
 export class ChartData {
-  public data: number[][];
+  private readonly window: SlidingWindow;
   public readonly seriesByAxis: number[][] = [[], []];
   public bIndexFull: AR1Basis;
   public readonly startTime: number;
   public readonly timeStep: number;
-  public startIndex: number;
   public readonly seriesCount: number;
   public readonly seriesAxes: number[];
 
@@ -87,41 +87,33 @@ export class ChartData {
       this.seriesByAxis[axis as 0 | 1].push(axisIdx);
       axisIdx++;
     }
-    this.data = Array.from({ length: source.length }).map((_, i) =>
+    const initialData = Array.from({ length: source.length }).map((_, i) =>
       Array.from({ length: this.seriesCount }).map((_, j) =>
         source.getSeries(i, j),
       ),
     );
+    this.window = new SlidingWindow(initialData);
     this.startTime = source.startTime;
     this.timeStep = source.timeStep;
-    this.startIndex = 0;
     // bIndexFull represents the full range of data indices and remains constant
     // since append() maintains a sliding window of fixed length
-    this.bIndexFull = new AR1Basis(0, this.data.length - 1);
+    this.bIndexFull = new AR1Basis(0, this.window.length - 1);
   }
 
   append(...values: number[]): void {
-    if (values.length !== this.seriesCount) {
-      throw new Error(
-        `ChartData.append requires ${this.seriesCount} values, received ${values.length}`,
-      );
-    }
-    let valueIdx = 0;
-    for (const val of values) {
-      if (val == null || !Number.isFinite(val)) {
-        throw new Error(
-          `ChartData.append requires series ${valueIdx} value to be a finite number`,
-        );
-      }
-      valueIdx++;
-    }
-    this.data.push(values);
-    this.data.shift();
-    this.startIndex++;
+    this.window.append(...values);
   }
 
   get length(): number {
-    return this.data.length;
+    return this.window.length;
+  }
+
+  get data(): number[][] {
+    return this.window.data;
+  }
+
+  get startIndex(): number {
+    return this.window.startIndex;
   }
 
   getPoint(idx: number): {
@@ -133,13 +125,17 @@ export class ChartData {
     }
     const clamped = this.clampIndex(Math.round(idx));
     return {
-      values: this.data[clamped],
-      timestamp: this.startTime + (this.startIndex + clamped) * this.timeStep,
+      values: this.window.data[clamped],
+      timestamp:
+        this.startTime + (this.window.startIndex + clamped) * this.timeStep,
     };
   }
 
   indexToTime(): AR1 {
-    const bIndexBase = new AR1Basis(this.startIndex, this.startIndex + 1);
+    const bIndexBase = new AR1Basis(
+      this.window.startIndex,
+      this.window.startIndex + 1,
+    );
     const bTimeBase = new AR1Basis(
       this.startTime,
       this.startTime + this.timeStep,
@@ -148,12 +144,12 @@ export class ChartData {
   }
 
   private clampIndex(idx: number): number {
-    return Math.min(Math.max(idx, 0), this.data.length - 1);
+    return Math.min(Math.max(idx, 0), this.window.length - 1);
   }
 
   private buildAxisMinMax(axis: number): Array<IMinMax | undefined> {
     const idxs = this.seriesByAxis[axis];
-    return this.data.map((row) => {
+    return this.window.data.map((row) => {
       let min = Infinity;
       let max = -Infinity;
       for (const j of idxs) {
