@@ -102,11 +102,10 @@ describe("updateScales", () => {
     expect(axes[2].scale.domain()).toEqual([-5, 5]);
   });
 
-  it("merges extra axes into the last scale", () => {
+  it("throws when a series references an out-of-range axis index", () => {
     const axisManager = new AxisManager();
     axisManager.setXAxis(scaleTime().range([0, 1]));
-    const axes = axisManager.create(2);
-    axes.forEach((a) => a.scale.range([0, 1]));
+    axisManager.create(2).forEach((a) => a.scale.range([0, 1]));
 
     const data = {
       seriesAxes: [0, 1, 2],
@@ -127,9 +126,8 @@ describe("updateScales", () => {
     };
 
     const bIndexVisible = new AR1Basis(0, 1);
-    axisManager.updateScales(bIndexVisible, data as any);
-
-    expect(axes[0].scale.domain()).toEqual([0, 1]);
-    expect(axes[1].scale.domain()).toEqual([-5, 20]);
+    expect(() => axisManager.updateScales(bIndexVisible, data as any)).toThrow(
+      /axis index 2/i,
+    );
   });
 });

@@ -86,14 +86,16 @@ export class AxisManager {
     }
 
     for (const i of axisIndices) {
-      const tree = buildAxisTree(data, i);
-      if (i < this.axes.length) {
-        this.axes[i].tree = tree;
+      if (i >= this.axes.length) {
+        throw new Error(
+          `Series axis index ${i} out of bounds (max ${this.axes.length - 1})`,
+        );
       }
-      const targetIdx = i < this.axes.length ? i : this.axes.length - 1;
+      const tree = buildAxisTree(data, i);
+      this.axes[i].tree = tree;
       const dp = data.updateScaleY(bIndex, tree);
       const [min, max] = dp.y().toArr();
-      const domain = domains[targetIdx];
+      const domain = domains[i];
       domain.min = Math.min(domain.min, min);
       domain.max = Math.max(domain.max, max);
     }
