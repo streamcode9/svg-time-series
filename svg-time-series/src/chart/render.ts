@@ -50,8 +50,8 @@ interface Dimensions {
 
 export interface Series {
   axisIdx: number;
-  view?: SVGGElement;
-  path?: SVGPathElement;
+  view: SVGGElement;
+  path: SVGPathElement;
   line: Line<number[]>;
 }
 
@@ -138,11 +138,8 @@ export function setupRender(
       this.axisManager.updateScales(bIndexVisible, data);
 
       for (const s of this.series) {
-        if (s.view) {
-          const t =
-            this.axes.y[s.axisIdx]?.transform ?? this.axes.y[0].transform;
-          updateNode(s.view, t.matrix);
-        }
+        const t = this.axes.y[s.axisIdx]?.transform ?? this.axes.y[0].transform;
+        updateNode(s.view, t.matrix);
       }
       this.axisRenders.forEach((r) => r.axis.axisUp(r.g));
       this.axes.x.axis.axisUp(this.axes.x.g);

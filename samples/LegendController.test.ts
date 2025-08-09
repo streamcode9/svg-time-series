@@ -108,7 +108,7 @@ describe("LegendController", () => {
       getPoint: data.getPoint.bind(data),
       length: data.length,
       series: state.series.map((s) => ({
-        path: s.path as SVGPathElement,
+        path: s.path,
         transform: state.axes.y[s.axisIdx].transform,
       })),
     });
@@ -159,7 +159,7 @@ describe("LegendController", () => {
       getPoint: data.getPoint.bind(data),
       length: data.length,
       series: state.series.map((s) => ({
-        path: s.path as SVGPathElement,
+        path: s.path,
         transform: state.axes.y[s.axisIdx].transform,
       })),
     });
@@ -199,7 +199,7 @@ describe("LegendController", () => {
       getPoint: data.getPoint.bind(data),
       length: data.length,
       series: state.series.map((s) => ({
-        path: s.path as SVGPathElement,
+        path: s.path,
         transform: state.axes.y[s.axisIdx].transform,
       })),
     });

@@ -56,7 +56,7 @@ export class TimeSeriesChart {
       getPoint: (idx) => this.data.getPoint(idx),
       length: this.data.length,
       series: this.state.series.map((s) => ({
-        path: s.path as SVGPathElement,
+        path: s.path,
         transform:
           this.state.axes.y[s.axisIdx]?.transform ??
           this.state.axes.y[0].transform,
@@ -104,10 +104,8 @@ export class TimeSeriesChart {
     this.legendController.destroy();
 
     for (const s of this.state.series) {
-      s.path?.remove();
-      s.view?.remove();
-      s.path = undefined;
-      s.view = undefined;
+      s.path.remove();
+      s.view.remove();
     }
     this.state.series.length = 0;
     const axisX = this.state.axes.x;
