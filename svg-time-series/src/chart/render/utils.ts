@@ -6,8 +6,17 @@ import type { ChartData } from "../data.ts";
 export function createDimensions(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
 ): DirectProductBasis {
-  const node: SVGSVGElement = svg.node() as SVGSVGElement;
-  const div: HTMLElement = node.parentNode as HTMLElement;
+  const node = svg.node();
+  if (!node) {
+    throw new Error("SVG selection contains no node");
+  }
+
+  const parent = node.parentNode;
+  if (!(parent instanceof HTMLElement)) {
+    throw new Error("SVG element must be attached to an HTMLElement parent");
+  }
+
+  const div = parent;
 
   const width = div.clientWidth;
   const height = div.clientHeight;

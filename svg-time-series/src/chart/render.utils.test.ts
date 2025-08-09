@@ -31,6 +31,30 @@ describe("createDimensions", () => {
     expect(dp.x().toArr()).toEqual([0, width]);
     expect(dp.y().toArr()).toEqual([height, 0]);
   });
+
+  it("throws when SVG lacks a parent", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const selection = select(svg) as unknown as Selection<
+      SVGSVGElement,
+      unknown,
+      HTMLElement,
+      unknown
+    >;
+    expect(() => createDimensions(selection)).toThrow(/HTMLElement parent/);
+  });
+
+  it("throws when parent is not an HTMLElement", () => {
+    const frag = document.createDocumentFragment();
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    frag.appendChild(svg);
+    const selection = select(svg) as unknown as Selection<
+      SVGSVGElement,
+      unknown,
+      HTMLElement,
+      unknown
+    >;
+    expect(() => createDimensions(selection)).toThrow(/HTMLElement parent/);
+  });
 });
 
 describe("updateScaleX", () => {

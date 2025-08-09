@@ -71,6 +71,7 @@ function createSvg() {
     pretendToBeVisual: true,
     contentType: "text/html",
   });
+  (globalThis as any).HTMLElement = dom.window.HTMLElement;
   const div = dom.window.document.getElementById("c") as any;
   Object.defineProperty(div, "clientWidth", { value: 100 });
   Object.defineProperty(div, "clientHeight", { value: 100 });
