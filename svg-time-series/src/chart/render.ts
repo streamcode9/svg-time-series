@@ -84,8 +84,14 @@ interface Dimensions {
   height: number;
 }
 
-export interface Series {
+interface AxisState {
   tree?: SegmentTree<IMinMax>;
+  transform: ViewportTransform;
+  scale: ScaleLinear<number, number>;
+}
+
+export interface Series {
+  axisIdx: number;
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
   view?: SVGGElement;
@@ -120,7 +126,7 @@ export function buildSeries(
     const axisData = axes?.y?.[axisIdx] ?? axes?.y?.[0];
 
     series.push({
-      tree,
+      axisIdx,
       transform,
       scale,
       view,
@@ -139,6 +145,7 @@ export interface RenderState {
   axes: AxisSet;
   paths: PathSet;
   transforms: ViewportTransform[];
+  axisStates: AxisState[];
   bScreenXVisible: AR1Basis;
   dimensions: Dimensions;
   dualYAxis: boolean;
@@ -146,26 +153,31 @@ export interface RenderState {
   refresh: (data: ChartData) => void;
 }
 
-function updateYScales(series: Series[], bIndex: AR1Basis, data: ChartData) {
-  if (
-    series.length > 1 &&
-    series[0].scale === series[1].scale &&
-    data.treeAxis1
-  ) {
-    const { combined, dp } = data.combinedAxisDp(bIndex);
-    for (const s of series) {
-      s.transform.onReferenceViewWindowResize(dp);
-      s.scale.domain(combined.toArr());
-    }
-  } else {
-    for (const s of series) {
-      if (s.tree) {
-        const dp = data.updateScaleY(bIndex, s.tree);
-        s.transform.onReferenceViewWindowResize(dp);
-        s.scale.domain(dp.y().toArr());
-      }
+function updateYScales(axes: AxisState[], bIndex: AR1Basis, data: ChartData) {
+  const domains = new Map<
+    ScaleLinear<number, number>,
+    { min: number; max: number; transform: ViewportTransform }
+  >();
+
+  for (const a of axes) {
+    if (!a.tree) continue;
+    const dp = data.updateScaleY(bIndex, a.tree);
+    const [min, max] = dp.y().toArr();
+    const entry = domains.get(a.scale);
+    if (entry) {
+      entry.min = Math.min(entry.min, min);
+      entry.max = Math.max(entry.max, max);
+    } else {
+      domains.set(a.scale, { min, max, transform: a.transform });
     }
   }
+
+  domains.forEach(({ min, max, transform }, scale) => {
+    const b = new AR1Basis(min, max);
+    const dp = DirectProductBasis.fromProjections(data.bIndexFull, b);
+    transform.onReferenceViewWindowResize(dp);
+    scale.domain([min, max]);
+  });
 }
 
 export function setupRender(
@@ -193,13 +205,19 @@ export function setupRender(
   updateScaleX(scales.x, data.bIndexFull, data);
   const series = buildSeries(data, transformsInner, scales, paths);
 
-  updateYScales(series, data.bIndexFull, data);
+  const axisStates: AxisState[] = data.trees.map((tree, i) => ({
+    transform: transformsInner[Math.min(i, axisCount - 1)],
+    scale: scales.y[Math.min(i, axisCount - 1)],
+    tree,
+  }));
+
+  updateYScales(axisStates, data.bIndexFull, data);
 
   const axes = setupAxes(svg, scales, width, height, hasSf, dualYAxis);
 
   // Attach axes to series after scales have been initialized
-  series.forEach((s, i) => {
-    const axisData = axes.y[i] ?? axes.y[0];
+  series.forEach((s) => {
+    const axisData = axes.y[s.axisIdx] ?? axes.y[0];
     s.axis = axisData.axis;
     s.gAxis = axisData.g;
   });
@@ -220,6 +238,7 @@ export function setupRender(
     axes,
     paths,
     transforms: transformsInner,
+    axisStates,
     bScreenXVisible,
     dimensions,
     dualYAxis,
@@ -229,23 +248,19 @@ export function setupRender(
         this.bScreenXVisible,
       );
       updateScaleX(this.scales.x, bIndexVisible, data);
-      const series = this.series;
+      this.axisStates.forEach((a, i) => {
+        a.tree = data.getTree(i);
+      });
 
-      // Update tree references in case data has changed
-      series[0].tree = data.treeAxis0;
-      if (series.length > 1) {
-        series[1].tree = data.treeAxis1;
-      }
+      updateYScales(this.axisStates, bIndexVisible, data);
 
-      updateYScales(series, bIndexVisible, data);
-
-      for (const s of series) {
+      for (const s of this.series) {
         if (s.view) {
           updateNode(s.view, s.transform.matrix);
         }
-        if (s.axis && s.gAxis) {
-          s.axis.axisUp(s.gAxis);
-        }
+      }
+      for (const a of this.axes.y) {
+        a.axis.axisUp(a.g);
       }
       this.axes.x.axis.axisUp(this.axes.x.g);
     },
