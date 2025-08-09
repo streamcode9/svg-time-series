@@ -9,8 +9,21 @@ import { measure } from "../measure.ts";
 export function drawCharts(data: [number, number][], dualYAxis = false) {
   const charts: TimeSeriesChart[] = [];
 
-  const onZoom = (event: D3ZoomEvent<SVGRectElement, unknown>) =>
-    charts.forEach((c) => c.interaction.zoom(event));
+  const onZoom = (
+    sourceChart: TimeSeriesChart,
+    event: D3ZoomEvent<SVGRectElement, unknown>,
+  ) => {
+    if (!event.sourceEvent) return;
+    const forwarded = { ...event, sourceEvent: null } as D3ZoomEvent<
+      SVGRectElement,
+      unknown
+    >;
+    charts.forEach((c) => {
+      if (c !== sourceChart) {
+        c.interaction.zoom(forwarded);
+      }
+    });
+  };
   const onMouseMove: (this: Element, event: MouseEvent) => void = function (
     this: Element,
     event: MouseEvent,
@@ -31,12 +44,16 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
       getSeries: (i, seriesIdx) => data[i][seriesIdx],
     };
     const legendController = new LegendController(legend);
-    const chart = new TimeSeriesChart(
+    // eslint-disable-next-line prefer-const
+    let chart: TimeSeriesChart;
+    const zoomHandler = (event: D3ZoomEvent<SVGRectElement, unknown>) =>
+      onZoom(chart, event);
+    chart = new TimeSeriesChart(
       svg,
       source,
       legendController,
       dualYAxis,
-      onZoom,
+      zoomHandler,
       onMouseMove,
     );
     charts.push(chart);
