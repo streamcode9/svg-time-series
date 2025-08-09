@@ -55,7 +55,8 @@ export function updateScaleX(
   bIndexVisible: AR1Basis,
   data: ChartData,
 ) {
-  const bTimeVisible = data.indexToTime(bIndexVisible);
+  const transform = data.indexToTime();
+  const bTimeVisible = bIndexVisible.transformWith(transform);
   x.domain(bTimeVisible.toArr());
 }
 

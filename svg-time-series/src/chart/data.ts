@@ -1,4 +1,5 @@
 import {
+  AR1,
   AR1Basis,
   DirectProductBasis,
   betweenTBasesAR1,
@@ -143,14 +144,13 @@ export class ChartData {
     };
   }
 
-  indexToTime(bIndex: AR1Basis): AR1Basis {
+  indexToTime(): AR1 {
     const bIndexBase = new AR1Basis(this.startIndex, this.startIndex + 1);
     const bTimeBase = new AR1Basis(
       this.startTime,
       this.startTime + this.timeStep,
     );
-    const transform = betweenTBasesAR1(bIndexBase, bTimeBase);
-    return bIndex.transformWith(transform);
+    return betweenTBasesAR1(bIndexBase, bTimeBase);
   }
 
   private clampIndex(idx: number): number {
