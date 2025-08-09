@@ -106,7 +106,6 @@ export function buildSeries(
 ): Series[] {
   const pathNodes = paths.path.nodes() as SVGPathElement[];
   const views = paths.nodes;
-  const axisCount = transforms.length;
   const series: Series[] = [
     {
       tree: data.treeAxis0,
@@ -123,8 +122,8 @@ export function buildSeries(
   if (hasSf && data.treeAxis1 && pathNodes[1] && views[1]) {
     series.push({
       tree: data.treeAxis1,
-      transform: axisCount > 1 ? transforms[1] : transforms[0],
-      scale: axisCount > 1 && scales.y[1] ? scales.y[1] : scales.y[0],
+      transform: transforms[1] ?? transforms[0],
+      scale: scales.y[1] ?? scales.y[0],
       view: views[1],
       path: pathNodes[1],
       axis: axes?.yRight ?? axes?.y,
