@@ -345,4 +345,86 @@ describe("ZoomState", () => {
       /scaleExtent must be two finite, positive numbers/,
     );
   });
+
+  it("rejects scale extents that do not contain exactly two values", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axisRenders: [],
+    } as unknown as RenderState;
+    const zs = new ZoomState(
+      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      state,
+      vi.fn(),
+    );
+
+    expect(() => zs.setScaleExtent([1] as any)).toThrow(
+      /scaleExtent must be two finite, positive numbers/,
+    );
+    expect(() => zs.setScaleExtent([1, 2, 3] as any)).toThrow(
+      /scaleExtent must be two finite, positive numbers/,
+    );
+  });
+
+  it.each([
+    [0, 10],
+    [-1, 10],
+    [1, 1],
+    [5, 3],
+    [1, 0],
+    [1, -5],
+    [Infinity, 10],
+    [NaN, 10],
+    [1, Infinity],
+    [1, NaN],
+  ])("rejects invalid constructor scale extent %j", (min, max) => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axisRenders: [],
+    } as unknown as RenderState;
+
+    expect(
+      () =>
+        new ZoomState(
+          rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+          state,
+          vi.fn(),
+          undefined,
+          { scaleExtent: [min, max] },
+        ),
+    ).toThrow(/scaleExtent must be two finite, positive numbers/);
+  });
+
+  it("rejects constructor scale extents without exactly two values", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axisRenders: [],
+    } as unknown as RenderState;
+
+    expect(
+      () =>
+        new ZoomState(
+          rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+          state,
+          vi.fn(),
+          undefined,
+          { scaleExtent: [1] as any },
+        ),
+    ).toThrow(/scaleExtent must be two finite, positive numbers/);
+    expect(
+      () =>
+        new ZoomState(
+          rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+          state,
+          vi.fn(),
+          undefined,
+          { scaleExtent: [1, 2, 3] as any },
+        ),
+    ).toThrow(/scaleExtent must be two finite, positive numbers/);
+  });
 });

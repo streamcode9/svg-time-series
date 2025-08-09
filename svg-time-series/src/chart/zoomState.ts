@@ -20,8 +20,15 @@ export class ZoomState {
   private cancelRefresh: () => void;
   private scaleExtent: [number, number];
   private validateScaleExtent(extent: [number, number]) {
+    if (!Array.isArray(extent) || extent.length !== 2) {
+      throw new Error(
+        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: ${extent}`,
+      );
+    }
     const [min, max] = extent;
     if (
+      typeof min !== "number" ||
+      typeof max !== "number" ||
       !Number.isFinite(min) ||
       !Number.isFinite(max) ||
       min <= 0 ||
@@ -29,7 +36,7 @@ export class ZoomState {
       min >= max
     ) {
       throw new Error(
-        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: [${min}, ${max}]`,
+        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: [${extent}]`,
       );
     }
   }
