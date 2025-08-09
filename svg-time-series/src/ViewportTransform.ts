@@ -51,6 +51,10 @@ export class ViewportTransform {
     return new DOMPoint(x, y).matrixTransform(this.composedMatrix.inverse());
   }
 
+  private toScreenPoint(x: number, y: number) {
+    return new DOMPoint(x, y).matrixTransform(this.composedMatrix);
+  }
+
   public fromScreenToModelX(x: number) {
     return this.toModelPoint(x, 0).x;
   }
@@ -61,6 +65,20 @@ export class ViewportTransform {
 
   public fromScreenToModelBasisX(b: AR1Basis) {
     const transformPoint = (x: number) => this.toModelPoint(x, 0).x;
+    const [p1, p2] = b.toArr().map(transformPoint);
+    return new AR1Basis(p1, p2);
+  }
+
+  public toScreenFromModelX(x: number) {
+    return this.toScreenPoint(x, 0).x;
+  }
+
+  public toScreenFromModelY(y: number) {
+    return this.toScreenPoint(0, y).y;
+  }
+
+  public toScreenFromModelBasisX(b: AR1Basis) {
+    const transformPoint = (x: number) => this.toScreenPoint(x, 0).x;
     const [p1, p2] = b.toArr().map(transformPoint);
     return new AR1Basis(p1, p2);
   }

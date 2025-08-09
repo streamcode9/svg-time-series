@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { beforeAll, describe, expect, it } from "vitest";
 import { AR1Basis, DirectProductBasis } from "./math/affine.ts";
 
@@ -136,6 +137,39 @@ describe("ViewportTransform", () => {
     const p = (vt as any).toModelPoint(70, 20) as { x: number; y: number };
     expect(p.x).toBeCloseTo(3);
     expect(p.y).toBeCloseTo(2);
+  });
+
+  it("round-trips between screen and model coordinates", () => {
+    const vt = new ViewportTransform();
+
+    vt.onViewPortResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 100),
+        new AR1Basis(0, 100),
+      ),
+    );
+    vt.onReferenceViewWindowResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 10),
+        new AR1Basis(0, 10),
+      ),
+    );
+    vt.onZoomPan({ x: 10, k: 2 } as any);
+
+    const xScreen = 70;
+    const xModel = vt.fromScreenToModelX(xScreen);
+    expect(vt.toScreenFromModelX(xModel)).toBeCloseTo(xScreen);
+
+    const yScreen = 20;
+    const yModel = vt.fromScreenToModelY(yScreen);
+    expect(vt.toScreenFromModelY(yModel)).toBeCloseTo(yScreen);
+
+    const basisScreen = new AR1Basis(20, 40);
+    const basisModel = vt.fromScreenToModelBasisX(basisScreen);
+    const roundTrip = vt.toScreenFromModelBasisX(basisModel);
+    const [p1, p2] = roundTrip.toArr();
+    expect(p1).toBeCloseTo(20);
+    expect(p2).toBeCloseTo(40);
   });
 
   it("keeps pan offset constant when scaling", () => {
