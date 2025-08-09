@@ -6,8 +6,6 @@ import { select, Selection } from "d3-selection";
 import { scaleLinear, scaleTime } from "d3-scale";
 import { AR1Basis } from "../math/affine.ts";
 import { ChartData, IDataSource } from "./data.ts";
-import type { ViewportTransform } from "../ViewportTransform.ts";
-import { vi } from "vitest";
 import {
   createDimensions,
   updateScaleX,
@@ -71,15 +69,11 @@ describe("updateScaleY", () => {
   it("sets domain from visible data bounds", () => {
     const cd = new ChartData(makeSource([[10], [20], [40]]));
     const y = scaleLinear().range([100, 0]);
-    const vt = {
-      onReferenceViewWindowResize: vi.fn(),
-    } as unknown as ViewportTransform;
     const tree = cd.buildAxisTree(0);
     const dp = cd.updateScaleY(new AR1Basis(0, 2), tree);
-    vt.onReferenceViewWindowResize(dp);
+    expect(dp.y().toArr()).toEqual([10, 40]);
     y.domain(dp.y().toArr());
     expect(y.domain()).toEqual([10, 40]);
-    expect(vt.onReferenceViewWindowResize).toHaveBeenCalledWith(dp);
   });
 });
 
