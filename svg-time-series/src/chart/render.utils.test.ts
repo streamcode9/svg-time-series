@@ -6,11 +6,7 @@ import { select, Selection } from "d3-selection";
 import { scaleLinear, scaleTime } from "d3-scale";
 import { AR1Basis } from "../math/affine.ts";
 import { ChartData, IDataSource } from "./data.ts";
-import {
-  createDimensions,
-  updateScaleX,
-  initSeriesNode,
-} from "./render/utils.ts";
+import { createDimensions, updateScaleX } from "./render/utils.ts";
 
 describe("createDimensions", () => {
   it("sets width and height and returns screen basis", () => {
@@ -74,22 +70,5 @@ describe("updateScaleY", () => {
     expect(dp.y().toArr()).toEqual([10, 40]);
     y.domain(dp.y().toArr());
     expect(y.domain()).toEqual([10, 40]);
-  });
-});
-
-describe("initSeriesNode", () => {
-  it("creates a view and path", () => {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    const selection = select(svg) as unknown as Selection<
-      SVGSVGElement,
-      unknown,
-      HTMLElement,
-      unknown
-    >;
-    const { view, path } = initSeriesNode(selection);
-    expect(view.tagName).toBe("g");
-    expect(path.tagName).toBe("path");
-    expect(svg.querySelectorAll("g.view")).toHaveLength(1);
-    expect(svg.querySelectorAll("path")).toHaveLength(1);
   });
 });

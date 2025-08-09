@@ -24,7 +24,7 @@ vi.mock("../axis.ts", () => {
 });
 
 import { select } from "d3-selection";
-import * as renderUtils from "./render/utils.ts";
+import { SeriesRenderer } from "./seriesRenderer.ts";
 import { TimeSeriesChart, type IDataSource } from "../draw.ts";
 
 class Matrix {
@@ -85,7 +85,7 @@ beforeAll(() => {
 
 describe("TimeSeriesChart.resize", () => {
   it("updates axes, paths, and legend", () => {
-    const renderSpy = vi.spyOn(renderUtils, "renderPaths");
+    const renderSpy = vi.spyOn(SeriesRenderer.prototype, "draw");
 
     const div = document.createElement("div");
     Object.defineProperty(div, "clientWidth", { value: 100 });

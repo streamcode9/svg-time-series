@@ -3,30 +3,18 @@
  */
 import { bench, describe } from "vitest";
 import { select } from "d3-selection";
-import { renderPaths, createLine } from "../src/chart/render/utils.ts";
-import type { RenderState } from "../src/chart/render.ts";
+import { SeriesRenderer } from "../src/chart/seriesRenderer.ts";
 import { sizes, datasets } from "./timeSeriesData.ts";
 
 describe("renderPaths performance", () => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  const pathSelection = select(svg)
-    .selectAll("path")
-    .data([0, 1])
-    .enter()
-    .append("path");
-  const nodes = pathSelection.nodes() as SVGPathElement[];
-
-  const state = {
-    series: [
-      { path: nodes[0], line: createLine(0) },
-      { path: nodes[1], line: createLine(1) },
-    ],
-  } as unknown as RenderState;
+  const renderer = new SeriesRenderer();
+  renderer.init(select(svg), 2, [0, 1]);
 
   sizes.forEach((size, idx) => {
     const data = datasets[idx];
     bench(`size ${size}`, () => {
-      renderPaths(state, data);
+      renderer.draw(data);
     });
   });
 });
