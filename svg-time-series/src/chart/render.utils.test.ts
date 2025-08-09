@@ -16,7 +16,7 @@ import {
 } from "./render/utils.ts";
 
 describe("createDimensions", () => {
-  it("propagates width and height and returns bases", () => {
+  it("sets width and height and returns screen basis", () => {
     const width = 400;
     const height = 300;
     const div = document.createElement("div");
@@ -30,19 +30,12 @@ describe("createDimensions", () => {
       HTMLElement,
       unknown
     >;
-    const {
-      width: w,
-      height: h,
-      bScreenXVisible,
-      bScreenYVisible,
-    } = createDimensions(selection);
+    const dp = createDimensions(selection);
 
-    expect(w).toBe(width);
-    expect(h).toBe(height);
     expect(svg.getAttribute("width")).toBe(String(width));
     expect(svg.getAttribute("height")).toBe(String(height));
-    expect(bScreenXVisible.toArr()).toEqual([0, width]);
-    expect(bScreenYVisible.toArr()).toEqual([height, 0]);
+    expect(dp.x().toArr()).toEqual([0, width]);
+    expect(dp.y().toArr()).toEqual([height, 0]);
   });
 });
 

@@ -6,7 +6,6 @@ import {
   DirectProductBasis,
   betweenTBasesAR1,
 } from "../../math/affine.ts";
-import type { ViewportTransform } from "../../ViewportTransform.ts";
 import type { ChartData } from "../data.ts";
 import type { RenderState } from "../render.ts";
 
@@ -22,7 +21,7 @@ export const lineSf = line<number[]>()
 
 export function createDimensions(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
-) {
+): DirectProductBasis {
   const node: SVGSVGElement = svg.node() as SVGSVGElement;
   const div: HTMLElement = node.parentNode as HTMLElement;
 
@@ -35,7 +34,7 @@ export function createDimensions(
   const bScreenXVisible = new AR1Basis(0, width);
   const bScreenYVisible = new AR1Basis(height, 0);
 
-  return { width, height, bScreenXVisible, bScreenYVisible };
+  return DirectProductBasis.fromProjections(bScreenXVisible, bScreenYVisible);
 }
 
 export interface ScaleSet {

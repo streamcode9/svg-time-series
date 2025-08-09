@@ -178,12 +178,11 @@ export function setupRender(
 
   const seriesCount = data.seriesCount;
 
-  const { width, height, bScreenXVisible, bScreenYVisible } =
-    createDimensions(svg);
-  const bScreenVisibleDp = DirectProductBasis.fromProjections(
-    bScreenXVisible,
-    bScreenYVisible,
-  );
+  const bScreenVisibleDp = createDimensions(svg);
+  const bScreenXVisible = bScreenVisibleDp.x();
+  const bScreenYVisible = bScreenVisibleDp.y();
+  const width = bScreenXVisible.getRange();
+  const height = bScreenYVisible.getRange();
   const paths = initPaths(svg, seriesCount);
   const axisCount = hasSf && dualYAxis ? 2 : 1;
   const scales = createScales(bScreenVisibleDp, axisCount);
