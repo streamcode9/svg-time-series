@@ -19,11 +19,7 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
     charts.forEach((c) => c.interaction.onHover(x));
   };
 
-  const onSelectChart: ValueFn<HTMLElement, unknown, void> = function (
-    _datum,
-    _index,
-    _groups,
-  ) {
+  const onSelectChart: ValueFn<HTMLElement, unknown, void> = function () {
     const svg = select(this).select<SVGSVGElement>("svg");
     const legend = select(this).select<HTMLElement>(".chart-legend");
     const source: IDataSource = {
@@ -31,6 +27,7 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
       timeStep: 86400000,
       length: data.length,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: (i, seriesIdx) => data[i][seriesIdx],
     };
     const chart = new TimeSeriesChart(
@@ -86,7 +83,7 @@ export function loadAndDraw(dualYAxis = false) {
     drawCharts(data, dualYAxis);
 
     resize.request = function () {
-      resize.timer && clearTimeout(resize.timer);
+      if (resize.timer) clearTimeout(resize.timer);
       resize.timer = setTimeout(resize.eval, resize.interval);
     };
     resize.eval = function () {

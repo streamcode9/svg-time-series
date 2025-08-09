@@ -98,6 +98,7 @@ describe("LegendController", () => {
       length: 2,
       seriesCount: 1,
       getSeries: (i) => [10, 20][i],
+      seriesAxes: [0],
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
@@ -134,6 +135,7 @@ describe("LegendController", () => {
       length: 2,
       seriesCount: 1,
       getSeries: (i) => [10, 20][i],
+      seriesAxes: [0],
     };
     const data = new ChartData(source);
     const originalGetPoint = data.getPoint.bind(data);
@@ -165,6 +167,7 @@ describe("LegendController", () => {
       length: 2,
       seriesCount: 1,
       getSeries: (i) => [10, 20][i],
+      seriesAxes: [0],
     };
     const data = new ChartData(source);
     const originalGetPoint = data.getPoint.bind(data);

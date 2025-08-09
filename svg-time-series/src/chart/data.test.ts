@@ -4,12 +4,13 @@ import { AR1Basis } from "../math/affine.ts";
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 describe("ChartData", () => {
-  const makeSource = (data: number[][]): IDataSource => ({
+  const makeSource = (data: number[][], seriesAxes: number[]): IDataSource => ({
     startTime: 0,
     timeStep: 1,
     length: data.length,
     seriesCount: data[0]?.length ?? 0,
     getSeries: (i, seriesIdx) => data[i][seriesIdx]!,
+    seriesAxes,
   });
 
   it("throws if constructed with empty data", () => {
@@ -19,31 +20,41 @@ describe("ChartData", () => {
       length: 0,
       seriesCount: 1,
       getSeries: () => 0,
+      seriesAxes: [0],
     };
     expect(() => new ChartData(source)).toThrow(/non-empty data array/);
   });
 
   it("throws when seriesAxes length does not match seriesCount", () => {
-    const source = makeSource([
-      [0, 0],
-      [1, 1],
-    ]);
-    expect(() => new ChartData(source, [0])).toThrow(/seriesAxes length/);
+    const source = makeSource(
+      [
+        [0, 0],
+        [1, 1],
+      ],
+      [0],
+    );
+    expect(() => new ChartData(source)).toThrow(/seriesAxes length/);
   });
 
   it("throws when seriesAxes contains unsupported axis index", () => {
-    const source = makeSource([
-      [0, 0],
-      [1, 1],
-    ]);
-    expect(() => new ChartData(source, [0, 2])).toThrow(/0 or 1/);
+    const source = makeSource(
+      [
+        [0, 0],
+        [1, 1],
+      ],
+      [0, 2],
+    );
+    expect(() => new ChartData(source)).toThrow(/0 or 1/);
   });
 
   it("updates data and time mapping on append", () => {
-    const source = makeSource([
-      [0, 0],
-      [1, 1],
-    ]);
+    const source = makeSource(
+      [
+        [0, 0],
+        [1, 1],
+      ],
+      [0, 1],
+    );
     const cd = new ChartData(source);
     expect(cd.data).toEqual([
       [0, 0],
@@ -64,11 +75,14 @@ describe("ChartData", () => {
 
   it("provides clamped point data and timestamp", () => {
     const cd = new ChartData(
-      makeSource([
-        [10, 20],
-        [30, 40],
-        [50, 60],
-      ]),
+      makeSource(
+        [
+          [10, 20],
+          [30, 40],
+          [50, 60],
+        ],
+        [0, 1],
+      ),
     );
     expect(cd.getPoint(1)).toEqual({ values: [30, 40], timestamp: 1 });
     expect(cd.getPoint(10)).toEqual({ values: [50, 60], timestamp: 2 });
@@ -77,11 +91,14 @@ describe("ChartData", () => {
 
   it("throws when index is not finite", () => {
     const cd = new ChartData(
-      makeSource([
-        [10, 20],
-        [30, 40],
-        [50, 60],
-      ]),
+      makeSource(
+        [
+          [10, 20],
+          [30, 40],
+          [50, 60],
+        ],
+        [0, 1],
+      ),
     );
     expect(() => cd.getPoint(NaN)).toThrow(/idx/);
     expect(() => cd.getPoint(Infinity)).toThrow(/idx/);
@@ -90,11 +107,14 @@ describe("ChartData", () => {
 
   it("clamps extreme out-of-range indices", () => {
     const cd = new ChartData(
-      makeSource([
-        [10, 20],
-        [30, 40],
-        [50, 60],
-      ]),
+      makeSource(
+        [
+          [10, 20],
+          [30, 40],
+          [50, 60],
+        ],
+        [0, 1],
+      ),
     );
     expect(cd.getPoint(1_000_000)).toEqual({
       values: [50, 60],
@@ -108,10 +128,13 @@ describe("ChartData", () => {
 
   it("reflects latest window after multiple appends", () => {
     const cd = new ChartData(
-      makeSource([
-        [0, 0],
-        [1, 1],
-      ]),
+      makeSource(
+        [
+          [0, 0],
+          [1, 1],
+        ],
+        [0, 1],
+      ),
     );
 
     cd.append(2, 2);
@@ -129,10 +152,13 @@ describe("ChartData", () => {
   });
 
   it("throws when ny is invalid", () => {
-    const source = makeSource([
-      [0, 0],
-      [1, 1],
-    ]);
+    const source = makeSource(
+      [
+        [0, 0],
+        [1, 1],
+      ],
+      [0, 1],
+    );
     const cd = new ChartData(source);
     expect(() => cd.append(undefined as unknown as number, 2)).toThrow(
       /series 0/,
@@ -140,10 +166,13 @@ describe("ChartData", () => {
   });
 
   it("throws when sf is invalid", () => {
-    const source = makeSource([
-      [0, 0],
-      [1, 1],
-    ]);
+    const source = makeSource(
+      [
+        [0, 0],
+        [1, 1],
+      ],
+      [0, 1],
+    );
     const cd = new ChartData(source);
     expect(() => cd.append(2, undefined as unknown as number)).toThrow(
       /series 1/,
@@ -152,11 +181,14 @@ describe("ChartData", () => {
 
   it("computes visible temperature bounds", () => {
     const cd = new ChartData(
-      makeSource([
-        [10, 20],
-        [30, 40],
-        [50, 60],
-      ]),
+      makeSource(
+        [
+          [10, 20],
+          [30, 40],
+          [50, 60],
+        ],
+        [0, 1],
+      ),
     );
     const range = new AR1Basis(0, 2);
     expect(cd.bAxisVisible(range, 0).toArr()).toEqual([10, 50]);
@@ -165,11 +197,14 @@ describe("ChartData", () => {
 
   it("floors and ceils fractional bounds when computing temperature visibility", () => {
     const cd = new ChartData(
-      makeSource([
-        [10, 20],
-        [30, 40],
-        [50, 60],
-      ]),
+      makeSource(
+        [
+          [10, 20],
+          [30, 40],
+          [50, 60],
+        ],
+        [0, 1],
+      ),
     );
 
     const fractionalRange = new AR1Basis(0.49, 1.49);
@@ -179,11 +214,14 @@ describe("ChartData", () => {
 
   it("handles fractional bounds in the middle of the dataset", () => {
     const cd = new ChartData(
-      makeSource([
-        [10, 20],
-        [30, 40],
-        [50, 60],
-      ]),
+      makeSource(
+        [
+          [10, 20],
+          [30, 40],
+          [50, 60],
+        ],
+        [0, 1],
+      ),
     );
 
     const fractionalRange = new AR1Basis(1.1, 1.7);
@@ -193,11 +231,14 @@ describe("ChartData", () => {
 
   it("clamps bounds that extend past the data range", () => {
     const cd = new ChartData(
-      makeSource([
-        [10, 20],
-        [30, 40],
-        [50, 60],
-      ]),
+      makeSource(
+        [
+          [10, 20],
+          [30, 40],
+          [50, 60],
+        ],
+        [0, 1],
+      ),
     );
 
     const outOfRange = new AR1Basis(-0.5, 3.5);
@@ -209,11 +250,14 @@ describe("ChartData", () => {
 
   it("clamps bounds completely to the left of the data range", () => {
     const cd = new ChartData(
-      makeSource([
-        [10, 20],
-        [30, 40],
-        [50, 60],
-      ]),
+      makeSource(
+        [
+          [10, 20],
+          [30, 40],
+          [50, 60],
+        ],
+        [0, 1],
+      ),
     );
 
     const leftRange = new AR1Basis(-5, -1);
@@ -225,11 +269,14 @@ describe("ChartData", () => {
 
   it("clamps bounds completely to the right of the data range", () => {
     const cd = new ChartData(
-      makeSource([
-        [10, 20],
-        [30, 40],
-        [50, 60],
-      ]),
+      makeSource(
+        [
+          [10, 20],
+          [30, 40],
+          [50, 60],
+        ],
+        [0, 1],
+      ),
     );
 
     const rightRange = new AR1Basis(5, 10);
@@ -241,11 +288,14 @@ describe("ChartData", () => {
 
   it("computes combined temperature basis and direct product", () => {
     const cd = new ChartData(
-      makeSource([
-        [0, 10],
-        [5, 2],
-        [-3, 7],
-      ]),
+      makeSource(
+        [
+          [0, 10],
+          [5, 2],
+          [-3, 7],
+        ],
+        [0, 1],
+      ),
     );
     const { combined, dp } = cd.combinedAxisDp(cd.bIndexFull);
     expect(combined.toArr()).toEqual([-3, 10]);
@@ -255,10 +305,13 @@ describe("ChartData", () => {
 
   it("returns Infinity/-Infinity min/max when both series are all NaN", () => {
     const cd = new ChartData(
-      makeSource([
-        [NaN, NaN],
-        [NaN, NaN],
-      ]),
+      makeSource(
+        [
+          [NaN, NaN],
+          [NaN, NaN],
+        ],
+        [0, 1],
+      ),
     );
     const range = new AR1Basis(0, 1);
     expect(cd.treeAxis0.query(0, 1)).toEqual({ min: Infinity, max: -Infinity });
@@ -272,10 +325,13 @@ describe("ChartData", () => {
 
   it("ignores NaN values when computing min/max", () => {
     const cd = new ChartData(
-      makeSource([
-        [NaN, NaN],
-        [5, 3],
-      ]),
+      makeSource(
+        [
+          [NaN, NaN],
+          [5, 3],
+        ],
+        [0, 1],
+      ),
     );
     const range = new AR1Basis(0, 1);
     expect(cd.treeAxis0.query(0, 1)).toEqual({ min: 5, max: 5 });
@@ -292,6 +348,7 @@ describe("ChartData", () => {
         length: 2,
         seriesCount: 1,
         getSeries: (i) => [0, 1][i],
+        seriesAxes: [0],
       };
       const cd = new ChartData(source);
       expect(cd.treeAxis1).toBeUndefined();
@@ -308,6 +365,7 @@ describe("ChartData", () => {
         length: 1,
         seriesCount: 1,
         getSeries: (i) => [0][i],
+        seriesAxes: [0],
       };
       const cd = new ChartData(source);
       expect(() => cd.append(1)).not.toThrow();
@@ -315,7 +373,7 @@ describe("ChartData", () => {
     });
 
     it("returns Infinity/-Infinity min/max when data is all NaN", () => {
-      const cd = new ChartData(makeSource([[NaN], [NaN]]));
+      const cd = new ChartData(makeSource([[NaN], [NaN]], [0]));
       const range = new AR1Basis(0, 1);
       expect(cd.treeAxis0.query(0, 1)).toEqual({
         min: Infinity,
@@ -327,11 +385,13 @@ describe("ChartData", () => {
 
   it("aggregates segment trees per axis", () => {
     const cd = new ChartData(
-      makeSource([
-        [0, 10, 5, 100, 200],
-        [1, 20, 15, 110, 220],
-      ]),
-      [0, 0, 0, 1, 1],
+      makeSource(
+        [
+          [0, 10, 5, 100, 200],
+          [1, 20, 15, 110, 220],
+        ],
+        [0, 0, 0, 1, 1],
+      ),
     );
     expect(cd.trees).toHaveLength(2);
     expect(cd.treeAxis0.query(0, 1)).toEqual({ min: 0, max: 20 });

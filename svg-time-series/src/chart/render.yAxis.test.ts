@@ -85,6 +85,7 @@ describe("setupRender Y-axis modes", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: (i, seriesIdx) =>
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
@@ -101,6 +102,7 @@ describe("setupRender Y-axis modes", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: (i, seriesIdx) =>
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };

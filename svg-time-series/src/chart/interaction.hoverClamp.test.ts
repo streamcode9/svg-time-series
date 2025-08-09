@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
@@ -90,6 +91,7 @@ function createChart(data: Array<[number]>) {
     timeStep: 1,
     length: data.length,
     seriesCount: 1,
+    seriesAxes: [0],
     getSeries: (i) => data[i][0],
   };
   const legendController = new StubLegendController();

@@ -100,6 +100,7 @@ describe("RenderState.refresh", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 1,
+      seriesAxes: [0],
       getSeries: (i) => [1, 2, 3][i],
     };
     const data = new ChartData(source);
@@ -129,6 +130,7 @@ describe("RenderState.refresh", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
     };
     const data = new ChartData(source);
@@ -159,6 +161,7 @@ describe("RenderState.refresh", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
     };
     const data = new ChartData(source);
@@ -178,6 +181,7 @@ describe("RenderState.refresh", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
     };
     const data1 = new ChartData(source1);
@@ -188,6 +192,7 @@ describe("RenderState.refresh", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: (i, s) => (s === 0 ? [4, 5, 6][i] : [40, 50, 60][i]),
     };
     const data2 = new ChartData(source2);
@@ -210,6 +215,7 @@ describe("RenderState.refresh", () => {
       timeStep: 1,
       length: 2,
       seriesCount: 1,
+      seriesAxes: [0],
       getSeries: () => NaN,
     };
     const data = new ChartData(source);
@@ -225,6 +231,7 @@ describe("RenderState.refresh", () => {
       timeStep: 1,
       length: 2,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: () => NaN,
     };
     const data = new ChartData(source);

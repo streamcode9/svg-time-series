@@ -89,6 +89,7 @@ describe("buildSeries", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 1,
+      seriesAxes: [0],
       getSeries: (i) => [1, 2, 3][i],
     };
     const data = new ChartData(source);
@@ -119,6 +120,7 @@ describe("buildSeries", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: (i, seriesIdx) =>
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
@@ -158,6 +160,7 @@ describe("buildSeries", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: (i, seriesIdx) =>
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
@@ -197,6 +200,7 @@ describe("buildSeries", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: (i, seriesIdx) =>
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };

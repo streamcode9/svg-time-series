@@ -131,6 +131,7 @@ function createChart(data: Array<[number, number]>, options?: any) {
     timeStep: 1,
     length: data.length,
     seriesCount: 2,
+    seriesAxes: [0, 1],
     getSeries: (i, seriesIdx) => data[i][seriesIdx],
   };
   const chart = new TimeSeriesChart(

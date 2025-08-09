@@ -60,6 +60,8 @@ const source: IDataSource = {
   timeStep,
   length: data.length,
   seriesCount: 2,
+  // Assign the first series to the left axis and the second to the right.
+  seriesAxes: [0, 1],
   getSeries: (i, seriesIdx) => data[i][seriesIdx],
 };
 
@@ -78,6 +80,8 @@ const chart = new TimeSeriesChart(
 
 `getSeries` returns the value for the specified series index, while
 `seriesCount` declares how many series are available from the data source.
+`seriesAxes` maps each series to axis 0 (left) or axis 1 (right), and its
+length must equal `seriesCount`.
 
 The third argument creates a legend controller, letting you customize how
 legend entries are rendered, including timestamp formatting.
@@ -90,6 +94,8 @@ const singleSource: IDataSource = {
   timeStep,
   length: data.length,
   seriesCount: 2,
+  // Both series use the left axis
+  seriesAxes: [0, 0],
   getSeries: (i, seriesIdx) => data[i][seriesIdx],
 };
 

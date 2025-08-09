@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unused-vars */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
@@ -121,6 +122,7 @@ function createChart(
     timeStep: 1,
     length: data.length,
     seriesCount: 2,
+    seriesAxes: [0, 1],
     getSeries: (i, seriesIdx) => data[i][seriesIdx],
   };
   const chart = new TimeSeriesChart(
@@ -352,6 +354,7 @@ describe("chart interaction", () => {
       timeStep: 1,
       length: 2,
       seriesCount: 2,
+      seriesAxes: [0, 1],
       getSeries: (i) => [0, 1][i],
     };
     const chart = new TimeSeriesChart(

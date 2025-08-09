@@ -27,6 +27,11 @@ export interface IDataSource {
   readonly timeStep: number;
   readonly length: number;
   readonly seriesCount: number;
+  /**
+   * Mapping from series index to Y-axis index. Each entry must be either 0 or 1
+   * and the array length must equal `seriesCount`.
+   */
+  readonly seriesAxes: number[];
   getSeries(index: number, seriesIdx: number): number;
 }
 
@@ -58,7 +63,7 @@ export class ChartData {
    * @param source Data source; must contain at least one point.
    * @throws if the source has length 0.
    */
-  constructor(source: IDataSource, seriesAxes?: number[]) {
+  constructor(source: IDataSource) {
     if (source.length === 0) {
       throw new Error("ChartData requires a non-empty data array");
     }
@@ -66,11 +71,10 @@ export class ChartData {
       throw new Error("ChartData requires at least one series");
     }
     this.seriesCount = source.seriesCount;
-    const defaultAxes = Array.from({ length: this.seriesCount }, () => 0);
-    if (this.seriesCount > 1) {
-      defaultAxes[1] = 1;
+    if (source.seriesAxes == null) {
+      throw new Error("ChartData requires seriesAxes mapping");
     }
-    this.seriesAxes = seriesAxes ?? defaultAxes;
+    this.seriesAxes = source.seriesAxes;
     if (this.seriesAxes.length !== this.seriesCount) {
       throw new Error(
         `ChartData requires seriesAxes length to match seriesCount (${this.seriesCount})`,

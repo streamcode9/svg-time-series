@@ -64,6 +64,7 @@ describe("updateScaleX", () => {
     timeStep: 1,
     length: data.length,
     seriesCount: 1,
+    seriesAxes: [0],
     getSeries: (i) => data[i][0],
   });
 
@@ -83,6 +84,7 @@ describe("updateScaleY", () => {
     timeStep: 1,
     length: data.length,
     seriesCount: 1,
+    seriesAxes: [0],
     getSeries: (i) => data[i][0],
   });
 

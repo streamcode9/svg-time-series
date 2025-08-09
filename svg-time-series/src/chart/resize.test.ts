@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll, vi } from "vitest";
 
 vi.mock("../utils/domNodeTransform.ts", () => ({ updateNode: vi.fn() }));
@@ -97,6 +98,7 @@ describe("TimeSeriesChart.resize", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 1,
+      seriesAxes: [0],
       getSeries: (i) => [1, 2, 3][i],
     };
 
