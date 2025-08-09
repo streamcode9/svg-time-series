@@ -29,19 +29,22 @@ export class ViewportTransform {
     this.composedMatrix = this.zoomTransform.multiply(this.referenceTransform);
   }
 
-  public onViewPortResize(bScreenVisible: DirectProductBasis): void {
+  public onViewPortResize(bScreenVisible: DirectProductBasis): this {
     this.viewPortPoints = bScreenVisible;
     this.updateReferenceTransform();
+    return this;
   }
 
-  public onReferenceViewWindowResize(newPoints: DirectProductBasis) {
+  public onReferenceViewWindowResize(newPoints: DirectProductBasis): this {
     this.referenceViewWindowPoints = newPoints;
     this.updateReferenceTransform();
+    return this;
   }
 
-  public onZoomPan(t: ZoomTransform): void {
+  public onZoomPan(t: ZoomTransform): this {
     this.zoomTransform = new DOMMatrix().scale(t.k, 1).translate(t.x, 0);
     this.updateComposedMatrix();
+    return this;
   }
 
   private toModelPoint(x: number, y: number) {

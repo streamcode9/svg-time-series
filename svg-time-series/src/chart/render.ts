@@ -51,22 +51,28 @@ function setupAxes(
   xAxis.setScale(xScale);
   const gX = svg.append("g").attr("class", "axis").call(xAxis.axis.bind(xAxis));
 
-  const yRight = createYAxis(Orientation.Right, axes[0].scale, width);
-  const gYRight = svg
+  axes[0].g = svg
     .append("g")
     .attr("class", "axis")
-    .call(yRight.axis.bind(yRight));
-  axes[0].axis = yRight;
-  axes[0].g = gYRight;
+    .call(
+      (axes[0].axis = createYAxis(
+        Orientation.Right,
+        axes[0].scale,
+        width,
+      )).axis.bind(axes[0].axis),
+    );
 
   if (hasSf && dualYAxis && axes[1]) {
-    const yLeft = createYAxis(Orientation.Left, axes[1].scale, width);
-    const gYLeft = svg
+    axes[1].g = svg
       .append("g")
       .attr("class", "axis")
-      .call(yLeft.axis.bind(yLeft));
-    axes[1].axis = yLeft;
-    axes[1].g = gYLeft;
+      .call(
+        (axes[1].axis = createYAxis(
+          Orientation.Left,
+          axes[1].scale,
+          width,
+        )).axis.bind(axes[1].axis),
+      );
   }
 
   return { axis: xAxis, g: gX, scale: xScale };
@@ -158,9 +164,8 @@ export function setupRender(
 
   const bScreenVisibleDp = createDimensions(svg);
   const bScreenXVisible = bScreenVisibleDp.x();
-  const bScreenYVisible = bScreenVisibleDp.y();
   const width = bScreenXVisible.getRange();
-  const height = bScreenYVisible.getRange();
+  const height = bScreenVisibleDp.y().getRange();
   const axisCount = hasSf && dualYAxis ? 2 : 1;
 
   const [xRange, yRange] = bScreenVisibleDp.toArr();
