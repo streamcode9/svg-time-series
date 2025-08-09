@@ -128,6 +128,17 @@ export class ChartData {
     return betweenTBasesAR1(bIndexBase, bTimeBase);
   }
 
+  timeToIndex(time: number): number {
+    if (!Number.isFinite(time)) {
+      throw new Error(
+        "ChartData.timeToIndex requires time to be a finite number",
+      );
+    }
+    const transform = this.indexToTime().inverse();
+    const idx = transform.applyToPoint(time);
+    return this.clampIndex(idx);
+  }
+
   private clampIndex(idx: number): number {
     return Math.min(Math.max(idx, 0), this.window.length - 1);
   }
