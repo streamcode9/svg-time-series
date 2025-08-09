@@ -1,23 +1,30 @@
 <!doctype html>
-<meta charset="utf-8" />
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1, maximum-scale=1"
-/>
-<button id="reset">Reset Zoom</button>
-<div class="charts">
-  <div class="chart">
-    <div class="chart-drawing">
-      <svg></svg>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <link href="index.css" rel="stylesheet" type="text/css" />
+    <title>SVG Time Series Reset Zoom Demo</title>
+  </head>
+  <body>
+    <button id="reset">Reset Zoom</button>
+    <div class="charts">
+      <div class="chart">
+        <div class="chart-drawing">
+          <svg></svg>
+        </div>
+        <div class="chart-legend">
+          <div class="chart-legend__time"></div>
+          <div class="chart-legend__green_caption">NY:</div>
+          <div class="chart-legend__green_value"></div>
+          <div class="chart-legend__blue_caption">SF:</div>
+          <div class="chart-legend__blue_value"></div>
+        </div>
+      </div>
     </div>
-    <div class="chart-legend">
-      <div class="chart-legend__time"></div>
-      <div class="chart-legend__green_caption">NY:</div>
-      <div class="chart-legend__green_value"></div>
-      <div class="chart-legend__blue_caption">SF:</div>
-      <div class="chart-legend__blue_value"></div>
-    </div>
-  </div>
-</div>
-<script type="module" src="resetZoom.ts"></script>
-<link href="index.css" type="text/css" rel="stylesheet" />
+    <script type="module" src="resetZoom.ts"></script>
+  </body>
+</html>
