@@ -5,6 +5,7 @@ import { ChartData, IDataSource } from "./chart/data.ts";
 import { setupRender } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
 import { createDimensions, updateScaleX } from "./chart/render/utils.ts";
+import { AR1Basis, DirectProductBasis } from "./math/affine.ts";
 import type { ILegendController, LegendContext } from "./chart/legend.ts";
 import { ZoomState, IZoomStateOptions } from "./chart/zoomState.ts";
 
@@ -132,13 +133,28 @@ export class TimeSeriesChart {
     this.zoomState.setScaleExtent(extent);
   };
 
-  public resize = (_dimensions: { width: number; height: number }) => {
-    void _dimensions;
-    const bScreenVisible = createDimensions(this.svg);
-    this.state.bScreenXVisible = bScreenVisible.x();
+  public resize = (dimensions?: { width?: number; height?: number }) => {
+    let width: number;
+    let height: number;
+    let bScreenVisible: DirectProductBasis;
 
-    const width = this.state.bScreenXVisible.getRange();
-    const height = bScreenVisible.y().getRange();
+    if (dimensions?.width != null && dimensions?.height != null) {
+      width = dimensions.width;
+      height = dimensions.height;
+      this.svg.attr("width", width).attr("height", height);
+      const bScreenXVisible = new AR1Basis(0, width);
+      const bScreenYVisible = new AR1Basis(height, 0);
+      bScreenVisible = DirectProductBasis.fromProjections(
+        bScreenXVisible,
+        bScreenYVisible,
+      );
+      this.state.bScreenXVisible = bScreenXVisible;
+    } else {
+      bScreenVisible = createDimensions(this.svg);
+      this.state.bScreenXVisible = bScreenVisible.x();
+      width = this.state.bScreenXVisible.getRange();
+      height = bScreenVisible.y().getRange();
+    }
 
     this.state.dimensions.width = width;
     this.state.dimensions.height = height;

@@ -126,4 +126,53 @@ describe("TimeSeriesChart.resize", () => {
     expect(renderSpy).toHaveBeenCalled();
     expect(legend.refresh).toHaveBeenCalled();
   });
+
+  it("uses explicit dimensions for zoom extents and axes", () => {
+    const div = document.createElement("div");
+    Object.defineProperty(div, "clientWidth", { value: 100 });
+    Object.defineProperty(div, "clientHeight", { value: 100 });
+    const svgEl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    div.appendChild(svgEl);
+
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      seriesCount: 1,
+      seriesAxes: [0],
+      getSeries: (i) => [1, 2, 3][i],
+    };
+
+    const legend = {
+      init: () => {},
+      highlightIndex: () => {},
+      refresh: () => {},
+      clearHighlight: () => {},
+      destroy: () => {},
+    };
+
+    const chart = new TimeSeriesChart(
+      select(svgEl) as any,
+      source,
+      legend as any,
+    );
+
+    const chartAny = chart as any;
+    const updateSpy = vi.spyOn(chartAny.zoomState, "updateExtents");
+    const resizeSpy = vi.spyOn(
+      chartAny.state.axes.y[0].transform,
+      "onViewPortResize",
+    );
+
+    updateSpy.mockClear();
+    resizeSpy.mockClear();
+
+    chart.resize({ width: 250, height: 120 });
+
+    expect(updateSpy).toHaveBeenCalledWith({ width: 250, height: 120 });
+    expect(chartAny.state.dimensions).toEqual({ width: 250, height: 120 });
+    const arg = resizeSpy.mock.calls[0][0];
+    expect(arg.x().toArr()).toEqual([0, 250]);
+    expect(arg.y().toArr()).toEqual([120, 0]);
+  });
 });
