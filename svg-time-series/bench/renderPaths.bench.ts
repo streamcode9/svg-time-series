@@ -10,7 +10,7 @@ import { sizes, datasets } from "./timeSeriesData.ts";
 describe("renderPaths performance", () => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   const renderer = new SeriesRenderer();
-  const manager = new SeriesManager(select(svg), 2, [0, 1]);
+  const manager = new SeriesManager(select(svg), [0, 1]);
   renderer.series = manager.series;
 
   sizes.forEach((size, idx) => {

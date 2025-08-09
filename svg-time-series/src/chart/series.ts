@@ -5,18 +5,16 @@ import type { Series } from "./render.ts";
 import { createSeriesNodes } from "./render/utils.ts";
 
 export class SeriesManager {
-  public readonly series: Series[] = [];
+  public readonly series: Series[];
 
   constructor(
     svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
-    seriesCount: number,
     seriesAxes: number[],
   ) {
-    for (let i = 0; i < seriesCount; i++) {
+    this.series = seriesAxes.map((axisIdx, i) => {
       const { view, path } = createSeriesNodes(svg);
-      const axisIdx = seriesAxes[i] ?? 0;
-      this.series.push({ axisIdx, view, path, line: this.createLine(i) });
-    }
+      return { axisIdx: axisIdx ?? 0, view, path, line: this.createLine(i) };
+    });
   }
 
   private createLine(seriesIdx: number): Line<number[]> {

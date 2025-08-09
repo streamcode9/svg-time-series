@@ -66,8 +66,6 @@ export function setupRender(
   data: ChartData,
   dualYAxis: boolean,
 ): RenderState {
-  const seriesCount = data.seriesCount;
-
   const bScreenVisibleDp = createDimensions(svg);
   const bScreenXVisible = bScreenVisibleDp.x();
   const width = bScreenXVisible.getRange();
@@ -94,7 +92,7 @@ export function setupRender(
     a.transform.onReferenceViewWindowResize(refDp);
   }
 
-  const seriesManager = new SeriesManager(svg, seriesCount, data.seriesAxes);
+  const seriesManager = new SeriesManager(svg, data.seriesAxes);
   const seriesRenderer = new SeriesRenderer();
   seriesRenderer.series = seriesManager.series;
   const { series } = seriesManager;

@@ -18,7 +18,6 @@ describe("SeriesRenderer", () => {
           HTMLElement,
           unknown
         >,
-        2,
         [0, 1],
       );
       renderer.series = manager.series;
@@ -40,7 +39,7 @@ describe("SeriesRenderer", () => {
         "svg",
       ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
       const renderer = new SeriesRenderer();
-      const manager = new SeriesManager(svgSelection, 1, [0]);
+      const manager = new SeriesManager(svgSelection, [0]);
       const [series] = manager.series;
       renderer.series = manager.series;
       const pathNode = series.path;
@@ -62,7 +61,7 @@ describe("SeriesManager", () => {
     const svgSelection = select(document.createElement("div")).append(
       "svg",
     ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
-    const manager = new SeriesManager(svgSelection, 1, [0]);
+    const manager = new SeriesManager(svgSelection, [0]);
     const [series] = manager.series;
 
     expect(series.view.tagName).toBe("g");
