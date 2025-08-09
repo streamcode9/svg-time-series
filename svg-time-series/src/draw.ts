@@ -138,6 +138,7 @@ export class TimeSeriesChart {
       bScreenYVisible,
     );
 
+    this.state.axes.x.scale.range([0, width]);
     this.state.bScreenXVisible = bScreenXVisible;
 
     this.state.dimensions.width = width;
@@ -148,6 +149,7 @@ export class TimeSeriesChart {
 
     for (const a of this.state.axes.y) {
       a.transform.onViewPortResize(bScreenVisible);
+      a.scale.range([height, 0]);
     }
 
     this.state.refresh(this.data);

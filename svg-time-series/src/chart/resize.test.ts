@@ -174,5 +174,7 @@ describe("TimeSeriesChart.resize", () => {
     const arg = resizeSpy.mock.calls[0][0];
     expect(arg.x().toArr()).toEqual([0, 250]);
     expect(arg.y().toArr()).toEqual([120, 0]);
+    expect(chartAny.state.axes.x.scale.range()).toEqual([0, 250]);
+    expect(chartAny.state.axes.y[0].scale.range()).toEqual([120, 0]);
   });
 });
