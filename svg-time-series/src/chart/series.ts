@@ -12,11 +12,6 @@ export class SeriesManager {
     seriesAxes: number[],
   ) {
     this.series = seriesAxes.map((axisIdx, i) => {
-      if (axisIdx == null) {
-        throw new Error(
-          `SeriesManager requires seriesAxes[${i}] to be defined`,
-        );
-      }
       const { view, path } = createSeriesNodes(svg);
       return { axisIdx, view, path, line: this.createLine(i) };
     });
@@ -24,7 +19,7 @@ export class SeriesManager {
 
   private createLine(seriesIdx: number): Line<number[]> {
     return line<number[]>()
-      .defined((d) => !(isNaN(d[seriesIdx]) || d[seriesIdx] == null))
+      .defined((d) => !isNaN(d[seriesIdx]))
       .x((_, i) => i)
       .y((d) => d[seriesIdx] as number);
   }

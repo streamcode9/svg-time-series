@@ -56,9 +56,6 @@ export class ChartData {
       throw new Error("ChartData requires timeStep to be greater than 0");
     }
     this.seriesCount = source.seriesCount;
-    if (source.seriesAxes == null) {
-      throw new Error("ChartData requires seriesAxes mapping");
-    }
     this.seriesAxes = source.seriesAxes;
     if (this.seriesAxes.length !== this.seriesCount) {
       throw new Error(

@@ -16,7 +16,7 @@ export class SlidingWindow {
       }
       let valueIdx = 0;
       for (const val of row) {
-        if (val == null || (!Number.isFinite(val) && !Number.isNaN(val))) {
+        if (!Number.isFinite(val) && !Number.isNaN(val)) {
           throw new Error(
             `SlidingWindow requires row ${rowIdx} series ${valueIdx} value to be a finite number or NaN`,
           );
@@ -36,7 +36,7 @@ export class SlidingWindow {
     }
     let valueIdx = 0;
     for (const val of values) {
-      if (val == null || (!Number.isFinite(val) && !Number.isNaN(val))) {
+      if (!Number.isFinite(val) && !Number.isNaN(val)) {
         throw new Error(
           `SlidingWindow.append requires series ${valueIdx} value to be a finite number or NaN`,
         );
