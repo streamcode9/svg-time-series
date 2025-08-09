@@ -4,7 +4,6 @@ import { D3ZoomEvent } from "d3-zoom";
 import { ChartData, IDataSource } from "./chart/data.ts";
 import { setupRender } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
-import { createDimensions, updateScaleX } from "./chart/render/utils.ts";
 import { AR1Basis, DirectProductBasis } from "./math/affine.ts";
 import type { ILegendController, LegendContext } from "./chart/legend.ts";
 import { ZoomState, IZoomStateOptions } from "./chart/zoomState.ts";
@@ -32,7 +31,6 @@ export class TimeSeriesChart {
     svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
     data: IDataSource,
     legendController: ILegendController,
-    dualYAxis = false,
     zoomHandler: (
       event: D3ZoomEvent<SVGRectElement, unknown>,
     ) => void = () => {},
@@ -42,7 +40,7 @@ export class TimeSeriesChart {
     this.svg = svg;
     this.data = new ChartData(data);
 
-    this.state = setupRender(svg, this.data, dualYAxis);
+    this.state = setupRender(svg, this.data);
 
     this.zoomArea = svg
       .append("rect")

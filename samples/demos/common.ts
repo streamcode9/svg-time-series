@@ -6,7 +6,10 @@ import { TimeSeriesChart, IDataSource } from "svg-time-series";
 import { LegendController } from "../LegendController.ts";
 import { measure } from "../measure.ts";
 
-export function drawCharts(data: [number, number][], dualYAxis = false) {
+export function drawCharts(
+  data: [number, number][],
+  seriesAxes: number[] = [0, 0],
+) {
   const charts: TimeSeriesChart[] = [];
 
   const onZoom = (
@@ -40,7 +43,7 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
       timeStep: 86400000,
       length: data.length,
       seriesCount: 2,
-      seriesAxes: dualYAxis ? [0, 1] : [0, 0],
+      seriesAxes,
       getSeries: (i, seriesIdx) => data[i][seriesIdx],
     };
     const legendController = new LegendController(legend);
@@ -52,7 +55,6 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
       svg,
       source,
       legendController,
-      dualYAxis,
       zoomHandler,
       onMouseMove,
     );
@@ -96,9 +98,9 @@ interface Resize {
 
 const resize: Resize = { interval: 60, request: null, timer: null, eval: null };
 
-export function loadAndDraw(dualYAxis = false) {
+export function loadAndDraw(seriesAxes: number[] = [0, 0]) {
   onCsv((data: [number, number][]) => {
-    drawCharts(data, dualYAxis);
+    drawCharts(data, seriesAxes);
 
     resize.request = function () {
       if (resize.timer) clearTimeout(resize.timer);
@@ -110,7 +112,7 @@ export function loadAndDraw(dualYAxis = false) {
         .append("svg")
         .append("g")
         .attr("class", "view");
-      drawCharts(data, dualYAxis);
+      drawCharts(data, seriesAxes);
     };
   });
 }

@@ -47,9 +47,9 @@ work is possible. Keep watching!
 Charts can display one or two data series. The library supports at most two
 series; additional series are ignored. By default, all series share a single
 Y-axis whose scale is computed from the combined minimum and maximum of every
-series. To draw series with different units, pass `true` for the `dualYAxis`
-parameter of `TimeSeriesChart`, which enables independent left and right Y
-scales.
+series. To draw series with different units, assign each series to a Y-axis via
+the `seriesAxes` array. If any series is assigned to axis index 1, a second
+independent Y scale is created automatically.
 
 ```ts
 import { TimeSeriesChart, IDataSource } from "svg-time-series";
@@ -72,7 +72,6 @@ const chart = new TimeSeriesChart(
     new LegendController(legend, state, data, (ts) =>
       new Date(ts).toISOString(),
     ),
-  true, // enable dual Y axes
   onZoom,
   onMouseMove,
 );
@@ -86,7 +85,7 @@ length must equal `seriesCount`.
 The third argument creates a legend controller, letting you customize how
 legend entries are rendered, including timestamp formatting.
 
-For two series sharing a single Y-axis, pass `false` for `dualYAxis`:
+For two series sharing a single Y-axis, assign both series to axis 0:
 
 ```ts
 const singleSource: IDataSource = {
@@ -106,7 +105,6 @@ const chartSingle = new TimeSeriesChart(
     new LegendController(legend, state, data, (ts) =>
       new Date(ts).toISOString(),
     ),
-  false, // series share one axis
   onZoom,
   onMouseMove,
 );

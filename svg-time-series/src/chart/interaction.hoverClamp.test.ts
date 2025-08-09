@@ -100,7 +100,6 @@ function createChart(data: Array<[number]>) {
     select(svgEl) as any,
     source,
     legendController,
-    false,
     () => {},
     () => {},
   );

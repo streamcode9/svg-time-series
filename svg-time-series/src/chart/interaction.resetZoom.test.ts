@@ -143,7 +143,6 @@ function createChart(data: Array<[number, number]>, options?: any) {
     select(svgEl) as any,
     source,
     legendController,
-    true,
     () => {},
     () => {},
     options,

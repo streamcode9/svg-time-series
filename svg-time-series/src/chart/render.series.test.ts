@@ -81,7 +81,7 @@ function createSvg() {
 }
 
 describe("buildSeries", () => {
-  it("returns single series when hasSf is false", () => {
+  it("returns single series for single-axis data", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
@@ -92,7 +92,7 @@ describe("buildSeries", () => {
       getSeries: (i) => [1, 2, 3][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, false);
+    const state = setupRender(svg as any, data);
     expect(state.series.length).toBe(1);
     expect(state.series[0]).toMatchObject({ axisIdx: 0 });
   });
@@ -109,13 +109,13 @@ describe("buildSeries", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, false);
+    const state = setupRender(svg as any, data);
     expect(state.series.length).toBe(2);
     expect(state.series[0]).toMatchObject({ axisIdx: 0 });
     expect(state.series[1]).toMatchObject({ axisIdx: 0 });
   });
 
-  it("throws when second axis requested without dualYAxis", () => {
+  it("returns two series for separate axes", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
@@ -127,24 +127,7 @@ describe("buildSeries", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    expect(() => setupRender(svg as any, data, false)).toThrow(
-      "axes.y must contain an entry for every series.axisIdx",
-    );
-  });
-
-  it("returns two series for dualYAxis", () => {
-    const svg = createSvg();
-    const source: IDataSource = {
-      startTime: 0,
-      timeStep: 1,
-      length: 3,
-      seriesCount: 2,
-      seriesAxes: [0, 1],
-      getSeries: (i, seriesIdx) =>
-        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
-    };
-    const data = new ChartData(source);
-    const state = setupRender(svg as any, data, true);
+    const state = setupRender(svg as any, data);
     expect(state.series.length).toBe(2);
     expect(state.series[0]).toMatchObject({ axisIdx: 0 });
     expect(state.series[1]).toMatchObject({ axisIdx: 1 });
@@ -164,7 +147,7 @@ describe("setupRender DOM order", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    setupRender(svg as any, data, true);
+    setupRender(svg as any, data);
     const groups = svg.selectAll("g").nodes() as SVGGElement[];
     expect(groups[0].classList.contains("view")).toBe(true);
     expect(groups[1].classList.contains("view")).toBe(true);

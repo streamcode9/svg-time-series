@@ -69,7 +69,6 @@ export interface RenderState {
 export function setupRender(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
   data: ChartData,
-  dualYAxis: boolean,
 ): RenderState {
   const bScreenVisibleDp = createDimensions(svg);
   const bScreenXVisible = bScreenVisibleDp.x();
@@ -79,10 +78,7 @@ export function setupRender(
     (max, idx) => Math.max(max, idx),
     0,
   );
-  if (maxAxisIdx > 0 && !dualYAxis) {
-    throw new Error("axes.y must contain an entry for every series.axisIdx");
-  }
-  const axisCount = dualYAxis ? maxAxisIdx + 1 : 1;
+  const axisCount = maxAxisIdx + 1;
 
   const [xRange, yRange] = bScreenVisibleDp.toArr();
   const xScale: ScaleTime<number, number> = scaleTime().range(xRange);

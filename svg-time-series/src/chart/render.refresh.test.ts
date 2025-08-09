@@ -104,7 +104,7 @@ describe("RenderState.refresh", () => {
       getSeries: (i) => [1, 2, 3][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, false);
+    const state = setupRender(svg as any, data);
     const updateNodeMock = vi.mocked(updateNode);
     updateNodeMock.mockClear();
 
@@ -132,7 +132,7 @@ describe("RenderState.refresh", () => {
       getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, true);
+    const state = setupRender(svg as any, data);
     const updateNodeMock = vi.mocked(updateNode);
     updateNodeMock.mockClear();
 
@@ -162,7 +162,7 @@ describe("RenderState.refresh", () => {
       getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, false);
+    const state = setupRender(svg as any, data);
 
     state.refresh(data);
 
@@ -181,7 +181,7 @@ describe("RenderState.refresh", () => {
       getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
     };
     const data1 = new ChartData(source1);
-    const state = setupRender(svg as any, data1, true);
+    const state = setupRender(svg as any, data1);
     state.refresh(data1);
     const source2: IDataSource = {
       startTime: 0,
@@ -213,7 +213,7 @@ describe("RenderState.refresh", () => {
       getSeries: (i) => [1, 2, 3][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, false);
+    const state = setupRender(svg as any, data);
 
     expect(state.axes.y[0].tree.query(0, 2)).toEqual({ min: 1, max: 3 });
 

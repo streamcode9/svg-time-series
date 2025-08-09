@@ -133,7 +133,6 @@ function createChart(
     select(svgEl) as any,
     source,
     legendController,
-    true,
     () => {},
     () => {},
   );
@@ -350,7 +349,6 @@ describe("chart interaction", () => {
       select(svgEl) as any,
       source,
       legendController,
-      true,
       () => {},
       mouseMoveHandler,
     );

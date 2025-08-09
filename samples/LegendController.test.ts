@@ -101,7 +101,7 @@ describe("LegendController", () => {
       seriesAxes: [0],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, false);
+    const state = setupRender(svg as any, data);
     select(state.series[0].path).attr("stroke", "green");
     const lc = new LegendController(legendDiv as any);
     lc.init({
@@ -152,7 +152,7 @@ describe("LegendController", () => {
       const { values, timestamp } = originalGetPoint(idx);
       return [timestamp, ...values] as any;
     }) as any;
-    const state = setupRender(svg as any, data, false);
+    const state = setupRender(svg as any, data);
     select(state.series[0].path).attr("stroke", "green");
     const lc = new LegendController(legendDiv as any);
     lc.init({
@@ -192,7 +192,7 @@ describe("LegendController", () => {
       const { timestamp } = originalGetPoint(idx);
       return { timestamp } as any;
     }) as any;
-    const state = setupRender(svg as any, data, false);
+    const state = setupRender(svg as any, data);
     select(state.series[0].path).attr("stroke", "green");
     const lc = new LegendController(legendDiv as any);
     lc.init({

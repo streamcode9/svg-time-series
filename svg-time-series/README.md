@@ -33,6 +33,8 @@ const source: IDataSource = {
   timeStep: 1000, // time step in ms
   length: ny.length,
   seriesCount: 2,
+  // Use the left axis for the first series and the right axis for the second
+  seriesAxes: [0, 1],
   getSeries: (i, seriesIdx) => (seriesIdx === 0 ? ny[i] : sf[i]),
 };
 
@@ -43,7 +45,6 @@ const chart = new TimeSeriesChart(
     new LegendController(legend, state, data, (ts) =>
       new Date(ts).toISOString(),
     ),
-  true, // enable dual Y axes
   () => {},
   () => {},
 );

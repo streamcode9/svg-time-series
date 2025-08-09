@@ -78,24 +78,24 @@ function createSvg() {
 }
 
 describe("setupRender Y-axis modes", () => {
-  it("throws when dualYAxis is false but series uses second axis", () => {
+  it("combines scales when series share an axis", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
       timeStep: 1,
       length: 3,
       seriesCount: 2,
-      seriesAxes: [0, 1],
+      seriesAxes: [0, 0],
       getSeries: (i, seriesIdx) =>
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    expect(() => setupRender(svg as any, data, false)).toThrow(
-      "axes.y must contain an entry for every series.axisIdx",
-    );
+    const state = setupRender(svg as any, data);
+    expect(state.axes.y).toHaveLength(1);
+    expect(state.axes.y[0].scale.domain()).toEqual([1, 30]);
   });
 
-  it("separates scales when dualYAxis is true", () => {
+  it("separates scales when series use different axes", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
@@ -107,7 +107,7 @@ describe("setupRender Y-axis modes", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, true);
+    const state = setupRender(svg as any, data);
     expect(state.axes.y[0].scale.domain()).toEqual([1, 3]);
     expect(state.axes.y[1].scale.domain()).toEqual([10, 30]);
   });

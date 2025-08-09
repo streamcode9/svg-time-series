@@ -94,7 +94,7 @@ describe("RenderState.refresh integration", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, true);
+    const state = setupRender(svg as any, data);
     const updateNodeSpy = vi
       .spyOn(domNode, "updateNode")
       .mockImplementation(() => {});
