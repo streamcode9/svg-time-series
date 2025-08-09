@@ -193,6 +193,15 @@ export class ChartData {
     return new AR1Basis(min, max);
   }
 
+  updateScaleY(
+    bIndexVisible: AR1Basis,
+    tree: SegmentTree<IMinMax>,
+  ): DirectProductBasis {
+    const axis = this.trees.indexOf(tree);
+    const bAxisVisible = this.bAxisVisible(bIndexVisible, axis);
+    return DirectProductBasis.fromProjections(this.bIndexFull, bAxisVisible);
+  }
+
   combinedAxisDp(bIndexVisible: AR1Basis): {
     combined: AR1Basis;
     dp: DirectProductBasis;

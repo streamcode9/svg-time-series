@@ -2,9 +2,7 @@ import { Selection } from "d3-selection";
 import { line } from "d3-shape";
 import { ScaleLinear, ScaleTime, scaleLinear, scaleTime } from "d3-scale";
 import { AR1Basis, DirectProductBasis } from "../../math/affine.ts";
-import { SegmentTree } from "segment-tree-rmq";
-import { ViewportTransform } from "../../ViewportTransform.ts";
-import type { IMinMax } from "../data.ts";
+import type { ViewportTransform } from "../../ViewportTransform.ts";
 import type { ChartData } from "../data.ts";
 import type { RenderState } from "../render.ts";
 
@@ -62,21 +60,6 @@ export function updateScaleX(
   const start = data.startTime + (data.startIndex + minIdx) * data.timeStep;
   const end = data.startTime + (data.startIndex + maxIdx) * data.timeStep;
   x.domain([start, end]);
-}
-
-export function updateScaleY(
-  bIndexVisible: AR1Basis,
-  tree: SegmentTree<IMinMax>,
-  pathTransform: ViewportTransform,
-  yScale: ScaleLinear<number, number>,
-  data: ChartData,
-) {
-  const axis = data.trees.indexOf(tree);
-  const bAxisVisible = data.bAxisVisible(bIndexVisible, axis);
-  pathTransform.onReferenceViewWindowResize(
-    DirectProductBasis.fromProjections(data.bIndexFull, bAxisVisible),
-  );
-  yScale.domain(bAxisVisible.toArr());
 }
 
 export interface PathSet {

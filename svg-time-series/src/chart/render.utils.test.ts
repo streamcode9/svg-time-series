@@ -12,7 +12,6 @@ import {
   createDimensions,
   createScales,
   updateScaleX,
-  updateScaleY,
   initPaths,
 } from "./render/utils.ts";
 
@@ -100,8 +99,11 @@ describe("updateScaleY", () => {
     const vt = {
       onReferenceViewWindowResize: vi.fn(),
     } as unknown as ViewportTransform;
-    updateScaleY(new AR1Basis(0, 2), cd.treeAxis0, vt, y, cd);
+    const dp = cd.updateScaleY(new AR1Basis(0, 2), cd.treeAxis0);
+    vt.onReferenceViewWindowResize(dp);
+    y.domain(dp.y().toArr());
     expect(y.domain()).toEqual([10, 40]);
+    expect(vt.onReferenceViewWindowResize).toHaveBeenCalledWith(dp);
   });
 });
 

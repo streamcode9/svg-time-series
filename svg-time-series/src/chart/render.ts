@@ -12,7 +12,6 @@ import {
   createDimensions,
   createScales,
   updateScaleX,
-  updateScaleY,
   initPaths,
   lineNy,
   lineSf,
@@ -169,7 +168,9 @@ function updateYScales(series: Series[], bIndex: AR1Basis, data: ChartData) {
   } else {
     for (const s of series) {
       if (s.tree) {
-        updateScaleY(bIndex, s.tree, s.transform, s.scale, data);
+        const dp = data.updateScaleY(bIndex, s.tree);
+        s.transform.onReferenceViewWindowResize(dp);
+        s.scale.domain(dp.y().toArr());
       }
     }
   }
