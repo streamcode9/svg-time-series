@@ -37,7 +37,7 @@ export class TimeSeriesChart {
       event: D3ZoomEvent<SVGRectElement, unknown>,
     ) => void = () => {},
     mouseMoveHandler: (event: MouseEvent) => void = () => {},
-    zoomOptions: IZoomStateOptions = {},
+    zoomOptions?: IZoomStateOptions,
   ) {
     this.svg = svg;
     this.data = new ChartData(data);

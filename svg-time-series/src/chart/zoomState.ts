@@ -10,7 +10,7 @@ import { drawProc } from "../utils/drawProc.ts";
 import type { RenderState } from "./render.ts";
 
 export interface IZoomStateOptions {
-  scaleExtent?: [number, number];
+  scaleExtent: [number, number];
 }
 
 export class ZoomState {
@@ -27,9 +27,9 @@ export class ZoomState {
     private zoomCallback: (
       event: D3ZoomEvent<SVGRectElement, unknown>,
     ) => void = () => {},
-    options: IZoomStateOptions = {},
+    options: IZoomStateOptions = { scaleExtent: [1, 40] },
   ) {
-    this.scaleExtent = options.scaleExtent ?? [1, 40];
+    this.scaleExtent = options.scaleExtent;
     this.zoomBehavior = d3zoom<SVGRectElement, unknown>()
       .scaleExtent(this.scaleExtent)
       .translateExtent([
