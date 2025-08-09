@@ -8,7 +8,7 @@ export class SlidingWindow {
       throw new Error("SlidingWindow requires a non-empty data array");
     }
     this.data = initialData;
-    this.seriesCount = initialData[0]?.length ?? 0;
+    this.seriesCount = initialData[0].length;
   }
 
   append(...values: number[]): void {
