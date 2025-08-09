@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll } from "vitest";
-import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
+import { scaleTime } from "d3-scale";
+import {
+  AR1Basis,
+  DirectProductBasis,
+  betweenTBasesAR1,
+} from "../math/affine.ts";
 import { AxisManager } from "./axisManager.ts";
 
 class Matrix {
@@ -67,6 +72,7 @@ beforeAll(() => {
 describe("updateScales", () => {
   it("updates domains for multiple axes", () => {
     const axisManager = new AxisManager();
+    axisManager.setXAxis(scaleTime().range([0, 1]));
     const axes = axisManager.create(3);
     axes.forEach((a) => a.scale.range([0, 1]));
 
@@ -78,6 +84,9 @@ describe("updateScales", () => {
         [3, 30, 5, 25],
       ],
       bIndexFull: new AR1Basis(0, 1),
+      indexToTime() {
+        return betweenTBasesAR1(new AR1Basis(0, 1), new AR1Basis(0, 1));
+      },
       updateScaleY(b: AR1Basis, tree: any) {
         const { min, max } = tree.query(0, 1);
         const by = new AR1Basis(min, max);
@@ -95,6 +104,7 @@ describe("updateScales", () => {
 
   it("merges extra axes into the last scale", () => {
     const axisManager = new AxisManager();
+    axisManager.setXAxis(scaleTime().range([0, 1]));
     const axes = axisManager.create(2);
     axes.forEach((a) => a.scale.range([0, 1]));
 
@@ -106,6 +116,9 @@ describe("updateScales", () => {
         [1, 20, 5],
       ],
       bIndexFull: new AR1Basis(0, 1),
+      indexToTime() {
+        return betweenTBasesAR1(new AR1Basis(0, 1), new AR1Basis(0, 1));
+      },
       updateScaleY(b: AR1Basis, tree: any) {
         const { min, max } = tree.query(0, 1);
         const by = new AR1Basis(min, max);

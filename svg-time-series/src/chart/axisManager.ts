@@ -1,4 +1,4 @@
-import { scaleLinear, type ScaleLinear } from "d3-scale";
+import { scaleLinear, type ScaleLinear, type ScaleTime } from "d3-scale";
 import type { Selection } from "d3-selection";
 import { SegmentTree } from "segment-tree-rmq";
 
@@ -6,6 +6,7 @@ import { MyAxis } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
 import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
 import type { ChartData, IMinMax } from "./data.ts";
+import { updateScaleX } from "./render/utils.ts";
 
 function buildMinMax(fst: Readonly<IMinMax>, snd: Readonly<IMinMax>): IMinMax {
   return {
@@ -52,6 +53,7 @@ export function buildAxisTree(
 
 export class AxisManager {
   public axes: AxisModel[] = [];
+  public x!: ScaleTime<number, number>;
 
   create(treeCount: number): AxisModel[] {
     this.axes = Array.from({ length: treeCount }, () => ({
@@ -62,7 +64,13 @@ export class AxisManager {
     return this.axes;
   }
 
+  setXAxis(scale: ScaleTime<number, number>): void {
+    this.x = scale;
+  }
+
   updateScales(bIndex: AR1Basis, data: ChartData): void {
+    updateScaleX(this.x, bIndex, data);
+
     const domains = this.axes.map((a) => ({
       min: Infinity,
       max: -Infinity,

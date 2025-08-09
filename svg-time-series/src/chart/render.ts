@@ -11,7 +11,7 @@ import {
 import { updateNode } from "../utils/domNodeTransform.ts";
 import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
 import type { ChartData } from "./data.ts";
-import { createDimensions, updateScaleX } from "./render/utils.ts";
+import { createDimensions } from "./render/utils.ts";
 import { SeriesRenderer } from "./seriesRenderer.ts";
 import { SeriesManager } from "./series.ts";
 
@@ -86,9 +86,9 @@ export function setupRender(
 
   const [xRange, yRange] = bScreenVisibleDp.toArr();
   const xScale: ScaleTime<number, number> = scaleTime().range(xRange);
-  updateScaleX(xScale, data.bIndexFull, data);
 
   const axisManager = new AxisManager();
+  axisManager.setXAxis(xScale);
   const axesY = axisManager.create(axisCount);
   for (const a of axesY) {
     a.scale.range(yRange);
@@ -140,7 +140,6 @@ export function setupRender(
       const bIndexVisible = this.axes.y[0].transform.fromScreenToModelBasisX(
         this.bScreenXVisible,
       );
-      updateScaleX(this.axes.x.scale, bIndexVisible, data);
 
       this.axisManager.updateScales(bIndexVisible, data);
 

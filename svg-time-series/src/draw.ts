@@ -4,7 +4,7 @@ import { D3ZoomEvent } from "d3-zoom";
 import { ChartData, IDataSource } from "./chart/data.ts";
 import { setupRender } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
-import { updateScaleX } from "./chart/render/utils.ts";
+import { createDimensions, updateScaleX } from "./chart/render/utils.ts";
 import { AR1Basis, DirectProductBasis } from "./math/affine.ts";
 import type { ILegendController, LegendContext } from "./chart/legend.ts";
 import { ZoomState, IZoomStateOptions } from "./chart/zoomState.ts";
@@ -151,12 +151,6 @@ export class TimeSeriesChart {
     for (const a of this.state.axes.y) {
       a.transform.onViewPortResize(bScreenVisible);
     }
-
-    const bIndexVisible =
-      this.state.axes.y[0].transform.fromScreenToModelBasisX(
-        this.state.bScreenXVisible,
-      );
-    updateScaleX(this.state.axes.x.scale, bIndexVisible, this.data);
 
     this.state.refresh(this.data);
     this.state.seriesRenderer.draw(this.data.data);
