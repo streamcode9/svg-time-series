@@ -66,6 +66,21 @@ export interface RenderState {
   refresh: (data: ChartData) => void;
 }
 
+export function refreshRenderState(state: RenderState, data: ChartData): void {
+  const bIndexVisible = state.axes.y[0].transform.fromScreenToModelBasisX(
+    state.bScreenXVisible,
+  );
+
+  state.axisManager.updateScales(bIndexVisible, data);
+
+  for (const s of state.series) {
+    const t = state.axes.y[s.axisIdx].transform;
+    updateNode(s.view, t.matrix);
+  }
+  state.axisRenders.forEach((r) => r.axis.axisUp(r.g));
+  state.axes.x.axis.axisUp(state.axes.x.g);
+}
+
 export function setupRender(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
   data: ChartData,
@@ -124,7 +139,7 @@ export function setupRender(
   const axes: Axes = { x: { axis: xAxis, g: gX, scale: xScale }, y: axesY };
   const dimensions: Dimensions = { width, height };
 
-  const state: RenderState = {
+  const state = {
     axisManager,
     axes,
     axisRenders,
@@ -132,21 +147,8 @@ export function setupRender(
     dimensions,
     series,
     seriesRenderer,
-    refresh(this: RenderState, data: ChartData) {
-      const bIndexVisible = this.axes.y[0].transform.fromScreenToModelBasisX(
-        this.bScreenXVisible,
-      );
-
-      this.axisManager.updateScales(bIndexVisible, data);
-
-      for (const s of this.series) {
-        const t = this.axes.y[s.axisIdx].transform;
-        updateNode(s.view, t.matrix);
-      }
-      this.axisRenders.forEach((r) => r.axis.axisUp(r.g));
-      this.axes.x.axis.axisUp(this.axes.x.g);
-    },
-  };
+  } as RenderState;
+  state.refresh = refreshRenderState.bind(null, state);
 
   return state;
 }
