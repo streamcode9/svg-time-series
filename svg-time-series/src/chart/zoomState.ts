@@ -81,6 +81,9 @@ export class ZoomState {
   public updateExtents = (dimensions: { width: number; height: number }) => {
     this.state.dimensions.width = dimensions.width;
     this.state.dimensions.height = dimensions.height;
+    this.zoomArea
+      .attr("width", dimensions.width)
+      .attr("height", dimensions.height);
     this.zoomBehavior.scaleExtent(this.scaleExtent).translateExtent([
       [0, 0],
       [dimensions.width, dimensions.height],
