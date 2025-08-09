@@ -11,7 +11,8 @@ import { MyAxis, Orientation } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
-import type { ChartData } from "./data.ts";
+import type { ChartData, IMinMax } from "./data.ts";
+import { SegmentTree } from "segment-tree-rmq";
 import {
   createDimensions,
   updateScaleX,
@@ -93,6 +94,7 @@ interface Dimensions {
 interface AxisState {
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
+  tree: SegmentTree<IMinMax>;
   axis?: MyAxis;
   g?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
 }
@@ -119,8 +121,12 @@ function updateYScales(axes: AxisState[], bIndex: AR1Basis, data: ChartData) {
     { min: number; max: number; transform: ViewportTransform }
   >();
 
-  data.trees.forEach((tree, i) => {
-    if (!tree) return;
+  const axisIndices = data.seriesAxes.includes(1) ? [0, 1] : [0];
+  axisIndices.forEach((i) => {
+    const tree = data.buildAxisTree(i);
+    if (i < axes.length) {
+      axes[i].tree = tree;
+    }
     const a = axes[Math.min(i, axes.length - 1)];
     const dp = data.updateScaleY(bIndex, tree);
     const [min, max] = dp.y().toArr();
@@ -146,7 +152,7 @@ export function setupRender(
   data: ChartData,
   dualYAxis: boolean,
 ): RenderState {
-  const hasSf = data.treeAxis1 != null;
+  const hasSf = data.seriesAxes.includes(1);
 
   const seriesCount = data.seriesCount;
 
@@ -161,9 +167,10 @@ export function setupRender(
   const xScale: ScaleTime<number, number> = scaleTime().range(xRange);
   updateScaleX(xScale, data.bIndexFull, data);
 
-  const axesY: AxisState[] = Array.from({ length: axisCount }, () => ({
+  const axesY: AxisState[] = Array.from({ length: axisCount }, (_, i) => ({
     transform: new ViewportTransform(),
     scale: scaleLinear<number, number>().range(yRange),
+    tree: data.buildAxisTree(i),
   }));
 
   updateYScales(axesY, data.bIndexFull, data);
@@ -191,8 +198,6 @@ export function setupRender(
   for (let i = 0; i < seriesCount; i++) {
     const { view, path } = initSeriesNode(svg);
     const axisIdx = data.seriesAxes[i] ?? 0;
-    const tree = data.getTree(axisIdx);
-    if (!tree) continue;
     series.push({ axisIdx, view, path, line: createLine(i) });
   }
 

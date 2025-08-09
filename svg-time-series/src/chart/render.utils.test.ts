@@ -74,7 +74,8 @@ describe("updateScaleY", () => {
     const vt = {
       onReferenceViewWindowResize: vi.fn(),
     } as unknown as ViewportTransform;
-    const dp = cd.updateScaleY(new AR1Basis(0, 2), cd.treeAxis0);
+    const tree = cd.buildAxisTree(0);
+    const dp = cd.updateScaleY(new AR1Basis(0, 2), tree);
     vt.onReferenceViewWindowResize(dp);
     y.domain(dp.y().toArr());
     expect(y.domain()).toEqual([10, 40]);

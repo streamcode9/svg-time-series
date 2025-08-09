@@ -38,7 +38,6 @@ export interface IDataSource {
 
 export class ChartData {
   public data: number[][];
-  public trees: SegmentTree<IMinMax>[] = [];
   public readonly seriesByAxis: number[][] = [[], []];
   public bIndexFull: AR1Basis;
   public readonly startTime: number;
@@ -46,18 +45,6 @@ export class ChartData {
   public startIndex: number;
   public readonly seriesCount: number;
   public readonly seriesAxes: number[];
-
-  public get treeAxis0(): SegmentTree<IMinMax> {
-    return this.trees[0];
-  }
-
-  public get treeAxis1(): SegmentTree<IMinMax> | undefined {
-    return this.trees[1];
-  }
-
-  public getTree(axis: number): SegmentTree<IMinMax> | undefined {
-    return this.trees[axis];
-  }
 
   /**
    * Creates a new ChartData instance.
@@ -102,7 +89,6 @@ export class ChartData {
     // bIndexFull represents the full range of data indices and remains constant
     // since append() maintains a sliding window of fixed length
     this.bIndexFull = new AR1Basis(0, this.data.length - 1);
-    this.rebuildSegmentTrees();
   }
 
   append(...values: number[]): void {
@@ -123,7 +109,6 @@ export class ChartData {
     this.data.push(values);
     this.data.shift();
     this.startIndex++;
-    this.rebuildSegmentTrees();
   }
 
   get length(): number {
@@ -173,26 +158,15 @@ export class ChartData {
     });
   }
 
-  private rebuildSegmentTrees(): void {
-    const axis0 = Array.from(
-      this.buildAxisMinMax(0),
+  buildAxisTree(axis: number): SegmentTree<IMinMax> {
+    const arr = Array.from(
+      this.buildAxisMinMax(axis),
       (v) => v ?? minMaxIdentity,
     );
-    this.trees = [new SegmentTree(axis0, buildMinMax, minMaxIdentity)];
-    if (this.seriesAxes.includes(1)) {
-      const axis1 = Array.from(
-        this.buildAxisMinMax(1),
-        (v) => v ?? minMaxIdentity,
-      );
-      this.trees.push(new SegmentTree(axis1, buildMinMax, minMaxIdentity));
-    }
+    return new SegmentTree(arr, buildMinMax, minMaxIdentity);
   }
 
-  bAxisVisible(bIndexVisible: AR1Basis, axis: number): AR1Basis {
-    const tree = this.trees[axis];
-    if (!tree) {
-      throw new Error(`Axis ${axis} data is unavailable`);
-    }
+  bAxisVisible(bIndexVisible: AR1Basis, tree: SegmentTree<IMinMax>): AR1Basis {
     const [minIdxX, maxIdxX] = bIndexVisible.toArr();
     let startIdx = Math.floor(minIdxX);
     let endIdx = Math.ceil(maxIdxX);
@@ -209,20 +183,20 @@ export class ChartData {
     bIndexVisible: AR1Basis,
     tree: SegmentTree<IMinMax>,
   ): DirectProductBasis {
-    const axis = this.trees.indexOf(tree);
-    const bAxisVisible = this.bAxisVisible(bIndexVisible, axis);
+    const bAxisVisible = this.bAxisVisible(bIndexVisible, tree);
     return DirectProductBasis.fromProjections(this.bIndexFull, bAxisVisible);
   }
 
-  combinedAxisDp(bIndexVisible: AR1Basis): {
+  combinedAxisDp(
+    bIndexVisible: AR1Basis,
+    tree0: SegmentTree<IMinMax>,
+    tree1: SegmentTree<IMinMax>,
+  ): {
     combined: AR1Basis;
     dp: DirectProductBasis;
   } {
-    if (!this.treeAxis1) {
-      throw new Error("Second axis data is unavailable");
-    }
-    const b0 = this.bAxisVisible(bIndexVisible, 0);
-    const b1 = this.bAxisVisible(bIndexVisible, 1);
+    const b0 = this.bAxisVisible(bIndexVisible, tree0);
+    const b1 = this.bAxisVisible(bIndexVisible, tree1);
     const [min0, max0] = b0.toArr();
     const [min1, max1] = b1.toArr();
     const combined = new AR1Basis(Math.min(min0, min1), Math.max(max0, max1));

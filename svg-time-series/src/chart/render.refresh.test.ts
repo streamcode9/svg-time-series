@@ -202,6 +202,27 @@ describe("RenderState.refresh", () => {
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
   });
 
+  it("rebuilds axis trees after data append", () => {
+    const svg = createSvg();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      seriesCount: 1,
+      seriesAxes: [0],
+      getSeries: (i) => [1, 2, 3][i],
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg as any, data, false);
+
+    expect(state.axes.y[0].tree.query(0, 2)).toEqual({ min: 1, max: 3 });
+
+    data.append(4);
+    state.refresh(data);
+
+    expect(state.axes.y[0].tree.query(0, 2)).toEqual({ min: 2, max: 4 });
+  });
+
   it("produces finite domain when series is all NaN", () => {
     const svg = createSvg();
     const source: IDataSource = {
