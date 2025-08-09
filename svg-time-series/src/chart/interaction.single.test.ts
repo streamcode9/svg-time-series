@@ -121,11 +121,11 @@ function createChart(data: Array<[number]>) {
     seriesAxes: [0],
     getSeries: (i) => data[i][0],
   };
+  const legendController = new LegendController(select(legend) as any);
   const chart = new TimeSeriesChart(
     select(svgEl) as any,
     source,
-    (state, chartData) =>
-      new LegendController(select(legend) as any, state, chartData),
+    legendController,
     false,
     () => {},
     () => {},

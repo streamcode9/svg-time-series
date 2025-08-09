@@ -103,7 +103,15 @@ describe("LegendController", () => {
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
     select(state.paths.nodes[0]).select("path").attr("stroke", "green");
-    const lc = new LegendController(legendDiv as any, state, data);
+    const lc = new LegendController(legendDiv as any);
+    lc.init({
+      getPoint: data.getPoint.bind(data),
+      length: data.length,
+      series: state.series.map((s) => ({
+        path: s.path as SVGPathElement,
+        transform: s.transform,
+      })),
+    });
 
     const updateSpy = vi
       .spyOn(domNode, "updateNode")
@@ -146,7 +154,15 @@ describe("LegendController", () => {
     }) as any;
     const state = setupRender(svg as any, data, false);
     select(state.paths.nodes[0]).select("path").attr("stroke", "green");
-    const lc = new LegendController(legendDiv as any, state, data);
+    const lc = new LegendController(legendDiv as any);
+    lc.init({
+      getPoint: data.getPoint.bind(data),
+      length: data.length,
+      series: state.series.map((s) => ({
+        path: s.path as SVGPathElement,
+        transform: s.transform,
+      })),
+    });
 
     const updateSpy = vi
       .spyOn(domNode, "updateNode")
@@ -178,7 +194,15 @@ describe("LegendController", () => {
     }) as any;
     const state = setupRender(svg as any, data, false);
     select(state.paths.nodes[0]).select("path").attr("stroke", "green");
-    const lc = new LegendController(legendDiv as any, state, data);
+    const lc = new LegendController(legendDiv as any);
+    lc.init({
+      getPoint: data.getPoint.bind(data),
+      length: data.length,
+      series: state.series.map((s) => ({
+        path: s.path as SVGPathElement,
+        transform: s.transform,
+      })),
+    });
 
     expect(() => {
       lc.highlightIndex(1);

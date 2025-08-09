@@ -26,11 +26,8 @@ onCsv((data: [number, number][]) => {
     seriesAxes: [0, 1],
     getSeries: (i, seriesIdx) => data[i][seriesIdx],
   };
-  const chart = new TimeSeriesChart(
-    svg,
-    source,
-    (state, chartData) => new LegendController(legend, state, chartData),
-  );
+  const legendController = new LegendController(legend);
+  const chart = new TimeSeriesChart(svg, source, legendController);
   const renderMs = performance.now() - start;
   const renderTimeEl = document.getElementById("render-time");
   if (renderTimeEl) {

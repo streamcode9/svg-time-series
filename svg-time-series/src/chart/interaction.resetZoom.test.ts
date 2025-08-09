@@ -70,6 +70,7 @@ vi.mock("../../../samples/LegendController.ts", () => ({
     highlightIndex = vi.fn();
     clearHighlight = vi.fn();
     destroy = vi.fn();
+    init = vi.fn();
     constructor() {
       legendRefresh = this.refresh;
     }
@@ -134,11 +135,11 @@ function createChart(data: Array<[number, number]>, options?: any) {
     seriesAxes: [0, 1],
     getSeries: (i, seriesIdx) => data[i][seriesIdx],
   };
+  const legendController = new LegendController(select(legend) as any);
   const chart = new TimeSeriesChart(
     select(svgEl) as any,
     source,
-    (state, chartData) =>
-      new LegendController(select(legend) as any, state, chartData),
+    legendController,
     true,
     () => {},
     () => {},

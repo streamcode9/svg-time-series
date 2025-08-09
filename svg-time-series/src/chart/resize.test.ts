@@ -103,6 +103,7 @@ describe("TimeSeriesChart.resize", () => {
     };
 
     const legend = {
+      init: () => {},
       highlightIndex: () => {},
       refresh: vi.fn(),
       clearHighlight: () => {},
@@ -112,7 +113,7 @@ describe("TimeSeriesChart.resize", () => {
     const chart = new TimeSeriesChart(
       select(svgEl) as any,
       source,
-      () => legend as any,
+      legend as any,
     );
 
     renderSpy.mockClear();

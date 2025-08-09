@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart, IDataSource } from "../draw.ts";
-import type { ILegendController } from "./legend.ts";
+import type { ILegendController, LegendContext } from "./legend.ts";
 
 class Matrix {
   constructor(
@@ -65,6 +65,7 @@ vi.mock("d3-zoom", () => ({
 }));
 
 class StubLegendController implements ILegendController {
+  init = vi.fn((_: LegendContext) => {});
   highlightIndex = vi.fn();
   refresh = vi.fn();
   clearHighlight = vi.fn();
@@ -98,7 +99,7 @@ function createChart(data: Array<[number]>) {
   const chart = new TimeSeriesChart(
     select(svgEl) as any,
     source,
-    () => legendController,
+    legendController,
     false,
     () => {},
     () => {},

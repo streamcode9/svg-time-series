@@ -30,10 +30,11 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
       seriesAxes: [0, 1],
       getSeries: (i, seriesIdx) => data[i][seriesIdx],
     };
+    const legendController = new LegendController(legend);
     const chart = new TimeSeriesChart(
       svg,
       source,
-      (state, chartData) => new LegendController(legend, state, chartData),
+      legendController,
       dualYAxis,
       onZoom,
       onMouseMove,

@@ -125,11 +125,14 @@ function createChart(
     seriesAxes: [0, 1],
     getSeries: (i, seriesIdx) => data[i][seriesIdx],
   };
+  const legendController = new LegendController(
+    select(legend) as any,
+    formatTime,
+  );
   const chart = new TimeSeriesChart(
     select(svgEl) as any,
     source,
-    (state, chartData) =>
-      new LegendController(select(legend) as any, state, chartData, formatTime),
+    legendController,
     true,
     () => {},
     () => {},
@@ -357,10 +360,11 @@ describe("chart interaction", () => {
       seriesAxes: [0, 1],
       getSeries: (i) => [0, 1][i],
     };
+    const legendController = new LegendController(select(legend) as any);
     const chart = new TimeSeriesChart(
       select(svgEl) as any,
       source,
-      (state, data) => new LegendController(select(legend) as any, state, data),
+      legendController,
       true,
       () => {},
       mouseMoveHandler,

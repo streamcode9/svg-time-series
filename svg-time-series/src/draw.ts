@@ -5,7 +5,7 @@ import { ChartData, IDataSource } from "./chart/data.ts";
 import { setupRender } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
 import { renderPaths } from "./chart/render/utils.ts";
-import type { ILegendController } from "./chart/legend.ts";
+import type { ILegendController, LegendContext } from "./chart/legend.ts";
 import { ZoomState, IZoomStateOptions } from "./chart/zoomState.ts";
 
 export type { IMinMax, IDataSource } from "./chart/data.ts";
@@ -28,10 +28,7 @@ export class TimeSeriesChart {
   constructor(
     svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
     data: IDataSource,
-    legendControllerFactory: (
-      state: RenderState,
-      data: ChartData,
-    ) => ILegendController,
+    legendController: ILegendController,
     dualYAxis = false,
     zoomHandler: (
       event: D3ZoomEvent<SVGRectElement, unknown>,
@@ -49,7 +46,17 @@ export class TimeSeriesChart {
       .attr("width", this.state.dimensions.width)
       .attr("height", this.state.dimensions.height);
 
-    this.legendController = legendControllerFactory(this.state, this.data);
+    this.legendController = legendController;
+
+    const context: LegendContext = {
+      getPoint: (idx) => this.data.getPoint(idx),
+      length: this.data.length,
+      series: this.state.series.map((s) => ({
+        path: s.path as SVGPathElement,
+        transform: s.transform,
+      })),
+    };
+    this.legendController.init(context);
 
     this.zoomArea
       .on("mousemove", mouseMoveHandler)
