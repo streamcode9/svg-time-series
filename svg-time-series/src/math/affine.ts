@@ -9,6 +9,9 @@ export class AR1 {
 
   inverse(): AR1 {
     const [a, b] = this.m;
+    if (a === 0) {
+      throw new Error("AR1.inverse: zero scale factor");
+    }
     return new AR1([1 / a, -b / a]);
   }
 
@@ -49,10 +52,11 @@ export function betweenBasesAR1(
 ): AR1 {
   const [b11, b12] = b1;
   const [b21, b22] = b2;
-  return new AR1([
-    (b21 - b22) / (b11 - b12),
-    -(b12 * b21 - b11 * b22) / (b11 - b12),
-  ]);
+  const span = b11 - b12;
+  if (span === 0) {
+    throw new Error("betweenBasesAR1: zero span basis");
+  }
+  return new AR1([(b21 - b22) / span, -(b12 * b21 - b11 * b22) / span]);
 }
 
 export function betweenTBasesAR1(b1: AR1Basis, b2: AR1Basis): AR1 {

@@ -5,6 +5,7 @@ import {
   DirectProduct,
   DirectProductBasis,
   betweenTBasesDirectProduct,
+  betweenBasesAR1,
 } from "./math/affine.ts";
 
 describe("AR1 and AR1Basis", () => {
@@ -27,6 +28,15 @@ describe("AR1 and AR1Basis", () => {
     const transformed = basis.transformWith(t);
     expect(transformed.toArr()).toEqual([3, 23]);
     expect(transformed.getRange()).toBeCloseTo(20);
+  });
+
+  it("throws an error when inverting a zero-scale AR1 transform", () => {
+    const t = new AR1([0, 5]);
+    expect(() => t.inverse()).toThrow(/zero scale/);
+  });
+
+  it("throws an error for zero-span input in betweenBasesAR1", () => {
+    expect(() => betweenBasesAR1([1, 1], [0, 1])).toThrow(/zero span/);
   });
 });
 
