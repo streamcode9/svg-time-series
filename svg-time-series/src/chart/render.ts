@@ -40,8 +40,6 @@ function setupAxes(
   axes: AxisState[],
   width: number,
   height: number,
-  hasSf: boolean,
-  dualYAxis: boolean,
 ): AxisDataX {
   const xAxis = new MyAxis(Orientation.Bottom, xScale)
     .ticks(4)
@@ -51,29 +49,15 @@ function setupAxes(
   xAxis.setScale(xScale);
   const gX = svg.append("g").attr("class", "axis").call(xAxis.axis.bind(xAxis));
 
-  axes[0].g = svg
-    .append("g")
-    .attr("class", "axis")
-    .call(
-      (axes[0].axis = createYAxis(
-        Orientation.Right,
-        axes[0].scale,
-        width,
-      )).axis.bind(axes[0].axis),
-    );
-
-  if (hasSf && dualYAxis && axes[1]) {
-    axes[1].g = svg
+  axes.forEach((a, i) => {
+    const orientation = i === 0 ? Orientation.Right : Orientation.Left;
+    a.g = svg
       .append("g")
       .attr("class", "axis")
       .call(
-        (axes[1].axis = createYAxis(
-          Orientation.Left,
-          axes[1].scale,
-          width,
-        )).axis.bind(axes[1].axis),
+        (a.axis = createYAxis(orientation, a.scale, width)).axis.bind(a.axis),
       );
-  }
+  });
 
   return { axis: xAxis, g: gX, scale: xScale };
 }
@@ -116,7 +100,6 @@ export interface RenderState {
   axes: Axes;
   bScreenXVisible: AR1Basis;
   dimensions: Dimensions;
-  dualYAxis: boolean;
   series: Series[];
   refresh: (data: ChartData) => void;
 }
@@ -127,7 +110,7 @@ function updateYScales(axes: AxisState[], bIndex: AR1Basis, data: ChartData) {
     { min: number; max: number; transform: ViewportTransform }
   >();
 
-  const axisIndices = data.seriesAxes.includes(1) ? [0, 1] : [0];
+  const axisIndices = new Set(data.seriesAxes);
   axisIndices.forEach((i) => {
     const tree = data.buildAxisTree(i);
     if (i < axes.length) {
@@ -158,15 +141,13 @@ export function setupRender(
   data: ChartData,
   dualYAxis: boolean,
 ): RenderState {
-  const hasSf = data.seriesAxes.includes(1);
-
   const seriesCount = data.seriesCount;
 
   const bScreenVisibleDp = createDimensions(svg);
   const bScreenXVisible = bScreenVisibleDp.x();
   const width = bScreenXVisible.getRange();
   const height = bScreenVisibleDp.y().getRange();
-  const axisCount = hasSf && dualYAxis ? 2 : 1;
+  const axisCount = dualYAxis && data.seriesAxes.includes(1) ? 2 : 1;
 
   const [xRange, yRange] = bScreenVisibleDp.toArr();
   const xScale: ScaleTime<number, number> = scaleTime().range(xRange);
@@ -180,15 +161,7 @@ export function setupRender(
 
   updateYScales(axesY, data.bIndexFull, data);
 
-  const xAxisData = setupAxes(
-    svg,
-    xScale,
-    axesY,
-    width,
-    height,
-    hasSf,
-    dualYAxis,
-  );
+  const xAxisData = setupAxes(svg, xScale, axesY, width, height);
 
   const refDp = DirectProductBasis.fromProjections(
     data.bIndexFull,
@@ -213,7 +186,6 @@ export function setupRender(
     axes,
     bScreenXVisible,
     dimensions,
-    dualYAxis,
     series,
     refresh(this: RenderState, data: ChartData) {
       const bIndexVisible = this.axes.y[0].transform.fromScreenToModelBasisX(
