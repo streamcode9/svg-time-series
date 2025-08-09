@@ -100,7 +100,6 @@ describe("buildSeries", () => {
       state.paths,
       false,
       state.axes,
-      state.dualYAxis,
     );
     expect(series.length).toBe(1);
     expect(series[0]).toMatchObject({
@@ -132,7 +131,6 @@ describe("buildSeries", () => {
       state.paths,
       true,
       state.axes,
-      state.dualYAxis,
     );
     expect(series.length).toBe(2);
     expect(series[0]).toMatchObject({
@@ -172,7 +170,6 @@ describe("buildSeries", () => {
       state.paths,
       true,
       state.axes,
-      state.dualYAxis,
     );
     expect(series.length).toBe(2);
     expect(series[0]).toMatchObject({
@@ -216,7 +213,6 @@ describe("buildSeries", () => {
       singlePaths,
       true,
       state.axes,
-      state.dualYAxis,
     );
     expect(series.length).toBe(1);
   });

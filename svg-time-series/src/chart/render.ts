@@ -4,7 +4,6 @@ import type { Line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
-type ViewTransform = ViewportTransform;
 import { updateNode } from "../utils/domNodeTransform.ts";
 import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
 import type { ChartData, IMinMax } from "./data.ts";
@@ -88,7 +87,7 @@ interface Dimensions {
 
 export interface Series {
   tree?: SegmentTree<IMinMax>;
-  transform: ViewTransform;
+  transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
   view?: SVGGElement;
   path?: SVGPathElement;
@@ -99,15 +98,15 @@ export interface Series {
 
 export function buildSeries(
   data: ChartData,
-  transforms: ViewTransform[],
+  transforms: ViewportTransform[],
   scales: ScaleSet,
   paths: PathSet,
   hasSf: boolean,
   axes?: AxisSet,
-  dualYAxis = false,
 ): Series[] {
   const pathNodes = paths.path.nodes() as SVGPathElement[];
   const views = paths.nodes;
+  const axisCount = transforms.length;
   const series: Series[] = [
     {
       tree: data.treeAxis0,
@@ -124,8 +123,8 @@ export function buildSeries(
   if (hasSf && data.treeAxis1 && pathNodes[1] && views[1]) {
     series.push({
       tree: data.treeAxis1,
-      transform: dualYAxis && transforms[1] ? transforms[1] : transforms[0],
-      scale: dualYAxis && scales.y[1] ? scales.y[1] : scales.y[0],
+      transform: axisCount > 1 ? transforms[1] : transforms[0],
+      scale: axisCount > 1 && scales.y[1] ? scales.y[1] : scales.y[0],
       view: views[1],
       path: pathNodes[1],
       axis: axes?.yRight ?? axes?.y,
@@ -141,7 +140,7 @@ export interface RenderState {
   scales: ScaleSet;
   axes: AxisSet;
   paths: PathSet;
-  transforms: ViewTransform[];
+  transforms: ViewportTransform[];
   bScreenXVisible: AR1Basis;
   dimensions: Dimensions;
   dualYAxis: boolean;
@@ -195,15 +194,7 @@ export function setupRender(
   );
 
   updateScaleX(scales.x, data.bIndexFull, data);
-  const series = buildSeries(
-    data,
-    transformsInner,
-    scales,
-    paths,
-    hasSf,
-    undefined,
-    dualYAxis,
-  );
+  const series = buildSeries(data, transformsInner, scales, paths, hasSf);
 
   updateYScales(series, data.bIndexFull, data);
 

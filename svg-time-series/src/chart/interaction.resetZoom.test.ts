@@ -82,8 +82,7 @@ vi.mock("./zoomState.ts", () => ({
     private zoomCallback: (e: any) => void;
     reset = vi.fn(() => {
       const identity = { x: 0, k: 1 };
-      this.state.transforms[0].onZoomPan(identity);
-      this.state.transforms[1]?.onZoomPan(identity);
+      this.state.transforms.forEach((t: any) => t.onZoomPan(identity));
       this.refreshChart();
       this.zoomCallback({ transform: identity, sourceEvent: null });
     });
