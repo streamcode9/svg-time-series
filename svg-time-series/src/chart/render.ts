@@ -133,11 +133,16 @@ export function updateYScales(
     domain.max = Math.max(domain.max, max);
   }
 
-  for (const { min, max, transform, scale } of domains) {
+  for (const domain of domains) {
+    let { min, max } = domain;
+    if (!Number.isFinite(min) || !Number.isFinite(max)) {
+      min = 0;
+      max = 1;
+    }
     const b = new AR1Basis(min, max);
     const dp = DirectProductBasis.fromProjections(data.bIndexFull, b);
-    transform.onReferenceViewWindowResize(dp);
-    scale.domain([min, max]);
+    domain.transform.onReferenceViewWindowResize(dp);
+    domain.scale.domain([min, max]);
   }
 }
 
