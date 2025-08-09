@@ -121,7 +121,7 @@ describe("ZoomState", () => {
     expect(zoomCb).toHaveBeenCalledWith(event);
   });
 
-  it("refresh re-applies transform and triggers refresh callback", () => {
+  it("refresh triggers refresh callback without reapplying transform", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const rect = select(svg).append("rect");
     const y = { onZoomPan: vi.fn<(t: unknown) => void>() };
@@ -141,6 +141,7 @@ describe("ZoomState", () => {
 
     zs.zoom({
       transform: { x: 1, k: 1 },
+      sourceEvent: {},
     } as unknown as D3ZoomEvent<SVGRectElement, unknown>);
     vi.runAllTimers();
 
@@ -151,7 +152,7 @@ describe("ZoomState", () => {
     zs.refresh();
     vi.runAllTimers();
 
-    expect(transformSpy).toHaveBeenCalled();
+    expect(transformSpy).not.toHaveBeenCalled();
     expect(refresh).toHaveBeenCalledTimes(1);
   });
 

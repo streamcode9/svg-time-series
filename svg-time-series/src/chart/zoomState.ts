@@ -48,6 +48,7 @@ export class ZoomState {
           this.zoomArea,
           this.currentPanZoomTransformState,
         );
+        this.currentPanZoomTransformState = null;
       } else {
         this.refreshChart();
       }
