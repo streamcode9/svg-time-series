@@ -104,36 +104,44 @@ export interface RenderState {
   refresh: (data: ChartData) => void;
 }
 
-function updateYScales(axes: AxisState[], bIndex: AR1Basis, data: ChartData) {
-  const domains = new Map<
-    ScaleLinear<number, number>,
-    { min: number; max: number; transform: ViewportTransform }
-  >();
+export function updateYScales(
+  axes: AxisState[],
+  bIndex: AR1Basis,
+  data: ChartData,
+) {
+  const domains = axes.map((a) => ({
+    min: Infinity,
+    max: -Infinity,
+    transform: a.transform,
+    scale: a.scale,
+  }));
 
-  const axisIndices = new Set(data.seriesAxes);
-  axisIndices.forEach((i) => {
+  const axisIndices: number[] = [];
+  for (const idx of data.seriesAxes) {
+    if (!axisIndices.includes(idx)) {
+      axisIndices.push(idx);
+    }
+  }
+
+  for (const i of axisIndices) {
     const tree = data.buildAxisTree(i);
     if (i < axes.length) {
       axes[i].tree = tree;
     }
-    const a = axes[Math.min(i, axes.length - 1)];
+    const targetIdx = i < axes.length ? i : axes.length - 1;
     const dp = data.updateScaleY(bIndex, tree);
     const [min, max] = dp.y().toArr();
-    const entry = domains.get(a.scale);
-    if (entry) {
-      entry.min = Math.min(entry.min, min);
-      entry.max = Math.max(entry.max, max);
-    } else {
-      domains.set(a.scale, { min, max, transform: a.transform });
-    }
-  });
+    const domain = domains[targetIdx];
+    domain.min = Math.min(domain.min, min);
+    domain.max = Math.max(domain.max, max);
+  }
 
-  domains.forEach(({ min, max, transform }, scale) => {
+  for (const { min, max, transform, scale } of domains) {
     const b = new AR1Basis(min, max);
     const dp = DirectProductBasis.fromProjections(data.bIndexFull, b);
     transform.onReferenceViewWindowResize(dp);
     scale.domain([min, max]);
-  });
+  }
 }
 
 export function setupRender(
