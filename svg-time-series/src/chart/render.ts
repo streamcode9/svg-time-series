@@ -49,35 +49,35 @@ function setupAxes(
   xAxis.setScale(scales.x);
   const gX = svg.append("g").attr("class", "axis").call(xAxis.axis.bind(xAxis));
 
-  if (hasSf && dualYAxis && scales.y[1]) {
-    const yLeft = createYAxis(Orientation.Left, scales.y[0], width);
-    const yRight = createYAxis(Orientation.Right, scales.y[1], width);
+  const yRight = createYAxis(Orientation.Right, scales.y[0], width);
+  const gYRight = svg
+    .append("g")
+    .attr("class", "axis")
+    .call(yRight.axis.bind(yRight));
 
-    const gY = svg
+  const yAxes: AxisData[] = [{ axis: yRight, g: gYRight }];
+
+  if (hasSf && dualYAxis && scales.y[1]) {
+    const yLeft = createYAxis(Orientation.Left, scales.y[1], width);
+    const gYLeft = svg
       .append("g")
       .attr("class", "axis")
       .call(yLeft.axis.bind(yLeft));
-    const gYRight = svg
-      .append("g")
-      .attr("class", "axis")
-      .call(yRight.axis.bind(yRight));
 
-    return { x: xAxis, y: yLeft, gX, gY, yRight, gYRight };
+    yAxes.push({ axis: yLeft, g: gYLeft });
   }
 
-  const yAxis = createYAxis(Orientation.Right, scales.y[0], width);
-  const gY = svg.append("g").attr("class", "axis").call(yAxis.axis.bind(yAxis));
+  return { x: { axis: xAxis, g: gX }, y: yAxes };
+}
 
-  return { x: xAxis, y: yAxis, gX, gY };
+interface AxisData {
+  axis: MyAxis;
+  g: Selection<SVGGElement, unknown, HTMLElement, unknown>;
 }
 
 interface AxisSet {
-  x: MyAxis;
-  y: MyAxis;
-  gX: Selection<SVGGElement, unknown, HTMLElement, unknown>;
-  gY: Selection<SVGGElement, unknown, HTMLElement, unknown>;
-  yRight?: MyAxis;
-  gYRight?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
+  x: AxisData;
+  y: AxisData[];
 }
 
 interface Dimensions {
@@ -113,8 +113,8 @@ export function buildSeries(
       scale: scales.y[0],
       view: views[0],
       path: pathNodes[0],
-      axis: axes?.y,
-      gAxis: axes?.gY,
+      axis: axes?.y?.[0]?.axis,
+      gAxis: axes?.y?.[0]?.g,
       line: lineNy,
     },
   ];
@@ -126,8 +126,8 @@ export function buildSeries(
       scale: scales.y[1] ?? scales.y[0],
       view: views[1],
       path: pathNodes[1],
-      axis: axes?.yRight ?? axes?.y,
-      gAxis: axes?.gYRight ?? axes?.gY,
+      axis: axes?.y?.[1]?.axis ?? axes?.y?.[0]?.axis,
+      gAxis: axes?.y?.[1]?.g ?? axes?.y?.[0]?.g,
       line: lineSf,
     });
   }
@@ -199,15 +199,10 @@ export function setupRender(
   const axes = setupAxes(svg, scales, width, height, hasSf, dualYAxis);
 
   // Attach axes to series after scales have been initialized
-  const axisArr = [axes.y];
-  const gAxisArr = [axes.gY];
-  if (series.length > 1) {
-    axisArr.push(axes.yRight ?? axes.y);
-    gAxisArr.push(axes.gYRight ?? axes.gY);
-  }
   series.forEach((s, i) => {
-    s.axis = axisArr[i];
-    s.gAxis = gAxisArr[i];
+    const axisData = axes.y[i] ?? axes.y[0];
+    s.axis = axisData.axis;
+    s.gAxis = axisData.g;
   });
 
   const refDp = DirectProductBasis.fromProjections(
@@ -253,7 +248,7 @@ export function setupRender(
           s.axis.axisUp(s.gAxis);
         }
       }
-      this.axes.x.axisUp(this.axes.gX);
+      this.axes.x.axis.axisUp(this.axes.x.g);
     },
   };
 

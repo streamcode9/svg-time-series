@@ -114,9 +114,9 @@ describe("RenderState.refresh integration", () => {
     expect(yNyAfter).not.toEqual(yNyBefore);
     expect(ySfAfter).not.toEqual(ySfBefore);
 
-    expect((state.axes.x as any).scale1.domain()).toEqual(xAfter);
-    expect((state.axes.y as any).scale1.domain()).toEqual(yNyAfter);
-    expect((state.axes.yRight as any).scale1.domain()).toEqual(ySfAfter);
+    expect((state.axes.x.axis as any).scale1.domain()).toEqual(xAfter);
+    expect((state.axes.y[0].axis as any).scale1.domain()).toEqual(yNyAfter);
+    expect((state.axes.y[1].axis as any).scale1.domain()).toEqual(ySfAfter);
 
     expect(updateNodeSpy).toHaveBeenCalledTimes(state.series.length);
     for (const s of state.series) {

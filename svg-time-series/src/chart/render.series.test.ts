@@ -108,8 +108,8 @@ describe("buildSeries", () => {
       transform: state.transforms[0],
       scale: state.scales.y[0],
       view: state.paths.nodes[0],
-      axis: state.axes.y,
-      gAxis: state.axes.gY,
+      axis: state.axes.y[0].axis,
+      gAxis: state.axes.y[0].g,
     });
   });
 
@@ -140,16 +140,16 @@ describe("buildSeries", () => {
       transform: state.transforms[0],
       scale: state.scales.y[0],
       view: state.paths.nodes[0],
-      axis: state.axes.y,
-      gAxis: state.axes.gY,
+      axis: state.axes.y[0].axis,
+      gAxis: state.axes.y[0].g,
     });
     expect(series[1]).toMatchObject({
       tree: data.treeAxis1,
       transform: state.transforms[0],
       scale: state.scales.y[0],
       view: state.paths.nodes[1],
-      axis: state.axes.y,
-      gAxis: state.axes.gY,
+      axis: state.axes.y[0].axis,
+      gAxis: state.axes.y[0].g,
     });
   });
 
@@ -180,16 +180,16 @@ describe("buildSeries", () => {
       transform: state.transforms[0],
       scale: state.scales.y[0],
       view: state.paths.nodes[0],
-      axis: state.axes.y,
-      gAxis: state.axes.gY,
+      axis: state.axes.y[0].axis,
+      gAxis: state.axes.y[0].g,
     });
     expect(series[1]).toMatchObject({
       tree: data.treeAxis1,
       transform: state.transforms[1]!,
       scale: state.scales.y[1],
       view: state.paths.nodes[1],
-      axis: state.axes.yRight,
-      gAxis: state.axes.gYRight,
+      axis: state.axes.y[1].axis,
+      gAxis: state.axes.y[1].g,
     });
   });
 
