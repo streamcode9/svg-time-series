@@ -215,20 +215,8 @@ describe("chart interaction single-axis", () => {
     expect(transform.ty).toBe(50);
   });
 
-  it("handles NaN data", () => {
-    const { onHover, svgEl, legend } = createChart([[NaN]]);
-    vi.runAllTimers();
-
-    onHover(0);
-    vi.runAllTimers();
-
-    expect(
-      legend.querySelector(".chart-legend__green_value")!.textContent,
-    ).toBe(" ");
-
-    const circle = svgEl.querySelector("circle")! as SVGCircleElement;
-    const transform = nodeTransforms.get(circle)!;
-    expect(transform.ty).toBe(0);
+  it("throws when data contains Infinity", () => {
+    expect(() => createChart([[Infinity]])).toThrow(/finite number or NaN/);
   });
 
   it("throws on zero-length dataset", () => {

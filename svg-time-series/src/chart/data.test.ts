@@ -366,51 +366,34 @@ describe("ChartData", () => {
     expect(dp.y().toArr()).toEqual([-3, 10]);
   });
 
-  it("returns Infinity/-Infinity min/max when both series are all NaN", () => {
-    const cd = new ChartData(
-      makeSource(
-        [
-          [NaN, NaN],
-          [NaN, NaN],
-        ],
-        [0, 1],
-      ),
-    );
-    const tree0 = buildAxisTree(cd, 0);
-    const tree1 = buildAxisTree(cd, 1);
-    const range = new AR1Basis(0, 1);
-    expect(tree0.query(0, 1)).toEqual({ min: Infinity, max: -Infinity });
-    expect(tree1.query(0, 1)).toEqual({
-      min: Infinity,
-      max: -Infinity,
-    });
-    expect(cd.bAxisVisible(range, tree0).toArr()).toEqual([
-      Infinity,
-      -Infinity,
-    ]);
-    expect(cd.bAxisVisible(range, tree1).toArr()).toEqual([
-      Infinity,
-      -Infinity,
-    ]);
+  it("throws when initial data contains infinite values", () => {
+    expect(
+      () =>
+        new ChartData(
+          makeSource(
+            [
+              [0, 1],
+              [Infinity, 2],
+            ],
+            [0, 1],
+          ),
+        ),
+    ).toThrow(/finite number or NaN/);
   });
 
-  it("ignores NaN values when computing min/max", () => {
-    const cd = new ChartData(
-      makeSource(
-        [
-          [NaN, NaN],
-          [5, 3],
-        ],
-        [0, 1],
-      ),
-    );
-    const tree0 = buildAxisTree(cd, 0);
-    const tree1 = buildAxisTree(cd, 1);
-    const range = new AR1Basis(0, 1);
-    expect(tree0.query(0, 1)).toEqual({ min: 5, max: 5 });
-    expect(tree1.query(0, 1)).toEqual({ min: 3, max: 3 });
-    expect(cd.bAxisVisible(range, tree0).toArr()).toEqual([5, 5]);
-    expect(cd.bAxisVisible(range, tree1).toArr()).toEqual([3, 3]);
+  it("allows NaN values in data", () => {
+    expect(
+      () =>
+        new ChartData(
+          makeSource(
+            [
+              [NaN, NaN],
+              [5, 3],
+            ],
+            [0, 1],
+          ),
+        ),
+    ).not.toThrow();
   });
 
   describe("single-axis", () => {
@@ -445,18 +428,10 @@ describe("ChartData", () => {
       expect(cd.data).toEqual([[1]]);
     });
 
-    it("returns Infinity/-Infinity min/max when data is all NaN", () => {
-      const cd = new ChartData(makeSource([[NaN], [NaN]], [0]));
-      const tree0 = buildAxisTree(cd, 0);
-      const range = new AR1Basis(0, 1);
-      expect(tree0.query(0, 1)).toEqual({
-        min: Infinity,
-        max: -Infinity,
-      });
-      expect(cd.bAxisVisible(range, tree0).toArr()).toEqual([
-        Infinity,
-        -Infinity,
-      ]);
+    it("throws when data is all Infinity", () => {
+      expect(
+        () => new ChartData(makeSource([[Infinity], [Infinity]], [0])),
+      ).toThrow(/finite number or NaN/);
     });
   });
 

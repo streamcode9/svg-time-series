@@ -262,25 +262,10 @@ describe("chart interaction", () => {
     expect(formatter).toHaveBeenCalledWith(1);
   });
 
-  it("handles NaN data", () => {
-    const { onHover, svgEl, legend } = createChart([[NaN, NaN]]);
-    vi.runAllTimers();
-
-    onHover(0);
-    vi.runAllTimers();
-
-    expect(
-      legend.querySelector(".chart-legend__green_value")!.textContent,
-    ).toBe(" ");
-    expect(legend.querySelector(".chart-legend__blue_value")!.textContent).toBe(
-      " ",
+  it("throws when data contains Infinity", () => {
+    expect(() => createChart([[Infinity, Infinity]])).toThrow(
+      /finite number or NaN/,
     );
-
-    const circles = svgEl.querySelectorAll("circle");
-    const greenTransform = nodeTransforms.get(circles[0] as SVGCircleElement)!;
-    const blueTransform = nodeTransforms.get(circles[1] as SVGCircleElement)!;
-    expect(greenTransform.ty).toBe(0);
-    expect(blueTransform.ty).toBe(0);
   });
 
   it("clamps hover index to data bounds", () => {

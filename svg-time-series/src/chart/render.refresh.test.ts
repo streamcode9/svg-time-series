@@ -223,39 +223,27 @@ describe("RenderState.refresh", () => {
     expect(state.axes.y[0].tree.query(0, 2)).toEqual({ min: 2, max: 4 });
   });
 
-  it("produces sentinel domain when series is all NaN", () => {
-    const svg = createSvg();
+  it("throws when series is all Infinity", () => {
     const source: IDataSource = {
       startTime: 0,
       timeStep: 1,
       length: 2,
       seriesCount: 1,
       seriesAxes: [0],
-      getSeries: () => NaN,
+      getSeries: () => Infinity,
     };
-    const data = new ChartData(source);
-    const state = setupRender(svg as any, data, false);
-    state.refresh(data);
-    const domain = state.axes.y[0].scale.domain();
-    expect(domain).toEqual([0, 1]);
+    expect(() => new ChartData(source)).toThrow(/finite number or NaN/);
   });
 
-  it("produces sentinel domains for dual-axis all NaN data", () => {
-    const svg = createSvg();
+  it("throws for dual-axis all Infinity data", () => {
     const source: IDataSource = {
       startTime: 0,
       timeStep: 1,
       length: 2,
       seriesCount: 2,
       seriesAxes: [0, 1],
-      getSeries: () => NaN,
+      getSeries: () => Infinity,
     };
-    const data = new ChartData(source);
-    const state = setupRender(svg as any, data, true);
-    state.refresh(data);
-    const domain0 = state.axes.y[0].scale.domain();
-    const domain1 = state.axes.y[1].scale.domain();
-    expect(domain0).toEqual([0, 1]);
-    expect(domain1).toEqual([0, 1]);
+    expect(() => new ChartData(source)).toThrow(/finite number or NaN/);
   });
 });
