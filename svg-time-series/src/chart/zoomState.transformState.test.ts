@@ -59,6 +59,7 @@ describe("ZoomState transform state", () => {
         x: { axis: {} as any, g: {} as any, scale: {} as any },
         y: [{ transform: y } as any],
       },
+      axisRenders: [],
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(

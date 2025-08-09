@@ -3,7 +3,11 @@ import { scaleTime, type ScaleTime, type ScaleLinear } from "d3-scale";
 import type { Line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
-import { AxisManager, AxisState } from "./axisManager.ts";
+import {
+  AxisManager,
+  type AxisModel,
+  type AxisRenderState,
+} from "./axisManager.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
 import type { ChartData } from "./data.ts";
@@ -36,7 +40,7 @@ interface AxisDataX extends AxisData {
 
 interface Axes {
   x: AxisDataX;
-  y: AxisState[];
+  y: AxisModel[];
 }
 
 interface Dimensions {
@@ -54,6 +58,7 @@ export interface Series {
 export interface RenderState {
   axisManager: AxisManager;
   axes: Axes;
+  axisRenders: AxisRenderState[];
   bScreenXVisible: AR1Basis;
   dimensions: Dimensions;
   series: Series[];
@@ -104,16 +109,13 @@ export function setupRender(
   const gX = svg.append("g").attr("class", "axis");
   gX.call(xAxis.axis.bind(xAxis));
 
-  // AxisState instances start without `axis` and `g` because AxisManager
-  // only prepares the scale and transform. We attach the DOM elements and
-  // axis instances here, which is why those fields are optional.
-  axesY.forEach((a, i) => {
+  // Build render state for each Y axis separately from the model.
+  const axisRenders: AxisRenderState[] = axesY.map((a, i) => {
     const orientation = i === 0 ? Orientation.Right : Orientation.Left;
     const axis = createYAxis(orientation, a.scale, width);
     const g = svg.append("g").attr("class", "axis");
     g.call(axis.axis.bind(axis));
-    a.axis = axis;
-    a.g = g;
+    return { axis, g };
   });
 
   const axes: Axes = { x: { axis: xAxis, g: gX, scale: xScale }, y: axesY };
@@ -122,6 +124,7 @@ export function setupRender(
   const state: RenderState = {
     axisManager,
     axes,
+    axisRenders,
     bScreenXVisible,
     dimensions,
     series,
@@ -141,11 +144,7 @@ export function setupRender(
           updateNode(s.view, t.matrix);
         }
       }
-      for (const a of this.axes.y) {
-        if (a.axis && a.g) {
-          a.axis.axisUp(a.g);
-        }
-      }
+      this.axisRenders.forEach((r) => r.axis.axisUp(r.g));
       this.axes.x.axis.axisUp(this.axes.x.g);
     },
   };

@@ -19,13 +19,15 @@ const minMaxIdentity: IMinMax = {
   max: -Infinity,
 };
 
-export interface AxisState {
+export interface AxisModel {
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
   tree: SegmentTree<IMinMax>;
-  // These are attached during rendering, so they start undefined.
-  axis?: MyAxis;
-  g?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
+}
+
+export interface AxisRenderState {
+  axis: MyAxis;
+  g: Selection<SVGGElement, unknown, HTMLElement, unknown>;
 }
 
 export function buildAxisTree(
@@ -49,9 +51,9 @@ export function buildAxisTree(
 }
 
 export class AxisManager {
-  public axes: AxisState[] = [];
+  public axes: AxisModel[] = [];
 
-  create(treeCount: number): AxisState[] {
+  create(treeCount: number): AxisModel[] {
     this.axes = Array.from({ length: treeCount }, () => ({
       transform: new ViewportTransform(),
       scale: scaleLinear<number, number>(),

@@ -114,10 +114,10 @@ export class TimeSeriesChart {
     axisX.g.remove();
     (axisX as unknown as { g?: typeof axisX.g }).g = undefined;
 
-    for (const axis of this.state.axes.y) {
-      axis.g?.remove();
-      axis.g = undefined;
+    for (const r of this.state.axisRenders) {
+      r.g.remove();
     }
+    this.state.axisRenders.length = 0;
     this.state.axes.y.length = 0;
   }
 

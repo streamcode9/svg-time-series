@@ -115,8 +115,12 @@ describe("RenderState.refresh integration", () => {
     expect(ySfAfter).not.toEqual(ySfBefore);
 
     expect((state.axes.x.axis as any).scale1.domain()).toEqual(xAfter);
-    expect((state.axes.y[0].axis as any).scale1.domain()).toEqual(yNyAfter);
-    expect((state.axes.y[1].axis as any).scale1.domain()).toEqual(ySfAfter);
+    expect((state.axisRenders[0].axis as any).scale1.domain()).toEqual(
+      yNyAfter,
+    );
+    expect((state.axisRenders[1].axis as any).scale1.domain()).toEqual(
+      ySfAfter,
+    );
 
     expect(updateNodeSpy).toHaveBeenCalledTimes(state.series.length);
     for (const s of state.series) {

@@ -60,6 +60,7 @@ describe("ZoomState", () => {
         x: { axis: {} as any, g: {} as any, scale: {} as any },
         y: [{ transform: y } as any, { transform: y2 } as any],
       },
+      axisRenders: [],
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zoomCb = vi.fn();
@@ -97,6 +98,7 @@ describe("ZoomState", () => {
         x: { axis: {} as any, g: {} as any, scale: {} as any },
         y: [{ transform: y } as any],
       },
+      axisRenders: [],
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zoomCb = vi.fn();
@@ -131,6 +133,7 @@ describe("ZoomState", () => {
         x: { axis: {} as any, g: {} as any, scale: {} as any },
         y: [{ transform: y } as any],
       },
+      axisRenders: [],
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(
@@ -166,6 +169,7 @@ describe("ZoomState", () => {
         x: { axis: {} as any, g: {} as any, scale: {} as any },
         y: [{ transform: y } as any],
       },
+      axisRenders: [],
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(
@@ -206,6 +210,7 @@ describe("ZoomState", () => {
         x: { axis: {} as any, g: {} as any, scale: {} as any },
         y: [{ transform: y } as any],
       },
+      axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
       rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
@@ -241,6 +246,7 @@ describe("ZoomState", () => {
         x: { axis: {} as any, g: {} as any, scale: {} as any },
         y: [{ transform: y } as any],
       },
+      axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
       rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
@@ -270,6 +276,7 @@ describe("ZoomState", () => {
     const state = {
       dimensions: { width: 10, height: 10 },
       transforms: [y],
+      axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
       rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
