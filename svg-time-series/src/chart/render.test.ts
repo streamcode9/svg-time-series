@@ -29,7 +29,7 @@ describe("SeriesRenderer", () => {
       renderer.draw(data);
 
       const d = select(renderer.series[0].path).attr("d");
-      expect(d).not.toContain("1,");
+      expect(d).not.toContain("NaN");
       expect(d.match(/M/g)?.length).toBe(2);
     });
 
