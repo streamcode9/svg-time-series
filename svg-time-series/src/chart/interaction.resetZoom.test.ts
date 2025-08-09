@@ -64,6 +64,7 @@ vi.mock("../axis.ts", () => ({
 let zoomReset: any;
 let legendRefresh: any;
 let zoomOptions: any;
+let zoomSetScaleExtent: any;
 vi.mock("../../../samples/LegendController.ts", () => ({
   LegendController: class {
     refresh = vi.fn();
@@ -90,6 +91,7 @@ vi.mock("./zoomState.ts", () => ({
     refresh = vi.fn();
     destroy = vi.fn();
     zoom = vi.fn();
+    setScaleExtent = vi.fn();
     constructor(
       _zoomArea: any,
       state: any,
@@ -102,6 +104,7 @@ vi.mock("./zoomState.ts", () => ({
       this.zoomCallback = zoomCallback;
       zoomReset = this.reset;
       zoomOptions = options;
+      zoomSetScaleExtent = this.setScaleExtent;
     }
   },
 }));
@@ -179,6 +182,18 @@ describe("interaction.resetZoom", () => {
     expect(zoomReset).toHaveBeenCalled();
     expect(transform.onZoomPan).toHaveBeenCalledWith({ x: 0, k: 1 });
     expect(legendRefresh).toHaveBeenCalled();
+  });
+});
+
+describe("interaction.setScaleExtent", () => {
+  it("forwards extent to ZoomState", () => {
+    const { interaction } = createChart([
+      [10, 20],
+      [30, 40],
+    ]);
+    const extent: [number, number] = [1, 100];
+    interaction.setScaleExtent(extent);
+    expect(zoomSetScaleExtent).toHaveBeenCalledWith(extent);
   });
 });
 

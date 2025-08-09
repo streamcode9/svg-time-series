@@ -20,6 +20,7 @@ export interface IPublicInteraction {
   zoom: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
   onHover: (x: number) => void;
   resetZoom: () => void;
+  setScaleExtent: (extent: [number, number]) => void;
 }
 
 export class TimeSeriesChart {
@@ -90,6 +91,7 @@ export class TimeSeriesChart {
       zoom: this.zoom,
       onHover: this.onHover,
       resetZoom: this.resetZoom,
+      setScaleExtent: this.setScaleExtent,
     };
   }
 
@@ -128,6 +130,10 @@ export class TimeSeriesChart {
 
   public resetZoom = () => {
     this.zoomState.reset();
+  };
+
+  public setScaleExtent = (extent: [number, number]) => {
+    this.zoomState.setScaleExtent(extent);
   };
 
   public resize = (_dimensions: { width: number; height: number }) => {

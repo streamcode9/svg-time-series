@@ -115,6 +115,16 @@ const chartSingle = new TimeSeriesChart(
 If you only have one series, set `seriesCount` to 1; the chart
 will render a single path and axis.
 
+### Adjusting zoom extents
+
+You can change the allowed zoom range at runtime by calling
+`setScaleExtent` on the chart's interaction API:
+
+```ts
+// Allow zoom levels between 1x and 80x
+chart.interaction.setScaleExtent([1, 80]);
+```
+
 ## Secrets of Speed
 
 - No legacy
