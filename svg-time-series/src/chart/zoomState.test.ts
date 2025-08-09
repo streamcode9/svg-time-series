@@ -1,7 +1,6 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { select, Selection } from "d3-selection";
 import type { RenderState } from "./render.ts";
@@ -57,8 +56,8 @@ describe("ZoomState", () => {
     const state = {
       dimensions: { width: 10, height: 10 },
       axes: {
-        x: { axis: {} as any, g: {} as any, scale: {} as any },
-        y: [{ transform: y } as any, { transform: y2 } as any],
+        x: { axis: {}, g: {}, scale: {} },
+        y: [{ transform: y }, { transform: y2 }],
       },
       axisRenders: [],
     } as unknown as RenderState;
@@ -95,8 +94,8 @@ describe("ZoomState", () => {
     const state = {
       dimensions: { width: 10, height: 10 },
       axes: {
-        x: { axis: {} as any, g: {} as any, scale: {} as any },
-        y: [{ transform: y } as any],
+        x: { axis: {}, g: {}, scale: {} },
+        y: [{ transform: y }],
       },
       axisRenders: [],
     } as unknown as RenderState;
@@ -130,8 +129,8 @@ describe("ZoomState", () => {
     const state = {
       dimensions: { width: 10, height: 10 },
       axes: {
-        x: { axis: {} as any, g: {} as any, scale: {} as any },
-        y: [{ transform: y } as any],
+        x: { axis: {}, g: {}, scale: {} },
+        y: [{ transform: y }],
       },
       axisRenders: [],
     } as unknown as RenderState;
@@ -166,8 +165,8 @@ describe("ZoomState", () => {
     const state = {
       dimensions: { width: 10, height: 10 },
       axes: {
-        x: { axis: {} as any, g: {} as any, scale: {} as any },
-        y: [{ transform: y } as any],
+        x: { axis: {}, g: {}, scale: {} },
+        y: [{ transform: y }],
       },
       axisRenders: [],
     } as unknown as RenderState;
@@ -202,8 +201,8 @@ describe("ZoomState", () => {
     const state = {
       dimensions: { width: 10, height: 10 },
       axes: {
-        x: { axis: {} as any, g: {} as any, scale: {} as any },
-        y: [{ transform: y } as any],
+        x: { axis: {}, g: {}, scale: {} },
+        y: [{ transform: y }],
       },
       axisRenders: [],
     } as unknown as RenderState;
@@ -243,8 +242,8 @@ describe("ZoomState", () => {
     const state = {
       dimensions: { width: 10, height: 10 },
       axes: {
-        x: { axis: {} as any, g: {} as any, scale: {} as any },
-        y: [{ transform: y } as any],
+        x: { axis: {}, g: {}, scale: {} },
+        y: [{ transform: y }],
       },
       axisRenders: [],
     } as unknown as RenderState;
@@ -281,8 +280,8 @@ describe("ZoomState", () => {
     const state = {
       dimensions: { width: 10, height: 10 },
       axes: {
-        x: { axis: {} as any, g: {} as any, scale: {} as any },
-        y: [{ transform: y } as any],
+        x: { axis: {}, g: {}, scale: {} },
+        y: [{ transform: y }],
       },
       axisRenders: [],
     } as unknown as RenderState;
@@ -395,12 +394,12 @@ describe("ZoomState", () => {
       vi.fn(),
     );
 
-    expect(() => zs.setScaleExtent([1] as any)).toThrow(
+    expect(() => zs.setScaleExtent([1] as unknown as [number, number])).toThrow(
       /scaleExtent must be two finite, positive numbers/,
     );
-    expect(() => zs.setScaleExtent([1, 2, 3] as any)).toThrow(
-      /scaleExtent must be two finite, positive numbers/,
-    );
+    expect(() =>
+      zs.setScaleExtent([1, 2, 3] as unknown as [number, number]),
+    ).toThrow(/scaleExtent must be two finite, positive numbers/);
   });
 
   it.each([
@@ -449,7 +448,7 @@ describe("ZoomState", () => {
           state,
           vi.fn(),
           undefined,
-          { scaleExtent: [1] as any },
+          { scaleExtent: [1] as unknown as [number, number] },
         ),
     ).toThrow(/scaleExtent must be two finite, positive numbers/);
     expect(
@@ -459,7 +458,7 @@ describe("ZoomState", () => {
           state,
           vi.fn(),
           undefined,
-          { scaleExtent: [1, 2, 3] as any },
+          { scaleExtent: [1, 2, 3] as unknown as [number, number] },
         ),
     ).toThrow(/scaleExtent must be two finite, positive numbers/);
   });

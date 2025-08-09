@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll } from "vitest";
 import { JSDOM } from "jsdom";
-import { select } from "d3-selection";
+import { select, type Selection } from "d3-selection";
 import { ChartData, IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
 
@@ -62,8 +61,8 @@ class Point {
 }
 
 beforeAll(() => {
-  (globalThis as any).DOMMatrix = Matrix;
-  (globalThis as any).DOMPoint = Point;
+  (globalThis as unknown as { DOMMatrix: typeof Matrix }).DOMMatrix = Matrix;
+  (globalThis as unknown as { DOMPoint: typeof Point }).DOMPoint = Point;
 });
 
 function createSvg() {
@@ -71,11 +70,18 @@ function createSvg() {
     pretendToBeVisual: true,
     contentType: "text/html",
   });
-  (globalThis as any).HTMLElement = dom.window.HTMLElement;
-  const div = dom.window.document.getElementById("c") as any;
+  (
+    globalThis as unknown as { HTMLElement: typeof dom.window.HTMLElement }
+  ).HTMLElement = dom.window.HTMLElement;
+  const div = dom.window.document.getElementById("c") as HTMLDivElement;
   Object.defineProperty(div, "clientWidth", { value: 100 });
   Object.defineProperty(div, "clientHeight", { value: 100 });
-  return select(div).select("svg");
+  return select(div).select("svg") as Selection<
+    SVGSVGElement,
+    unknown,
+    HTMLElement,
+    unknown
+  >;
 }
 
 describe("setupRender Y-axis modes", () => {
@@ -91,7 +97,7 @@ describe("setupRender Y-axis modes", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data);
+    const state = setupRender(svg, data);
     expect(state.axes.y).toHaveLength(1);
     expect(state.axes.y[0].scale.domain()).toEqual([1, 30]);
   });
@@ -108,7 +114,7 @@ describe("setupRender Y-axis modes", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data);
+    const state = setupRender(svg, data);
     expect(state.axes.y[0].scale.domain()).toEqual([1, 3]);
     expect(state.axes.y[1].scale.domain()).toEqual([10, 30]);
   });

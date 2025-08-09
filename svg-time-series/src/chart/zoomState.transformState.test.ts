@@ -1,7 +1,6 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { select, Selection } from "d3-selection";
 import type { RenderState } from "./render.ts";
@@ -56,8 +55,8 @@ describe("ZoomState transform state", () => {
     const state = {
       dimensions: { width: 10, height: 10 },
       axes: {
-        x: { axis: {} as any, g: {} as any, scale: {} as any },
-        y: [{ transform: y } as any],
+        x: { axis: {}, g: {}, scale: {} },
+        y: [{ transform: y }],
       },
       axisRenders: [],
     } as unknown as RenderState;
@@ -78,7 +77,12 @@ describe("ZoomState transform state", () => {
     vi.runAllTimers();
 
     expect(transformSpy).toHaveBeenCalledWith(rect, { x: 1, k: 2 });
-    expect((zs as any).currentPanZoomTransformState).toBeNull();
+    interface ZoomStateInternal {
+      currentPanZoomTransformState: unknown;
+    }
+    expect(
+      (zs as unknown as ZoomStateInternal).currentPanZoomTransformState,
+    ).toBeNull();
 
     transformSpy.mockClear();
     refresh.mockClear();

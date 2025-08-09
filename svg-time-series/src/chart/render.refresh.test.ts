@@ -1,7 +1,6 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll, vi } from "vitest";
 
 vi.mock("../utils/domNodeTransform.ts", () => ({ updateNode: vi.fn() }));
@@ -9,7 +8,7 @@ vi.mock("../axis.ts", () => {
   return {
     MyAxis: class {
       axisUp = vi.fn();
-      axis = vi.fn((s: any) => s);
+      axis = vi.fn((s: unknown) => s);
       ticks = vi.fn().mockReturnThis();
       setTickSize = vi.fn().mockReturnThis();
       setTickPadding = vi.fn().mockReturnThis();
@@ -20,7 +19,7 @@ vi.mock("../axis.ts", () => {
 });
 
 import { JSDOM } from "jsdom";
-import { select } from "d3-selection";
+import { select, type Selection } from "d3-selection";
 import { ChartData, type IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
@@ -77,8 +76,8 @@ class Point {
 }
 
 beforeAll(() => {
-  (globalThis as any).DOMMatrix = Matrix;
-  (globalThis as any).DOMPoint = Point;
+  (globalThis as unknown as { DOMMatrix: typeof Matrix }).DOMMatrix = Matrix;
+  (globalThis as unknown as { DOMPoint: typeof Point }).DOMPoint = Point;
 });
 
 function createSvg() {
@@ -86,11 +85,18 @@ function createSvg() {
     pretendToBeVisual: true,
     contentType: "text/html",
   });
-  (globalThis as any).HTMLElement = dom.window.HTMLElement;
-  const div = dom.window.document.getElementById("c") as any;
+  (
+    globalThis as unknown as { HTMLElement: typeof dom.window.HTMLElement }
+  ).HTMLElement = dom.window.HTMLElement;
+  const div = dom.window.document.getElementById("c") as HTMLDivElement;
   Object.defineProperty(div, "clientWidth", { value: 100 });
   Object.defineProperty(div, "clientHeight", { value: 100 });
-  return select(div).select("svg");
+  return select(div).select("svg") as Selection<
+    SVGSVGElement,
+    unknown,
+    HTMLElement,
+    unknown
+  >;
 }
 
 describe("RenderState.refresh", () => {
@@ -105,7 +111,7 @@ describe("RenderState.refresh", () => {
       getSeries: (i) => [1, 2, 3][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data);
+    const state = setupRender(svg, data);
     const updateNodeMock = vi.mocked(updateNode);
     updateNodeMock.mockClear();
 
@@ -133,7 +139,7 @@ describe("RenderState.refresh", () => {
       getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data);
+    const state = setupRender(svg, data);
     const updateNodeMock = vi.mocked(updateNode);
     updateNodeMock.mockClear();
 
@@ -163,7 +169,7 @@ describe("RenderState.refresh", () => {
       getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data);
+    const state = setupRender(svg, data);
 
     state.refresh(data);
 
@@ -182,7 +188,7 @@ describe("RenderState.refresh", () => {
       getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
     };
     const data1 = new ChartData(source1);
-    const state = setupRender(svg as any, data1);
+    const state = setupRender(svg, data1);
     state.refresh(data1);
     const source2: IDataSource = {
       startTime: 0,
@@ -214,7 +220,7 @@ describe("RenderState.refresh", () => {
       getSeries: (i) => [1, 2, 3][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data);
+    const state = setupRender(svg, data);
 
     expect(state.axes.y[0].tree.query(0, 2)).toEqual({ min: 1, max: 3 });
 

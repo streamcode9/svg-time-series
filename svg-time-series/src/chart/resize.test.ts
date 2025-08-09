@@ -1,16 +1,18 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll, vi } from "vitest";
 
 vi.mock("../utils/domNodeTransform.ts", () => ({ updateNode: vi.fn() }));
-const axisInstances: any[] = [];
+interface AxisMock {
+  axisUp: vi.Mock;
+}
+const axisInstances: AxisMock[] = [];
 vi.mock("../axis.ts", () => {
   return {
     MyAxis: class {
       axisUp = vi.fn();
-      axis = vi.fn((s: any) => s);
+      axis = vi.fn((s: unknown) => s);
       ticks = vi.fn().mockReturnThis();
       setTickSize = vi.fn().mockReturnThis();
       setTickPadding = vi.fn().mockReturnThis();
@@ -23,7 +25,7 @@ vi.mock("../axis.ts", () => {
   };
 });
 
-import { select } from "d3-selection";
+import { select, type Selection } from "d3-selection";
 import { SeriesRenderer } from "./seriesRenderer.ts";
 import { TimeSeriesChart, type IDataSource } from "../draw.ts";
 
@@ -79,8 +81,8 @@ class Point {
 }
 
 beforeAll(() => {
-  (globalThis as any).DOMMatrix = Matrix;
-  (globalThis as any).DOMPoint = Point;
+  (globalThis as unknown as { DOMMatrix: typeof Matrix }).DOMMatrix = Matrix;
+  (globalThis as unknown as { DOMPoint: typeof Point }).DOMPoint = Point;
 });
 
 describe("TimeSeriesChart.resize", () => {
@@ -111,9 +113,9 @@ describe("TimeSeriesChart.resize", () => {
     };
 
     const chart = new TimeSeriesChart(
-      select(svgEl) as any,
+      select(svgEl) as Selection<SVGSVGElement, unknown, null, undefined>,
       source,
-      legend as any,
+      legend,
     );
 
     renderSpy.mockClear();
@@ -152,15 +154,28 @@ describe("TimeSeriesChart.resize", () => {
     };
 
     const chart = new TimeSeriesChart(
-      select(svgEl) as any,
+      select(svgEl) as Selection<SVGSVGElement, unknown, null, undefined>,
       source,
-      legend as any,
+      legend,
     );
 
-    const chartAny = chart as any;
-    const updateSpy = vi.spyOn(chartAny.zoomState, "updateExtents");
+    interface ChartInternal {
+      zoomState: { updateExtents: vi.Mock };
+      state: {
+        axes: {
+          x: { scale: { range: () => unknown } };
+          y: Array<{
+            transform: { onViewPortResize: vi.Mock };
+            scale: { range: () => unknown };
+          }>;
+        };
+        dimensions: { width: number; height: number };
+      };
+    }
+    const chartInternal = chart as unknown as ChartInternal;
+    const updateSpy = vi.spyOn(chartInternal.zoomState, "updateExtents");
     const resizeSpy = vi.spyOn(
-      chartAny.state.axes.y[0].transform,
+      chartInternal.state.axes.y[0].transform,
       "onViewPortResize",
     );
 
@@ -170,11 +185,11 @@ describe("TimeSeriesChart.resize", () => {
     chart.resize({ width: 250, height: 120 });
 
     expect(updateSpy).toHaveBeenCalledWith({ width: 250, height: 120 });
-    expect(chartAny.state.dimensions).toEqual({ width: 250, height: 120 });
+    expect(chartInternal.state.dimensions).toEqual({ width: 250, height: 120 });
     const arg = resizeSpy.mock.calls[0][0];
     expect(arg.x().toArr()).toEqual([0, 250]);
     expect(arg.y().toArr()).toEqual([120, 0]);
-    expect(chartAny.state.axes.x.scale.range()).toEqual([0, 250]);
-    expect(chartAny.state.axes.y[0].scale.range()).toEqual([120, 0]);
+    expect(chartInternal.state.axes.x.scale.range()).toEqual([0, 250]);
+    expect(chartInternal.state.axes.y[0].scale.range()).toEqual([120, 0]);
   });
 });

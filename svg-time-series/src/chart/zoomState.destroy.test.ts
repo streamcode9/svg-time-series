@@ -1,7 +1,6 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { select, Selection } from "d3-selection";
 import type { RenderState } from "./render.ts";
@@ -63,8 +62,8 @@ describe("ZoomState.destroy", () => {
     const state = {
       dimensions: { width: 10, height: 10 },
       axes: {
-        x: { axis: {} as any, g: {} as any, scale: {} as any },
-        y: [{ transform: { onZoomPan: vi.fn<(t: unknown) => void>() } as any }],
+        x: { axis: {}, g: {}, scale: {} },
+        y: [{ transform: { onZoomPan: vi.fn<(t: unknown) => void>() } }],
       },
       axisRenders: [],
     } as unknown as RenderState;
@@ -102,8 +101,8 @@ describe("ZoomState.destroy", () => {
     const state = {
       dimensions: { width: 10, height: 10 },
       axes: {
-        x: { axis: {} as any, g: {} as any, scale: {} as any },
-        y: [{ transform: { onZoomPan: vi.fn<(t: unknown) => void>() } as any }],
+        x: { axis: {}, g: {}, scale: {} },
+        y: [{ transform: { onZoomPan: vi.fn<(t: unknown) => void>() } }],
       },
       axisRenders: [],
     } as unknown as RenderState;

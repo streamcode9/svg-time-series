@@ -1,9 +1,9 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unused-vars */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { select } from "d3-selection";
+import { select, type Selection } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart, IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
@@ -34,7 +34,7 @@ class Point {
   }
 }
 
-(globalThis as any).DOMPoint = Point;
+(globalThis as unknown as { DOMPoint: typeof Point }).DOMPoint = Point;
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
 let updateNodeCalls = 0;
@@ -46,7 +46,7 @@ vi.mock("../utils/domNodeTransform.ts", () => ({
 }));
 
 let currentDataLength = 0;
-const transformInstances: any[] = [];
+const transformInstances: Array<{ onZoomPan: vi.Mock }> = [];
 vi.mock("../ViewportTransform.ts", () => ({
   ViewportTransform: class {
     constructor() {
@@ -63,7 +63,7 @@ vi.mock("../ViewportTransform.ts", () => ({
   },
 }));
 
-const axisInstances: any[] = [];
+const axisInstances: Array<{ axisUpCalls: number; axisUp: vi.Mock }> = [];
 vi.mock("../axis.ts", () => ({
   Orientation: { Bottom: 0, Right: 1 },
   MyAxis: class {
@@ -84,7 +84,14 @@ vi.mock("../axis.ts", () => ({
 
 vi.mock("d3-zoom", () => ({
   zoom: () => {
-    const behavior: any = () => {};
+    interface ZoomBehavior {
+      (): void;
+      scaleExtent: () => ZoomBehavior;
+      translateExtent: () => ZoomBehavior;
+      on: () => ZoomBehavior;
+      transform: () => void;
+    }
+    const behavior = (() => {}) as ZoomBehavior;
     behavior.scaleExtent = () => behavior;
     behavior.translateExtent = () => behavior;
     behavior.on = () => behavior;
@@ -121,9 +128,11 @@ function createChart(data: Array<[number]>) {
     seriesAxes: [0],
     getSeries: (i) => data[i][0],
   };
-  const legendController = new LegendController(select(legend) as any);
+  const legendController = new LegendController(
+    select(legend) as Selection<HTMLElement, unknown, null, undefined>,
+  );
   const chart = new TimeSeriesChart(
-    select(svgEl) as any,
+    select(svgEl) as Selection<SVGSVGElement, unknown, null, undefined>,
     source,
     legendController,
     () => {},
@@ -145,7 +154,9 @@ beforeEach(() => {
   updateNodeCalls = 0;
   transformInstances.length = 0;
   axisInstances.length = 0;
-  (SVGSVGElement.prototype as any).createSVGMatrix = () => new Matrix();
+  (
+    SVGSVGElement.prototype as unknown as { createSVGMatrix: () => Matrix }
+  ).createSVGMatrix = () => new Matrix();
 });
 
 afterEach(() => {
@@ -165,7 +176,9 @@ describe("chart interaction single-axis", () => {
     const yCalls = yAxis.axisUpCalls;
     const callCount = updateNodeCalls;
 
-    zoom({ transform: { x: 10, k: 2 } } as any);
+    zoom({ transform: { x: 10, k: 2 } } as unknown as {
+      transform: { x: number; k: number };
+    });
     vi.runAllTimers();
 
     expect(mtNy.onZoomPan).toHaveBeenCalledWith({ x: 10, k: 2 });

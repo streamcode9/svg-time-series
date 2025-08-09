@@ -1,11 +1,15 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, @typescript-eslint/no-useless-constructor */
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-useless-constructor */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { select } from "d3-selection";
+import { select, type Selection } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
-import { TimeSeriesChart, IDataSource } from "../draw.ts";
+import {
+  TimeSeriesChart,
+  type IDataSource,
+  type IZoomStateOptions,
+} from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
 
 class Matrix {
@@ -32,7 +36,7 @@ vi.mock("../utils/domNodeTransform.ts", () => ({
 }));
 
 let currentDataLength = 0;
-const transformInstances: any[] = [];
+const transformInstances: Array<{ onZoomPan: vi.Mock }> = [];
 vi.mock("../ViewportTransform.ts", () => ({
   ViewportTransform: class {
     constructor() {
@@ -61,10 +65,10 @@ vi.mock("../axis.ts", () => ({
   },
 }));
 
-let zoomReset: any;
-let legendRefresh: any;
-let zoomOptions: any;
-let zoomSetScaleExtent: any;
+let zoomReset: vi.Mock;
+let legendRefresh: vi.Mock;
+let zoomOptions: unknown;
+let zoomSetScaleExtent: vi.Mock;
 vi.mock("../../../samples/LegendController.ts", () => ({
   LegendController: class {
     refresh = vi.fn();
@@ -79,12 +83,14 @@ vi.mock("../../../samples/LegendController.ts", () => ({
 }));
 vi.mock("./zoomState.ts", () => ({
   ZoomState: class {
-    private state: any;
+    private state: {
+      axes: { y: Array<{ transform: { onZoomPan: (t: unknown) => void } }> };
+    };
     private refreshChart: () => void;
-    private zoomCallback: (e: any) => void;
+    private zoomCallback: (e: unknown) => void;
     reset = vi.fn(() => {
       const identity = { x: 0, k: 1 };
-      this.state.axes.y.forEach((a: any) => a.transform.onZoomPan(identity));
+      this.state.axes.y.forEach((a) => a.transform.onZoomPan(identity));
       this.refreshChart();
       this.zoomCallback({ transform: identity, sourceEvent: null });
     });
@@ -93,11 +99,13 @@ vi.mock("./zoomState.ts", () => ({
     zoom = vi.fn();
     setScaleExtent = vi.fn();
     constructor(
-      _zoomArea: any,
-      state: any,
+      _zoomArea: unknown,
+      state: {
+        axes: { y: Array<{ transform: { onZoomPan: (t: unknown) => void } }> };
+      },
       refreshChart: () => void,
-      zoomCallback: (e: any) => void,
-      options?: any,
+      zoomCallback: (e: unknown) => void,
+      options?: unknown,
     ) {
       this.state = state;
       this.refreshChart = refreshChart;
@@ -109,7 +117,10 @@ vi.mock("./zoomState.ts", () => ({
   },
 }));
 
-function createChart(data: Array<[number, number]>, options?: any) {
+function createChart(
+  data: Array<[number, number]>,
+  options?: IZoomStateOptions,
+) {
   currentDataLength = data.length;
   const parent = document.createElement("div");
   const w = Math.max(currentDataLength - 1, 0);
@@ -138,9 +149,11 @@ function createChart(data: Array<[number, number]>, options?: any) {
     seriesAxes: [0, 1],
     getSeries: (i, seriesIdx) => data[i][seriesIdx],
   };
-  const legendController = new LegendController(select(legend) as any);
+  const legendController = new LegendController(
+    select(legend) as Selection<HTMLElement, unknown, null, undefined>,
+  );
   const chart = new TimeSeriesChart(
-    select(svgEl) as any,
+    select(svgEl) as Selection<SVGSVGElement, unknown, null, undefined>,
     source,
     legendController,
     () => {},
@@ -156,7 +169,9 @@ beforeEach(() => {
   nodeTransforms.clear();
   transformInstances.length = 0;
   zoomOptions = undefined;
-  (SVGSVGElement.prototype as any).createSVGMatrix = () => new Matrix();
+  (
+    SVGSVGElement.prototype as unknown as { createSVGMatrix: () => Matrix }
+  ).createSVGMatrix = () => new Matrix();
 });
 
 afterEach(() => {

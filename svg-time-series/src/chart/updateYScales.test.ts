@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll } from "vitest";
 import { scaleTime } from "d3-scale";
 import {
@@ -7,6 +6,7 @@ import {
   betweenTBasesAR1,
 } from "../math/affine.ts";
 import { AxisManager } from "./axisManager.ts";
+import type { ChartData } from "./data.ts";
 
 class Matrix {
   constructor(
@@ -65,8 +65,8 @@ class Point {
 }
 
 beforeAll(() => {
-  (globalThis as any).DOMMatrix = Matrix;
-  (globalThis as any).DOMPoint = Point;
+  (globalThis as unknown as { DOMMatrix: typeof Matrix }).DOMMatrix = Matrix;
+  (globalThis as unknown as { DOMPoint: typeof Point }).DOMPoint = Point;
 });
 
 describe("updateScales", () => {
@@ -87,7 +87,12 @@ describe("updateScales", () => {
       indexToTime() {
         return betweenTBasesAR1(new AR1Basis(0, 1), new AR1Basis(0, 1));
       },
-      updateScaleY(b: AR1Basis, tree: any) {
+      updateScaleY(
+        b: AR1Basis,
+        tree: {
+          query: (start: number, end: number) => { min: number; max: number };
+        },
+      ) {
         const { min, max } = tree.query(0, 1);
         const by = new AR1Basis(min, max);
         return DirectProductBasis.fromProjections(b, by);
@@ -95,7 +100,7 @@ describe("updateScales", () => {
     };
 
     const bIndexVisible = new AR1Basis(0, 1);
-    axisManager.updateScales(bIndexVisible, data as any);
+    axisManager.updateScales(bIndexVisible, data as unknown as ChartData);
 
     expect(axes[0].scale.domain()).toEqual([1, 3]);
     expect(axes[1].scale.domain()).toEqual([10, 30]);
@@ -118,7 +123,12 @@ describe("updateScales", () => {
       indexToTime() {
         return betweenTBasesAR1(new AR1Basis(0, 1), new AR1Basis(0, 1));
       },
-      updateScaleY(b: AR1Basis, tree: any) {
+      updateScaleY(
+        b: AR1Basis,
+        tree: {
+          query: (start: number, end: number) => { min: number; max: number };
+        },
+      ) {
         const { min, max } = tree.query(0, 1);
         const by = new AR1Basis(min, max);
         return DirectProductBasis.fromProjections(b, by);
@@ -126,8 +136,8 @@ describe("updateScales", () => {
     };
 
     const bIndexVisible = new AR1Basis(0, 1);
-    expect(() => axisManager.updateScales(bIndexVisible, data as any)).toThrow(
-      /axis index 2/i,
-    );
+    expect(() =>
+      axisManager.updateScales(bIndexVisible, data as unknown as ChartData),
+    ).toThrow(/axis index 2/i);
   });
 });

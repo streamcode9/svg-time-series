@@ -1,10 +1,9 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll } from "vitest";
 import { JSDOM } from "jsdom";
-import { select } from "d3-selection";
+import { select, type Selection } from "d3-selection";
 import { ChartData, IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
 
@@ -65,8 +64,8 @@ class Point {
 }
 
 beforeAll(() => {
-  (globalThis as any).DOMMatrix = Matrix;
-  (globalThis as any).DOMPoint = Point;
+  (globalThis as unknown as { DOMMatrix: typeof Matrix }).DOMMatrix = Matrix;
+  (globalThis as unknown as { DOMPoint: typeof Point }).DOMPoint = Point;
 });
 
 function createSvg() {
@@ -74,11 +73,18 @@ function createSvg() {
     pretendToBeVisual: true,
     contentType: "text/html",
   });
-  (globalThis as any).HTMLElement = dom.window.HTMLElement;
-  const div = dom.window.document.getElementById("c") as any;
+  (
+    globalThis as unknown as { HTMLElement: typeof dom.window.HTMLElement }
+  ).HTMLElement = dom.window.HTMLElement;
+  const div = dom.window.document.getElementById("c") as HTMLDivElement;
   Object.defineProperty(div, "clientWidth", { value: 100 });
   Object.defineProperty(div, "clientHeight", { value: 100 });
-  return select(div).select("svg");
+  return select(div).select("svg") as Selection<
+    SVGSVGElement,
+    unknown,
+    HTMLElement,
+    unknown
+  >;
 }
 
 describe("buildSeries", () => {
@@ -93,7 +99,7 @@ describe("buildSeries", () => {
       getSeries: (i) => [1, 2, 3][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data);
+    const state = setupRender(svg, data);
     expect(state.series.length).toBe(1);
     expect(state.series[0]).toMatchObject({ axisIdx: 0 });
   });
@@ -110,7 +116,7 @@ describe("buildSeries", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data);
+    const state = setupRender(svg, data);
     expect(state.series.length).toBe(2);
     expect(state.series[0]).toMatchObject({ axisIdx: 0 });
     expect(state.series[1]).toMatchObject({ axisIdx: 0 });
@@ -128,7 +134,7 @@ describe("buildSeries", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data);
+    const state = setupRender(svg, data);
     expect(state.series.length).toBe(2);
     expect(state.series[0]).toMatchObject({ axisIdx: 0 });
     expect(state.series[1]).toMatchObject({ axisIdx: 1 });
@@ -148,7 +154,7 @@ describe("setupRender DOM order", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    setupRender(svg as any, data);
+    setupRender(svg, data);
     const groups = svg.selectAll("g").nodes() as SVGGElement[];
     expect(groups[0].classList.contains("view")).toBe(true);
     expect(groups[1].classList.contains("view")).toBe(true);

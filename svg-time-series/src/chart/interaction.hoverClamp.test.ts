@@ -1,9 +1,9 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { select } from "d3-selection";
+import { select, type Selection } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart, IDataSource } from "../draw.ts";
 import type { ILegendController, LegendContext } from "./legend.ts";
@@ -55,7 +55,14 @@ vi.mock("../axis.ts", () => ({
 
 vi.mock("d3-zoom", () => ({
   zoom: () => {
-    const behavior: any = () => {};
+    interface ZoomBehavior {
+      (): void;
+      scaleExtent: () => ZoomBehavior;
+      translateExtent: () => ZoomBehavior;
+      on: () => ZoomBehavior;
+      transform: () => void;
+    }
+    const behavior = (() => {}) as ZoomBehavior;
     behavior.scaleExtent = () => behavior;
     behavior.translateExtent = () => behavior;
     behavior.on = () => behavior;
@@ -97,7 +104,7 @@ function createChart(data: Array<[number]>) {
   };
   const legendController = new StubLegendController();
   const chart = new TimeSeriesChart(
-    select(svgEl) as any,
+    select(svgEl) as Selection<SVGSVGElement, unknown, null, undefined>,
     source,
     legendController,
     () => {},
@@ -109,7 +116,9 @@ function createChart(data: Array<[number]>) {
 
 beforeEach(() => {
   vi.useFakeTimers();
-  (SVGSVGElement.prototype as any).createSVGMatrix = () => new Matrix();
+  (
+    SVGSVGElement.prototype as unknown as { createSVGMatrix: () => Matrix }
+  ).createSVGMatrix = () => new Matrix();
 });
 
 afterEach(() => {
