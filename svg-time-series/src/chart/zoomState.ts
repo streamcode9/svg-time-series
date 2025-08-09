@@ -19,6 +19,20 @@ export class ZoomState {
   private scheduleRefresh: () => void;
   private cancelRefresh: () => void;
   private scaleExtent: [number, number];
+  private validateScaleExtent(extent: [number, number]) {
+    const [min, max] = extent;
+    if (
+      !Number.isFinite(min) ||
+      !Number.isFinite(max) ||
+      min <= 0 ||
+      max <= 0 ||
+      min >= max
+    ) {
+      throw new Error(
+        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: [${min}, ${max}]`,
+      );
+    }
+  }
 
   constructor(
     private zoomArea: Selection<SVGRectElement, unknown, HTMLElement, unknown>,
@@ -29,6 +43,7 @@ export class ZoomState {
     ) => void = () => {},
     options: IZoomStateOptions = { scaleExtent: [1, 40] },
   ) {
+    this.validateScaleExtent(options.scaleExtent);
     this.scaleExtent = options.scaleExtent;
     this.zoomBehavior = d3zoom<SVGRectElement, unknown>()
       .scaleExtent(this.scaleExtent)
@@ -74,6 +89,7 @@ export class ZoomState {
   };
 
   public setScaleExtent = (extent: [number, number]) => {
+    this.validateScaleExtent(extent);
     this.scaleExtent = extent;
     this.zoomBehavior.scaleExtent(extent);
   };

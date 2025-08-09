@@ -297,4 +297,52 @@ describe("ZoomState", () => {
     zs.updateExtents({ width: 20, height: 30 });
     expect(scaleSpy).toHaveBeenCalledWith([2, 80]);
   });
+
+  it.each([
+    [1, 10],
+    [0.5, 20],
+  ])("accepts valid scale extent %j", (min, max) => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axisRenders: [],
+    } as unknown as RenderState;
+    const zs = new ZoomState(
+      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      state,
+      vi.fn(),
+    );
+
+    expect(() => zs.setScaleExtent([min, max])).not.toThrow();
+  });
+
+  it.each([
+    [0, 10],
+    [-1, 10],
+    [1, 1],
+    [5, 3],
+    [1, 0],
+    [1, -5],
+    [Infinity, 10],
+    [NaN, 10],
+    [1, Infinity],
+    [1, NaN],
+  ])("rejects invalid scale extent %j", (min, max) => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axisRenders: [],
+    } as unknown as RenderState;
+    const zs = new ZoomState(
+      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      state,
+      vi.fn(),
+    );
+
+    expect(() => zs.setScaleExtent([min, max])).toThrow(
+      /scaleExtent must be two finite, positive numbers/,
+    );
+  });
 });
