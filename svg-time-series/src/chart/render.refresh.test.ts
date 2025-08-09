@@ -223,7 +223,7 @@ describe("RenderState.refresh", () => {
     expect(state.axes.y[0].tree.query(0, 2)).toEqual({ min: 2, max: 4 });
   });
 
-  it("produces finite domain when series is all NaN", () => {
+  it("produces sentinel domain when series is all NaN", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
@@ -237,11 +237,10 @@ describe("RenderState.refresh", () => {
     const state = setupRender(svg as any, data, false);
     state.refresh(data);
     const domain = state.axes.y[0].scale.domain();
-    expect(Number.isFinite(domain[0])).toBe(true);
-    expect(Number.isFinite(domain[1])).toBe(true);
+    expect(domain).toEqual([0, 1]);
   });
 
-  it("produces finite domains for dual-axis all NaN data", () => {
+  it("produces sentinel domains for dual-axis all NaN data", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
@@ -256,9 +255,7 @@ describe("RenderState.refresh", () => {
     state.refresh(data);
     const domain0 = state.axes.y[0].scale.domain();
     const domain1 = state.axes.y[1].scale.domain();
-    expect(Number.isFinite(domain0[0])).toBe(true);
-    expect(Number.isFinite(domain0[1])).toBe(true);
-    expect(Number.isFinite(domain1[0])).toBe(true);
-    expect(Number.isFinite(domain1[1])).toBe(true);
+    expect(domain0).toEqual([0, 1]);
+    expect(domain1).toEqual([0, 1]);
   });
 });
