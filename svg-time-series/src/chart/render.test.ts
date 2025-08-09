@@ -67,4 +67,13 @@ describe("SeriesManager", () => {
     expect(series.view.tagName).toBe("g");
     expect(series.path.tagName).toBe("path");
   });
+
+  it("throws when a series axis is undefined", () => {
+    const svgSelection = select(document.createElement("div")).append(
+      "svg",
+    ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
+    expect(
+      () => new SeriesManager(svgSelection, [undefined as unknown as number]),
+    ).toThrow(/seriesAxes\[0\]/);
+  });
 });

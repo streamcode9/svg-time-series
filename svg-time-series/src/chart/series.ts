@@ -12,8 +12,13 @@ export class SeriesManager {
     seriesAxes: number[],
   ) {
     this.series = seriesAxes.map((axisIdx, i) => {
+      if (axisIdx == null) {
+        throw new Error(
+          `SeriesManager requires seriesAxes[${i}] to be defined`,
+        );
+      }
       const { view, path } = createSeriesNodes(svg);
-      return { axisIdx: axisIdx ?? 0, view, path, line: this.createLine(i) };
+      return { axisIdx, view, path, line: this.createLine(i) };
     });
   }
 
