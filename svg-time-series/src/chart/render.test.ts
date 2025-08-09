@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, vi } from "vitest";
 import { select, type Selection } from "d3-selection";
-import { initPaths, renderPaths, createLine } from "./render/utils.ts";
+import { initSeriesNode, renderPaths, createLine } from "./render/utils.ts";
 import type { RenderState } from "./render.ts";
 
 describe("renderPaths", () => {
@@ -39,34 +39,31 @@ describe("renderPaths", () => {
       "svg",
     ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
     const svg = svgSelection.node() as SVGSVGElement;
-    const { path } = initPaths(svgSelection, 1);
-    const nodes = path.nodes() as SVGPathElement[];
+    const { path } = initSeriesNode(svgSelection);
     const state = {
-      series: [{ path: nodes[0], line: createLine(0) }],
+      series: [{ path, line: createLine(0) }],
     } as unknown as RenderState;
-    const pathNode = nodes[0];
+    const pathNode = path;
     const spy = vi.spyOn(pathNode, "setAttribute");
 
     renderPaths(state, [[0], [1]]);
 
     expect(spy).toHaveBeenCalledTimes(state.series.length);
-    expect(path.attr("d")).not.toBe("");
+    expect(path.getAttribute("d")).not.toBe("");
     expect(svg.querySelectorAll("path").length).toBe(1);
 
     spy.mockRestore();
   });
 });
 
-describe("initPaths", () => {
-  it("creates only primary path when hasSf is false", () => {
+describe("initSeriesNode", () => {
+  it("creates a view and path", () => {
     const svgSelection = select(document.createElement("div")).append(
       "svg",
     ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
-    const { path, nodes } = initPaths(svgSelection, 1);
+    const { view, path } = initSeriesNode(svgSelection);
 
-    expect(path.size()).toBe(1);
-    expect(nodes).toHaveLength(1);
-    expect(nodes[0].tagName).toBe("g");
-    expect(nodes[1]).toBeUndefined();
+    expect(view.tagName).toBe("g");
+    expect(path.tagName).toBe("path");
   });
 });

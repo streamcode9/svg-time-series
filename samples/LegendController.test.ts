@@ -102,14 +102,14 @@ describe("LegendController", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
-    select(state.paths.nodes[0]).select("path").attr("stroke", "green");
+    select(state.series[0].path).attr("stroke", "green");
     const lc = new LegendController(legendDiv as any);
     lc.init({
       getPoint: data.getPoint.bind(data),
       length: data.length,
       series: state.series.map((s) => ({
         path: s.path as SVGPathElement,
-        transform: state.axisStates[s.axisIdx].transform,
+        transform: state.axes.y[s.axisIdx].transform,
       })),
     });
 
@@ -123,7 +123,7 @@ describe("LegendController", () => {
     const matrix = lastCall[1] as Matrix;
     const modelPoint = new Point(1, data.getPoint(1).values[0]);
     const expected = modelPoint.matrixTransform(
-      state.transforms[0].matrix as any,
+      state.axes.y[0].transform.matrix as any,
     );
     expect(matrix.e).toBeCloseTo(expected.x);
     expect(matrix.f).toBeCloseTo(expected.y);
@@ -153,14 +153,14 @@ describe("LegendController", () => {
       return [timestamp, ...values] as any;
     }) as any;
     const state = setupRender(svg as any, data, false);
-    select(state.paths.nodes[0]).select("path").attr("stroke", "green");
+    select(state.series[0].path).attr("stroke", "green");
     const lc = new LegendController(legendDiv as any);
     lc.init({
       getPoint: data.getPoint.bind(data),
       length: data.length,
       series: state.series.map((s) => ({
         path: s.path as SVGPathElement,
-        transform: state.axisStates[s.axisIdx].transform,
+        transform: state.axes.y[s.axisIdx].transform,
       })),
     });
 
@@ -193,14 +193,14 @@ describe("LegendController", () => {
       return { timestamp } as any;
     }) as any;
     const state = setupRender(svg as any, data, false);
-    select(state.paths.nodes[0]).select("path").attr("stroke", "green");
+    select(state.series[0].path).attr("stroke", "green");
     const lc = new LegendController(legendDiv as any);
     lc.init({
       getPoint: data.getPoint.bind(data),
       length: data.length,
       series: state.series.map((s) => ({
         path: s.path as SVGPathElement,
-        transform: state.axisStates[s.axisIdx].transform,
+        transform: state.axes.y[s.axisIdx].transform,
       })),
     });
 

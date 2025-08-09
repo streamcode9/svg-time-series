@@ -54,8 +54,8 @@ export class TimeSeriesChart {
       series: this.state.series.map((s) => ({
         path: s.path as SVGPathElement,
         transform:
-          this.state.axisStates[s.axisIdx]?.transform ??
-          this.state.axisStates[0].transform,
+          this.state.axes.y[s.axisIdx]?.transform ??
+          this.state.axes.y[0].transform,
       })),
     };
     this.legendController.init(context);
@@ -120,7 +120,7 @@ export class TimeSeriesChart {
   };
 
   public onHover = (x: number) => {
-    let idx = this.state.transforms[0].fromScreenToModelX(x);
+    let idx = this.state.axes.y[0].transform.fromScreenToModelX(x);
     idx = Math.min(Math.max(idx, 0), this.data.length - 1);
     this.legendController.highlightIndex(idx);
   };

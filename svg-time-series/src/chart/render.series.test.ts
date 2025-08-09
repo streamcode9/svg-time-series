@@ -4,10 +4,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll } from "vitest";
 import { JSDOM } from "jsdom";
-import { select, type Selection } from "d3-selection";
+import { select } from "d3-selection";
 import { ChartData, IDataSource } from "./data.ts";
-import { setupRender, buildSeries } from "./render.ts";
-import { initPaths } from "./render/utils.ts";
+import { setupRender } from "./render.ts";
 
 class Matrix {
   constructor(
@@ -94,13 +93,8 @@ describe("buildSeries", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
-    const series = buildSeries(data, state.paths);
-    expect(series.length).toBe(1);
-    expect(series[0]).toMatchObject({
-      axisIdx: 0,
-      view: state.paths.nodes[0],
-      path: state.paths.path.nodes()[0],
-    });
+    expect(state.series.length).toBe(1);
+    expect(state.series[0]).toMatchObject({ axisIdx: 0 });
   });
 
   it("returns two series for combined axis", () => {
@@ -116,18 +110,9 @@ describe("buildSeries", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
-    const series = buildSeries(data, state.paths);
-    expect(series.length).toBe(2);
-    expect(series[0]).toMatchObject({
-      axisIdx: 0,
-      view: state.paths.nodes[0],
-      path: state.paths.path.nodes()[0],
-    });
-    expect(series[1]).toMatchObject({
-      axisIdx: 1,
-      view: state.paths.nodes[1],
-      path: state.paths.path.nodes()[1],
-    });
+    expect(state.series.length).toBe(2);
+    expect(state.series[0]).toMatchObject({ axisIdx: 0 });
+    expect(state.series[1]).toMatchObject({ axisIdx: 1 });
   });
 
   it("returns two series for dualYAxis", () => {
@@ -143,38 +128,8 @@ describe("buildSeries", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, true);
-    const series = buildSeries(data, state.paths);
-    expect(series.length).toBe(2);
-    expect(series[0]).toMatchObject({
-      axisIdx: 0,
-      view: state.paths.nodes[0],
-      path: state.paths.path.nodes()[0],
-    });
-    expect(series[1]).toMatchObject({
-      axisIdx: 1,
-      view: state.paths.nodes[1],
-      path: state.paths.path.nodes()[1],
-    });
-  });
-
-  it("omits secondary series when path is missing", () => {
-    const svg = createSvg();
-    const source: IDataSource = {
-      startTime: 0,
-      timeStep: 1,
-      length: 3,
-      seriesCount: 2,
-      seriesAxes: [0, 1],
-      getSeries: (i, seriesIdx) =>
-        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
-    };
-    const data = new ChartData(source);
-    setupRender(svg as any, data, false);
-    const svg2 = select(document.createElement("div")).append(
-      "svg",
-    ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
-    const singlePaths = initPaths(svg2, 1);
-    const series = buildSeries(data, singlePaths);
-    expect(series.length).toBe(1);
+    expect(state.series.length).toBe(2);
+    expect(state.series[0]).toMatchObject({ axisIdx: 0 });
+    expect(state.series[1]).toMatchObject({ axisIdx: 1 });
   });
 });

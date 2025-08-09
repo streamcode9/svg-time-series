@@ -99,24 +99,24 @@ describe("RenderState.refresh integration", () => {
       .spyOn(domNode, "updateNode")
       .mockImplementation(() => {});
 
-    const xBefore = state.scales.x.domain().slice();
-    const yNyBefore = state.scales.y[0].domain().slice();
-    const ySfBefore = state.scales.y[1].domain().slice();
+    const xBefore = state.axes.x.scale.domain().slice();
+    const yNyBefore = state.axes.y[0].scale.domain().slice();
+    const ySfBefore = state.axes.y[1].scale.domain().slice();
 
     data.append(100, 200);
     state.refresh(data);
 
-    const xAfter = state.scales.x.domain();
-    const yNyAfter = state.scales.y[0].domain();
-    const ySfAfter = state.scales.y[1].domain();
+    const xAfter = state.axes.x.scale.domain();
+    const yNyAfter = state.axes.y[0].scale.domain();
+    const ySfAfter = state.axes.y[1].scale.domain();
 
     expect(xAfter).not.toEqual(xBefore);
     expect(yNyAfter).not.toEqual(yNyBefore);
     expect(ySfAfter).not.toEqual(ySfBefore);
 
     expect((state.axes.x.axis as any).scale1.domain()).toEqual(xAfter);
-    expect((state.axisStates[0].axis as any).scale1.domain()).toEqual(yNyAfter);
-    expect((state.axisStates[1].axis as any).scale1.domain()).toEqual(ySfAfter);
+    expect((state.axes.y[0].axis as any).scale1.domain()).toEqual(yNyAfter);
+    expect((state.axes.y[1].axis as any).scale1.domain()).toEqual(ySfAfter);
 
     expect(updateNodeSpy).toHaveBeenCalledTimes(state.series.length);
     for (const s of state.series) {

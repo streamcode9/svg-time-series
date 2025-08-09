@@ -1,21 +1,22 @@
 import { Selection } from "d3-selection";
-import type { ScaleLinear } from "d3-scale";
+import {
+  scaleLinear,
+  scaleTime,
+  type ScaleLinear,
+  type ScaleTime,
+} from "d3-scale";
 import type { Line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
-import type { ChartData, IMinMax } from "./data.ts";
-import type { SegmentTree } from "segment-tree-rmq";
+import type { ChartData } from "./data.ts";
 import {
   createDimensions,
-  createScales,
   updateScaleX,
-  initPaths,
+  initSeriesNode,
   createLine,
-  type ScaleSet,
-  type PathSet,
 } from "./render/utils.ts";
 
 function createYAxis(
@@ -34,39 +35,40 @@ function createYAxis(
 
 function setupAxes(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
-  scales: ScaleSet,
+  xScale: ScaleTime<number, number>,
+  axes: AxisState[],
   width: number,
   height: number,
   hasSf: boolean,
   dualYAxis: boolean,
-): AxisSet {
-  const xAxis = new MyAxis(Orientation.Bottom, scales.x)
+): AxisDataX {
+  const xAxis = new MyAxis(Orientation.Bottom, xScale)
     .ticks(4)
     .setTickSize(height)
     .setTickPadding(8 - height);
 
-  xAxis.setScale(scales.x);
+  xAxis.setScale(xScale);
   const gX = svg.append("g").attr("class", "axis").call(xAxis.axis.bind(xAxis));
 
-  const yRight = createYAxis(Orientation.Right, scales.y[0], width);
+  const yRight = createYAxis(Orientation.Right, axes[0].scale, width);
   const gYRight = svg
     .append("g")
     .attr("class", "axis")
     .call(yRight.axis.bind(yRight));
+  axes[0].axis = yRight;
+  axes[0].g = gYRight;
 
-  const yAxes: AxisData[] = [{ axis: yRight, g: gYRight }];
-
-  if (hasSf && dualYAxis && scales.y[1]) {
-    const yLeft = createYAxis(Orientation.Left, scales.y[1], width);
+  if (hasSf && dualYAxis && axes[1]) {
+    const yLeft = createYAxis(Orientation.Left, axes[1].scale, width);
     const gYLeft = svg
       .append("g")
       .attr("class", "axis")
       .call(yLeft.axis.bind(yLeft));
-
-    yAxes.push({ axis: yLeft, g: gYLeft });
+    axes[1].axis = yLeft;
+    axes[1].g = gYLeft;
   }
 
-  return { x: { axis: xAxis, g: gX }, y: yAxes };
+  return { axis: xAxis, g: gX, scale: xScale };
 }
 
 interface AxisData {
@@ -74,9 +76,13 @@ interface AxisData {
   g: Selection<SVGGElement, unknown, HTMLElement, unknown>;
 }
 
-interface AxisSet {
-  x: AxisData;
-  y: AxisData[];
+interface AxisDataX extends AxisData {
+  scale: ScaleTime<number, number>;
+}
+
+interface Axes {
+  x: AxisDataX;
+  y: AxisState[];
 }
 
 interface Dimensions {
@@ -85,11 +91,10 @@ interface Dimensions {
 }
 
 interface AxisState {
-  tree?: SegmentTree<IMinMax>;
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
   axis?: MyAxis;
-  gAxis?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
+  g?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
 }
 
 export interface Series {
@@ -99,37 +104,8 @@ export interface Series {
   line: Line<number[]>;
 }
 
-export function buildSeries(data: ChartData, paths: PathSet): Series[] {
-  const pathNodes = paths.path.nodes() as SVGPathElement[];
-  const views = paths.nodes;
-  const series: Series[] = [];
-
-  for (let i = 0; i < data.seriesCount; i++) {
-    const path = pathNodes[i];
-    const view = views[i];
-    if (!path || !view) continue;
-
-    const axisIdx = data.seriesAxes[i] ?? 0;
-    const tree = data.getTree(axisIdx);
-    if (!tree) continue;
-
-    series.push({
-      axisIdx,
-      view,
-      path,
-      line: createLine(i),
-    });
-  }
-
-  return series;
-}
-
 export interface RenderState {
-  scales: ScaleSet;
-  axes: AxisSet;
-  paths: PathSet;
-  transforms: ViewportTransform[];
-  axisStates: AxisState[];
+  axes: Axes;
   bScreenXVisible: AR1Basis;
   dimensions: Dimensions;
   dualYAxis: boolean;
@@ -143,9 +119,10 @@ function updateYScales(axes: AxisState[], bIndex: AR1Basis, data: ChartData) {
     { min: number; max: number; transform: ViewportTransform }
   >();
 
-  for (const a of axes) {
-    if (!a.tree) continue;
-    const dp = data.updateScaleY(bIndex, a.tree);
+  data.trees.forEach((tree, i) => {
+    if (!tree) return;
+    const a = axes[Math.min(i, axes.length - 1)];
+    const dp = data.updateScaleY(bIndex, tree);
     const [min, max] = dp.y().toArr();
     const entry = domains.get(a.scale);
     if (entry) {
@@ -154,7 +131,7 @@ function updateYScales(axes: AxisState[], bIndex: AR1Basis, data: ChartData) {
     } else {
       domains.set(a.scale, { min, max, transform: a.transform });
     }
-  }
+  });
 
   domains.forEach(({ min, max, transform }, scale) => {
     const b = new AR1Basis(min, max);
@@ -178,77 +155,74 @@ export function setupRender(
   const bScreenYVisible = bScreenVisibleDp.y();
   const width = bScreenXVisible.getRange();
   const height = bScreenYVisible.getRange();
-  const paths = initPaths(svg, seriesCount);
   const axisCount = hasSf && dualYAxis ? 2 : 1;
-  const scales = createScales(bScreenVisibleDp, axisCount);
-  const transformsInner = Array.from(
-    { length: axisCount },
-    () => new ViewportTransform(),
-  );
 
-  updateScaleX(scales.x, data.bIndexFull, data);
-  const series = buildSeries(data, paths);
+  const [xRange, yRange] = bScreenVisibleDp.toArr();
+  const xScale: ScaleTime<number, number> = scaleTime().range(xRange);
+  updateScaleX(xScale, data.bIndexFull, data);
 
-  const axisStates: AxisState[] = data.trees.map((tree, i) => ({
-    transform: transformsInner[Math.min(i, axisCount - 1)],
-    scale: scales.y[Math.min(i, axisCount - 1)],
-    tree,
+  const axesY: AxisState[] = Array.from({ length: axisCount }, () => ({
+    transform: new ViewportTransform(),
+    scale: scaleLinear<number, number>().range(yRange),
   }));
 
-  updateYScales(axisStates, data.bIndexFull, data);
+  updateYScales(axesY, data.bIndexFull, data);
 
-  const axes = setupAxes(svg, scales, width, height, hasSf, dualYAxis);
-
-  // Attach axes to axis states after scales have been initialized
-  axisStates.forEach((a, i) => {
-    const axisData = axes.y[Math.min(i, axes.y.length - 1)];
-    a.axis = axisData.axis;
-    a.gAxis = axisData.g;
-  });
+  const xAxisData = setupAxes(
+    svg,
+    xScale,
+    axesY,
+    width,
+    height,
+    hasSf,
+    dualYAxis,
+  );
 
   const refDp = DirectProductBasis.fromProjections(
     data.bIndexFull,
     bPlaceholder,
   );
-  for (const t of transformsInner) {
-    t.onViewPortResize(bScreenVisibleDp);
-    t.onReferenceViewWindowResize(refDp);
+  for (const a of axesY) {
+    a.transform.onViewPortResize(bScreenVisibleDp);
+    a.transform.onReferenceViewWindowResize(refDp);
   }
 
+  const series: Series[] = [];
+  for (let i = 0; i < seriesCount; i++) {
+    const { view, path } = initSeriesNode(svg);
+    const axisIdx = data.seriesAxes[i] ?? 0;
+    const tree = data.getTree(axisIdx);
+    if (!tree) continue;
+    series.push({ axisIdx, view, path, line: createLine(i) });
+  }
+
+  const axes: Axes = { x: xAxisData, y: axesY };
   const dimensions: Dimensions = { width, height };
 
   const state: RenderState = {
-    scales,
     axes,
-    paths,
-    transforms: transformsInner,
-    axisStates,
     bScreenXVisible,
     dimensions,
     dualYAxis,
     series,
     refresh(this: RenderState, data: ChartData) {
-      const bIndexVisible = this.transforms[0].fromScreenToModelBasisX(
+      const bIndexVisible = this.axes.y[0].transform.fromScreenToModelBasisX(
         this.bScreenXVisible,
       );
-      updateScaleX(this.scales.x, bIndexVisible, data);
-      this.axisStates.forEach((a, i) => {
-        a.tree = data.getTree(i);
-      });
+      updateScaleX(this.axes.x.scale, bIndexVisible, data);
 
-      updateYScales(this.axisStates, bIndexVisible, data);
+      updateYScales(this.axes.y, bIndexVisible, data);
 
       for (const s of this.series) {
         if (s.view) {
           const t =
-            this.axisStates[s.axisIdx]?.transform ??
-            this.axisStates[0].transform;
+            this.axes.y[s.axisIdx]?.transform ?? this.axes.y[0].transform;
           updateNode(s.view, t.matrix);
         }
       }
-      for (const a of this.axisStates) {
-        if (a.axis && a.gAxis) {
-          a.axis.axisUp(a.gAxis);
+      for (const a of this.axes.y) {
+        if (a.axis && a.g) {
+          a.axis.axisUp(a.g);
         }
       }
       this.axes.x.axis.axisUp(this.axes.x.g);

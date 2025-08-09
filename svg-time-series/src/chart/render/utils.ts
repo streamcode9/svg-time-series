@@ -1,6 +1,6 @@
 import { Selection } from "d3-selection";
 import { line, type Line } from "d3-shape";
-import { ScaleLinear, ScaleTime, scaleLinear, scaleTime } from "d3-scale";
+import type { ScaleTime } from "d3-scale";
 import { AR1Basis, DirectProductBasis } from "../../math/affine.ts";
 import type { ChartData } from "../data.ts";
 import type { RenderState } from "../render.ts";
@@ -30,23 +30,6 @@ export function createDimensions(
   return DirectProductBasis.fromProjections(bScreenXVisible, bScreenYVisible);
 }
 
-export interface ScaleSet {
-  x: ScaleTime<number, number>;
-  y: ScaleLinear<number, number>[];
-}
-
-export function createScales(
-  bScreenVisible: DirectProductBasis,
-  yScaleCount: number,
-): ScaleSet {
-  const [xRange, yRange] = bScreenVisible.toArr();
-  const x: ScaleTime<number, number> = scaleTime().range(xRange);
-  const y = Array.from({ length: yScaleCount }, () =>
-    scaleLinear<number, number>().range(yRange),
-  );
-  return { x, y };
-}
-
 export function updateScaleX(
   x: ScaleTime<number, number>,
   bIndexVisible: AR1Basis,
@@ -57,24 +40,17 @@ export function updateScaleX(
   x.domain(bTimeVisible.toArr());
 }
 
-export interface PathSet {
-  path: Selection<SVGPathElement, number, SVGGElement, unknown>;
-  nodes: SVGGElement[];
+export interface SeriesNode {
+  view: SVGGElement;
+  path: SVGPathElement;
 }
 
-export function initPaths(
+export function initSeriesNode(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
-  seriesCount: number,
-): PathSet {
-  const views = svg
-    .selectAll<SVGGElement, number>("g")
-    .data(Array.from({ length: seriesCount }, (_, i) => i))
-    .enter()
-    .append("g")
-    .attr("class", "view");
-  const nodes = views.nodes() as SVGGElement[];
-  const path = views.append<SVGPathElement>("path");
-  return { path, nodes };
+): SeriesNode {
+  const view = svg.append("g").attr("class", "view");
+  const path = view.append<SVGPathElement>("path").node() as SVGPathElement;
+  return { view: view.node() as SVGGElement, path };
 }
 
 export function renderPaths(state: RenderState, dataArr: number[][]) {
