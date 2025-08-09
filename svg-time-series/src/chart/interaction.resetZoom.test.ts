@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, @typescript-eslint/no-useless-constructor */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
@@ -81,8 +82,8 @@ vi.mock("./zoomState.ts", () => ({
     private zoomCallback: (e: any) => void;
     reset = vi.fn(() => {
       const identity = { x: 0, k: 1 };
-      this.state.transforms.ny.onZoomPan(identity);
-      this.state.transforms.sf?.onZoomPan(identity);
+      this.state.transforms[0].onZoomPan(identity);
+      this.state.transforms[1]?.onZoomPan(identity);
       this.refreshChart();
       this.zoomCallback({ transform: identity, sourceEvent: null });
     });

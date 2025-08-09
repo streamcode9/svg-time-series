@@ -111,7 +111,7 @@ export class TimeSeriesChart {
   };
 
   public onHover = (x: number) => {
-    let idx = this.state.transforms.ny.fromScreenToModelX(x);
+    let idx = this.state.transforms[0].fromScreenToModelX(x);
     idx = Math.min(Math.max(idx, 0), this.data.length - 1);
     this.legendController.highlightIndex(idx);
   };

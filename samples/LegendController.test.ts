@@ -114,7 +114,7 @@ describe("LegendController", () => {
     const matrix = lastCall[1] as Matrix;
     const modelPoint = new Point(1, data.getPoint(1).values[0]);
     const expected = modelPoint.matrixTransform(
-      state.transforms.ny.matrix as any,
+      state.transforms[0].matrix as any,
     );
     expect(matrix.e).toBeCloseTo(expected.x);
     expect(matrix.f).toBeCloseTo(expected.y);

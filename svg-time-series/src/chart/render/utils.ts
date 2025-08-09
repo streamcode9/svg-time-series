@@ -2,7 +2,6 @@ import { Selection } from "d3-selection";
 import { line } from "d3-shape";
 import { ScaleLinear, ScaleTime, scaleLinear, scaleTime } from "d3-scale";
 import { AR1Basis, DirectProductBasis } from "../../math/affine.ts";
-import type { ViewportTransform } from "../../ViewportTransform.ts";
 import type { ChartData } from "../data.ts";
 import type { RenderState } from "../render.ts";
 
@@ -65,11 +64,6 @@ export function updateScaleX(
 export interface PathSet {
   path: Selection<SVGPathElement, number, SVGGElement, unknown>;
   nodes: SVGGElement[];
-}
-
-export interface TransformPair {
-  ny: ViewportTransform;
-  sf?: ViewportTransform;
 }
 
 export function initPaths(

@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { select } from "d3-selection";
 
@@ -46,7 +47,7 @@ describe("ZoomState.destroy", () => {
     const rect = select(svg).append("rect");
     const state: any = {
       dimensions: { width: 10, height: 10 },
-      transforms: { ny: { onZoomPan: vi.fn() } },
+      transforms: [{ onZoomPan: vi.fn() }],
     };
     const refresh = vi.fn();
     const zoomCb = vi.fn();
@@ -73,7 +74,7 @@ describe("ZoomState.destroy", () => {
     const rect = select(svg).append("rect");
     const state: any = {
       dimensions: { width: 10, height: 10 },
-      transforms: { ny: { onZoomPan: vi.fn() } },
+      transforms: [{ onZoomPan: vi.fn() }],
     };
     const refresh = vi.fn();
     const zs = new ZoomState(rect as any, state, refresh);
