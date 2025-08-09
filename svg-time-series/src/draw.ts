@@ -53,7 +53,9 @@ export class TimeSeriesChart {
       length: this.data.length,
       series: this.state.series.map((s) => ({
         path: s.path as SVGPathElement,
-        transform: s.transform,
+        transform:
+          this.state.axisStates[s.axisIdx]?.transform ??
+          this.state.axisStates[0].transform,
       })),
     };
     this.legendController.init(context);

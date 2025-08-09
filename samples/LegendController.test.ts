@@ -109,7 +109,7 @@ describe("LegendController", () => {
       length: data.length,
       series: state.series.map((s) => ({
         path: s.path as SVGPathElement,
-        transform: s.transform,
+        transform: state.axisStates[s.axisIdx].transform,
       })),
     });
 
@@ -160,7 +160,7 @@ describe("LegendController", () => {
       length: data.length,
       series: state.series.map((s) => ({
         path: s.path as SVGPathElement,
-        transform: s.transform,
+        transform: state.axisStates[s.axisIdx].transform,
       })),
     });
 
@@ -200,7 +200,7 @@ describe("LegendController", () => {
       length: data.length,
       series: state.series.map((s) => ({
         path: s.path as SVGPathElement,
-        transform: s.transform,
+        transform: state.axisStates[s.axisIdx].transform,
       })),
     });
 

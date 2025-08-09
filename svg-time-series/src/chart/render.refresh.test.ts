@@ -112,14 +112,13 @@ describe("RenderState.refresh", () => {
 
     expect(state.series.length).toBe(1);
     expect(state.axisStates[0].tree).toBe(data.treeAxis0);
-    expect(state.series[0].scale.domain()).toEqual([1, 3]);
+    expect(state.axisStates[state.series[0].axisIdx].scale.domain()).toEqual([
+      1, 3,
+    ]);
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
     state.series.forEach((s, i) => {
-      expect(updateNodeMock).toHaveBeenNthCalledWith(
-        i + 1,
-        s.view,
-        s.transform.matrix,
-      );
+      const t = state.axisStates[s.axisIdx].transform;
+      expect(updateNodeMock).toHaveBeenNthCalledWith(i + 1, s.view, t.matrix);
     });
   });
 
@@ -142,15 +141,16 @@ describe("RenderState.refresh", () => {
 
     expect(state.axisStates[0].tree).toBe(data.treeAxis0);
     expect(state.axisStates[1].tree).toBe(data.treeAxis1);
-    expect(state.series[0].scale.domain()).toEqual([1, 3]);
-    expect(state.series[1].scale.domain()).toEqual([10, 30]);
+    expect(state.axisStates[state.series[0].axisIdx].scale.domain()).toEqual([
+      1, 3,
+    ]);
+    expect(state.axisStates[state.series[1].axisIdx].scale.domain()).toEqual([
+      10, 30,
+    ]);
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
     state.series.forEach((s, i) => {
-      expect(updateNodeMock).toHaveBeenNthCalledWith(
-        i + 1,
-        s.view,
-        s.transform.matrix,
-      );
+      const t = state.axisStates[s.axisIdx].transform;
+      expect(updateNodeMock).toHaveBeenNthCalledWith(i + 1, s.view, t.matrix);
     });
   });
 
@@ -169,9 +169,9 @@ describe("RenderState.refresh", () => {
 
     state.refresh(data);
 
-    expect(state.series[0].scale).toBe(state.series[1].scale);
-    expect(state.series[0].scale.domain()).toEqual([1, 30]);
-    expect(state.series[1].scale.domain()).toEqual([1, 30]);
+    expect(state.axisStates[0].scale).toBe(state.axisStates[1].scale);
+    expect(state.axisStates[0].scale.domain()).toEqual([1, 30]);
+    expect(state.axisStates[1].scale.domain()).toEqual([1, 30]);
   });
 
   it("refreshes after data changes", () => {
@@ -203,8 +203,8 @@ describe("RenderState.refresh", () => {
 
     expect(state.axisStates[0].tree).toBe(data2.treeAxis0);
     expect(state.axisStates[1].tree).toBe(data2.treeAxis1);
-    expect(state.series[0].scale.domain()).toEqual([4, 6]);
-    expect(state.series[1].scale.domain()).toEqual([40, 60]);
+    expect(state.axisStates[0].scale.domain()).toEqual([4, 6]);
+    expect(state.axisStates[1].scale.domain()).toEqual([40, 60]);
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
   });
 
@@ -221,7 +221,7 @@ describe("RenderState.refresh", () => {
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
     state.refresh(data);
-    expect(state.series[0].scale.domain()).toEqual([Infinity, -Infinity]);
+    expect(state.axisStates[0].scale.domain()).toEqual([Infinity, -Infinity]);
   });
 
   it("produces finite domains for dual-axis all NaN data", () => {
@@ -237,7 +237,7 @@ describe("RenderState.refresh", () => {
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, true);
     state.refresh(data);
-    expect(state.series[0].scale.domain()).toEqual([Infinity, -Infinity]);
-    expect(state.series[1].scale.domain()).toEqual([Infinity, -Infinity]);
+    expect(state.axisStates[0].scale.domain()).toEqual([Infinity, -Infinity]);
+    expect(state.axisStates[1].scale.domain()).toEqual([Infinity, -Infinity]);
   });
 });

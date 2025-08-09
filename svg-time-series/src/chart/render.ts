@@ -88,26 +88,18 @@ interface AxisState {
   tree?: SegmentTree<IMinMax>;
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
+  axis?: MyAxis;
+  gAxis?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
 }
 
 export interface Series {
   axisIdx: number;
-  transform: ViewportTransform;
-  scale: ScaleLinear<number, number>;
   view?: SVGGElement;
   path?: SVGPathElement;
-  axis?: MyAxis;
-  gAxis?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
   line: Line<number[]>;
 }
 
-export function buildSeries(
-  data: ChartData,
-  transforms: ViewportTransform[],
-  scales: ScaleSet,
-  paths: PathSet,
-  axes?: AxisSet,
-): Series[] {
+export function buildSeries(data: ChartData, paths: PathSet): Series[] {
   const pathNodes = paths.path.nodes() as SVGPathElement[];
   const views = paths.nodes;
   const series: Series[] = [];
@@ -121,18 +113,10 @@ export function buildSeries(
     const tree = data.getTree(axisIdx);
     if (!tree) continue;
 
-    const transform = transforms[axisIdx] ?? transforms[0];
-    const scale = scales.y[axisIdx] ?? scales.y[0];
-    const axisData = axes?.y?.[axisIdx] ?? axes?.y?.[0];
-
     series.push({
       axisIdx,
-      transform,
-      scale,
       view,
       path,
-      axis: axisData?.axis,
-      gAxis: axisData?.g,
       line: createLine(i),
     });
   }
@@ -203,7 +187,7 @@ export function setupRender(
   );
 
   updateScaleX(scales.x, data.bIndexFull, data);
-  const series = buildSeries(data, transformsInner, scales, paths);
+  const series = buildSeries(data, paths);
 
   const axisStates: AxisState[] = data.trees.map((tree, i) => ({
     transform: transformsInner[Math.min(i, axisCount - 1)],
@@ -215,11 +199,11 @@ export function setupRender(
 
   const axes = setupAxes(svg, scales, width, height, hasSf, dualYAxis);
 
-  // Attach axes to series after scales have been initialized
-  series.forEach((s) => {
-    const axisData = axes.y[s.axisIdx] ?? axes.y[0];
-    s.axis = axisData.axis;
-    s.gAxis = axisData.g;
+  // Attach axes to axis states after scales have been initialized
+  axisStates.forEach((a, i) => {
+    const axisData = axes.y[Math.min(i, axes.y.length - 1)];
+    a.axis = axisData.axis;
+    a.gAxis = axisData.g;
   });
 
   const refDp = DirectProductBasis.fromProjections(
@@ -256,11 +240,16 @@ export function setupRender(
 
       for (const s of this.series) {
         if (s.view) {
-          updateNode(s.view, s.transform.matrix);
+          const t =
+            this.axisStates[s.axisIdx]?.transform ??
+            this.axisStates[0].transform;
+          updateNode(s.view, t.matrix);
         }
       }
-      for (const a of this.axes.y) {
-        a.axis.axisUp(a.g);
+      for (const a of this.axisStates) {
+        if (a.axis && a.gAxis) {
+          a.axis.axisUp(a.gAxis);
+        }
       }
       this.axes.x.axis.axisUp(this.axes.x.g);
     },

@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll } from "vitest";
 import { JSDOM } from "jsdom";
 import { select, type Selection } from "d3-selection";
@@ -94,21 +94,12 @@ describe("buildSeries", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
-    const series = buildSeries(
-      data,
-      state.transforms,
-      state.scales,
-      state.paths,
-      state.axes,
-    );
+    const series = buildSeries(data, state.paths);
     expect(series.length).toBe(1);
     expect(series[0]).toMatchObject({
       axisIdx: 0,
-      transform: state.transforms[0],
-      scale: state.scales.y[0],
       view: state.paths.nodes[0],
-      axis: state.axes.y[0].axis,
-      gAxis: state.axes.y[0].g,
+      path: state.paths.path.nodes()[0],
     });
   });
 
@@ -125,29 +116,17 @@ describe("buildSeries", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, false);
-    const series = buildSeries(
-      data,
-      state.transforms,
-      state.scales,
-      state.paths,
-      state.axes,
-    );
+    const series = buildSeries(data, state.paths);
     expect(series.length).toBe(2);
     expect(series[0]).toMatchObject({
       axisIdx: 0,
-      transform: state.transforms[0],
-      scale: state.scales.y[0],
       view: state.paths.nodes[0],
-      axis: state.axes.y[0].axis,
-      gAxis: state.axes.y[0].g,
+      path: state.paths.path.nodes()[0],
     });
     expect(series[1]).toMatchObject({
       axisIdx: 1,
-      transform: state.transforms[0],
-      scale: state.scales.y[0],
       view: state.paths.nodes[1],
-      axis: state.axes.y[0].axis,
-      gAxis: state.axes.y[0].g,
+      path: state.paths.path.nodes()[1],
     });
   });
 
@@ -164,29 +143,17 @@ describe("buildSeries", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg as any, data, true);
-    const series = buildSeries(
-      data,
-      state.transforms,
-      state.scales,
-      state.paths,
-      state.axes,
-    );
+    const series = buildSeries(data, state.paths);
     expect(series.length).toBe(2);
     expect(series[0]).toMatchObject({
       axisIdx: 0,
-      transform: state.transforms[0],
-      scale: state.scales.y[0],
       view: state.paths.nodes[0],
-      axis: state.axes.y[0].axis,
-      gAxis: state.axes.y[0].g,
+      path: state.paths.path.nodes()[0],
     });
     expect(series[1]).toMatchObject({
       axisIdx: 1,
-      transform: state.transforms[1]!,
-      scale: state.scales.y[1],
       view: state.paths.nodes[1],
-      axis: state.axes.y[1].axis,
-      gAxis: state.axes.y[1].g,
+      path: state.paths.path.nodes()[1],
     });
   });
 
@@ -202,18 +169,12 @@ describe("buildSeries", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, false);
+    setupRender(svg as any, data, false);
     const svg2 = select(document.createElement("div")).append(
       "svg",
     ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
     const singlePaths = initPaths(svg2, 1);
-    const series = buildSeries(
-      data,
-      state.transforms,
-      state.scales,
-      singlePaths,
-      state.axes,
-    );
+    const series = buildSeries(data, singlePaths);
     expect(series.length).toBe(1);
   });
 });
