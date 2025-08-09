@@ -25,34 +25,6 @@ function createYAxis(
   return axis;
 }
 
-function setupAxes(
-  svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
-  xScale: ScaleTime<number, number>,
-  axes: AxisState[],
-  width: number,
-  height: number,
-): AxisDataX {
-  const xAxis = new MyAxis(Orientation.Bottom, xScale)
-    .ticks(4)
-    .setTickSize(height)
-    .setTickPadding(8 - height);
-
-  xAxis.setScale(xScale);
-  const gX = svg.append("g").attr("class", "axis").call(xAxis.axis.bind(xAxis));
-
-  axes.forEach((a, i) => {
-    const orientation = i === 0 ? Orientation.Right : Orientation.Left;
-    a.g = svg
-      .append("g")
-      .attr("class", "axis")
-      .call(
-        (a.axis = createYAxis(orientation, a.scale, width)).axis.bind(a.axis),
-      );
-  });
-
-  return { axis: xAxis, g: gX, scale: xScale };
-}
-
 interface AxisData {
   axis: MyAxis;
   g: Selection<SVGGElement, unknown, HTMLElement, unknown>;
@@ -126,10 +98,27 @@ export function setupRender(
   const seriesRenderer = new SeriesRenderer();
   seriesRenderer.series = seriesManager.series;
   const { series } = seriesManager;
+  const xAxis = new MyAxis(Orientation.Bottom, xScale)
+    .ticks(4)
+    .setTickSize(height)
+    .setTickPadding(8 - height);
+  xAxis.setScale(xScale);
+  const gX = svg.append("g").attr("class", "axis");
+  gX.call(xAxis.axis.bind(xAxis));
 
-  const xAxisData = setupAxes(svg, xScale, axesY, width, height);
+  // AxisState instances start without `axis` and `g` because AxisManager
+  // only prepares the scale and transform. We attach the DOM elements and
+  // axis instances here, which is why those fields are optional.
+  axesY.forEach((a, i) => {
+    const orientation = i === 0 ? Orientation.Right : Orientation.Left;
+    const axis = createYAxis(orientation, a.scale, width);
+    const g = svg.append("g").attr("class", "axis");
+    g.call(axis.axis.bind(axis));
+    a.axis = axis;
+    a.g = g;
+  });
 
-  const axes: Axes = { x: xAxisData, y: axesY };
+  const axes: Axes = { x: { axis: xAxis, g: gX, scale: xScale }, y: axesY };
   const dimensions: Dimensions = { width, height };
 
   const state: RenderState = {

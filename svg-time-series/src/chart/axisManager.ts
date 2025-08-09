@@ -23,6 +23,7 @@ export interface AxisState {
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
   tree: SegmentTree<IMinMax>;
+  // These are attached during rendering, so they start undefined.
   axis?: MyAxis;
   g?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
 }
