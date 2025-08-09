@@ -15,6 +15,7 @@ import type { ChartData, IMinMax } from "./data.ts";
 import { SegmentTree } from "segment-tree-rmq";
 import { createDimensions, updateScaleX } from "./render/utils.ts";
 import { SeriesRenderer } from "./seriesRenderer.ts";
+import { SeriesManager } from "./series.ts";
 
 function createYAxis(
   orientation: Orientation,
@@ -180,8 +181,10 @@ export function setupRender(
     a.transform.onReferenceViewWindowResize(refDp);
   }
 
+  const seriesManager = new SeriesManager(svg, seriesCount, data.seriesAxes);
   const seriesRenderer = new SeriesRenderer();
-  const series = seriesRenderer.init(svg, seriesCount, data.seriesAxes);
+  seriesRenderer.series = seriesManager.series;
+  const { series } = seriesManager;
 
   const xAxisData = setupAxes(svg, xScale, axesY, width, height);
 

@@ -4,13 +4,14 @@
 import { describe, it, expect, vi } from "vitest";
 import { select, type Selection } from "d3-selection";
 import { SeriesRenderer } from "./seriesRenderer.ts";
+import { SeriesManager } from "./series.ts";
 
 describe("SeriesRenderer", () => {
   describe("draw", () => {
     it("skips segments for NaN values", () => {
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       const renderer = new SeriesRenderer();
-      renderer.init(
+      const manager = new SeriesManager(
         select(svg) as unknown as Selection<
           SVGSVGElement,
           unknown,
@@ -20,6 +21,7 @@ describe("SeriesRenderer", () => {
         2,
         [0, 1],
       );
+      renderer.series = manager.series;
       const data: Array<[number, number]> = [
         [0, 0],
         [NaN, NaN],
@@ -38,7 +40,9 @@ describe("SeriesRenderer", () => {
         "svg",
       ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
       const renderer = new SeriesRenderer();
-      const [series] = renderer.init(svgSelection, 1, [0]);
+      const manager = new SeriesManager(svgSelection, 1, [0]);
+      const [series] = manager.series;
+      renderer.series = manager.series;
       const pathNode = series.path;
       const spy = vi.spyOn(pathNode, "setAttribute");
 
@@ -51,17 +55,17 @@ describe("SeriesRenderer", () => {
       spy.mockRestore();
     });
   });
+});
 
-  describe("init", () => {
-    it("creates a view and path", () => {
-      const svgSelection = select(document.createElement("div")).append(
-        "svg",
-      ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
-      const renderer = new SeriesRenderer();
-      const [series] = renderer.init(svgSelection, 1, [0]);
+describe("SeriesManager", () => {
+  it("creates a view and path", () => {
+    const svgSelection = select(document.createElement("div")).append(
+      "svg",
+    ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
+    const manager = new SeriesManager(svgSelection, 1, [0]);
+    const [series] = manager.series;
 
-      expect(series.view.tagName).toBe("g");
-      expect(series.path.tagName).toBe("path");
-    });
+    expect(series.view.tagName).toBe("g");
+    expect(series.path.tagName).toBe("path");
   });
 });
