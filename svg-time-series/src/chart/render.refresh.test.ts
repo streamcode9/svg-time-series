@@ -158,7 +158,7 @@ describe("RenderState.refresh", () => {
       timeStep: 1,
       length: 3,
       seriesCount: 2,
-      seriesAxes: [0, 1],
+      seriesAxes: [0, 0],
       getSeries: (i, s) => (s === 0 ? [1, 2, 3][i] : [10, 20, 30][i]),
     };
     const data = new ChartData(source);

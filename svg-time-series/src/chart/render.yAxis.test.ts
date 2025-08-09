@@ -78,7 +78,7 @@ function createSvg() {
 }
 
 describe("setupRender Y-axis modes", () => {
-  it("combines series when dualYAxis is false", () => {
+  it("throws when dualYAxis is false but series uses second axis", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
@@ -90,9 +90,9 @@ describe("setupRender Y-axis modes", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, false);
-    expect(state.axes.y[0].scale.domain()).toEqual([1, 30]);
-    expect(state.axes.y[1]).toBeUndefined();
+    expect(() => setupRender(svg as any, data, false)).toThrow(
+      "axes.y must contain an entry for every series.axisIdx",
+    );
   });
 
   it("separates scales when dualYAxis is true", () => {

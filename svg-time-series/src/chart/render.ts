@@ -75,7 +75,14 @@ export function setupRender(
   const bScreenXVisible = bScreenVisibleDp.x();
   const width = bScreenXVisible.getRange();
   const height = bScreenVisibleDp.y().getRange();
-  const axisCount = dualYAxis && data.seriesAxes.includes(1) ? 2 : 1;
+  const maxAxisIdx = data.seriesAxes.reduce(
+    (max, idx) => Math.max(max, idx),
+    0,
+  );
+  if (maxAxisIdx > 0 && !dualYAxis) {
+    throw new Error("axes.y must contain an entry for every series.axisIdx");
+  }
+  const axisCount = dualYAxis ? maxAxisIdx + 1 : 1;
 
   const [xRange, yRange] = bScreenVisibleDp.toArr();
   const xScale: ScaleTime<number, number> = scaleTime().range(xRange);
@@ -138,7 +145,7 @@ export function setupRender(
       this.axisManager.updateScales(bIndexVisible, data);
 
       for (const s of this.series) {
-        const t = this.axes.y[s.axisIdx]?.transform ?? this.axes.y[0].transform;
+        const t = this.axes.y[s.axisIdx].transform;
         updateNode(s.view, t.matrix);
       }
       this.axisRenders.forEach((r) => r.axis.axisUp(r.g));

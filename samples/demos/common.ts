@@ -27,7 +27,7 @@ export function drawCharts(data: [number, number][], dualYAxis = false) {
       timeStep: 86400000,
       length: data.length,
       seriesCount: 2,
-      seriesAxes: [0, 1],
+      seriesAxes: dualYAxis ? [0, 1] : [0, 0],
       getSeries: (i, seriesIdx) => data[i][seriesIdx],
     };
     const legendController = new LegendController(legend);

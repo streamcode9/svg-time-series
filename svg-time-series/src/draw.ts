@@ -57,9 +57,7 @@ export class TimeSeriesChart {
       length: this.data.length,
       series: this.state.series.map((s) => ({
         path: s.path,
-        transform:
-          this.state.axes.y[s.axisIdx]?.transform ??
-          this.state.axes.y[0].transform,
+        transform: this.state.axes.y[s.axisIdx].transform,
       })),
     };
     this.legendController.init(context);

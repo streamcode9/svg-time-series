@@ -97,7 +97,25 @@ describe("buildSeries", () => {
     expect(state.series[0]).toMatchObject({ axisIdx: 0 });
   });
 
-  it("returns two series for combined axis", () => {
+  it("returns two series for shared axis", () => {
+    const svg = createSvg();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      seriesCount: 2,
+      seriesAxes: [0, 0],
+      getSeries: (i, seriesIdx) =>
+        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg as any, data, false);
+    expect(state.series.length).toBe(2);
+    expect(state.series[0]).toMatchObject({ axisIdx: 0 });
+    expect(state.series[1]).toMatchObject({ axisIdx: 0 });
+  });
+
+  it("throws when second axis requested without dualYAxis", () => {
     const svg = createSvg();
     const source: IDataSource = {
       startTime: 0,
@@ -109,10 +127,9 @@ describe("buildSeries", () => {
         seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
     };
     const data = new ChartData(source);
-    const state = setupRender(svg as any, data, false);
-    expect(state.series.length).toBe(2);
-    expect(state.series[0]).toMatchObject({ axisIdx: 0 });
-    expect(state.series[1]).toMatchObject({ axisIdx: 1 });
+    expect(() => setupRender(svg as any, data, false)).toThrow(
+      "axes.y must contain an entry for every series.axisIdx",
+    );
   });
 
   it("returns two series for dualYAxis", () => {
