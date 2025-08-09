@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, vi } from "vitest";
 import { select, type Selection } from "d3-selection";
-import { initPaths, renderPaths, lineNy, lineSf } from "./render/utils.ts";
+import { initPaths, renderPaths, createLine } from "./render/utils.ts";
 import type { RenderState } from "./render.ts";
 
 describe("renderPaths", () => {
@@ -17,8 +17,8 @@ describe("renderPaths", () => {
     const nodes = pathSelection.nodes() as SVGPathElement[];
     const state = {
       series: [
-        { path: nodes[0], line: lineNy },
-        { path: nodes[1], line: lineSf },
+        { path: nodes[0], line: createLine(0) },
+        { path: nodes[1], line: createLine(1) },
       ],
     } as unknown as RenderState;
     const data: Array<[number, number]> = [
@@ -42,7 +42,7 @@ describe("renderPaths", () => {
     const { path } = initPaths(svgSelection, 1);
     const nodes = path.nodes() as SVGPathElement[];
     const state = {
-      series: [{ path: nodes[0], line: lineNy }],
+      series: [{ path: nodes[0], line: createLine(0) }],
     } as unknown as RenderState;
     const pathNode = nodes[0];
     const spy = vi.spyOn(pathNode, "setAttribute");

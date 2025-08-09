@@ -99,7 +99,6 @@ describe("buildSeries", () => {
       state.transforms,
       state.scales,
       state.paths,
-      false,
       state.axes,
     );
     expect(series.length).toBe(1);
@@ -131,7 +130,6 @@ describe("buildSeries", () => {
       state.transforms,
       state.scales,
       state.paths,
-      true,
       state.axes,
     );
     expect(series.length).toBe(2);
@@ -171,7 +169,6 @@ describe("buildSeries", () => {
       state.transforms,
       state.scales,
       state.paths,
-      true,
       state.axes,
     );
     expect(series.length).toBe(2);
@@ -215,7 +212,6 @@ describe("buildSeries", () => {
       state.transforms,
       state.scales,
       singlePaths,
-      true,
       state.axes,
     );
     expect(series.length).toBe(1);

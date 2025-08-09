@@ -1,19 +1,16 @@
 import { Selection } from "d3-selection";
-import { line } from "d3-shape";
+import { line, type Line } from "d3-shape";
 import { ScaleLinear, ScaleTime, scaleLinear, scaleTime } from "d3-scale";
 import { AR1Basis, DirectProductBasis } from "../../math/affine.ts";
 import type { ChartData } from "../data.ts";
 import type { RenderState } from "../render.ts";
 
-export const lineNy = line<number[]>()
-  .defined((d) => !(isNaN(d[0]) || d[0] == null))
-  .x((_, i) => i)
-  .y((d) => d[0] as number);
-
-export const lineSf = line<number[]>()
-  .defined((d) => !(isNaN(d[1]) || d[1] == null))
-  .x((_, i) => i)
-  .y((d) => d[1] as number);
+export function createLine(seriesIdx: number): Line<number[]> {
+  return line<number[]>()
+    .defined((d) => !(isNaN(d[seriesIdx]) || d[seriesIdx] == null))
+    .x((_, i) => i)
+    .y((d) => d[seriesIdx] as number);
+}
 
 export function createDimensions(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,

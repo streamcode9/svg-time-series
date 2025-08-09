@@ -13,8 +13,7 @@ import {
   createScales,
   updateScaleX,
   initPaths,
-  lineNy,
-  lineSf,
+  createLine,
   type ScaleSet,
   type PathSet,
 } from "./render/utils.ts";
@@ -101,34 +100,34 @@ export function buildSeries(
   transforms: ViewportTransform[],
   scales: ScaleSet,
   paths: PathSet,
-  hasSf: boolean,
   axes?: AxisSet,
 ): Series[] {
   const pathNodes = paths.path.nodes() as SVGPathElement[];
   const views = paths.nodes;
-  const series: Series[] = [
-    {
-      tree: data.treeAxis0,
-      transform: transforms[0],
-      scale: scales.y[0],
-      view: views[0],
-      path: pathNodes[0],
-      axis: axes?.y?.[0]?.axis,
-      gAxis: axes?.y?.[0]?.g,
-      line: lineNy,
-    },
-  ];
+  const series: Series[] = [];
 
-  if (hasSf && data.treeAxis1 && pathNodes[1] && views[1]) {
+  for (let i = 0; i < data.seriesCount; i++) {
+    const path = pathNodes[i];
+    const view = views[i];
+    if (!path || !view) continue;
+
+    const axisIdx = data.seriesAxes[i] ?? 0;
+    const tree = data.getTree(axisIdx);
+    if (!tree) continue;
+
+    const transform = transforms[axisIdx] ?? transforms[0];
+    const scale = scales.y[axisIdx] ?? scales.y[0];
+    const axisData = axes?.y?.[axisIdx] ?? axes?.y?.[0];
+
     series.push({
-      tree: data.treeAxis1,
-      transform: transforms[1] ?? transforms[0],
-      scale: scales.y[1] ?? scales.y[0],
-      view: views[1],
-      path: pathNodes[1],
-      axis: axes?.y?.[1]?.axis ?? axes?.y?.[0]?.axis,
-      gAxis: axes?.y?.[1]?.g ?? axes?.y?.[0]?.g,
-      line: lineSf,
+      tree,
+      transform,
+      scale,
+      view,
+      path,
+      axis: axisData?.axis,
+      gAxis: axisData?.g,
+      line: createLine(i),
     });
   }
 
@@ -192,7 +191,7 @@ export function setupRender(
   );
 
   updateScaleX(scales.x, data.bIndexFull, data);
-  const series = buildSeries(data, transformsInner, scales, paths, hasSf);
+  const series = buildSeries(data, transformsInner, scales, paths);
 
   updateYScales(series, data.bIndexFull, data);
 

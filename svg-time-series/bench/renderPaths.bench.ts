@@ -3,7 +3,7 @@
  */
 import { bench, describe } from "vitest";
 import { select } from "d3-selection";
-import { renderPaths, lineNy, lineSf } from "../src/chart/render/utils.ts";
+import { renderPaths, createLine } from "../src/chart/render/utils.ts";
 import type { RenderState } from "../src/chart/render.ts";
 import { sizes, datasets } from "./timeSeriesData.ts";
 
@@ -18,8 +18,8 @@ describe("renderPaths performance", () => {
 
   const state = {
     series: [
-      { path: nodes[0], line: lineNy },
-      { path: nodes[1], line: lineSf },
+      { path: nodes[0], line: createLine(0) },
+      { path: nodes[1], line: createLine(1) },
     ],
   } as unknown as RenderState;
 
