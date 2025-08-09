@@ -123,6 +123,42 @@ describe("ZoomState", () => {
     expect(zoomCb).toHaveBeenCalledWith(event);
   });
 
+  it("programmatic zoom does not reapply transform on subsequent refresh", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const y = { onZoomPan: vi.fn<(t: unknown) => void>() };
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axes: {
+        x: { axis: {} as any, g: {} as any, scale: {} as any },
+        y: [{ transform: y } as any],
+      },
+      axisRenders: [],
+    } as unknown as RenderState;
+    const refresh = vi.fn();
+    const zs = new ZoomState(
+      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      state,
+      refresh,
+    );
+
+    const transformSpy = zs.zoomBehavior.transform as unknown as vi.Mock;
+
+    zs.zoom({
+      transform: { x: 4, k: 5 },
+    } as unknown as D3ZoomEvent<SVGRectElement, unknown>);
+    vi.runAllTimers();
+
+    transformSpy.mockClear();
+    refresh.mockClear();
+
+    zs.refresh();
+    vi.runAllTimers();
+
+    expect(transformSpy).not.toHaveBeenCalled();
+    expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
   it("refresh triggers refresh callback without reapplying transform", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const rect = select(svg).append("rect");
@@ -196,7 +232,7 @@ describe("ZoomState", () => {
     expect(
       (zs as unknown as { currentPanZoomTransformState: unknown })
         .currentPanZoomTransformState,
-    ).toEqual(expect.objectContaining({ k: 1, x: 0, y: 0 }));
+    ).toBeNull();
     expect(refresh).toHaveBeenCalledTimes(1);
   });
 

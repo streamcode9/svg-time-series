@@ -84,8 +84,8 @@ export class ZoomState {
     this.state.axes.y.forEach((a) => a.transform.onZoomPan(event.transform));
     if (event.sourceEvent) {
       this.scheduleRefresh();
-    }
-    if (!event.sourceEvent) {
+    } else {
+      this.currentPanZoomTransformState = null;
       this.refreshChart();
     }
     this.zoomCallback(event);
