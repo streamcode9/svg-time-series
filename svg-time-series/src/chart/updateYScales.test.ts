@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeAll } from "vitest";
-import { scaleLinear } from "d3-scale";
 import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
-import { ViewportTransform } from "../ViewportTransform.ts";
-import { updateYScales } from "./render.ts";
+import { AxisManager } from "./axisManager.ts";
 
 class Matrix {
   constructor(
@@ -66,37 +64,29 @@ beforeAll(() => {
   (globalThis as any).DOMPoint = Point;
 });
 
-describe("updateYScales", () => {
+describe("updateScales", () => {
   it("updates domains for multiple axes", () => {
-    const axes = Array.from({ length: 3 }, () => ({
-      transform: new ViewportTransform(),
-      scale: scaleLinear().range([0, 1]),
-      tree: undefined as any,
-    }));
-
-    const ranges: Record<number, { min: number; max: number }> = {
-      0: { min: 1, max: 3 },
-      1: { min: 10, max: 30 },
-      2: { min: -5, max: 5 },
-    };
+    const axisManager = new AxisManager();
+    const axes = axisManager.create(3);
+    axes.forEach((a) => a.scale.range([0, 1]));
 
     const data = {
       seriesAxes: [0, 1, 2, 1],
-      bIndexFull: new AR1Basis(0, 10),
-      buildAxisTree(axis: number) {
-        return {
-          query: () => ranges[axis],
-        } as any;
-      },
+      seriesByAxis: [[0], [1, 3], [2]],
+      data: [
+        [1, 10, -5, 15],
+        [3, 30, 5, 25],
+      ],
+      bIndexFull: new AR1Basis(0, 1),
       updateScaleY(b: AR1Basis, tree: any) {
-        const { min, max } = tree.query(0, 0);
+        const { min, max } = tree.query(0, 1);
         const by = new AR1Basis(min, max);
         return DirectProductBasis.fromProjections(b, by);
       },
     };
 
-    const bIndexVisible = new AR1Basis(0, 10);
-    updateYScales(axes as any, bIndexVisible, data as any);
+    const bIndexVisible = new AR1Basis(0, 1);
+    axisManager.updateScales(bIndexVisible, data as any);
 
     expect(axes[0].scale.domain()).toEqual([1, 3]);
     expect(axes[1].scale.domain()).toEqual([10, 30]);
@@ -104,35 +94,27 @@ describe("updateYScales", () => {
   });
 
   it("merges extra axes into the last scale", () => {
-    const axes = Array.from({ length: 2 }, () => ({
-      transform: new ViewportTransform(),
-      scale: scaleLinear().range([0, 1]),
-      tree: undefined as any,
-    }));
-
-    const ranges: Record<number, { min: number; max: number }> = {
-      0: { min: 0, max: 1 },
-      1: { min: 10, max: 20 },
-      2: { min: -5, max: 5 },
-    };
+    const axisManager = new AxisManager();
+    const axes = axisManager.create(2);
+    axes.forEach((a) => a.scale.range([0, 1]));
 
     const data = {
       seriesAxes: [0, 1, 2],
-      bIndexFull: new AR1Basis(0, 5),
-      buildAxisTree(axis: number) {
-        return {
-          query: () => ranges[axis],
-        } as any;
-      },
+      seriesByAxis: [[0], [1], [2]],
+      data: [
+        [0, 10, -5],
+        [1, 20, 5],
+      ],
+      bIndexFull: new AR1Basis(0, 1),
       updateScaleY(b: AR1Basis, tree: any) {
-        const { min, max } = tree.query(0, 0);
+        const { min, max } = tree.query(0, 1);
         const by = new AR1Basis(min, max);
         return DirectProductBasis.fromProjections(b, by);
       },
     };
 
-    const bIndexVisible = new AR1Basis(0, 5);
-    updateYScales(axes as any, bIndexVisible, data as any);
+    const bIndexVisible = new AR1Basis(0, 1);
+    axisManager.updateScales(bIndexVisible, data as any);
 
     expect(axes[0].scale.domain()).toEqual([0, 1]);
     expect(axes[1].scale.domain()).toEqual([-5, 20]);

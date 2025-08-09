@@ -1,18 +1,12 @@
 import { Selection } from "d3-selection";
-import {
-  scaleLinear,
-  scaleTime,
-  type ScaleLinear,
-  type ScaleTime,
-} from "d3-scale";
+import { scaleTime, type ScaleTime, type ScaleLinear } from "d3-scale";
 import type { Line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
-import { ViewportTransform } from "../ViewportTransform.ts";
+import { AxisManager, AxisState } from "./axisManager.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
-import type { ChartData, IMinMax } from "./data.ts";
-import { SegmentTree } from "segment-tree-rmq";
+import type { ChartData } from "./data.ts";
 import { createDimensions, updateScaleX } from "./render/utils.ts";
 import { SeriesRenderer } from "./seriesRenderer.ts";
 import { SeriesManager } from "./series.ts";
@@ -78,14 +72,6 @@ interface Dimensions {
   height: number;
 }
 
-interface AxisState {
-  transform: ViewportTransform;
-  scale: ScaleLinear<number, number>;
-  tree: SegmentTree<IMinMax>;
-  axis?: MyAxis;
-  g?: Selection<SVGGElement, unknown, HTMLElement, unknown>;
-}
-
 export interface Series {
   axisIdx: number;
   view?: SVGGElement;
@@ -94,57 +80,13 @@ export interface Series {
 }
 
 export interface RenderState {
+  axisManager: AxisManager;
   axes: Axes;
   bScreenXVisible: AR1Basis;
   dimensions: Dimensions;
   series: Series[];
   seriesRenderer: SeriesRenderer;
   refresh: (data: ChartData) => void;
-}
-
-export function updateYScales(
-  axes: AxisState[],
-  bIndex: AR1Basis,
-  data: ChartData,
-) {
-  const domains = axes.map((a) => ({
-    min: Infinity,
-    max: -Infinity,
-    transform: a.transform,
-    scale: a.scale,
-  }));
-
-  const axisIndices: number[] = [];
-  for (const idx of data.seriesAxes) {
-    if (!axisIndices.includes(idx)) {
-      axisIndices.push(idx);
-    }
-  }
-
-  for (const i of axisIndices) {
-    const tree = data.buildAxisTree(i);
-    if (i < axes.length) {
-      axes[i].tree = tree;
-    }
-    const targetIdx = i < axes.length ? i : axes.length - 1;
-    const dp = data.updateScaleY(bIndex, tree);
-    const [min, max] = dp.y().toArr();
-    const domain = domains[targetIdx];
-    domain.min = Math.min(domain.min, min);
-    domain.max = Math.max(domain.max, max);
-  }
-
-  for (const domain of domains) {
-    let { min, max } = domain;
-    if (!Number.isFinite(min) || !Number.isFinite(max)) {
-      min = 0;
-      max = 1;
-    }
-    const b = new AR1Basis(min, max);
-    const dp = DirectProductBasis.fromProjections(data.bIndexFull, b);
-    domain.transform.onReferenceViewWindowResize(dp);
-    domain.scale.domain([min, max]);
-  }
 }
 
 export function setupRender(
@@ -164,13 +106,12 @@ export function setupRender(
   const xScale: ScaleTime<number, number> = scaleTime().range(xRange);
   updateScaleX(xScale, data.bIndexFull, data);
 
-  const axesY: AxisState[] = Array.from({ length: axisCount }, (_, i) => ({
-    transform: new ViewportTransform(),
-    scale: scaleLinear<number, number>().range(yRange),
-    tree: data.buildAxisTree(i),
-  }));
-
-  updateYScales(axesY, data.bIndexFull, data);
+  const axisManager = new AxisManager();
+  const axesY = axisManager.create(axisCount);
+  for (const a of axesY) {
+    a.scale.range(yRange);
+  }
+  axisManager.updateScales(data.bIndexFull, data);
 
   const refDp = DirectProductBasis.fromProjections(
     data.bIndexFull,
@@ -192,6 +133,7 @@ export function setupRender(
   const dimensions: Dimensions = { width, height };
 
   const state: RenderState = {
+    axisManager,
     axes,
     bScreenXVisible,
     dimensions,
@@ -203,7 +145,7 @@ export function setupRender(
       );
       updateScaleX(this.axes.x.scale, bIndexVisible, data);
 
-      updateYScales(this.axes.y, bIndexVisible, data);
+      this.axisManager.updateScales(bIndexVisible, data);
 
       for (const s of this.series) {
         if (s.view) {

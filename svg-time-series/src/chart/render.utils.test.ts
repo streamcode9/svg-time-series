@@ -6,6 +6,7 @@ import { select, Selection } from "d3-selection";
 import { scaleLinear, scaleTime } from "d3-scale";
 import { AR1Basis } from "../math/affine.ts";
 import { ChartData, IDataSource } from "./data.ts";
+import { buildAxisTree } from "./axisManager.ts";
 import { createDimensions, updateScaleX } from "./render/utils.ts";
 
 describe("createDimensions", () => {
@@ -65,7 +66,7 @@ describe("updateScaleY", () => {
   it("sets domain from visible data bounds", () => {
     const cd = new ChartData(makeSource([[10], [20], [40]]));
     const y = scaleLinear().range([100, 0]);
-    const tree = cd.buildAxisTree(0);
+    const tree = buildAxisTree(cd, 0);
     const dp = cd.updateScaleY(new AR1Basis(0, 2), tree);
     expect(dp.y().toArr()).toEqual([10, 40]);
     y.domain(dp.y().toArr());
