@@ -133,3 +133,23 @@ describe("buildSeries", () => {
     expect(state.series[1]).toMatchObject({ axisIdx: 1 });
   });
 });
+
+describe("setupRender DOM order", () => {
+  it("renders series views before axes", () => {
+    const svg = createSvg();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      seriesCount: 2,
+      seriesAxes: [0, 1],
+      getSeries: (i, seriesIdx) =>
+        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
+    };
+    const data = new ChartData(source);
+    setupRender(svg as any, data, true);
+    const groups = svg.selectAll("g").nodes() as SVGGElement[];
+    expect(groups[0].classList.contains("view")).toBe(true);
+    expect(groups[1].classList.contains("view")).toBe(true);
+  });
+});

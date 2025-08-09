@@ -169,8 +169,6 @@ export function setupRender(
 
   updateYScales(axesY, data.bIndexFull, data);
 
-  const xAxisData = setupAxes(svg, xScale, axesY, width, height);
-
   const refDp = DirectProductBasis.fromProjections(
     data.bIndexFull,
     bPlaceholder,
@@ -186,6 +184,8 @@ export function setupRender(
     const axisIdx = data.seriesAxes[i] ?? 0;
     series.push({ axisIdx, view, path, line: createLine(i) });
   }
+
+  const xAxisData = setupAxes(svg, xScale, axesY, width, height);
 
   const axes: Axes = { x: xAxisData, y: axesY };
   const dimensions: Dimensions = { width, height };
