@@ -53,12 +53,11 @@ g.view:nth-child(2) > circle {
 }
 
 .charts {
-  height: calc(100vh - 2rem);
   display: flex;
   flex-direction: column;
 }
 .chart {
-  height: calc(20% - 0.4rem);
+  flex: 1;
   margin: 0.2rem;
   display: flex;
 }
