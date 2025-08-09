@@ -139,7 +139,7 @@ export class TimeSeriesChart {
     );
 
     this.state.axes.x.scale.range([0, width]);
-    this.state.bScreenXVisible = bScreenXVisible;
+    this.state.screenXBasis = bScreenXVisible;
 
     this.state.dimensions.width = width;
     this.state.dimensions.height = height;

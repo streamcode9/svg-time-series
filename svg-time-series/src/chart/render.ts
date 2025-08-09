@@ -59,7 +59,7 @@ export interface RenderState {
   axisManager: AxisManager;
   axes: Axes;
   axisRenders: AxisRenderState[];
-  bScreenXVisible: AR1Basis;
+  screenXBasis: AR1Basis;
   dimensions: Dimensions;
   series: Series[];
   seriesRenderer: SeriesRenderer;
@@ -68,7 +68,7 @@ export interface RenderState {
 
 export function refreshRenderState(state: RenderState, data: ChartData): void {
   const bIndexVisible = state.axes.y[0].transform.fromScreenToModelBasisX(
-    state.bScreenXVisible,
+    state.screenXBasis,
   );
 
   state.axisManager.updateScales(bIndexVisible, data);
@@ -85,34 +85,34 @@ export function setupRender(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
   data: ChartData,
 ): RenderState {
-  const bScreenVisibleDp = createDimensions(svg);
-  const bScreenXVisible = bScreenVisibleDp.x();
-  const width = bScreenXVisible.getRange();
-  const height = bScreenVisibleDp.y().getRange();
+  const screenBasis = createDimensions(svg);
+  const screenXBasis = screenBasis.x();
+  const width = screenXBasis.getRange();
+  const height = screenBasis.y().getRange();
   const maxAxisIdx = data.seriesAxes.reduce(
     (max, idx) => Math.max(max, idx),
     0,
   );
   const axisCount = maxAxisIdx + 1;
 
-  const [xRange, yRange] = bScreenVisibleDp.toArr();
+  const [xRange, yRange] = screenBasis.toArr();
   const xScale: ScaleTime<number, number> = scaleTime().range(xRange);
 
   const axisManager = new AxisManager();
   axisManager.setXAxis(xScale);
-  const axesY = axisManager.create(axisCount);
-  for (const a of axesY) {
+  const yAxes = axisManager.create(axisCount);
+  for (const a of yAxes) {
     a.scale.range(yRange);
   }
   axisManager.updateScales(data.bIndexFull, data);
 
-  const refDp = DirectProductBasis.fromProjections(
+  const referenceBasis = DirectProductBasis.fromProjections(
     data.bIndexFull,
     bPlaceholder,
   );
-  for (const a of axesY) {
-    a.transform.onViewPortResize(bScreenVisibleDp);
-    a.transform.onReferenceViewWindowResize(refDp);
+  for (const a of yAxes) {
+    a.transform.onViewPortResize(screenBasis);
+    a.transform.onReferenceViewWindowResize(referenceBasis);
   }
 
   const seriesManager = new SeriesManager(svg, data.seriesAxes);
@@ -124,11 +124,11 @@ export function setupRender(
     .setTickSize(height)
     .setTickPadding(8 - height);
   xAxis.setScale(xScale);
-  const gX = svg.append("g").attr("class", "axis");
-  gX.call(xAxis.axis.bind(xAxis));
+  const xAxisGroup = svg.append("g").attr("class", "axis");
+  xAxisGroup.call(xAxis.axis.bind(xAxis));
 
   // Build render state for each Y axis separately from the model.
-  const axisRenders: AxisRenderState[] = axesY.map((a, i) => {
+  const axisRenders: AxisRenderState[] = yAxes.map((a, i) => {
     const orientation = i === 0 ? Orientation.Right : Orientation.Left;
     const axis = createYAxis(orientation, a.scale, width);
     const g = svg.append("g").attr("class", "axis");
@@ -136,14 +136,17 @@ export function setupRender(
     return { axis, g };
   });
 
-  const axes: Axes = { x: { axis: xAxis, g: gX, scale: xScale }, y: axesY };
+  const axes: Axes = {
+    x: { axis: xAxis, g: xAxisGroup, scale: xScale },
+    y: yAxes,
+  };
   const dimensions: Dimensions = { width, height };
 
   const state = {
     axisManager,
     axes,
     axisRenders,
-    bScreenXVisible,
+    screenXBasis,
     dimensions,
     series,
     seriesRenderer,
