@@ -83,15 +83,15 @@ g.view:nth-child(2) > circle {
   color: rgb(96, 77, 196);
 }
 
-/* Mobile 1080x1920 */
-@media only screen and (max-device-width: 1080px) and (min-device-height: 1920px) and (orientation: portrait) {
+/* Small screens (max-width: 1080px) */
+@media (max-width: 1080px) {
   .tick text {
     font-size: 1.5rem;
   }
 }
 
-/* Desktop and Mobile 1920x1080 */
-@media only screen and (min-device-width: 1920px) and (max-device-height: 1080px) and (orientation: landscape) {
+/* Large screens (min-width: 1920px) */
+@media (min-width: 1920px) {
   .tick text {
     font-size: 1.2rem;
   }
