@@ -25,6 +25,52 @@ describe("ChartData", () => {
     expect(() => new ChartData(source)).toThrow(/non-empty data array/);
   });
 
+  it("throws when startTime is not finite", () => {
+    const source: IDataSource = {
+      startTime: NaN,
+      timeStep: 1,
+      length: 1,
+      seriesCount: 1,
+      getSeries: () => 0,
+      seriesAxes: [0],
+    };
+    expect(() => new ChartData(source)).toThrow(/startTime/);
+  });
+
+  it("throws when timeStep is not finite", () => {
+    const base = {
+      startTime: 0,
+      length: 1,
+      seriesCount: 1,
+      getSeries: () => 0,
+      seriesAxes: [0],
+    };
+    expect(() => new ChartData({ ...base, timeStep: NaN })).toThrow(/timeStep/);
+    expect(() => new ChartData({ ...base, timeStep: Infinity })).toThrow(
+      /timeStep/,
+    );
+    expect(() => new ChartData({ ...base, timeStep: -Infinity })).toThrow(
+      /timeStep/,
+    );
+  });
+
+  it("throws when timeStep is not greater than 0", () => {
+    const base: IDataSource = {
+      startTime: 0,
+      length: 1,
+      seriesCount: 1,
+      getSeries: () => 0,
+      seriesAxes: [0],
+      timeStep: 0,
+    };
+    expect(() => new ChartData({ ...base, timeStep: 0 })).toThrow(
+      /greater than 0/,
+    );
+    expect(() => new ChartData({ ...base, timeStep: -1 })).toThrow(
+      /greater than 0/,
+    );
+  });
+
   it("throws when seriesAxes length does not match seriesCount", () => {
     const source = makeSource(
       [

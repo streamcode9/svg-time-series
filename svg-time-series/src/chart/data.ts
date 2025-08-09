@@ -58,6 +58,15 @@ export class ChartData {
     if (source.seriesCount < 1) {
       throw new Error("ChartData requires at least one series");
     }
+    if (!Number.isFinite(source.startTime)) {
+      throw new Error("ChartData requires startTime to be a finite number");
+    }
+    if (!Number.isFinite(source.timeStep)) {
+      throw new Error("ChartData requires timeStep to be a finite number");
+    }
+    if (source.timeStep <= 0) {
+      throw new Error("ChartData requires timeStep to be greater than 0");
+    }
     this.seriesCount = source.seriesCount;
     if (source.seriesAxes == null) {
       throw new Error("ChartData requires seriesAxes mapping");
