@@ -12,7 +12,7 @@ export class LegendController implements ILegendController {
 
   private readonly dotRadius = 2;
   private highlightedGreenDot!: SVGCircleElement;
-  private highlightedBlueDot: SVGCircleElement | null = null;
+  private highlightedBlueDot!: SVGCircleElement;
 
   private identityMatrix = document
     .createElementNS("http://www.w3.org/2000/svg", "svg")
@@ -50,9 +50,12 @@ export class LegendController implements ILegendController {
         .node() as SVGCircleElement;
     };
     this.highlightedGreenDot = makeDot(context.series[0].path);
-    this.highlightedBlueDot = context.series[1]
-      ? makeDot(context.series[1].path)
-      : null;
+    this.highlightedBlueDot = makeDot(
+      context.series[1]?.path ?? context.series[0].path,
+    );
+    if (!context.series[1]) {
+      this.highlightedBlueDot.style.display = "none";
+    }
   }
 
   public highlightIndex(idx: number): void {
@@ -71,9 +74,7 @@ export class LegendController implements ILegendController {
     this.legendGreen.text("");
     this.legendBlue.text("");
     this.highlightedGreenDot.style.display = "none";
-    if (this.highlightedBlueDot) {
-      this.highlightedBlueDot.style.display = "none";
-    }
+    this.highlightedBlueDot.style.display = "none";
   }
 
   private update() {
@@ -106,19 +107,19 @@ export class LegendController implements ILegendController {
       isNaN(n) ? valueForNaN : n;
     const x = this.highlightedDataIdx;
     const updateDot = (
-      val: number,
+      val: number | undefined,
       legendSel: Selection<HTMLElement, unknown, HTMLElement, unknown>,
-      node: SVGGraphicsElement | null,
+      node: SVGGraphicsElement,
       transform: { matrix: DOMMatrix },
     ) => {
-      legendSel.text(fixNaN(val, " "));
-      if (node) {
-        node.style.display = "";
-        const point = new DOMPoint(x, fixNaN(val, 0) as number).matrixTransform(
-          transform.matrix,
-        );
-        updateNode(node, this.identityMatrix.translate(point.x, point.y));
-      }
+      const safeVal = val ?? NaN;
+      legendSel.text(fixNaN(safeVal, " "));
+      node.style.display = "";
+      const point = new DOMPoint(
+        x,
+        fixNaN(safeVal, 0) as number,
+      ).matrixTransform(transform.matrix);
+      updateNode(node, this.identityMatrix.translate(point.x, point.y));
     };
 
     updateDot(
@@ -127,20 +128,14 @@ export class LegendController implements ILegendController {
       this.highlightedGreenDot,
       this.context.series[0].transform,
     );
-    if (this.highlightedBlueDot) {
-      const tf =
-        this.context.series[1]?.transform ?? this.context.series[0].transform;
-      updateDot(
-        blueData as number,
-        this.legendBlue,
-        this.highlightedBlueDot,
-        tf,
-      );
+    if (this.context.series[1]) {
+      const tf = this.context.series[1].transform;
+      updateDot(blueData, this.legendBlue, this.highlightedBlueDot, tf);
     }
   }
 
   public destroy(): void {
     this.highlightedGreenDot.remove();
-    this.highlightedBlueDot?.remove();
+    this.highlightedBlueDot.remove();
   }
 }
