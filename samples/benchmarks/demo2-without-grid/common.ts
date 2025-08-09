@@ -3,7 +3,10 @@ import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
 import { D3ZoomEvent } from "d3-zoom";
 import { select, selectAll } from "d3-selection";
 
-function buildSegmentTreeTuple(index: number, elements: any): IMinMax {
+function buildSegmentTreeTuple(
+  index: number,
+  elements: { values: number[] }[],
+): IMinMax {
   const nyMinValue = isNaN(elements[0].values[index])
     ? Infinity
     : elements[0].values[index];
@@ -22,13 +25,13 @@ function buildSegmentTreeTuple(index: number, elements: any): IMinMax {
   };
 }
 
-export function drawCharts(data: any[]) {
+export function drawCharts(data: { NY: number; SF: number }[]) {
   const charts: draw.TimeSeriesChart[] = [];
-  let newZoom: any = null;
+  let newZoom: string | null = null;
   const minX = new Date();
   let j = 0;
 
-  function onZoom(event: D3ZoomEvent<any, any>) {
+  function onZoom(event: D3ZoomEvent<SVGSVGElement, unknown>) {
     const z = event.transform.toString();
     if (z == newZoom) return;
 

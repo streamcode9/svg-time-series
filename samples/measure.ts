@@ -17,7 +17,7 @@ function startFrameCounter(): FrameCounter {
     }
   });
   // "frame" is not yet in the TypeScript lib definitions
-  (observer as any).observe({ type: "frame", buffered: true });
+  observer.observe({ entryTypes: ["frame"], buffered: true });
 
   return {
     read: () => ({

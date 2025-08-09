@@ -3,20 +3,25 @@ import * as common from "./common.ts";
 import { csv } from "d3-request";
 import { select, selectAll } from "d3-selection";
 
-const resize: any = { interval: 60 };
+const resize: {
+  interval: number;
+  timer?: number;
+  request?: () => void;
+  eval?: () => void;
+} = { interval: 60 };
 
 csv("../../demos/ny-vs-sf.csv")
-  .row((d: any) => ({
+  .row((d: { NY: string; SF: string }) => ({
     NY: parseFloat(d.NY.split(";")[0]),
     SF: parseFloat(d.SF.split(";")[0]),
   }))
-  .get((error: any, data: any[]) => {
+  .get((error: Error | null, data: { NY: number; SF: number }[]) => {
     if (error != null) console.error("Data can't be downloaded or parsed");
     else {
       common.drawCharts(data);
 
       resize.request = () => {
-        resize.timer && clearTimeout(resize.timer);
+        if (resize.timer) clearTimeout(resize.timer);
         resize.timer = setTimeout(resize.eval, resize.interval);
       };
       resize.eval = () => {

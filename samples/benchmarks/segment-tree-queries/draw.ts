@@ -33,26 +33,24 @@ function createSegmentTree(
   return new SegmentTree(data, buildMinMax, minMaxIdentity);
 }
 
-export class TimeSeriesChart {
-  constructor(
-    svg: Selection<BaseType, {}, HTMLElement, any>,
-    data: number[][],
-  ) {
-    const node: SVGSVGElement = svg.node() as SVGSVGElement;
-    const div: HTMLElement = node.parentNode as HTMLElement;
-    const viewNode: SVGGElement = svg.select("g").node() as SVGGElement;
+export function TimeSeriesChart(
+  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
+  data: number[][],
+): void {
+  const node: SVGSVGElement = svg.node() as SVGSVGElement;
+  const div: HTMLElement = node.parentNode as HTMLElement;
+  const viewNode: SVGGElement = svg.select("g").node() as SVGGElement;
 
-    const dataLength = data.length;
-    const tree = createSegmentTree(data, dataLength);
+  const dataLength = data.length;
+  const tree = createSegmentTree(data, dataLength);
 
-    const t = new ViewWindowTransform(viewNode.transform.baseVal);
-    t.setViewPort(div.clientWidth, div.clientHeight);
+  const t = new ViewWindowTransform(viewNode.transform.baseVal);
+  t.setViewPort(div.clientWidth, div.clientHeight);
 
-    animateBench((elapsed: number) => {
-      const minX = animateCosDown(dataLength / 2, 0, elapsed);
-      const maxX = minX + dataLength / 2;
-      const { min, max } = tree.query(minX, maxX);
-      t.setViewWindow(minX, maxX, min, max);
-    });
-  }
+  animateBench((elapsed: number) => {
+    const minX = animateCosDown(dataLength / 2, 0, elapsed);
+    const maxX = minX + dataLength / 2;
+    const { min, max } = tree.query(minX, maxX);
+    t.setViewWindow(minX, maxX, min, max);
+  });
 }

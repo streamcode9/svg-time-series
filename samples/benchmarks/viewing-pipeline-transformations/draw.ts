@@ -1,18 +1,21 @@
 ﻿import * as VWTransform from "../../ViewWindowTransform.ts";
+import type { Selection } from "d3-selection";
 
 export class TimeSeriesChart {
-  private SVGNode: any;
+  private SVGNode: SVGSVGElement;
 
   private vwTransform: VWTransform.ViewWindowTransform;
 
   private stepX: number;
 
   constructor(
-    svg: any,
+    svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
     minX: number,
     stepX: number,
-    cities: any,
-    onPath: Function,
+    cities: number[],
+    onPath: (
+      path: Selection<SVGPathElement, number[], SVGGElement, unknown>,
+    ) => void,
     dataLength: number,
   ) {
     this.stepX = stepX;

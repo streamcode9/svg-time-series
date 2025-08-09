@@ -5,7 +5,7 @@ import { TimeSeriesChart } from "./draw.ts";
 onCsv((data) => {
   const dataLength = data.length;
 
-  const pathsData: any[][] = [[], []];
+  const pathsData: { type: string; values: [number, number] }[][] = [[], []];
   let previousPointIsValid = [true, true];
   data.forEach((d: number[], i: number, arr: number[][]) => {
     const y0 = arr[i][0];
@@ -44,21 +44,27 @@ onCsv((data) => {
   pathsData[0].unshift({ type: "M", values: [0, 0] });
   pathsData[1].unshift({ type: "M", values: [0, 0] });
 
-  const drawLine = (pathElement: any, cityIdx: number, chartIdx: number) => {
+  const drawLine = (
+    pathElement: SVGPathElement,
+    cityIdx: number,
+    chartIdx: number,
+  ) => {
     if (chartIdx == 0) {
       // Push new point
-      const newData: any = { ...pathsData[cityIdx][1] };
-      newData.values = newData.values.map((_: any) => _);
+      const newData = { ...pathsData[cityIdx][1] };
+      newData.values = newData.values.map((_: number) => _);
       pathsData[cityIdx].push(newData);
 
       // Remove first value point (second actual point)
       pathsData[cityIdx].splice(1, 1);
 
       // Recalculate indexes
-      pathsData[cityIdx] = pathsData[cityIdx].map((d: any, i: number) => {
-        d.values[0] = i - 1;
-        return d;
-      });
+      pathsData[cityIdx] = pathsData[cityIdx].map(
+        (d: { type: string; values: [number, number] }, i: number) => {
+          d.values[0] = i - 1;
+          return d;
+        },
+      );
 
       // Set start point
       pathsData[cityIdx][0].values = [0, pathsData[cityIdx][1].values[1]];
@@ -68,14 +74,19 @@ onCsv((data) => {
     pathElement.setPathData(pathsData[cityIdx]);
   };
 
-  const path = selectAll("g.view")
-    .selectAll("path")
+  selectAll("g.view")
+    .selectAll<SVGPathElement, number>("path")
     .data([0, 1])
     .enter()
     .append("path");
 
-  selectAll("svg").each(function (_: any, i: number) {
-    return new TimeSeriesChart(select(this), dataLength, drawLine, i);
+  selectAll("svg").each(function (_, i: number) {
+    return new TimeSeriesChart(
+      select(this as SVGSVGElement),
+      dataLength,
+      drawLine,
+      i,
+    );
   });
 
   measure(3, ({ fps }) => {

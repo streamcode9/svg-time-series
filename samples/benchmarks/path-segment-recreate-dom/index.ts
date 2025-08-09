@@ -5,7 +5,7 @@ import { TimeSeriesChart } from "./draw.ts";
 onCsv((data) => {
   const dataLength = data.length;
 
-  const pathsData: any[][] = [[], []];
+  const pathsData: { type: string; values: [number, number] }[][] = [[], []];
   let previousPointIsValid = [true, true];
   data.forEach((d: number[], i: number, arr: number[][]) => {
     const y0 = arr[i][0];
@@ -41,9 +41,19 @@ onCsv((data) => {
   }
 
   const dataPointsCount: [number, number] = [0, 0];
-  const lastDataPoint: [any, any] = [{}, {}];
-  const newData: [any, any] = [{}, {}];
-  const drawLine = (pathElement: any, cityIdx: number, chartIdx: number) => {
+  const lastDataPoint: { type: string; values: [number, number] }[] = [
+    { type: "M", values: [0, 0] },
+    { type: "M", values: [0, 0] },
+  ];
+  const newData: { type: string; values: [number, number] }[] = [
+    { type: "M", values: [0, 0] },
+    { type: "M", values: [0, 0] },
+  ];
+  const drawLine = (
+    pathElement: SVGPathElement,
+    cityIdx: number,
+    chartIdx: number,
+  ) => {
     // Change data ones per iteration for all charts
     if (chartIdx == 0) {
       dataPointsCount[cityIdx] = pathsData[cityIdx].length;
@@ -85,20 +95,20 @@ onCsv((data) => {
     pathElement.pathSegList.removeItem(1);
   };
 
-  const path = selectAll("g.view")
-    .selectAll("path")
+  selectAll("g.view")
+    .selectAll<SVGPathElement, number>("path")
     .data([0, 1])
     .enter()
     .append("path");
 
-  selectAll("svg").each(function (_: any, i: number) {
+  selectAll("svg").each(function (_: unknown, i: number) {
     // Draw paths
-    const svg = select(this);
-    const paths: Selection<any, any, any, any> = svg
+    const svg = select(this as SVGSVGElement);
+    const paths: Selection<SVGPathElement, number, SVGGElement, unknown> = svg
       .select("g.view")
-      .selectAll("path");
+      .selectAll<SVGPathElement, number>("path");
     paths.each(function (cityIdx: number) {
-      const pathElement = this;
+      const pathElement = this as SVGPathElement;
 
       pathElement.pathSegList.appendItem(
         pathElement.createSVGPathSegMovetoAbs(
@@ -107,13 +117,15 @@ onCsv((data) => {
         ),
       );
 
-      pathsData[cityIdx].forEach((d: any, i: number) => {
-        const point =
-          d.type == "M"
-            ? pathElement.createSVGPathSegMovetoAbs(i, d.values[1])
-            : pathElement.createSVGPathSegLinetoAbs(i, d.values[1]);
-        pathElement.pathSegList.appendItem(point);
-      });
+      pathsData[cityIdx].forEach(
+        (d: { type: string; values: [number, number] }, i: number) => {
+          const point =
+            d.type == "M"
+              ? pathElement.createSVGPathSegMovetoAbs(i, d.values[1])
+              : pathElement.createSVGPathSegLinetoAbs(i, d.values[1]);
+          pathElement.pathSegList.appendItem(point);
+        },
+      );
     });
 
     return new TimeSeriesChart(svg, dataLength, drawLine, i);

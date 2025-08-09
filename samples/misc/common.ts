@@ -1,4 +1,6 @@
-﻿const xsvg: any = document.getElementById("svg-container");
+const xsvg = document.getElementById(
+  "svg-container",
+) as unknown as SVGSVGElement;
 export const svg: SVGSVGElement = xsvg;
 
 export function f(x: number) {
@@ -11,8 +13,8 @@ export function run(
   scale: number = 0.2,
   fnRender: (delta: number, scale: number) => void,
 ) {
-  let time: number = null;
-  let start: number = null;
+  let time: number | null = null;
+  let start: number | null = null;
   const render = (timestamp: number) => {
     if (!start) {
       start = timestamp;

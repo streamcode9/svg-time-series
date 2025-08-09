@@ -2,9 +2,16 @@ import { D3ZoomEvent, zoom } from "d3-zoom";
 import { SegmentTree } from "segment-tree-rmq";
 import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
 import { timeout as runTimeout } from "d3-timer";
-import { selectAll } from "d3-selection";
-import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
-import { line } from "d3-shape";
+import { selectAll, Selection } from "d3-selection";
+import {
+  scaleLinear,
+  scaleOrdinal,
+  scaleTime,
+  ScaleLinear,
+  ScaleOrdinal,
+  ScaleTime,
+} from "d3-scale";
+import { line, Line } from "d3-shape";
 
 interface IChartData {
   name: string;
@@ -12,15 +19,15 @@ interface IChartData {
 }
 
 interface IChartParameters {
-  x: Function;
-  y: Function;
-  rx: Function;
-  ry: Function;
-  view: any;
+  x: ScaleTime<number, number>;
+  y: ScaleLinear<number, number>;
+  rx: ScaleTime<number, number>;
+  ry: ScaleLinear<number, number>;
+  view: Selection<SVGGElement, IChartData, SVGGElement, unknown>;
   data: IChartData[];
   height: number;
-  line: Function;
-  color: Function;
+  line: Line<number>;
+  color: ScaleOrdinal<string, string>;
 }
 
 function buildMinMax(a: IMinMax, b: IMinMax): IMinMax {
@@ -41,15 +48,15 @@ function createSegmentTree<T>(
   return new SegmentTree(data, buildMinMax, minMaxIdentity);
 }
 
-function drawProc(f: any) {
+function drawProc(f: (...params: unknown[]) => void) {
   let requested = false;
 
-  return function (...params: any[]) {
+  return function (...params: unknown[]) {
     if (!requested) {
       requested = true;
-      runTimeout(function (time: any) {
+      runTimeout(() => {
         requested = false;
-        f(params);
+        f(...params);
       });
     }
   };
@@ -62,16 +69,19 @@ export class TimeSeriesChart {
   private missedStepsCount: number;
   private stepX: number;
   private tree: SegmentTree<IMinMax>;
-  private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax;
-  private zoomHandler: (event: D3ZoomEvent<any, any>) => void;
+  private buildSegmentTreeTuple: (
+    index: number,
+    elements: IChartData[],
+  ) => IMinMax;
+  private zoomHandler: (event: D3ZoomEvent<SVGSVGElement, unknown>) => void;
 
   constructor(
-    svg: any,
+    svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
     minX: Date,
     stepX: number,
-    data: any[],
-    buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
-    zoomHandler: (event: D3ZoomEvent<any, any>) => void,
+    data: { NY: number; SF: number }[],
+    buildSegmentTreeTuple: (index: number, elements: IChartData[]) => IMinMax,
+    zoomHandler: (event: D3ZoomEvent<SVGSVGElement, unknown>) => void,
   ) {
     this.stepX = stepX;
     this.minX = minX;
@@ -103,7 +113,7 @@ export class TimeSeriesChart {
   }
 
   public zoom = drawProc(
-    function (param: any[]) {
+    function (param: [D3ZoomEvent<SVGSVGElement, unknown>]) {
       const zoomTransform = param[0];
       zoom().transform(selectAll(".zoom"), zoomTransform);
       const translateX = zoomTransform.x;
@@ -129,7 +139,10 @@ export class TimeSeriesChart {
     }.bind(this),
   );
 
-  private drawChart(svg: any, data: any[]) {
+  private drawChart(
+    svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
+    data: { NY: number; SF: number }[],
+  ) {
     const width = svg.node().parentNode.clientWidth,
       height = svg.node().parentNode.clientHeight;
     svg.attr("width", width);
@@ -137,17 +150,19 @@ export class TimeSeriesChart {
 
     const x = scaleTime().range([0, width]);
     const y = scaleLinear().range([height, 0]);
-    const color = scaleOrdinal().domain(["NY", "SF"]).range(["green", "blue"]);
+    const color = scaleOrdinal<string>()
+      .domain(["NY", "SF"])
+      .range(["green", "blue"]);
 
     const linex = line<number>()
       .defined((d) => !!d)
       .x((d: number, i: number) => x(this.calcDate(i, this.minX)))
       .y((d: number) => y(d));
 
-    const cities = color.domain().map((name: string) => {
+    const cities: IChartData[] = color.domain().map((name: string) => {
       return {
-        name: name,
-        values: data.map((d: any) => +d[name]),
+        name,
+        values: data.map((d: { [key: string]: number }) => +d[name]),
       };
     });
 
@@ -171,8 +186,8 @@ export class TimeSeriesChart {
 
     view
       .append("path")
-      .attr("d", (d: any) => linex(d.values))
-      .attr("stroke", (d: any) => color(d.name));
+      .attr("d", (d: IChartData) => linex(d.values))
+      .attr("stroke", (d: IChartData) => color(d.name));
 
     svg
       .append("rect")
@@ -236,8 +251,8 @@ export class TimeSeriesChart {
 
       this.chart.x.domain([this.minX, this.maxX]);
       this.chart.view
-        .selectAll("path")
-        .attr("d", (d: any) => this.chart.line(d.values));
+        .selectAll<SVGPathElement, IChartData>("path")
+        .attr("d", (d: IChartData) => this.chart.line(d.values));
 
       this.chart.rx.domain([minimumRX, maximumRX]);
     }.bind(this),

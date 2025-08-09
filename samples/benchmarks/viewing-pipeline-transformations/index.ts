@@ -8,17 +8,24 @@ import * as drawModelCS from "./drawModelCS.ts";
 
 const startDate = new Date();
 csv("../../demos/ny-vs-sf.csv")
-  .row((d: any) => [
+  .row((d: { NY: string; SF: string }) => [
     parseFloat(d.NY.split(";")[0]),
     parseFloat(d.SF.split(";")[0]),
   ])
-  .get((error: any, data: any[]) => {
+  .get((error: Error | null, data: number[][]) => {
     if (error != null) {
       console.error("Data can't be downloaded or parsed");
       return;
     }
 
-    const onPath = (path: any) => {
+    const onPath = (
+      path: d3selection.Selection<
+        SVGPathElement,
+        number[],
+        SVGGElement,
+        unknown
+      >,
+    ) => {
       path.attr("d", (cityIdx: number) =>
         d3shape
           .line<number[]>()
@@ -29,7 +36,14 @@ csv("../../demos/ny-vs-sf.csv")
       );
     };
 
-    const onPathModel = (path: any) => {
+    const onPathModel = (
+      path: d3selection.Selection<
+        SVGPathElement,
+        number[],
+        SVGGElement,
+        unknown
+      >,
+    ) => {
       path.attr("d", (cityIdx: number) =>
         d3shape
           .line()

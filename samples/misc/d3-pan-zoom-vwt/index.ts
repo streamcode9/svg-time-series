@@ -2,6 +2,7 @@ import { select } from "d3-selection";
 import { range } from "d3-array";
 import { measure, measureOnce } from "../../benchmarks/bench.ts";
 import { zoom, ZoomTransform } from "d3-zoom";
+import type { D3ZoomEvent } from "d3-zoom";
 import { betweenBasesAR1 } from "../../../svg-time-series/src/math/affine.ts";
 import {
   applyAR1ToMatrixX,
@@ -83,10 +84,8 @@ function phyllotaxis(radius: number) {
   };
 }
 
-let newZoom: string = null;
+let newZoom: string | null = null;
 let newZoomT = identityTransform();
-let zoomCount = 0;
-const maxZoomCount = 0;
 
 // бескоординатная обертка вокруг координатного setViewWindow
 // координаты нигде не фигурируют - этот код полностью в "аффинном сне"
@@ -104,8 +103,7 @@ const draw = drawProc(function () {
 
 draw();
 
-function zoomed(d3event: any) {
-  zoomCount += 1;
+function zoomed(d3event: D3ZoomEvent<SVGSVGElement, unknown>) {
   const z = d3event.transform.toString();
 
   if (z != newZoom) {

@@ -1,8 +1,10 @@
 import { scaleLinear, scaleTime } from "d3-scale";
 import { ValueFn, BaseType, select, selectAll, Selection } from "d3-selection";
+import type { D3ZoomEvent } from "d3-zoom";
+import type { ScaleLinear } from "d3-scale";
 import { line } from "d3-shape";
 import { timeout as runTimeout, timer as runTimer } from "d3-timer";
-import { zoomIdentity, zoom as d3zoom, ZoomTransform } from "d3-zoom";
+import { zoomIdentity, zoom as d3zoom } from "d3-zoom";
 
 import { MyAxis, Orientation } from "../../../svg-time-series/src/axis.ts";
 import { ViewportTransform } from "../../../svg-time-series/src/ViewportTransform.ts";
@@ -50,13 +52,10 @@ function createSegmentTree(
 export function drawCharts(data: [number, number][]) {
   const charts: TimeSeriesChart[] = [];
 
-  const onZoom = (event: any) => charts.forEach((c) => c.zoom(event));
+  const onZoom = (event: D3ZoomEvent<SVGSVGElement, unknown>) =>
+    charts.forEach((c) => c.zoom(event));
 
-  const onSelectChart: ValueFn<any, any, any> = function (
-    element: any,
-    datum: any,
-    descElement: any,
-  ) {
+  const onSelectChart: ValueFn<SVGSVGElement, unknown, void> = function () {
     const chart = new TimeSeriesChart(
       select(this),
       Date.now(),
@@ -75,31 +74,31 @@ onCsv((data: [number, number][]) => {
   drawCharts(data);
 });
 
-function drawProc(f: Function) {
+function drawProc<T extends unknown[]>(f: (...params: T) => void) {
   let requested = false;
 
-  return (...params: any[]) => {
+  return (...params: T) => {
     if (!requested) {
       requested = true;
-      runTimeout((elapsed: number) => {
+      runTimeout(() => {
         requested = false;
-        f(params);
+        f(...params);
       });
     }
   };
 }
 
 function bindAxisToDom(
-  svg: Selection<BaseType, {}, HTMLElement, any>,
-  axis: any,
-  scale: any,
+  svg: Selection<BaseType, unknown, HTMLElement, unknown>,
+  axis: MyAxis,
+  scale: ScaleLinear<number, number>,
 ) {
   axis.setScale(scale);
   return svg.append("g").attr("class", "axis").call(axis.axis.bind(axis));
 }
 
 export class TimeSeriesChart {
-  public zoom: (event: any) => void;
+  public zoom: (event: D3ZoomEvent<SVGSVGElement, unknown>) => void;
   private drawNewData: () => void;
   private data: Array<[number, number]>;
 
@@ -134,16 +133,19 @@ export class TimeSeriesChart {
   // � �� � �������� �� ���������
   private bIndexFull: AR1Basis;
 
-  private buildSegmentTreeTuple: (index: number, elements: any) => IMinMax;
-  private zoomHandler: (event: any) => void;
+  private buildSegmentTreeTuple: (
+    index: number,
+    elements: number[][],
+  ) => IMinMax;
+  private zoomHandler: (event: D3ZoomEvent<SVGSVGElement, unknown>) => void;
 
   constructor(
-    svg: Selection<BaseType, {}, HTMLElement, any>,
+    svg: Selection<BaseType, unknown, HTMLElement, unknown>,
     startTime: number,
     timeStep: number,
     data: Array<[number, number]>,
-    buildSegmentTreeTuple: (index: number, elements: any) => IMinMax,
-    zoomHandler: (event: any) => void,
+    buildSegmentTreeTuple: (index: number, elements: number[][]) => IMinMax,
+    zoomHandler: (event: D3ZoomEvent<SVGSVGElement, unknown>) => void,
   ) {
     // ����� ������ ����� ��������� �� ����� �������, �
     // ������������ ������ � ��������
@@ -167,7 +169,7 @@ export class TimeSeriesChart {
   }
 
   private drawChart(
-    svg: Selection<BaseType, {}, HTMLElement, any>,
+    svg: Selection<BaseType, unknown, HTMLElement, unknown>,
     data: Array<[number, number]>,
   ) {
     this.data = data;
@@ -325,23 +327,15 @@ export class TimeSeriesChart {
 
     // ��������� �����, ������������ ��� ������������
     // ���-������� ���������� ��������
-    this.zoom = (event: any) => {
+    this.zoom = (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
       pathTransform.onZoomPan(event.transform);
       scheduleRefresh();
     };
 
-    function raisedCos(elapsed: number) {
-      return -(Math.cos(elapsed / 6500) - 1) / 2;
-    }
-
-    function animateCosDown(maxX: number, minX: number, elapsed: number) {
-      return maxX - (maxX - minX) * raisedCos(elapsed);
-    }
-
     let offsetX = 0;
     let offsetDelta = 100;
     let panDirection = 1;
-    const f = (elapsed: number) => {
+    const f = () => {
       pathTransform.onZoomPan(
         zoomIdentity.translate(-1000 + offsetX * panDirection, 0).scale(40),
       );
@@ -352,7 +346,7 @@ export class TimeSeriesChart {
     };
 
     const timer = runTimer((elapsed: number) => {
-      f(elapsed);
+      f();
       if (elapsed > 60 * 1000) {
         timer.stop();
       }

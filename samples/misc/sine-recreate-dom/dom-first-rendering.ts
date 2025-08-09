@@ -16,7 +16,7 @@ function animate(id: string, yOffset: number) {
   const delta = 0;
   const scale = 0.2;
 
-  const path: any = document.getElementById(id);
+  const path = document.getElementById(id) as unknown as SVGPathElement;
   const pathData = [{ type: "M", values: [0, 100] }];
   for (let x = 0; x < 5000; x++) {
     pathData.push({ type: "L", values: [x, f(x)] });
