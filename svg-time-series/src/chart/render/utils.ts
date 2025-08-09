@@ -1,11 +1,7 @@
 import { Selection } from "d3-selection";
 import { line } from "d3-shape";
 import { ScaleLinear, ScaleTime, scaleLinear, scaleTime } from "d3-scale";
-import {
-  AR1Basis,
-  DirectProductBasis,
-  betweenTBasesAR1,
-} from "../../math/affine.ts";
+import { AR1Basis, DirectProductBasis } from "../../math/affine.ts";
 import type { ChartData } from "../data.ts";
 import type { RenderState } from "../render.ts";
 
@@ -59,10 +55,7 @@ export function updateScaleX(
   bIndexVisible: AR1Basis,
   data: ChartData,
 ) {
-  const bIndex = new AR1Basis(data.startIndex, data.startIndex + 1);
-  const bTime = new AR1Basis(data.startTime, data.startTime + data.timeStep);
-  const indexToTime = betweenTBasesAR1(bIndex, bTime);
-  const bTimeVisible = bIndexVisible.transformWith(indexToTime);
+  const bTimeVisible = data.indexToTime(bIndexVisible);
   x.domain(bTimeVisible.toArr());
 }
 

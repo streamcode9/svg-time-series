@@ -1,4 +1,8 @@
-import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
+import {
+  AR1Basis,
+  DirectProductBasis,
+  betweenTBasesAR1,
+} from "../math/affine.ts";
 import { SegmentTree } from "segment-tree-rmq";
 
 export interface IMinMax {
@@ -134,6 +138,16 @@ export class ChartData {
       values: this.data[clamped],
       timestamp: this.startTime + (this.startIndex + clamped) * this.timeStep,
     };
+  }
+
+  indexToTime(bIndex: AR1Basis): AR1Basis {
+    const bIndexBase = new AR1Basis(this.startIndex, this.startIndex + 1);
+    const bTimeBase = new AR1Basis(
+      this.startTime,
+      this.startTime + this.timeStep,
+    );
+    const transform = betweenTBasesAR1(bIndexBase, bTimeBase);
+    return bIndex.transformWith(transform);
   }
 
   private clampIndex(idx: number): number {
