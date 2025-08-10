@@ -85,7 +85,9 @@ export class AxisManager {
     for (const i of axisIndices) {
       if (i >= this.axes.length) {
         throw new Error(
-          `Series axis index ${i} out of bounds (max ${this.axes.length - 1})`,
+          `Series axis index ${String(i)} out of bounds (max ${String(
+            this.axes.length - 1,
+          )})`,
         );
       }
       const tree = buildAxisTree(data, i);

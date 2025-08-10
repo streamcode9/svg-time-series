@@ -7,8 +7,6 @@
 
 const id = <T>(x: T) => x;
 
-const formatIdentity = (d: number | Date) => `${d}`;
-
 function center(scale: ScaleType) {
   const width = (scale.bandwidth?.() ?? 0) / 2;
   return (d: number | Date) => scale(d) + width;
@@ -18,12 +16,12 @@ type PositionFn<D> = (d: D) => number;
 
 function translateX<D>(scale0: PositionFn<D>, scale1: PositionFn<D>, d: D) {
   const x = scale0(d);
-  return "translate(" + (isFinite(x) ? x : scale1(d)) + ",0)";
+  return `translate(${String(isFinite(x) ? x : scale1(d))},0)`;
 }
 
 function translateY<D>(scale0: PositionFn<D>, scale1: PositionFn<D>, d: D) {
   const y = scale0(d);
-  return "translate(0," + (isFinite(y) ? y : scale1(d)) + ")";
+  return `translate(0,${String(isFinite(y) ? y : scale1(d))})`;
 }
 
 import type { Selection } from "d3-selection";
@@ -36,7 +34,7 @@ type ScaleType = (
 ) & { bandwidth?: () => number };
 
 export class MyAxis {
-  private tickArguments: number[];
+  private tickArguments: [number?, string?];
   private tickValues: number[] | null;
   private tickFormat: ((d: number | Date) => string) | null;
   private tickSizeInner: number;
@@ -58,9 +56,9 @@ export class MyAxis {
     this.tickPadding = 3;
   }
 
-  private primaryTickValue<T>(d: T | [T, number], active: number): T {
+  private primaryTickValue<T>(d: T | [T, number]): T {
     if (Array.isArray(d)) {
-      return (d.length > 2 ? d[active] : d[0]) as T;
+      return d[0];
     }
     return d;
   }
@@ -70,12 +68,9 @@ export class MyAxis {
     positions: PositionFn<T>[],
   ) {
     return (d: T | [T, number]) => {
-      const active =
-        Array.isArray(d) && d.length === 2 && typeof d[1] === "number"
-          ? d[1]
-          : 0;
+      const active = Array.isArray(d) ? d[1] : 0;
       const pos = positions[active]!;
-      return transform(pos, pos, this.primaryTickValue(d, active));
+      return transform(pos, pos, this.primaryTickValue(d));
     };
   }
 
@@ -99,10 +94,10 @@ export class MyAxis {
     }
 
     const createValuesFromScale = (scale: ScaleType): number[] => {
-      const values = scale.ticks
-        ? scale.ticks(...this.tickArguments)
-        : scale.domain();
-      return values.map((v) => +v);
+      const values = scale.ticks(
+        ...(this.tickArguments[0] != null ? [this.tickArguments[0]] : []),
+      ) as (number | Date)[];
+      return values.map((v) => Number(v));
     };
 
     for (const v of createValuesFromScale(scale1)) {
@@ -121,11 +116,9 @@ export class MyAxis {
       if (this.tickFormat) {
         return this.tickFormat;
       }
-      return scale.tickFormat
-        ? (scale.tickFormat(...this.tickArguments) as (
-            d: number | Date,
-          ) => string)
-        : formatIdentity;
+      return scale.tickFormat(...this.tickArguments) as (
+        d: number | Date,
+      ) => string;
     };
     return (d: number | Date) => formatValue(scale)(d);
   }
@@ -291,14 +284,13 @@ export class MyAxis {
   }
 
   ticks(...args: (number | string)[]): this {
-    this.tickArguments = args.map((arg) =>
-      typeof arg === "string" ? arg : +arg,
-    ) as number[];
+    this.tickArguments = args.slice(0, 2) as [number?, string?];
     return this;
   }
 
   setTickArguments(args: number[] | null): this {
-    this.tickArguments = args == null ? [] : args.slice();
+    this.tickArguments =
+      args == null ? [] : (args.slice(0, 2) as [number?, string?]);
     return this;
   }
 

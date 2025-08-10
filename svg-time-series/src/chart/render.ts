@@ -75,7 +75,9 @@ export function refreshRenderState(state: RenderState, data: ChartData): void {
     const t = state.axes.y[s.axisIdx]!.transform;
     updateNode(s.view, t.matrix);
   }
-  state.axisRenders.forEach((r) => r.axis.axisUp(r.g));
+  state.axisRenders.forEach((r) => {
+    r.axis.axisUp(r.g);
+  });
   state.axes.x.axis.axisUp(state.axes.x.g);
 }
 
