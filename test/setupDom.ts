@@ -54,10 +54,18 @@ class Point {
   }
 }
 
-(globalThis as any).DOMMatrix = Matrix;
-(globalThis as any).DOMPoint = Point;
+const globalObj = globalThis as typeof globalThis & {
+  DOMMatrix: typeof Matrix;
+  DOMPoint: typeof Point;
+};
+globalObj.DOMMatrix = Matrix;
+globalObj.DOMPoint = Point;
 if (typeof SVGSVGElement !== "undefined") {
-  (SVGSVGElement.prototype as any).createSVGMatrix = () => new Matrix();
+  (
+    SVGSVGElement.prototype as SVGSVGElement & {
+      createSVGMatrix: () => Matrix;
+    }
+  ).createSVGMatrix = () => new Matrix();
 }
 
 export { Matrix, Point };

@@ -12,7 +12,7 @@ export default tsEslint.config(
   prettierConfig,
   {
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-empty-object-type": "error",
       "@typescript-eslint/no-unused-vars": "error",
       "@typescript-eslint/no-unsafe-function-type": "error",
@@ -25,5 +25,8 @@ export default tsEslint.config(
   {
     files: ["**/*.test.ts"],
     ...vitest.configs.recommended,
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
   },
 );

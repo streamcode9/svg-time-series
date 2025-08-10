@@ -11,7 +11,7 @@ const formatIdentity = (d: number | Date) => `${d}`;
 
 function center(scale: ScaleType) {
   const width = (scale.bandwidth?.() ?? 0) / 2;
-  return (d: number | Date) => scale(d as any) + width;
+  return (d: number | Date) => scale(d) + width;
 }
 
 type PositionFn<D> = (d: D) => number;
@@ -207,8 +207,10 @@ export class MyAxis {
             ? "end"
             : "middle",
       )
-      .each(function (this: SVGGElement) {
-        (this as any).__axis = positions[0];
+      .each(function (
+        this: SVGGElement & { __axis?: PositionFn<number | Date> },
+      ) {
+        this.__axis = positions[0]!;
       });
   }
 

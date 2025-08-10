@@ -60,8 +60,12 @@ class Point {
 }
 
 // polyfill DOMMatrix and DOMPoint for Node environment
-(globalThis as any).DOMMatrix = Matrix;
-(globalThis as any).DOMPoint = Point;
+const globalObj = globalThis as typeof globalThis & {
+  DOMMatrix: typeof Matrix;
+  DOMPoint: typeof Point;
+};
+globalObj.DOMMatrix = Matrix;
+globalObj.DOMPoint = Point;
 
 describe("ViewportTransform performance", () => {
   const vt = new ViewportTransform();
