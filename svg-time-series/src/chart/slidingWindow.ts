@@ -7,7 +7,7 @@ export class SlidingWindow {
     if (initialData.length === 0) {
       throw new Error("SlidingWindow requires a non-empty data array");
     }
-    const seriesCount = initialData[0].length;
+    const seriesCount = initialData[0]!.length;
     initialData.forEach((row, rowIdx) => {
       if (row.length !== seriesCount) {
         throw new Error(

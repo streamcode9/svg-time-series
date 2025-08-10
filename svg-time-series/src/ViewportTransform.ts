@@ -65,7 +65,9 @@ export class ViewportTransform {
 
   public fromScreenToModelBasisX(b: AR1Basis) {
     const transformPoint = (x: number) => this.toModelPoint(x, 0).x;
-    const [p1, p2] = b.toArr().map(transformPoint);
+    const [bp1, bp2] = b.toArr();
+    const p1 = transformPoint(bp1);
+    const p2 = transformPoint(bp2);
     return new AR1Basis(p1, p2);
   }
 
@@ -79,7 +81,9 @@ export class ViewportTransform {
 
   public toScreenFromModelBasisX(b: AR1Basis) {
     const transformPoint = (x: number) => this.toScreenPoint(x, 0).x;
-    const [p1, p2] = b.toArr().map(transformPoint);
+    const [bp1, bp2] = b.toArr();
+    const p1 = transformPoint(bp1);
+    const p2 = transformPoint(bp2);
     return new AR1Basis(p1, p2);
   }
 

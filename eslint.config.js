@@ -12,13 +12,13 @@ export default tsEslint.config(
   prettierConfig,
   {
     rules: {
-      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-empty-object-type": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/no-unsafe-function-type": "warn",
-      "@typescript-eslint/no-non-null-assertion": "warn",
+      "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/no-useless-constructor": "warn",
-      "prefer-const": "warn",
+      "prefer-const": "off",
       "prefer-spread": "warn",
     },
   },

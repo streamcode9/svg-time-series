@@ -40,7 +40,7 @@ export function buildAxisTree(
     let min = Infinity;
     let max = -Infinity;
     for (const j of idxs) {
-      const val = row[j];
+      const val = row[j]!;
       if (Number.isFinite(val)) {
         if (val < min) min = val;
         if (val > max) max = val;
@@ -92,10 +92,11 @@ export class AxisManager {
         );
       }
       const tree = buildAxisTree(data, i);
-      this.axes[i].tree = tree;
+      const axis = this.axes[i]!;
+      axis.tree = tree;
       const dp = data.updateScaleY(bIndex, tree);
       const [min, max] = dp.y().toArr();
-      const domain = domains[i];
+      const domain = domains[i]!;
       domain.min = Math.min(domain.min, min);
       domain.max = Math.max(domain.max, max);
     }

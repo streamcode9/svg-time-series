@@ -27,7 +27,7 @@ export interface IDataSource {
 
 export class ChartData {
   private readonly window: SlidingWindow;
-  public readonly seriesByAxis: number[][] = [[], []];
+  public readonly seriesByAxis: [number[], number[]] = [[], []];
   public bIndexFull: AR1Basis;
   public readonly startTime: number;
   public readonly timeStep: number;
@@ -110,7 +110,7 @@ export class ChartData {
     }
     const clamped = this.clampIndex(Math.round(idx));
     return {
-      values: this.window.data[clamped],
+      values: this.window.data[clamped]!,
       timestamp:
         this.startTime + (this.window.startIndex + clamped) * this.timeStep,
     };

@@ -19,8 +19,8 @@ export class SeriesManager {
 
   private createLine(seriesIdx: number): Line<number[]> {
     return line<number[]>()
-      .defined((d) => !isNaN(d[seriesIdx]))
+      .defined((d) => !isNaN(d[seriesIdx]!))
       .x((_, i) => i)
-      .y((d) => d[seriesIdx] as number);
+      .y((d) => d[seriesIdx]!);
   }
 }

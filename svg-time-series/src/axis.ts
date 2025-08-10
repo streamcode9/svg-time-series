@@ -74,7 +74,7 @@ export class MyAxis {
         Array.isArray(d) && d.length === 2 && typeof d[1] === "number"
           ? d[1]
           : 0;
-      const pos = positions[active];
+      const pos = positions[active]!;
       return transform(pos, pos, this.primaryTickValue(d, active));
     };
   }
@@ -196,7 +196,7 @@ export class MyAxis {
             ? ".41em"
             : ".62em",
       )
-      .text((d: [number, number]) => formats[d[1]](d[0]));
+      .text((d: [number, number]) => formats[d[1]]!(d[0]));
 
     context
       .attr(
@@ -279,7 +279,7 @@ export class MyAxis {
             ? ".41em"
             : ".62em",
       )
-      .text((d: [number, number]) => formats[d[1]](d[0]));
+      .text((d: [number, number]) => formats[d[1]]!(d[0]));
   }
 
   setScale(scale1: ScaleType, scale2?: ScaleType): this {

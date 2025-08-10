@@ -24,10 +24,10 @@ export class SegmentTree<T> {
     this.identity = identity;
 
     for (let i = 0; i < this.size; i++) {
-      this.tree[this.size + i] = data[i];
+      this.tree[this.size + i] = data[i]!;
     }
     for (let i = this.size - 1; i > 0; i--) {
-      this.tree[i] = this.op(this.tree[i << 1], this.tree[(i << 1) | 1]);
+      this.tree[i] = this.op(this.tree[i << 1]!, this.tree[(i << 1) | 1]!);
     }
   }
 
@@ -43,7 +43,7 @@ export class SegmentTree<T> {
     this.tree[i] = value;
     while (i > 1) {
       i >>= 1;
-      this.tree[i] = this.op(this.tree[i << 1], this.tree[(i << 1) | 1]);
+      this.tree[i] = this.op(this.tree[i << 1]!, this.tree[(i << 1) | 1]!);
     }
   }
 
@@ -63,11 +63,11 @@ export class SegmentTree<T> {
 
     while (left < right) {
       if (left & 1) {
-        result = this.op(result, this.tree[left]);
+        result = this.op(result, this.tree[left]!);
         left++;
       }
       if (!(right & 1)) {
-        result = this.op(result, this.tree[right]);
+        result = this.op(result, this.tree[right]!);
         right--;
       }
       left >>= 1;
@@ -75,7 +75,7 @@ export class SegmentTree<T> {
     }
 
     if (left === right) {
-      result = this.op(result, this.tree[left]);
+      result = this.op(result, this.tree[left]!);
     }
 
     return result;

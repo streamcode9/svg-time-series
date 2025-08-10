@@ -67,14 +67,14 @@ export interface RenderState {
 }
 
 export function refreshRenderState(state: RenderState, data: ChartData): void {
-  const bIndexVisible = state.axes.y[0].transform.fromScreenToModelBasisX(
+  const bIndexVisible = state.axes.y[0]!.transform.fromScreenToModelBasisX(
     state.screenXBasis,
   );
 
   state.axisManager.updateScales(bIndexVisible, data);
 
   for (const s of state.series) {
-    const t = state.axes.y[s.axisIdx].transform;
+    const t = state.axes.y[s.axisIdx]!.transform;
     updateNode(s.view, t.matrix);
   }
   state.axisRenders.forEach((r) => r.axis.axisUp(r.g));
@@ -95,7 +95,10 @@ export function setupRender(
   );
   const axisCount = maxAxisIdx + 1;
 
-  const [xRange, yRange] = screenBasis.toArr();
+  const [xRange, yRange] = screenBasis.toArr() as [
+    [number, number],
+    [number, number],
+  ];
   const xScale: ScaleTime<number, number> = scaleTime().range(xRange);
 
   const axisManager = new AxisManager();
