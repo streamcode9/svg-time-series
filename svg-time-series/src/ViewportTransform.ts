@@ -42,7 +42,7 @@ export class ViewportTransform {
   }
 
   public onZoomPan(t: ZoomTransform): this {
-    this.zoomTransform = new DOMMatrix().scale(t.k, 1).translate(t.x, 0);
+    this.zoomTransform = new DOMMatrix().translate(t.x, 0).scale(t.k, 1);
     this.updateComposedMatrix();
     return this;
   }

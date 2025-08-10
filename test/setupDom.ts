@@ -20,11 +20,11 @@ class Matrix {
   }
 
   translate(tx: number, ty: number) {
-    return new Matrix(1, 0, 0, 1, tx, ty).multiply(this);
+    return this.multiply(new Matrix(1, 0, 0, 1, tx, ty));
   }
 
   scale(sx: number, sy: number) {
-    return new Matrix(sx, 0, 0, sy, 0, 0).multiply(this);
+    return this.multiply(new Matrix(sx, 0, 0, sy, 0, 0));
   }
 
   inverse() {
