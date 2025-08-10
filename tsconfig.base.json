@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "useDefineForClassFields": true,
-    "skipLibCheck": true,
     "module": "ESNext",
     "esModuleInterop": true,
     "lib": ["dom", "es7"],
@@ -12,6 +11,8 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
-    "strict": true
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true
   }
 }

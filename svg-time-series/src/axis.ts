@@ -44,7 +44,7 @@ export class MyAxis {
   private tickPadding: number;
   private orient: Orientation;
   private scale1: ScaleType;
-  private scale2?: ScaleType;
+  private scale2: ScaleType | undefined;
 
   constructor(orient: Orientation, scale1: ScaleType, scale2?: ScaleType) {
     this.orient = orient;

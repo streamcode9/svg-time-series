@@ -22,7 +22,7 @@ describe("SegmentTree performance", () => {
   let ui = 0;
 
   bench("update", () => {
-    tree.update(updateIndices[ui], random());
+    tree.update(updateIndices[ui]!, random());
     ui = (ui + 1) % updateIndices.length;
   });
 
@@ -34,7 +34,7 @@ describe("SegmentTree performance", () => {
   let qi = 0;
 
   bench("query", () => {
-    const [l, r] = queryRanges[qi];
+    const [l, r] = queryRanges[qi]!;
     tree.query(l, r);
     qi = (qi + 1) % queryRanges.length;
   });
