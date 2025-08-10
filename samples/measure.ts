@@ -11,24 +11,48 @@ interface FrameCounter {
 
 function startFrameCounter(): FrameCounter {
   const durations: number[] = [];
-  const observer = new PerformanceObserver((list) => {
-    for (const entry of list.getEntries()) {
-      durations.push(entry.duration);
-    }
+  const read = () => ({
+    frames: durations.length,
+    total: durations.reduce((a, b) => a + b, 0),
   });
-  // "frame" is not yet in the TypeScript lib definitions
-  observer.observe({ entryTypes: ["frame"], buffered: true });
+  const reset = () => {
+    durations.length = 0;
+  };
 
+  if (
+    typeof PerformanceObserver !== "undefined" &&
+    PerformanceObserver.supportedEntryTypes?.includes("frame")
+  ) {
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        durations.push(entry.duration);
+      }
+    });
+    observer.observe({ type: "frame", buffered: true });
+    return {
+      read,
+      reset,
+      stop: () => {
+        observer.disconnect();
+      },
+    };
+  }
+
+  let rafId = 0;
+  let prev: number | undefined;
+  const loop = (time: number) => {
+    if (prev !== undefined) {
+      durations.push(time - prev);
+    }
+    prev = time;
+    rafId = requestAnimationFrame(loop);
+  };
+  rafId = requestAnimationFrame(loop);
   return {
-    read: () => ({
-      frames: durations.length,
-      total: durations.reduce((a, b) => a + b, 0),
-    }),
-    reset: () => {
-      durations.length = 0;
-    },
+    read,
+    reset,
     stop: () => {
-      observer.disconnect();
+      cancelAnimationFrame(rafId);
     },
   };
 }
