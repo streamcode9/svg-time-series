@@ -12,6 +12,12 @@ export type { IMinMax, IDataSource } from "./chart/data.ts";
 export type { ILegendController } from "./chart/legend.ts";
 export type { IZoomStateOptions } from "./chart/zoomState.ts";
 
+interface AxisWithG {
+  g?:
+    | Selection<SVGGElement, unknown, null, undefined>
+    | Selection<SVGGElement, unknown, HTMLElement, unknown>;
+}
+
 export interface IPublicInteraction {
   zoom: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
   onHover: (x: number) => void;
@@ -106,7 +112,7 @@ export class TimeSeriesChart {
     this.state.series.length = 0;
     const axisX = this.state.axes.x;
     axisX.g.remove();
-    delete (axisX as unknown as { g?: typeof axisX.g }).g;
+    delete (axisX as AxisWithG).g;
 
     for (const r of this.state.axisRenders) {
       r.g.remove();
