@@ -150,19 +150,19 @@ export class MyAxis {
       positions.push((this.scale2.bandwidth ? center : id)(this.scale2.copy()));
     }
     let tick = context
-        .selectAll<SVGGElement, [number, number]>(".tick")
-        .data(values, (d: [number, number]) =>
-          d[1] === 0 ? this.scale1(d[0]) : (this.scale2 as ScaleType)(d[0]),
-        )
-        .order(),
-      tickExit = tick.exit(),
-      tickEnter = tick.enter().append("g").attr("class", "tick"),
-      line = tick.select<SVGLineElement>("line"),
-      text = tick.select<SVGTextElement>("text"),
-      k =
-        this.orient === Orientation.Top || this.orient === Orientation.Left
-          ? -1
-          : 1;
+      .selectAll<SVGGElement, [number, number]>(".tick")
+      .data(values, (d: [number, number]) =>
+        d[1] === 0 ? this.scale1(d[0]) : (this.scale2 as ScaleType)(d[0]),
+      )
+      .order();
+    const tickExit = tick.exit();
+    const tickEnter = tick.enter().append("g").attr("class", "tick");
+    let line = tick.select<SVGLineElement>("line");
+    let text = tick.select<SVGTextElement>("text");
+    const k =
+      this.orient === Orientation.Top || this.orient === Orientation.Left
+        ? -1
+        : 1;
     let x = "";
     const y =
       this.orient === Orientation.Left || this.orient === Orientation.Right
@@ -236,15 +236,15 @@ export class MyAxis {
       positions.push((this.scale2.bandwidth ? center : id)(this.scale2.copy()));
     }
     let tick = context
-        .selectAll<SVGGElement, [number, number]>(".tick")
-        .data(values, (d: [number, number]) =>
-          d[1] === 0 ? this.scale1(d[0]) : (this.scale2 as ScaleType)(d[0]),
-        )
-        .order(),
-      tickExit = tick.exit(),
-      tickEnter = tick.enter().append("g").attr("class", "tick"),
-      line = tick.select<SVGLineElement>("line"),
-      text = tick.select<SVGTextElement>("text");
+      .selectAll<SVGGElement, [number, number]>(".tick")
+      .data(values, (d: [number, number]) =>
+        d[1] === 0 ? this.scale1(d[0]) : (this.scale2 as ScaleType)(d[0]),
+      )
+      .order();
+    const tickExit = tick.exit();
+    const tickEnter = tick.enter().append("g").attr("class", "tick");
+    let line = tick.select<SVGLineElement>("line");
+    let text = tick.select<SVGTextElement>("text");
 
     let x = "";
     const y =

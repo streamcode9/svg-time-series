@@ -13,13 +13,13 @@ export default tsEslint.config(
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-empty-object-type": "warn",
-      "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-unsafe-function-type": "warn",
+      "@typescript-eslint/no-empty-object-type": "error",
+      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/no-unsafe-function-type": "error",
       "@typescript-eslint/no-non-null-assertion": "off",
-      "@typescript-eslint/no-useless-constructor": "warn",
-      "prefer-const": "off",
-      "prefer-spread": "warn",
+      "@typescript-eslint/no-useless-constructor": "error",
+      "prefer-const": "error",
+      "prefer-spread": "error",
     },
   },
   {
