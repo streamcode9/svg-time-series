@@ -1,11 +1,18 @@
 export function updateNode(n: SVGGraphicsElement, m: DOMMatrix | SVGMatrix) {
   const svgTransformList = n.transform.baseVal;
-  const svg = n.ownerSVGElement ?? (n as unknown as SVGSVGElement);
-  const ctor = svg.createSVGMatrix()
-    .constructor as unknown as new () => SVGMatrix;
+  const svg = (
+    typeof SVGSVGElement !== "undefined" && n instanceof SVGSVGElement
+      ? n
+      : n.ownerSVGElement
+  )!;
+
+  function isSVGMatrix(matrix: DOMMatrix | SVGMatrix): matrix is SVGMatrix {
+    return matrix.constructor === svg.createSVGMatrix().constructor;
+  }
+
   let matrix: SVGMatrix;
-  if (m instanceof ctor) {
-    matrix = m as SVGMatrix;
+  if (isSVGMatrix(m)) {
+    matrix = m;
   } else {
     const sm = svg.createSVGMatrix();
     const dm = m as DOMMatrix;
