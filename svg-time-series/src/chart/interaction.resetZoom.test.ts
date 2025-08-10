@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-useless-constructor */
+/* eslint-disable @typescript-eslint/no-useless-constructor */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select, type Selection } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
@@ -11,22 +11,8 @@ import {
   type IZoomStateOptions,
 } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
-
-class Matrix {
-  constructor(
-    public tx = 0,
-    public ty = 0,
-  ) {}
-  translate(tx: number, ty: number) {
-    return new Matrix(this.tx + tx, this.ty + ty);
-  }
-  scaleNonUniform(_sx: number, _sy: number) {
-    return this;
-  }
-  multiply(_m: Matrix) {
-    return this;
-  }
-}
+import "../../../test/setupDom.ts";
+import type { Matrix } from "../../../test/setupDom.ts";
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
 vi.mock("../utils/domNodeTransform.ts", () => ({
@@ -169,9 +155,6 @@ beforeEach(() => {
   nodeTransforms.clear();
   transformInstances.length = 0;
   zoomOptions = undefined;
-  (
-    SVGSVGElement.prototype as unknown as { createSVGMatrix: () => Matrix }
-  ).createSVGMatrix = () => new Matrix();
 });
 
 afterEach(() => {

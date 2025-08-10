@@ -1,40 +1,13 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unused-vars */
+
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { select, type Selection } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart, IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
-
-class Matrix {
-  constructor(
-    public tx = 0,
-    public ty = 0,
-  ) {}
-  translate(tx: number, ty: number) {
-    return new Matrix(this.tx + tx, this.ty + ty);
-  }
-  scaleNonUniform(_sx: number, _sy: number) {
-    return this;
-  }
-  multiply(_m: Matrix) {
-    return this;
-  }
-}
-
-class Point {
-  constructor(
-    public x = 0,
-    public y = 0,
-  ) {}
-  matrixTransform(m: Matrix) {
-    return new Point(this.x + m.tx, this.y + m.ty);
-  }
-}
-
-(globalThis as unknown as { DOMPoint: typeof Point }).DOMPoint = Point;
+import { Matrix } from "../../../test/setupDom.ts";
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
 let updateNodeCalls = 0;

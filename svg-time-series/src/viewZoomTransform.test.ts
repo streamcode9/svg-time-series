@@ -12,36 +12,7 @@ import {
   applyDirectProductToMatrix,
 } from "./utils/domMatrix.ts";
 import { updateNode } from "./utils/domNodeTransform.ts";
-
-class Matrix {
-  constructor(
-    public a = 1,
-    public b = 0,
-    public c = 0,
-    public d = 1,
-    public e = 0,
-    public f = 0,
-  ) {}
-
-  multiply(m: Matrix) {
-    return new Matrix(
-      this.a * m.a + this.c * m.b,
-      this.b * m.a + this.d * m.b,
-      this.a * m.c + this.c * m.d,
-      this.b * m.c + this.d * m.d,
-      this.a * m.e + this.c * m.f + this.e,
-      this.b * m.e + this.d * m.f + this.f,
-    );
-  }
-
-  translate(tx: number, ty: number) {
-    return this.multiply(new Matrix(1, 0, 0, 1, tx, ty));
-  }
-
-  scale(sx: number, sy: number) {
-    return this.multiply(new Matrix(sx, 0, 0, sy, 0, 0));
-  }
-}
+import { Matrix } from "../../test/setupDom.ts";
 
 describe("AR1 and AR1Basis", () => {
   it("composes and inverts transformations", () => {
@@ -71,7 +42,7 @@ describe("AR1 and AR1Basis", () => {
 
 describe("DirectProduct", () => {
   it("applies independent transforms on axes", () => {
-    const identity = new Matrix() as unknown as DOMMatrix;
+    const identity = new Matrix();
     const b1 = new DirectProductBasis([0, 0], [1, 1]);
     const b2 = new DirectProductBasis([10, 10], [20, 30]);
     const dp = betweenTBasesDirectProduct(b1, b2);
@@ -101,17 +72,11 @@ describe("DirectProductBasis utilities", () => {
 
 describe("viewZoomTransform helpers", () => {
   it("applies AR1 transforms along X and Y axes", () => {
-    const mx = applyAR1ToMatrixX(
-      new AR1([2, 3]),
-      new Matrix() as unknown as DOMMatrix,
-    );
+    const mx = applyAR1ToMatrixX(new AR1([2, 3]), new Matrix());
     expect(mx.a).toBeCloseTo(2);
     expect(mx.e).toBeCloseTo(3);
 
-    const my = applyAR1ToMatrixY(
-      new AR1([3, 4]),
-      new Matrix() as unknown as DOMMatrix,
-    );
+    const my = applyAR1ToMatrixY(new AR1([3, 4]), new Matrix());
     expect(my.d).toBeCloseTo(3);
     expect(my.f).toBeCloseTo(4);
   });
@@ -127,8 +92,8 @@ describe("viewZoomTransform helpers", () => {
     const node = {
       transform: { baseVal },
       ownerSVGElement: { createSVGMatrix: () => new Matrix() },
-    } as unknown as SVGGraphicsElement;
-    const matrix = new Matrix(1, 0, 0, 1, 2, 3) as unknown as DOMMatrix;
+    } as any as SVGGraphicsElement;
+    const matrix = new Matrix(1, 0, 0, 1, 2, 3);
 
     updateNode(node, matrix);
     expect(calls[0]).toBe(matrix);

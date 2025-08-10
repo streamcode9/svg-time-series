@@ -7,22 +7,8 @@ import { select, type Selection } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart, IDataSource } from "../draw.ts";
 import type { ILegendController, LegendContext } from "./legend.ts";
-
-class Matrix {
-  constructor(
-    public tx = 0,
-    public ty = 0,
-  ) {}
-  translate(tx: number, ty: number) {
-    return new Matrix(this.tx + tx, this.ty + ty);
-  }
-  scaleNonUniform(_sx: number, _sy: number) {
-    return this;
-  }
-  multiply(_m: Matrix) {
-    return this;
-  }
-}
+import "../../../test/setupDom.ts";
+import type { Matrix } from "../../../test/setupDom.ts";
 
 vi.mock("../utils/domNodeTransform.ts", () => ({
   updateNode: (_node: SVGGraphicsElement, _matrix: Matrix) => {},
@@ -116,9 +102,6 @@ function createChart(data: Array<[number]>) {
 
 beforeEach(() => {
   vi.useFakeTimers();
-  (
-    SVGSVGElement.prototype as unknown as { createSVGMatrix: () => Matrix }
-  ).createSVGMatrix = () => new Matrix();
 });
 
 afterEach(() => {
