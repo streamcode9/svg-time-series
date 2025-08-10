@@ -55,7 +55,7 @@ describe("updateNode", () => {
     const matrix = new FakeSVGMatrix();
     matrix.e = 10;
     matrix.f = 20;
-    updateNode(node, matrix as any);
+    updateNode(node, matrix as unknown as SVGMatrix);
     expect(node.transform.baseVal.last).toBe(matrix);
   });
 
