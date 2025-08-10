@@ -3,7 +3,7 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "esModuleInterop": true,
-    "lib": ["dom", "es7"],
+    "lib": ["dom", "es2022"],
     "target": "ES2022",
     "noImplicitAny": true,
     "moduleResolution": "bundler",
@@ -13,6 +13,10 @@
     "noEmit": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
   }
 }
