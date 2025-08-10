@@ -1,4 +1,4 @@
-import { Selection } from "d3-selection";
+import type { Selection } from "d3-selection";
 import { line, type Line } from "d3-shape";
 
 import type { Series } from "./render.ts";

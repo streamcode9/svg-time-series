@@ -1,11 +1,6 @@
-import { Selection } from "d3-selection";
-import {
-  zoom as d3zoom,
-  D3ZoomEvent,
-  ZoomBehavior,
-  ZoomTransform,
-  zoomIdentity,
-} from "d3-zoom";
+import type { Selection } from "d3-selection";
+import { zoom as d3zoom, ZoomTransform, zoomIdentity } from "d3-zoom";
+import type { D3ZoomEvent, ZoomBehavior } from "d3-zoom";
 import { drawProc } from "../utils/drawProc.ts";
 import type { RenderState } from "./render.ts";
 

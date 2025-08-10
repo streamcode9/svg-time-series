@@ -1,12 +1,14 @@
-import { Selection } from "d3-selection";
-import { D3ZoomEvent } from "d3-zoom";
+import type { Selection } from "d3-selection";
+import type { D3ZoomEvent } from "d3-zoom";
 
-import { ChartData, IDataSource } from "./chart/data.ts";
+import { ChartData } from "./chart/data.ts";
+import type { IDataSource } from "./chart/data.ts";
 import { setupRender } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
 import { AR1Basis, DirectProductBasis } from "./math/affine.ts";
 import type { ILegendController, LegendContext } from "./chart/legend.ts";
-import { ZoomState, IZoomStateOptions } from "./chart/zoomState.ts";
+import { ZoomState } from "./chart/zoomState.ts";
+import type { IZoomStateOptions } from "./chart/zoomState.ts";
 
 export type { IMinMax, IDataSource } from "./chart/data.ts";
 export type { ILegendController } from "./chart/legend.ts";

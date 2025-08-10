@@ -19,8 +19,10 @@ vi.mock("../axis.ts", () => {
 });
 
 import { JSDOM } from "jsdom";
-import { select, type Selection } from "d3-selection";
-import { ChartData, type IDataSource } from "./data.ts";
+import type { Selection } from "d3-selection";
+import { select } from "d3-selection";
+import { ChartData } from "./data.ts";
+import type { IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import "../../../test/setupDom.ts";

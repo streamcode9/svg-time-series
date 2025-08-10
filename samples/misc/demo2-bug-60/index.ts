@@ -1,5 +1,6 @@
 import { scaleLinear, scaleTime } from "d3-scale";
-import { ValueFn, BaseType, select, selectAll, Selection } from "d3-selection";
+import { select, selectAll } from "d3-selection";
+import type { ValueFn, BaseType, Selection } from "d3-selection";
 import type { D3ZoomEvent } from "d3-zoom";
 import type { ScaleLinear } from "d3-scale";
 import { line } from "d3-shape";

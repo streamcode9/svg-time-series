@@ -1,4 +1,5 @@
-import { scaleLinear, type ScaleLinear, type ScaleTime } from "d3-scale";
+import { scaleLinear } from "d3-scale";
+import type { ScaleLinear, ScaleTime } from "d3-scale";
 import type { Selection } from "d3-selection";
 import { SegmentTree } from "segment-tree-rmq";
 

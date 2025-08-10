@@ -1,4 +1,5 @@
-import { Selection, select, selectAll } from "d3-selection";
+import type { Selection } from "d3-selection";
+import { select, selectAll } from "d3-selection";
 import { measure, measureOnce, onCsv } from "../bench.ts";
 import { TimeSeriesChart } from "./draw.ts";
 

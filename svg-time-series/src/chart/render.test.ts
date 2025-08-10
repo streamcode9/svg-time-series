@@ -2,7 +2,8 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi } from "vitest";
-import { select, type Selection } from "d3-selection";
+import type { Selection } from "d3-selection";
+import { select } from "d3-selection";
 import { SeriesRenderer } from "./seriesRenderer.ts";
 import { SeriesManager } from "./series.ts";
 

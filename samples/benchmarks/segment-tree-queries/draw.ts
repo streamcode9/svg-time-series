@@ -1,4 +1,4 @@
-import { BaseType, Selection } from "d3-selection";
+import type { BaseType, Selection } from "d3-selection";
 
 import { SegmentTree } from "segment-tree-rmq";
 import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";

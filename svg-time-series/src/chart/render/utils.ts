@@ -1,4 +1,4 @@
-import { Selection } from "d3-selection";
+import type { Selection } from "d3-selection";
 import type { ScaleTime } from "d3-scale";
 import { AR1Basis, DirectProductBasis } from "../../math/affine.ts";
 import type { ChartData } from "../data.ts";

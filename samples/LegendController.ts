@@ -1,4 +1,5 @@
-import { Selection, select } from "d3-selection";
+import type { Selection } from "d3-selection";
+import { select } from "d3-selection";
 import { updateNode } from "../svg-time-series/src/utils/domNodeTransform.ts";
 import type {
   ILegendController,

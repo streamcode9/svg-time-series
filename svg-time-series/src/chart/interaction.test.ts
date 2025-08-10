@@ -3,9 +3,11 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { select, type Selection } from "d3-selection";
+import type { Selection } from "d3-selection";
+import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
-import { TimeSeriesChart, IDataSource } from "../draw.ts";
+import { TimeSeriesChart } from "../draw.ts";
+import type { IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
 import { Matrix } from "../../../test/setupDom.ts";
 

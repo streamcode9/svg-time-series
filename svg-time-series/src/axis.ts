@@ -26,7 +26,7 @@ function translateY<D>(scale0: PositionFn<D>, scale1: PositionFn<D>, d: D) {
   return "translate(0," + (isFinite(y) ? y : scale1(d)) + ")";
 }
 
-import { Selection } from "d3-selection";
+import type { Selection } from "d3-selection";
 import type { ScaleContinuousNumeric, ScaleLinear, ScaleTime } from "d3-scale";
 
 type ScaleType = (

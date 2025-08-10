@@ -1,13 +1,11 @@
-import { Selection } from "d3-selection";
-import { scaleTime, type ScaleTime, type ScaleLinear } from "d3-scale";
+import type { Selection } from "d3-selection";
+import { scaleTime } from "d3-scale";
+import type { ScaleTime, ScaleLinear } from "d3-scale";
 import type { Line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
-import {
-  AxisManager,
-  type AxisModel,
-  type AxisRenderState,
-} from "./axisManager.ts";
+import { AxisManager } from "./axisManager.ts";
+import type { AxisModel, AxisRenderState } from "./axisManager.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
 import type { ChartData } from "./data.ts";

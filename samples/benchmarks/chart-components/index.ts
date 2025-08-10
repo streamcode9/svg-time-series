@@ -1,7 +1,9 @@
-import { TimeSeriesChart, IDataSource } from "svg-time-series";
+import { TimeSeriesChart } from "svg-time-series";
+import type { IDataSource } from "svg-time-series";
 import { LegendController } from "../../LegendController.ts";
 import { measure, measureOnce, onCsv, animateBench } from "../bench.ts";
-import { select, Selection } from "d3-selection";
+import type { Selection } from "d3-selection";
+import { select } from "d3-selection";
 
 onCsv((data: [number, number][]) => {
   const svg = select(".chart-drawing svg") as Selection<

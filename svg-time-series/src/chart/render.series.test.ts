@@ -3,8 +3,10 @@
  */
 import { describe, it, expect } from "vitest";
 import { JSDOM } from "jsdom";
-import { select, type Selection } from "d3-selection";
-import { ChartData, IDataSource } from "./data.ts";
+import type { Selection } from "d3-selection";
+import { select } from "d3-selection";
+import { ChartData } from "./data.ts";
+import type { IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
 import "../../../test/setupDom.ts";
 

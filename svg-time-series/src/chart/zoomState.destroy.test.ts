@@ -2,7 +2,8 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { select, Selection } from "d3-selection";
+import type { Selection } from "d3-selection";
+import { select } from "d3-selection";
 import type { RenderState } from "./render.ts";
 
 interface MockZoomBehavior {

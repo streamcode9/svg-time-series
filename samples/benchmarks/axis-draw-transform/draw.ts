@@ -1,5 +1,5 @@
 ﻿import { scaleLinear, scaleTime } from "d3-scale";
-import { BaseType, Selection } from "d3-selection";
+import type { BaseType, Selection } from "d3-selection";
 
 import { MyAxis, Orientation } from "../../../svg-time-series/src/axis.ts";
 import { animateBench, animateCosDown } from "../bench.ts";

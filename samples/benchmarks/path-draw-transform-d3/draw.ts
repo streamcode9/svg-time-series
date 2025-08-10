@@ -1,4 +1,4 @@
-﻿import { BaseType, Selection } from "d3-selection";
+﻿import type { BaseType, Selection } from "d3-selection";
 
 import { animateBench, animateCosDown } from "../bench.ts";
 import { ViewWindowTransform } from "../../ViewWindowTransform.ts";

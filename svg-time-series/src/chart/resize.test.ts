@@ -25,9 +25,11 @@ vi.mock("../axis.ts", () => {
   };
 });
 
-import { select, type Selection } from "d3-selection";
+import type { Selection } from "d3-selection";
+import { select } from "d3-selection";
 import { SeriesRenderer } from "./seriesRenderer.ts";
-import { TimeSeriesChart, type IDataSource } from "../draw.ts";
+import { TimeSeriesChart } from "../draw.ts";
+import type { IDataSource } from "../draw.ts";
 import "../../../test/setupDom.ts";
 
 describe("TimeSeriesChart.resize", () => {
