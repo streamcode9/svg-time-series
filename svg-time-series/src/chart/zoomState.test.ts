@@ -236,6 +236,71 @@ describe("ZoomState", () => {
     });
   });
 
+  it("does not leave source chart stuck after target chart zoom", () => {
+    const svg1 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect1 = select(svg1).append("rect");
+    const svg2 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect2 = select(svg2).append("rect");
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axes: { x: { axis: {}, g: {}, scale: {} }, y: [] },
+      axisRenders: [],
+    } as unknown as RenderState;
+    // eslint-disable-next-line prefer-const
+    let zs2: ZoomState;
+    const zs1 = new ZoomState(
+      rect1 as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      state,
+      vi.fn(),
+      (event) => {
+        if (event.sourceEvent) {
+          const forwarded = {
+            ...event,
+            sourceEvent: null,
+          } as D3ZoomEvent<SVGRectElement, unknown>;
+          zs2.zoom(forwarded);
+        }
+      },
+    );
+    zs2 = new ZoomState(
+      rect2 as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      state,
+      vi.fn(),
+      (event) => {
+        if (event.sourceEvent) {
+          const forwarded = {
+            ...event,
+            sourceEvent: null,
+          } as D3ZoomEvent<SVGRectElement, unknown>;
+          zs1.zoom(forwarded);
+        }
+      },
+    );
+
+    const event1 = {
+      transform: { x: 1, k: 2 },
+      sourceEvent: {},
+    } as unknown as D3ZoomEvent<SVGRectElement, unknown>;
+    zs1.zoom(event1);
+
+    const event2 = {
+      transform: { x: 5, k: 4 },
+      sourceEvent: {},
+    } as unknown as D3ZoomEvent<SVGRectElement, unknown>;
+    zs2.zoom(event2);
+
+    vi.runAllTimers();
+
+    expect(
+      (zs1 as unknown as { pendingZoomBehaviorTransform: boolean })
+        .pendingZoomBehaviorTransform,
+    ).toBe(false);
+    expect(
+      (zs1 as unknown as { currentPanZoomTransformState: unknown })
+        .currentPanZoomTransformState,
+    ).toBeNull();
+  });
+
   it("programmatic zoom does not reapply transform on subsequent refresh", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const rect = select(svg).append("rect");

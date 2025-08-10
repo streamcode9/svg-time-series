@@ -93,7 +93,7 @@ export class ZoomState {
         this.zoomArea,
         this.currentPanZoomTransformState,
       );
-    } else if (event.transform !== prevTransform) {
+    } else if (prevTransform !== null && event.transform !== prevTransform) {
       this.currentPanZoomTransformState = prevTransform;
       return;
     } else {
