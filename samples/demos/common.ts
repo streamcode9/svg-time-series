@@ -108,10 +108,7 @@ export function loadAndDraw(seriesAxes: number[] = [0, 0]) {
     };
     resize.eval = function () {
       selectAll("svg").remove();
-      selectAll(".chart-drawing")
-        .append("svg")
-        .append("g")
-        .attr("class", "view");
+      selectAll(".chart-drawing").append("svg");
       drawCharts(data, seriesAxes);
     };
   });
