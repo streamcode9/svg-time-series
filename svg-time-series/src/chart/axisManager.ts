@@ -36,18 +36,14 @@ export function buildAxisTree(
   axis: number,
 ): SegmentTree<IMinMax> {
   const idxs = data.seriesByAxis[axis] ?? [];
-  const arr = data.data.map((row) => {
-    let min = Infinity;
-    let max = -Infinity;
-    for (const j of idxs) {
-      const val = row[j]!;
-      if (Number.isFinite(val)) {
-        if (val < min) min = val;
-        if (val > max) max = val;
-      }
-    }
-    return min !== Infinity ? ({ min, max } as IMinMax) : minMaxIdentity;
-  });
+  const arr = data.data.map((row) =>
+    idxs
+      .map((j) => {
+        const v = row[j]!;
+        return { min: v, max: v } as IMinMax;
+      })
+      .reduce(buildMinMax, minMaxIdentity),
+  );
   return new SegmentTree(arr, buildMinMax, minMaxIdentity);
 }
 
