@@ -1,6 +1,6 @@
 import { csv } from "d3-request";
 import { ValueFn, select, selectAll, pointer } from "d3-selection";
-import { D3ZoomEvent } from "d3-zoom";
+import { D3ZoomEvent, zoomIdentity } from "d3-zoom";
 
 import { TimeSeriesChart, IDataSource } from "svg-time-series";
 import { LegendController } from "../LegendController.ts";
@@ -17,13 +17,15 @@ export function drawCharts(
     event: D3ZoomEvent<SVGRectElement, unknown>,
   ) => {
     if (!event.sourceEvent) return;
-    const forwarded = { ...event, sourceEvent: null } as D3ZoomEvent<
-      SVGRectElement,
-      unknown
-    >;
     charts.forEach((c) => {
       if (c !== sourceChart) {
-        c.interaction.zoom(forwarded);
+        c.interaction.zoom({
+          ...event,
+          sourceEvent: null,
+          transform: zoomIdentity
+            .translate(event.transform.x, event.transform.y)
+            .scale(event.transform.k),
+        });
       }
     });
   };
