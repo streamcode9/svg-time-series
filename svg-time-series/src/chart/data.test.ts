@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import { ChartData, IDataSource } from "./data.ts";
 import { buildAxisTree } from "./axisManager.ts";
 import { AR1Basis } from "../math/affine.ts";
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 describe("ChartData", () => {
   const makeSource = (data: number[][], seriesAxes: number[]): IDataSource => ({
@@ -436,6 +435,12 @@ describe("ChartData", () => {
           ),
         ),
     ).not.toThrow();
+  });
+
+  it("ignores NaN values when building axis tree", () => {
+    const cd = new ChartData(makeSource([[1], [NaN], [3]], [0]));
+    const tree = buildAxisTree(cd, 0);
+    expect(tree.query(0, 2)).toEqual({ min: 1, max: 3 });
   });
 
   describe("single-axis", () => {

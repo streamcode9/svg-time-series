@@ -40,7 +40,7 @@ export function buildAxisTree(
     idxs
       .map((j) => {
         const v = row[j]!;
-        return { min: v, max: v } as IMinMax;
+        return Number.isFinite(v) ? { min: v, max: v } : minMaxIdentity;
       })
       .reduce(buildMinMax, minMaxIdentity),
   );
