@@ -16,6 +16,7 @@ export interface IZoomStateOptions {
 export class ZoomState {
   public zoomBehavior: ZoomBehavior<SVGRectElement, unknown>;
   private currentPanZoomTransformState: ZoomTransform | null = null;
+  private pendingZoomBehaviorTransform = false;
   private scheduleRefresh: () => void;
   private cancelRefresh: () => void;
   private scaleExtent: [number, number];
@@ -82,11 +83,13 @@ export class ZoomState {
   public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
     this.currentPanZoomTransformState = event.transform;
     this.state.axes.y.forEach((a) => a.transform.onZoomPan(event.transform));
-    if (event.sourceEvent) {
+    if (event.sourceEvent || !this.pendingZoomBehaviorTransform) {
+      this.pendingZoomBehaviorTransform = true;
       this.scheduleRefresh();
     } else {
-      this.currentPanZoomTransformState = null;
+      this.pendingZoomBehaviorTransform = false;
       this.refreshChart();
+      this.currentPanZoomTransformState = null;
     }
     this.zoomCallback(event);
   };

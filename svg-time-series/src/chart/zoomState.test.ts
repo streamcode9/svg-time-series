@@ -87,7 +87,7 @@ describe("ZoomState", () => {
     expect(internalEvent.sourceEvent).toBeUndefined();
   });
 
-  it("does not reschedule for programmatic transform", () => {
+  it("forwards programmatic transform to zoom behavior", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const rect = select(svg).append("rect");
     const y = { onZoomPan: vi.fn<(t: unknown) => void>() };
@@ -116,10 +116,64 @@ describe("ZoomState", () => {
     zs.zoom(event);
     vi.runAllTimers();
 
-    expect(transformSpy).not.toHaveBeenCalled();
+    expect(transformSpy).toHaveBeenCalledTimes(1);
+    expect(transformSpy).toHaveBeenCalledWith(expect.anything(), {
+      x: 2,
+      k: 3,
+    });
     expect(refresh).toHaveBeenCalledTimes(1);
-    expect(zoomCb).toHaveBeenCalledTimes(1);
-    expect(zoomCb).toHaveBeenCalledWith(event);
+    expect(zoomCb).toHaveBeenCalledTimes(2);
+    expect(zoomCb).toHaveBeenNthCalledWith(1, event);
+    const internalEvent = zoomCb.mock.calls[1][0];
+    expect(internalEvent).toMatchObject({ transform: { x: 2, k: 3 } });
+    expect(internalEvent.sourceEvent).toBeUndefined();
+  });
+
+  it("accumulates forwarded and user zoom events", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const y = { onZoomPan: vi.fn<(t: unknown) => void>() };
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axes: {
+        x: { axis: {}, g: {}, scale: {} },
+        y: [{ transform: y }],
+      },
+      axisRenders: [],
+    } as unknown as RenderState;
+    const refresh = vi.fn();
+    const zs = new ZoomState(
+      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      state,
+      refresh,
+    );
+
+    const transformSpy = zs.zoomBehavior.transform as unknown as vi.Mock;
+    transformSpy.mockClear();
+
+    const forwarded = {
+      transform: { x: 3, k: 2 },
+    } as unknown as D3ZoomEvent<SVGRectElement, unknown>;
+    zs.zoom(forwarded);
+    vi.runAllTimers();
+
+    const userEvent = {
+      transform: { x: 5, k: 4 },
+      sourceEvent: {},
+    } as unknown as D3ZoomEvent<SVGRectElement, unknown>;
+    zs.zoom(userEvent);
+    vi.runAllTimers();
+
+    expect(transformSpy).toHaveBeenCalledTimes(2);
+    expect(transformSpy).toHaveBeenNthCalledWith(1, expect.anything(), {
+      x: 3,
+      k: 2,
+    });
+    expect(transformSpy).toHaveBeenNthCalledWith(2, expect.anything(), {
+      x: 5,
+      k: 4,
+    });
+    expect(refresh).toHaveBeenCalledTimes(2);
   });
 
   it("programmatic zoom does not reapply transform on subsequent refresh", () => {
