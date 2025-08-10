@@ -117,10 +117,10 @@ describe("viewZoomTransform helpers", () => {
   });
 
   it("updates SVG node transform with a matrix", () => {
-    const calls: any[] = [];
+    const calls: DOMMatrix[] = [];
     const baseVal = {
-      createSVGTransformFromMatrix: (m: any) => ({ m }),
-      initialize(t: any) {
+      createSVGTransformFromMatrix: (m: DOMMatrix) => ({ m }),
+      initialize(t: { m: DOMMatrix }) {
         calls.push(t.m);
       },
     };
