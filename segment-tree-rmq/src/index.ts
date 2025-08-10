@@ -19,7 +19,7 @@ export class SegmentTree<T> {
       throw new Error("Data array must contain at least one element");
     }
     this.size = data.length;
-    this.tree = new Array(this.size << 1);
+    this.tree = new Array<T>(this.size << 1);
     this.op = op;
     this.identity = identity;
 

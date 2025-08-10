@@ -114,7 +114,9 @@ describe("Segment Tree Tests", () => {
     const identity = 0;
     const tree = new SegmentTree(data, sumOperator, identity);
 
-    expect(() => tree.update(-1, 5)).toThrow("Index is out of range");
+    expect(() => {
+      tree.update(-1, 5);
+    }).toThrow("Index is out of range");
   });
 
   it("should throw an error when updating with an index greater than or equal to the size", () => {
@@ -123,7 +125,9 @@ describe("Segment Tree Tests", () => {
     const identity = 0;
     const tree = new SegmentTree(data, sumOperator, identity);
 
-    expect(() => tree.update(3, 5)).toThrow("Index is out of range");
+    expect(() => {
+      tree.update(3, 5);
+    }).toThrow("Index is out of range");
   });
 
   it("should throw an error when updating with a non-integer index", () => {
@@ -132,7 +136,9 @@ describe("Segment Tree Tests", () => {
     const identity = 0;
     const tree = new SegmentTree(data, sumOperator, identity);
 
-    expect(() => tree.update(1.5, 5)).toThrow("Index must be an integer");
+    expect(() => {
+      tree.update(1.5, 5);
+    }).toThrow("Index must be an integer");
   });
 
   it("should throw an error for invalid ranges", () => {

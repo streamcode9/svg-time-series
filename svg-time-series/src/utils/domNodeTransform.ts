@@ -1,4 +1,4 @@
-export function updateNode(n: SVGGraphicsElement, m: DOMMatrix | SVGMatrix) {
+export function updateNode(n: SVGGraphicsElement, m: DOMMatrix) {
   const svgTransformList = n.transform.baseVal;
   const svg = (
     typeof SVGSVGElement !== "undefined" && n instanceof SVGSVGElement
@@ -6,7 +6,7 @@ export function updateNode(n: SVGGraphicsElement, m: DOMMatrix | SVGMatrix) {
       : n.ownerSVGElement
   )!;
 
-  function isSVGMatrix(matrix: DOMMatrix | SVGMatrix): matrix is SVGMatrix {
+  function isSVGMatrix(matrix: DOMMatrix): matrix is SVGMatrix {
     return matrix.constructor === svg.createSVGMatrix().constructor;
   }
 

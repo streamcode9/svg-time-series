@@ -13,7 +13,7 @@ function createSegmentTree<T>(
   size: number,
   buildTuple: (index: number, elements: ReadonlyArray<T>) => IMinMax,
 ): SegmentTree<IMinMax> {
-  const data: IMinMax[] = new Array(size);
+  const data: IMinMax[] = new Array<IMinMax>(size);
   for (let i = 0; i < size; i++) {
     data[i] = buildTuple(i, elements);
   }
@@ -44,12 +44,12 @@ test("SegmentTree operations", () => {
   expect(() => tree.query(0, data.length)).toThrow("Range is not valid");
 
   // Test invalid update position
-  expect(() => tree.update(-1, { min: 0, max: 0 })).toThrow(
-    "Index is out of range",
-  );
-  expect(() => tree.update(5, { min: 0, max: 0 })).toThrow(
-    "Index is out of range",
-  );
+  expect(() => {
+    tree.update(-1, { min: 0, max: 0 });
+  }).toThrow("Index is out of range");
+  expect(() => {
+    tree.update(5, { min: 0, max: 0 });
+  }).toThrow("Index is out of range");
 });
 
 test("SegmentTree with IMinMax", () => {
