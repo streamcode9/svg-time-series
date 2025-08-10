@@ -68,14 +68,16 @@ export class TimeSeriesChart {
     };
     this.legendController.init(context);
 
-    this.zoomArea
-      .on("mousemove", mouseMoveHandler)
-      .on("mouseleave", () => this.legendController.clearHighlight());
+    this.zoomArea.on("mousemove", mouseMoveHandler).on("mouseleave", () => {
+      this.legendController.clearHighlight();
+    });
 
     this.zoomState = new ZoomState(
       this.zoomArea,
       this.state,
-      () => this.state.refresh(this.data),
+      () => {
+        this.state.refresh(this.data);
+      },
       (event) => {
         zoomHandler(event);
         this.legendController.refresh();

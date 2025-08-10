@@ -59,17 +59,21 @@ export class ChartData {
     this.seriesAxes = source.seriesAxes;
     if (this.seriesAxes.length !== this.seriesCount) {
       throw new Error(
-        `ChartData requires seriesAxes length to match seriesCount (${this.seriesCount})`,
+        `ChartData requires seriesAxes length to match seriesCount (${String(
+          this.seriesCount,
+        )})`,
       );
     }
     let axisIdx = 0;
     for (const axis of this.seriesAxes) {
       if (axis !== 0 && axis !== 1) {
         throw new Error(
-          `ChartData seriesAxes[${axisIdx}] must be 0 or 1; received ${axis}`,
+          `ChartData seriesAxes[${String(axisIdx)}] must be 0 or 1; received ${String(
+            axis,
+          )}`,
         );
       }
-      this.seriesByAxis[axis as 0 | 1].push(axisIdx);
+      this.seriesByAxis[axis].push(axisIdx);
       axisIdx++;
     }
     const initialData = Array.from({ length: source.length }).map((_, i) =>
