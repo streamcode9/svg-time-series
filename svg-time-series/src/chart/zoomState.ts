@@ -81,11 +81,21 @@ export class ZoomState {
   }
 
   public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
+    const prevTransform = this.currentPanZoomTransformState;
     this.currentPanZoomTransformState = event.transform;
     this.state.axes.y.forEach((a) => a.transform.onZoomPan(event.transform));
-    if (event.sourceEvent || !this.pendingZoomBehaviorTransform) {
+    if (event.sourceEvent) {
       this.pendingZoomBehaviorTransform = true;
       this.scheduleRefresh();
+    } else if (!this.pendingZoomBehaviorTransform) {
+      this.pendingZoomBehaviorTransform = true;
+      this.zoomBehavior.transform(
+        this.zoomArea,
+        this.currentPanZoomTransformState,
+      );
+    } else if (event.transform !== prevTransform) {
+      this.currentPanZoomTransformState = prevTransform;
+      return;
     } else {
       this.pendingZoomBehaviorTransform = false;
       this.refreshChart();

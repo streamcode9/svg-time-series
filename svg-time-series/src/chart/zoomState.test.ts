@@ -17,25 +17,32 @@ interface MockZoomBehavior {
 }
 
 vi.mock("d3-zoom", () => {
-  const behavior = vi.fn() as unknown as MockZoomBehavior;
-  behavior.scaleExtent = vi.fn().mockReturnValue(behavior);
-  behavior.translateExtent = vi.fn().mockReturnValue(behavior);
-  behavior.on = vi
-    .fn()
-    .mockImplementation((_event: string, handler: (event: unknown) => void) => {
-      behavior._zoomHandler = handler;
+  return {
+    zoom: () => {
+      const behavior = vi.fn() as unknown as MockZoomBehavior;
+      behavior.scaleExtent = vi.fn().mockReturnValue(behavior);
+      behavior.translateExtent = vi.fn().mockReturnValue(behavior);
+      behavior.on = vi
+        .fn()
+        .mockImplementation(
+          (_event: string, handler: (event: unknown) => void) => {
+            behavior._zoomHandler = handler;
+            return behavior;
+          },
+        );
+      behavior.transform = vi
+        .fn<(s: unknown, transform: unknown) => void>()
+        .mockImplementation((_s, transform) => {
+          behavior._zoomHandler?.({ transform });
+          return behavior;
+        });
+      behavior.triggerZoom = (transform: unknown) => {
+        behavior._zoomHandler?.({ transform });
+      };
       return behavior;
-    });
-  behavior.transform = vi
-    .fn<(s: unknown, transform: unknown) => void>()
-    .mockImplementation((_s, transform) => {
-      behavior._zoomHandler?.({ transform });
-      return behavior;
-    });
-  behavior.triggerZoom = (transform: unknown) => {
-    behavior._zoomHandler?.({ transform });
+    },
+    zoomIdentity: { k: 1, x: 0, y: 0 },
   };
-  return { zoom: () => behavior, zoomIdentity: { k: 1, x: 0, y: 0 } };
 });
 
 describe("ZoomState", () => {
@@ -174,6 +181,59 @@ describe("ZoomState", () => {
       k: 4,
     });
     expect(refresh).toHaveBeenCalledTimes(2);
+  });
+
+  it("applies forwarded zoom before subsequent zoom on target chart", () => {
+    const svg1 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect1 = select(svg1).append("rect");
+    const svg2 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect2 = select(svg2).append("rect");
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axes: { x: { axis: {}, g: {}, scale: {} }, y: [] },
+      axisRenders: [],
+    } as unknown as RenderState;
+    const zs2 = new ZoomState(
+      rect2 as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      state,
+      vi.fn(),
+    );
+    const zs1 = new ZoomState(
+      rect1 as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      state,
+      vi.fn(),
+      (event) => {
+        const forwarded = {
+          ...event,
+          sourceEvent: null,
+        } as D3ZoomEvent<SVGRectElement, unknown>;
+        zs2.zoom(forwarded);
+      },
+    );
+
+    const transformSpy = zs2.zoomBehavior.transform as unknown as vi.Mock;
+    transformSpy.mockClear();
+
+    const event1 = {
+      transform: { x: 1, k: 2 },
+      sourceEvent: {},
+    } as unknown as D3ZoomEvent<SVGRectElement, unknown>;
+    zs1.zoom(event1);
+    const event2 = {
+      transform: { x: 5, k: 4 },
+      sourceEvent: {},
+    } as unknown as D3ZoomEvent<SVGRectElement, unknown>;
+    zs2.zoom(event2);
+    vi.runAllTimers();
+    expect(transformSpy).toHaveBeenCalledTimes(2);
+    expect(transformSpy).toHaveBeenNthCalledWith(1, expect.anything(), {
+      x: 1,
+      k: 2,
+    });
+    expect(transformSpy).toHaveBeenNthCalledWith(2, expect.anything(), {
+      x: 5,
+      k: 4,
+    });
   });
 
   it("programmatic zoom does not reapply transform on subsequent refresh", () => {
