@@ -29,7 +29,7 @@ function createYAxis(
 
 interface AxisData {
   axis: MyAxis;
-  g: Selection<SVGGElement, unknown, HTMLElement, unknown>;
+  g?: Selection<SVGGElement, unknown, HTMLElement, unknown> | undefined;
 }
 
 interface AxisDataX extends AxisData {
@@ -78,7 +78,7 @@ export function refreshRenderState(state: RenderState, data: ChartData): void {
   state.axisRenders.forEach((r) => {
     r.axis.axisUp(r.g);
   });
-  state.axes.x.axis.axisUp(state.axes.x.g);
+  state.axes.x.axis.axisUp(state.axes.x.g!);
 }
 
 export function setupRender(
