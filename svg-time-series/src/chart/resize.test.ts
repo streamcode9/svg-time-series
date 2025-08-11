@@ -48,7 +48,7 @@ describe("TimeSeriesChart.resize", () => {
       length: 3,
       seriesCount: 1,
       seriesAxes: [0],
-      getSeries: (i) => [1, 2, 3][i],
+      getSeries: (i) => [1, 2, 3][i]!,
     };
 
     const legend = {
@@ -60,7 +60,12 @@ describe("TimeSeriesChart.resize", () => {
     };
 
     const chart = new TimeSeriesChart(
-      select(svgEl) as Selection<SVGSVGElement, unknown, null, undefined>,
+      select(svgEl) as unknown as Selection<
+        SVGSVGElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       source,
       legend,
     );
@@ -89,7 +94,7 @@ describe("TimeSeriesChart.resize", () => {
       length: 3,
       seriesCount: 1,
       seriesAxes: [0],
-      getSeries: (i) => [1, 2, 3][i],
+      getSeries: (i) => [1, 2, 3][i]!,
     };
 
     const legend = {
@@ -101,7 +106,12 @@ describe("TimeSeriesChart.resize", () => {
     };
 
     const chart = new TimeSeriesChart(
-      select(svgEl) as Selection<SVGSVGElement, unknown, null, undefined>,
+      select(svgEl) as unknown as Selection<
+        SVGSVGElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       source,
       legend,
     );

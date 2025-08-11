@@ -66,7 +66,7 @@ describe("updateScaleX", () => {
     length: data.length,
     seriesCount: 1,
     seriesAxes: [0],
-    getSeries: (i) => data[i][0],
+    getSeries: (i) => data[i]![0]!,
   });
 
   it("adjusts domain based on visible index range", () => {
@@ -74,8 +74,8 @@ describe("updateScaleX", () => {
     const x = scaleTime().range([0, 100]);
     updateScaleX(x, new AR1Basis(0, 2), cd);
     const [d0, d1] = x.domain();
-    expect(d0.getTime()).toBe(0);
-    expect(d1.getTime()).toBe(2);
+    expect(d0!.getTime()).toBe(0);
+    expect(d1!.getTime()).toBe(2);
   });
 });
 
@@ -86,7 +86,7 @@ describe("updateScaleY", () => {
     length: data.length,
     seriesCount: 1,
     seriesAxes: [0],
-    getSeries: (i) => data[i][0],
+    getSeries: (i) => data[i]![0]!,
   });
 
   it("sets domain from visible data bounds", () => {

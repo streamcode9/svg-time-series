@@ -18,7 +18,7 @@ function createSvg() {
   const div = dom.window.document.getElementById("c") as HTMLDivElement;
   Object.defineProperty(div, "clientWidth", { value: 100 });
   Object.defineProperty(div, "clientHeight", { value: 100 });
-  return select(div).select("svg") as Selection<
+  return select(div).select("svg") as unknown as Selection<
     SVGSVGElement,
     unknown,
     HTMLElement,
@@ -36,12 +36,12 @@ describe("setupRender Y-axis modes", () => {
       seriesCount: 2,
       seriesAxes: [0, 0],
       getSeries: (i, seriesIdx) =>
-        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
+        seriesIdx === 0 ? [1, 2, 3][i]! : [10, 20, 30][i]!,
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
     expect(state.axes.y).toHaveLength(1);
-    expect(state.axes.y[0].scale.domain()).toEqual([1, 30]);
+    expect(state.axes.y[0]!.scale.domain()).toEqual([1, 30]);
   });
 
   it("separates scales when series use different axes", () => {
@@ -53,11 +53,11 @@ describe("setupRender Y-axis modes", () => {
       seriesCount: 2,
       seriesAxes: [0, 1],
       getSeries: (i, seriesIdx) =>
-        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
+        seriesIdx === 0 ? [1, 2, 3][i]! : [10, 20, 30][i]!,
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
-    expect(state.axes.y[0].scale.domain()).toEqual([1, 3]);
-    expect(state.axes.y[1].scale.domain()).toEqual([10, 30]);
+    expect(state.axes.y[0]!.scale.domain()).toEqual([1, 3]);
+    expect(state.axes.y[1]!.scale.domain()).toEqual([10, 30]);
   });
 });

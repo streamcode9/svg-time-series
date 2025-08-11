@@ -29,7 +29,7 @@ describe("SeriesRenderer", () => {
 
       renderer.draw(data);
 
-      const d = select(renderer.series[0].path).attr("d");
+      const d = select(renderer.series[0]!.path).attr("d");
       expect(d).not.toContain("NaN");
       expect(d.match(/M/g)?.length).toBe(2);
     });
@@ -42,7 +42,7 @@ describe("SeriesRenderer", () => {
       const seriesList = createSeries(svgSelection, [0]);
       const [series] = seriesList;
       renderer.series = seriesList;
-      const pathNode = series.path;
+      const pathNode = series!.path;
       const spy = vi.spyOn(pathNode, "setAttribute");
 
       renderer.draw([[0], [1]]);
@@ -63,7 +63,7 @@ describe("createSeries", () => {
     ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
     const [series] = createSeries(svgSelection, [0]);
 
-    expect(series.view.tagName).toBe("g");
-    expect(series.path.tagName).toBe("path");
+    expect(series!.view.tagName).toBe("g");
+    expect(series!.path.tagName).toBe("path");
   });
 });
