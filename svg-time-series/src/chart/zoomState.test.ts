@@ -4,6 +4,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
+import { zoomTransform } from "d3-zoom";
 import type { RenderState } from "./render.ts";
 import { ZoomState } from "./zoomState.ts";
 import type { D3ZoomEvent } from "./zoomState.ts";
@@ -15,11 +16,26 @@ interface MockZoomBehavior {
   translateExtent: vi.Mock;
   on: vi.Mock;
   transform: vi.Mock;
+  scaleTo: vi.Mock;
   triggerZoom: (transform: unknown) => void;
   _zoomHandler?: (event: unknown) => void;
 }
 
 vi.mock("d3-zoom", () => {
+  const transforms = new Map<Element, unknown>();
+  const zoomTransformFn = (node: Element) =>
+    (transforms.get(node) as { k: number; x?: number; y?: number }) || {
+      k: 1,
+      x: 0,
+      y: 0,
+    };
+  const getNode = (s: unknown): Element =>
+    typeof (s as Selection<Element, unknown, HTMLElement, unknown>).node ===
+    "function"
+      ? ((
+          s as Selection<Element, unknown, HTMLElement, unknown>
+        ).node() as Element)
+      : (s as Element);
   return {
     zoom: () => {
       const behavior = vi.fn() as unknown as MockZoomBehavior;
@@ -35,8 +51,20 @@ vi.mock("d3-zoom", () => {
         );
       behavior.transform = vi
         .fn<(s: unknown, transform: unknown) => void>()
-        .mockImplementation((_s, transform) => {
+        .mockImplementation((s, transform) => {
+          const node = getNode(s);
+          transforms.set(node, transform);
           behavior._zoomHandler?.({ transform });
+          return behavior;
+        });
+      behavior.scaleTo = vi
+        .fn<(s: unknown, k: number) => void>()
+        .mockImplementation((s, k) => {
+          const node = getNode(s);
+          const current = zoomTransformFn(node);
+          const newTransform = { ...current, k };
+          transforms.set(node, newTransform);
+          behavior._zoomHandler?.({ transform: newTransform });
           return behavior;
         });
       behavior.triggerZoom = (transform: unknown) => {
@@ -45,6 +73,7 @@ vi.mock("d3-zoom", () => {
       return behavior;
     },
     zoomIdentity: { k: 1, x: 0, y: 0 },
+    zoomTransform: zoomTransformFn,
   };
 });
 
@@ -491,10 +520,9 @@ describe("ZoomState", () => {
   it("updates scale extent at runtime", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const rect = select(svg).append("rect");
-    const y = { onZoomPan: vi.fn<(t: unknown) => void>() };
     const state = {
       dimensions: { width: 10, height: 10 },
-      transforms: [y],
+      axes: { x: { axis: {}, g: {}, scale: {} }, y: [] },
       axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
@@ -515,6 +543,54 @@ describe("ZoomState", () => {
     expect(scaleSpy).toHaveBeenCalledWith([2, 80]);
   });
 
+  it("clamps existing transform to new scale extent", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axes: { x: { axis: {}, g: {}, scale: {} }, y: [] },
+      axisRenders: [],
+    } as unknown as RenderState;
+    const zs = new ZoomState(
+      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      state,
+      vi.fn(),
+    );
+
+    zs.zoomBehavior.transform(rect, { k: 10, x: 0, y: 0 });
+    const scaleSpy = zs.zoomBehavior.scaleTo as unknown as vi.Mock;
+    scaleSpy.mockClear();
+
+    zs.setScaleExtent([1, 5]);
+
+    expect(scaleSpy).toHaveBeenCalledWith(rect, 5);
+    expect(zoomTransform(rect.node()!)).toMatchObject({ k: 5 });
+  });
+
+  it("clamps existing transform to new minimum", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axes: { x: { axis: {}, g: {}, scale: {} }, y: [] },
+      axisRenders: [],
+    } as unknown as RenderState;
+    const zs = new ZoomState(
+      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      state,
+      vi.fn(),
+    );
+
+    zs.zoomBehavior.transform(rect, { k: 0.2, x: 0, y: 0 });
+    const scaleSpy = zs.zoomBehavior.scaleTo as unknown as vi.Mock;
+    scaleSpy.mockClear();
+
+    zs.setScaleExtent([0.5, 5]);
+
+    expect(scaleSpy).toHaveBeenCalledWith(rect, 0.5);
+    expect(zoomTransform(rect.node()!)).toMatchObject({ k: 0.5 });
+  });
+
   it.each([
     [1, 10],
     [0.5, 20],
@@ -523,6 +599,7 @@ describe("ZoomState", () => {
     const rect = select(svg).append("rect");
     const state = {
       dimensions: { width: 10, height: 10 },
+      axes: { x: { axis: {}, g: {}, scale: {} }, y: [] },
       axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
