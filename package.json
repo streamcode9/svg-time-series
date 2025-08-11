@@ -4,7 +4,7 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "dev": "npm run dev --workspace=samples",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings=0 --report-unused-disable-directives",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest run",
     "bench": "npm run bench --workspaces --if-present",
