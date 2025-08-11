@@ -148,8 +148,8 @@ describe("Segment Tree Tests", () => {
     const tree = new SegmentTree(data, sumOperator, identity);
 
     expect(() => tree.query(3, 2)).toThrow("Range is not valid");
-    expect(() => tree.query(-1, 2)).toThrow("Range is not valid");
-    expect(() => tree.query(0, 5)).toThrow("Range is not valid");
+    expect(() => tree.query(-1, 2)).toThrow("Index is out of range");
+    expect(() => tree.query(0, 5)).toThrow("Index is out of range");
   });
 
   it("should throw an error when querying with non-integer indices", () => {
@@ -158,8 +158,8 @@ describe("Segment Tree Tests", () => {
     const identity = 0;
     const tree = new SegmentTree(data, sumOperator, identity);
 
-    expect(() => tree.query(1.2, 3)).toThrow("Left index must be an integer");
-    expect(() => tree.query(1, 2.8)).toThrow("Right index must be an integer");
+    expect(() => tree.query(1.2, 3)).toThrow("Index must be an integer");
+    expect(() => tree.query(1, 2.8)).toThrow("Index must be an integer");
   });
 
   it("should support min queries and updates", () => {

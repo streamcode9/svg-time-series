@@ -6,6 +6,15 @@ export class SegmentTree<T> {
   private op: Operator<T>;
   private identity: T;
 
+  private assertValidIndex(i: number): void {
+    if (!Number.isInteger(i)) {
+      throw new Error("Index must be an integer");
+    }
+    if (i < 0 || i >= this.size) {
+      throw new Error("Index is out of range");
+    }
+  }
+
   /**
    * Creates a new segment tree.
    *
@@ -32,13 +41,7 @@ export class SegmentTree<T> {
   }
 
   update(index: number, value: T): void {
-    if (!Number.isInteger(index)) {
-      throw new Error("Index must be an integer");
-    }
-    if (index < 0 || index >= this.size) {
-      throw new Error("Index is out of range");
-    }
-
+    this.assertValidIndex(index);
     let i = index + this.size;
     this.tree[i] = value;
     while (i > 1) {
@@ -48,13 +51,9 @@ export class SegmentTree<T> {
   }
 
   query(left: number, right: number): T {
-    if (!Number.isInteger(left)) {
-      throw new Error("Left index must be an integer");
-    }
-    if (!Number.isInteger(right)) {
-      throw new Error("Right index must be an integer");
-    }
-    if (left < 0 || right >= this.size || left > right) {
+    this.assertValidIndex(left);
+    this.assertValidIndex(right);
+    if (left > right) {
       throw new Error("Range is not valid");
     }
     left += this.size;

@@ -39,9 +39,11 @@ test("SegmentTree operations", () => {
   expect(tree.query(2, data.length - 1)).toEqual({ min: 4, max: 6 });
 
   // Test invalid range
-  expect(() => tree.query(-1, data.length - 1)).toThrow("Range is not valid");
+  expect(() => tree.query(-1, data.length - 1)).toThrow(
+    "Index is out of range",
+  );
   expect(() => tree.query(3, 2)).toThrow("Range is not valid");
-  expect(() => tree.query(0, data.length)).toThrow("Range is not valid");
+  expect(() => tree.query(0, data.length)).toThrow("Index is out of range");
 
   // Test invalid update position
   expect(() => {
