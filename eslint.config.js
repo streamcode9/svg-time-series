@@ -5,7 +5,17 @@ import prettierConfig from "eslint-config-prettier";
 import vitest from "@vitest/eslint-plugin";
 
 export default tsEslint.config(
-  { ignores: ["eslint.config.js"] },
+  {
+    ignores: [
+      "eslint.config.js",
+      "**/dist/**",
+      "samples/benchmarks/**",
+      "samples/competitors/**",
+      "samples/demos/**",
+      "samples/misc/**",
+      "samples/unused/**",
+    ],
+  },
   {
     languageOptions: {
       parserOptions: {
@@ -34,5 +44,8 @@ export default tsEslint.config(
       "prefer-spread": "error",
     },
   },
+  { files: ["test/**/*.ts"], ...tsEslint.configs.disableTypeChecked },
+  { files: ["**/*.bench.ts", "**/bench/**/*.ts"], ...tsEslint.configs.disableTypeChecked },
+  { files: ["**/*.cjs", "**/*.mjs", "**/vite.config.ts"], ...tsEslint.configs.disableTypeChecked },
   { files: ["**/*.test.ts"], ...vitest.configs.recommended, ...tsEslint.configs.disableTypeChecked },
 );

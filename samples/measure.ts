@@ -21,7 +21,7 @@ function startFrameCounter(): FrameCounter {
 
   if (
     typeof PerformanceObserver !== "undefined" &&
-    PerformanceObserver.supportedEntryTypes?.includes("frame")
+    PerformanceObserver.supportedEntryTypes.includes("frame")
   ) {
     const observer = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
