@@ -1,6 +1,5 @@
 // @ts-check
 
-import eslint from "@eslint/js";
 import tsEslint from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
 import vitest from "@vitest/eslint-plugin";
@@ -10,12 +9,16 @@ export default tsEslint.config(
   {
     languageOptions: {
       parserOptions: {
-        project: true,
+        project: [
+          "./segment-tree-rmq/tsconfig.json",
+          "./svg-time-series/tsconfig.json",
+          "./samples/tsconfig.json",
+          "./samples/demos/tsconfig.json",
+        ],
         tsconfigRootDir: import.meta.dirname,
       },
     },
   },
-  eslint.configs.recommended,
   ...tsEslint.configs.recommendedTypeChecked,
   ...tsEslint.configs.strictTypeChecked,
   prettierConfig,
