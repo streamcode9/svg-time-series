@@ -1,4 +1,4 @@
-class Matrix implements DOMMatrix {
+class Matrix {
   [key: string]: unknown;
   constructor(
     public a = 1,
@@ -83,7 +83,7 @@ class Matrix implements DOMMatrix {
   }
 }
 
-class Point implements DOMPoint {
+class Point {
   [key: string]: unknown;
   constructor(
     public x = 0,
@@ -102,10 +102,7 @@ class Point implements DOMPoint {
   }
 }
 
-const globalObj = globalThis as typeof globalThis & {
-  DOMMatrix: typeof Matrix;
-  DOMPoint: typeof Point;
-};
+const globalObj = globalThis as unknown as Record<string, unknown>;
 globalObj.DOMMatrix = Matrix;
 globalObj.DOMPoint = Point;
 if (typeof SVGSVGElement !== "undefined") {
