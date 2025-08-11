@@ -12,7 +12,7 @@ import {
 } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
-import { zoomTransform } from "d3-zoom";
+import { zoomTransform, type ZoomTransform } from "d3-zoom";
 import type { RenderState } from "./render.ts";
 import { ZoomState } from "./zoomState.ts";
 import type { D3ZoomEvent } from "./zoomState.ts";
@@ -127,7 +127,12 @@ describe("ZoomState", () => {
     const refresh = vi.fn();
     const zoomCb = vi.fn();
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       refresh,
       zoomCb,
@@ -165,7 +170,12 @@ describe("ZoomState", () => {
     const refresh = vi.fn();
     const zoomCb = vi.fn();
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       refresh,
       zoomCb,
@@ -206,7 +216,12 @@ describe("ZoomState", () => {
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       refresh,
     );
@@ -250,12 +265,22 @@ describe("ZoomState", () => {
       axisRenders: [],
     } as unknown as RenderState;
     const zs2 = new ZoomState(
-      rect2 as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect2 as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
     );
     const zs1 = new ZoomState(
-      rect1 as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect1 as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
       (event) => {
@@ -305,7 +330,12 @@ describe("ZoomState", () => {
     // eslint-disable-next-line prefer-const
     let zs2: ZoomState;
     const zs1 = new ZoomState(
-      rect1 as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect1 as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
       (event) => {
@@ -319,7 +349,12 @@ describe("ZoomState", () => {
       },
     );
     zs2 = new ZoomState(
-      rect2 as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect2 as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
       (event) => {
@@ -369,7 +404,12 @@ describe("ZoomState", () => {
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       refresh,
     );
@@ -405,7 +445,12 @@ describe("ZoomState", () => {
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       refresh,
     );
@@ -441,7 +486,12 @@ describe("ZoomState", () => {
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       refresh,
     );
@@ -526,7 +576,12 @@ describe("ZoomState", () => {
       axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
       undefined,
@@ -596,7 +651,11 @@ describe("ZoomState", () => {
       vi.fn(),
     );
 
-    zs.zoomBehavior.transform(rect, { k: 10, x: 0, y: 0 });
+    zs.zoomBehavior.transform(rect, {
+      k: 10,
+      x: 0,
+      y: 0,
+    } as unknown as ZoomTransform);
     const scaleSpy = zs.zoomBehavior.scaleTo as unknown as Mock;
     scaleSpy.mockClear();
 
@@ -615,12 +674,21 @@ describe("ZoomState", () => {
       axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
     );
 
-    zs.zoomBehavior.transform(rect, { k: 0.2, x: 0, y: 0 });
+    zs.zoomBehavior.transform(rect, {
+      k: 0.2,
+      x: 0,
+      y: 0,
+    } as unknown as ZoomTransform);
     const scaleSpy = zs.zoomBehavior.scaleTo as unknown as Mock;
     scaleSpy.mockClear();
 
@@ -642,7 +710,12 @@ describe("ZoomState", () => {
       axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
     );
@@ -669,7 +742,12 @@ describe("ZoomState", () => {
       axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
     );
@@ -687,7 +765,12 @@ describe("ZoomState", () => {
       axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
     );
@@ -722,7 +805,12 @@ describe("ZoomState", () => {
     expect(
       () =>
         new ZoomState(
-          rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+          rect as unknown as Selection<
+            SVGRectElement,
+            unknown,
+            HTMLElement,
+            unknown
+          >,
           state,
           vi.fn(),
           undefined,
@@ -742,7 +830,12 @@ describe("ZoomState", () => {
     expect(
       () =>
         new ZoomState(
-          rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+          rect as unknown as Selection<
+            SVGRectElement,
+            unknown,
+            HTMLElement,
+            unknown
+          >,
           state,
           vi.fn(),
           undefined,
@@ -752,7 +845,12 @@ describe("ZoomState", () => {
     expect(
       () =>
         new ZoomState(
-          rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+          rect as unknown as Selection<
+            SVGRectElement,
+            unknown,
+            HTMLElement,
+            unknown
+          >,
           state,
           vi.fn(),
           undefined,
