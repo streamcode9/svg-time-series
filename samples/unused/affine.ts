@@ -28,7 +28,7 @@ export function newPoint(x: number, y: number): SVGPoint {
 }
 
 export function newVector(x: number, y: number): Vector {
-  return newPoint(x, y) as Vector;
+  return newPoint(x, y);
 }
 
 export function identityTransform(): SVGMatrix {
@@ -104,8 +104,5 @@ export function transformVector(
   transformPoint: (src: SVGPoint) => SVGPoint,
   vec: Vector,
 ): Vector {
-  return pSubP(
-    transformPoint(vec as SVGPoint),
-    transformPoint(zeroV as SVGPoint),
-  );
+  return pSubP(transformPoint(vec), transformPoint(zeroV));
 }

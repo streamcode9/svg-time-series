@@ -11,7 +11,6 @@ export default tsEslint.config(
       "**/dist/**",
       "samples/benchmarks/**",
       "samples/competitors/**",
-      "samples/unused/**",
     ],
   },
   {
