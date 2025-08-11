@@ -3,14 +3,13 @@
 import tsEslint from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
 import vitest from "@vitest/eslint-plugin";
+import globals from "globals";
+
+const disableTypeChecked = tsEslint.configs.disableTypeChecked;
 
 export default tsEslint.config(
   {
-    ignores: [
-      "eslint.config.js",
-      "**/dist/**",
-      "samples/competitors/**",
-    ],
+    ignores: ["**/dist/**"],
   },
   {
     languageOptions: {
@@ -45,5 +44,20 @@ export default tsEslint.config(
   { files: ["**/*.bench.ts", "**/bench/**/*.ts"], ...tsEslint.configs.disableTypeChecked },
   { files: ["samples/benchmarks/**"], ...tsEslint.configs.disableTypeChecked },
   { files: ["**/*.cjs", "**/*.mjs", "**/vite.config.ts"], ...tsEslint.configs.disableTypeChecked },
+  { files: ["eslint.config.js"], ...tsEslint.configs.disableTypeChecked },
+  {
+    files: ["samples/competitors/**"],
+    languageOptions: {
+      ...disableTypeChecked.languageOptions,
+      globals: { ...globals.browser, d3: "readonly" },
+    },
+    rules: {
+      ...disableTypeChecked.rules,
+      "prefer-const": "off",
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "prefer-spread": "off",
+    },
+  },
   { files: ["**/*.test.ts"], ...vitest.configs.recommended, ...tsEslint.configs.disableTypeChecked },
 );
