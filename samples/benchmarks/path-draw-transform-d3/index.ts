@@ -5,7 +5,7 @@ import { measure, measureOnce, onCsv } from "../bench.ts";
 import { TimeSeriesChart } from "./draw.ts";
 
 onCsv((data: number[][]) => {
-  const path = selectAll("g.view")
+  selectAll("g.view")
     .selectAll("path")
     .data([0, 1])
     .enter()

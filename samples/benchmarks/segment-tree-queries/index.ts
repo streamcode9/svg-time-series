@@ -6,7 +6,7 @@ import { TimeSeriesChart } from "./draw.ts";
 
 onCsv((data: number[][]) => {
   const filteredData = data.filter((_, i) => i % 10 == 0);
-  const path = selectAll("g.view")
+  selectAll("g.view")
     .selectAll("path")
     .data([0, 1])
     .enter()

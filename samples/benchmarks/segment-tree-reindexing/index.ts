@@ -66,7 +66,7 @@ const times = [];
 for (let n = 0; n < 100; n++) {
   const t0 = performance.now();
   for (let k = 0; k < 1000; k++) {
-    const tree = createSegmentTree(data, serieLength);
+    createSegmentTree(data, serieLength);
   }
   const t1 = performance.now();
   times.push(t1 - t0);

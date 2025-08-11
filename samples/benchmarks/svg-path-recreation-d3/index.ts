@@ -16,11 +16,7 @@ onCsv((data) => {
       .call(null, data);
   };
 
-  const path = selectAll("g.view")
-    .selectAll("path")
-    .data([0, 1])
-    .enter()
-    .append("path");
+  selectAll("g.view").selectAll("path").data([0, 1]).enter().append("path");
 
   selectAll("svg").each(function () {
     return new TimeSeriesChart(select(this), dataLength, drawLine);

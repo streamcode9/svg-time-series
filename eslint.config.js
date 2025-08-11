@@ -9,7 +9,6 @@ export default tsEslint.config(
     ignores: [
       "eslint.config.js",
       "**/dist/**",
-      "samples/benchmarks/**",
       "samples/competitors/**",
     ],
   },
@@ -44,6 +43,7 @@ export default tsEslint.config(
   },
   { files: ["test/**/*.ts"], ...tsEslint.configs.disableTypeChecked },
   { files: ["**/*.bench.ts", "**/bench/**/*.ts"], ...tsEslint.configs.disableTypeChecked },
+  { files: ["samples/benchmarks/**"], ...tsEslint.configs.disableTypeChecked },
   { files: ["**/*.cjs", "**/*.mjs", "**/vite.config.ts"], ...tsEslint.configs.disableTypeChecked },
   { files: ["**/*.test.ts"], ...vitest.configs.recommended, ...tsEslint.configs.disableTypeChecked },
 );

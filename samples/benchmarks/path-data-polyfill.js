@@ -973,7 +973,7 @@ if (
       setAttribute.call(this, name, value);
     };
 
-    SVGPathElement.prototype.removeAttribute = function (name, value) {
+    SVGPathElement.prototype.removeAttribute = function (name) {
       if (name === "d") {
         this[symbols.cachedPathData] = null;
         this[symbols.cachedNormalizedPathData] = null;
