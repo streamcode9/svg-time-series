@@ -151,7 +151,11 @@ export class ChartData {
     return this.clampIndex(idx);
   }
 
-  private clampIndex(idx: number): number {
+  /**
+   * Clamp a raw index to the valid data range.
+   * Exposed for shared bounds checking across components.
+   */
+  public clampIndex(idx: number): number {
     return Math.min(Math.max(idx, 0), this.window.length - 1);
   }
   bAxisVisible(bIndexVisible: AR1Basis, tree: SegmentTree<IMinMax>): AR1Basis {

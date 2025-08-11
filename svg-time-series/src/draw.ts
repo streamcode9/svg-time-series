@@ -169,7 +169,7 @@ export class TimeSeriesChart {
 
   public onHover = (x: number) => {
     let idx = this.state.axes.y[0]!.transform.fromScreenToModelX(x);
-    idx = Math.min(Math.max(idx, 0), this.data.length - 1);
+    idx = this.data.clampIndex(idx);
     this.legendController.highlightIndex(idx);
   };
 
