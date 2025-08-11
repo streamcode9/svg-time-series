@@ -7,7 +7,7 @@ export function drawProc<F extends (...args: unknown[]) => void>(
   cancel: () => void;
 } {
   let requested = false;
-  let latestParams: Parameters<F>;
+  let latestParams: Parameters<F> | null = null;
   let timer: ReturnType<typeof runTimeout> | null = null;
 
   const wrapped = (...params: Parameters<F>) => {
@@ -17,7 +17,9 @@ export function drawProc<F extends (...args: unknown[]) => void>(
       timer = runTimeout(() => {
         requested = false;
         timer = null;
-        f(...latestParams);
+        if (latestParams) {
+          f(...latestParams);
+        }
       });
     }
   };
@@ -28,6 +30,7 @@ export function drawProc<F extends (...args: unknown[]) => void>(
       timer = null;
     }
     requested = false;
+    latestParams = null;
   };
 
   return { wrapped, cancel };
