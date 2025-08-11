@@ -5,6 +5,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { JSDOM } from "jsdom";
 import { select } from "d3-selection";
+import type { Selection } from "d3-selection";
 
 import { LegendController } from "./LegendController.ts";
 import { ChartData, IDataSource } from "../svg-time-series/src/chart/data.ts";
@@ -26,13 +27,12 @@ function createSvgAndLegend() {
   const div = dom.window.document.getElementById("c") as HTMLDivElement;
   Object.defineProperty(div, "clientWidth", { value: 100 });
   Object.defineProperty(div, "clientHeight", { value: 100 });
-  const svg = select<HTMLDivElement, unknown>(div).select<
-    SVGSVGElement,
-    unknown
-  >("svg");
-  const legendDiv = select<HTMLElement, unknown, HTMLElement, unknown>(
+  const svg = select<HTMLDivElement, unknown>(div).select<SVGSVGElement>(
+    "svg",
+  ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
+  const legendDiv = select(
     dom.window.document.getElementById("l") as HTMLDivElement,
-  );
+  ) as unknown as Selection<HTMLElement, unknown, HTMLElement, unknown>;
   return { svg, legendDiv };
 }
 
@@ -56,7 +56,7 @@ describe("LegendController", () => {
       length: data.length,
       series: state.series.map((s) => ({
         path: s.path,
-        transform: state.axes.y[s.axisIdx].transform,
+        transform: state.axes.y[s.axisIdx]!.transform,
       })),
     });
 
@@ -66,11 +66,11 @@ describe("LegendController", () => {
 
     lc.highlightIndex(1);
 
-    const lastCall = updateSpy.mock.calls[updateSpy.mock.calls.length - 1];
+    const lastCall = updateSpy.mock.calls.at(-1)!;
     const matrix = lastCall[1] as DOMMatrix;
     const modelPoint = new DOMPoint(1, data.getPoint(1).values[0]);
     const expected = modelPoint.matrixTransform(
-      state.axes.y[0].transform.matrix,
+      state.axes.y[0]!.transform.matrix,
     );
     expect(matrix.e).toBeCloseTo(expected.x);
     expect(matrix.f).toBeCloseTo(expected.y);
@@ -107,7 +107,7 @@ describe("LegendController", () => {
       length: data.length,
       series: state.series.map((s) => ({
         path: s.path,
-        transform: state.axes.y[s.axisIdx].transform,
+        transform: state.axes.y[s.axisIdx]!.transform,
       })),
     });
 
@@ -147,7 +147,7 @@ describe("LegendController", () => {
       length: data.length,
       series: state.series.map((s) => ({
         path: s.path,
-        transform: state.axes.y[s.axisIdx].transform,
+        transform: state.axes.y[s.axisIdx]!.transform,
       })),
     });
 

@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import type { Mock } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import { zoomIdentity, zoomTransform } from "d3-zoom";
@@ -10,10 +11,10 @@ import { ZoomState } from "./zoomState.ts";
 
 interface MockZoomBehavior {
   (_s: unknown): void;
-  scaleExtent: vi.Mock;
-  translateExtent: vi.Mock;
-  on: vi.Mock;
-  transform: vi.Mock;
+  scaleExtent: Mock;
+  translateExtent: Mock;
+  on: Mock;
+  transform: Mock;
   triggerZoom: (transform: unknown) => void;
   _zoomHandler?: (event: unknown) => void;
 }
@@ -118,7 +119,7 @@ describe("ZoomState.updateExtents clamp", () => {
 
     const initial = zoomIdentity.translate(-120, -80).scale(2);
     zs.zoomBehavior.transform(rect, initial);
-    const transformSpy = zs.zoomBehavior.transform as unknown as vi.Mock;
+    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
     transformSpy.mockClear();
 
     zs.updateExtents({ width: 50, height: 50 });
