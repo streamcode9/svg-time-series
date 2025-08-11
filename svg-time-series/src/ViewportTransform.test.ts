@@ -125,4 +125,44 @@ describe("ViewportTransform", () => {
     expect(t1).toBeCloseTo(50);
     expect(t2).toBeCloseTo(50);
   });
+
+  it("throws a helpful error when scale is zero", () => {
+    const vt = new ViewportTransform();
+
+    vt.onViewPortResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 100),
+        new AR1Basis(0, 100),
+      ),
+    );
+    vt.onReferenceViewWindowResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 10),
+        new AR1Basis(0, 10),
+      ),
+    );
+
+    vt.onZoomPan(zoomIdentity.scale(0));
+    expect(() => vt.fromScreenToModelX(10)).toThrow(/not invertible/);
+  });
+
+  it("throws a helpful error when scale is near zero", () => {
+    const vt = new ViewportTransform();
+
+    vt.onViewPortResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 100),
+        new AR1Basis(0, 100),
+      ),
+    );
+    vt.onReferenceViewWindowResize(
+      DirectProductBasis.fromProjections(
+        new AR1Basis(0, 10),
+        new AR1Basis(0, 10),
+      ),
+    );
+
+    vt.onZoomPan(zoomIdentity.scale(1e-15));
+    expect(() => vt.fromScreenToModelX(10)).toThrow(/not invertible/);
+  });
 });

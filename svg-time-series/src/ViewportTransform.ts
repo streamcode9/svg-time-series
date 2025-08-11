@@ -15,6 +15,9 @@ export class ViewportTransform {
   private zoomTransform: DOMMatrix = new DOMMatrix();
   private referenceTransform: DOMMatrix = new DOMMatrix();
   private composedMatrix: DOMMatrix = new DOMMatrix();
+  private inverseMatrix: DOMMatrix | null = new DOMMatrix();
+
+  private static readonly DET_EPSILON = 1e-12;
 
   private updateReferenceTransform() {
     const dp = betweenTBasesDirectProduct(
@@ -27,6 +30,23 @@ export class ViewportTransform {
 
   private updateComposedMatrix() {
     this.composedMatrix = this.zoomTransform.multiply(this.referenceTransform);
+    this.updateInverseMatrix();
+  }
+
+  private updateInverseMatrix() {
+    const m = this.composedMatrix;
+    if (!m.is2D) {
+      this.inverseMatrix = null;
+      return;
+    }
+
+    const det = m.a * m.d - m.b * m.c;
+    if (Math.abs(det) < ViewportTransform.DET_EPSILON) {
+      this.inverseMatrix = null;
+      return;
+    }
+
+    this.inverseMatrix = m.inverse();
   }
 
   public onViewPortResize(bScreenVisible: DirectProductBasis): this {
@@ -48,7 +68,12 @@ export class ViewportTransform {
   }
 
   private toModelPoint(x: number, y: number) {
-    return new DOMPoint(x, y).matrixTransform(this.composedMatrix.inverse());
+    if (!this.inverseMatrix) {
+      throw new Error(
+        "ViewportTransform: composed matrix is not invertible (determinant is zero)",
+      );
+    }
+    return new DOMPoint(x, y).matrixTransform(this.inverseMatrix);
   }
 
   private toScreenPoint(x: number, y: number) {
