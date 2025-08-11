@@ -25,6 +25,42 @@ export interface IDataSource {
   getSeries(index: number, seriesIdx: number): number;
 }
 
+function validateSource(source: IDataSource): void {
+  if (source.length === 0) {
+    throw new Error("ChartData requires a non-empty data array");
+  }
+  if (source.seriesCount < 1) {
+    throw new Error("ChartData requires at least one series");
+  }
+  if (!Number.isFinite(source.startTime)) {
+    throw new Error("ChartData requires startTime to be a finite number");
+  }
+  if (!Number.isFinite(source.timeStep)) {
+    throw new Error("ChartData requires timeStep to be a finite number");
+  }
+  if (source.timeStep <= 0) {
+    throw new Error("ChartData requires timeStep to be greater than 0");
+  }
+  if (source.seriesAxes.length !== source.seriesCount) {
+    throw new Error(
+      `ChartData requires seriesAxes length to match seriesCount (${String(
+        source.seriesCount,
+      )})`,
+    );
+  }
+  let axisIdx = 0;
+  for (const axis of source.seriesAxes) {
+    if (axis !== 0 && axis !== 1) {
+      throw new Error(
+        `ChartData seriesAxes[${String(axisIdx)}] must be 0 or 1; received ${String(
+          axis,
+        )}`,
+      );
+    }
+    axisIdx++;
+  }
+}
+
 export class ChartData {
   private readonly window: SlidingWindow;
   public readonly seriesByAxis: [number[], number[]] = [[], []];
@@ -40,40 +76,12 @@ export class ChartData {
    * @throws if the source has length 0.
    */
   constructor(source: IDataSource) {
-    if (source.length === 0) {
-      throw new Error("ChartData requires a non-empty data array");
-    }
-    if (source.seriesCount < 1) {
-      throw new Error("ChartData requires at least one series");
-    }
-    if (!Number.isFinite(source.startTime)) {
-      throw new Error("ChartData requires startTime to be a finite number");
-    }
-    if (!Number.isFinite(source.timeStep)) {
-      throw new Error("ChartData requires timeStep to be a finite number");
-    }
-    if (source.timeStep <= 0) {
-      throw new Error("ChartData requires timeStep to be greater than 0");
-    }
+    validateSource(source);
     this.seriesCount = source.seriesCount;
     this.seriesAxes = source.seriesAxes;
-    if (this.seriesAxes.length !== this.seriesCount) {
-      throw new Error(
-        `ChartData requires seriesAxes length to match seriesCount (${String(
-          this.seriesCount,
-        )})`,
-      );
-    }
     let axisIdx = 0;
     for (const axis of this.seriesAxes) {
-      if (axis !== 0 && axis !== 1) {
-        throw new Error(
-          `ChartData seriesAxes[${String(axisIdx)}] must be 0 or 1; received ${String(
-            axis,
-          )}`,
-        );
-      }
-      this.seriesByAxis[axis].push(axisIdx);
+      this.seriesByAxis[axis as 0 | 1].push(axisIdx);
       axisIdx++;
     }
     const initialData = Array.from({ length: source.length }).map((_, i) =>
