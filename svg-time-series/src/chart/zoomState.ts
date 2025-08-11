@@ -4,6 +4,9 @@ import type { D3ZoomEvent, ZoomBehavior } from "d3-zoom";
 import { drawProc } from "../utils/drawProc.ts";
 import type { RenderState } from "./render.ts";
 
+export const sameTransform = (a: ZoomTransform, b: ZoomTransform): boolean =>
+  a.k === b.k && a.x === b.x && a.y === b.y;
+
 export interface IZoomStateOptions {
   scaleExtent: [number, number];
 }
@@ -88,7 +91,10 @@ export class ZoomState {
         this.zoomArea,
         this.currentPanZoomTransformState,
       );
-    } else if (prevTransform !== null && event.transform !== prevTransform) {
+    } else if (
+      prevTransform !== null &&
+      !sameTransform(event.transform, prevTransform)
+    ) {
       this.currentPanZoomTransformState = prevTransform;
       return;
     } else {
