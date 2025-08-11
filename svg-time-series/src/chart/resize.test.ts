@@ -1,11 +1,11 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, type Mock } from "vitest";
 
 vi.mock("../utils/domNodeTransform.ts", () => ({ updateNode: vi.fn() }));
 interface AxisMock {
-  axisUp: vi.Mock;
+  axisUp: Mock;
 }
 const axisInstances: AxisMock[] = [];
 vi.mock("../axis.ts", () => {
@@ -107,12 +107,12 @@ describe("TimeSeriesChart.resize", () => {
     );
 
     interface ChartInternal {
-      zoomState: { updateExtents: vi.Mock };
+      zoomState: { updateExtents: Mock };
       state: {
         axes: {
           x: { scale: { range: () => unknown } };
           y: Array<{
-            transform: { onViewPortResize: vi.Mock };
+            transform: { onViewPortResize: Mock };
             scale: { range: () => unknown };
           }>;
         };

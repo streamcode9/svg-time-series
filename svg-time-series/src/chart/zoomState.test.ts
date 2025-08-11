@@ -1,7 +1,15 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock,
+} from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import { zoomTransform } from "d3-zoom";
@@ -12,11 +20,11 @@ import { ZoomScheduler } from "./zoomScheduler.ts";
 
 interface MockZoomBehavior {
   (_s: unknown): void;
-  scaleExtent: vi.Mock;
-  translateExtent: vi.Mock;
-  on: vi.Mock;
-  transform: vi.Mock;
-  scaleTo: vi.Mock;
+  scaleExtent: Mock;
+  translateExtent: Mock;
+  on: Mock;
+  transform: Mock;
+  scaleTo: Mock;
   triggerZoom: (transform: unknown) => void;
   _zoomHandler?: (event: unknown) => void;
 }
@@ -147,7 +155,7 @@ describe("ZoomState", () => {
       zoomCb,
     );
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as vi.Mock;
+    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
     transformSpy.mockClear();
     const event = {
       transform: { x: 2, k: 3 },
@@ -187,7 +195,7 @@ describe("ZoomState", () => {
       refresh,
     );
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as vi.Mock;
+    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
     transformSpy.mockClear();
 
     const forwarded = {
@@ -243,7 +251,7 @@ describe("ZoomState", () => {
       },
     );
 
-    const transformSpy = zs2.zoomBehavior.transform as unknown as vi.Mock;
+    const transformSpy = zs2.zoomBehavior.transform as unknown as Mock;
     transformSpy.mockClear();
 
     const event1 = {
@@ -350,7 +358,7 @@ describe("ZoomState", () => {
       refresh,
     );
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as vi.Mock;
+    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
 
     zs.zoom({
       transform: { x: 4, k: 5 },
@@ -392,7 +400,7 @@ describe("ZoomState", () => {
     } as unknown as D3ZoomEvent<SVGRectElement, unknown>);
     vi.runAllTimers();
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as vi.Mock;
+    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
     transformSpy.mockClear();
     refresh.mockClear();
 
@@ -422,7 +430,7 @@ describe("ZoomState", () => {
       refresh,
     );
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as vi.Mock;
+    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
     transformSpy.mockClear();
     y.onZoomPan.mockClear();
     refresh.mockClear();
@@ -464,10 +472,10 @@ describe("ZoomState", () => {
       vi.fn(),
     );
 
-    const scaleSpy = (zs.zoomBehavior as unknown as { scaleExtent: vi.Mock })
+    const scaleSpy = (zs.zoomBehavior as unknown as { scaleExtent: Mock })
       .scaleExtent;
     const translateSpy = (
-      zs.zoomBehavior as unknown as { translateExtent: vi.Mock }
+      zs.zoomBehavior as unknown as { translateExtent: Mock }
     ).translateExtent;
 
     scaleSpy.mockClear();
@@ -506,7 +514,7 @@ describe("ZoomState", () => {
       },
     );
 
-    const scaleSpy = (zs.zoomBehavior as unknown as { scaleExtent: vi.Mock })
+    const scaleSpy = (zs.zoomBehavior as unknown as { scaleExtent: Mock })
       .scaleExtent;
     expect(scaleSpy).toHaveBeenCalledWith([0.5, 20]);
 
@@ -531,7 +539,7 @@ describe("ZoomState", () => {
       vi.fn(),
     );
 
-    const scaleSpy = (zs.zoomBehavior as unknown as { scaleExtent: vi.Mock })
+    const scaleSpy = (zs.zoomBehavior as unknown as { scaleExtent: Mock })
       .scaleExtent;
     scaleSpy.mockClear();
 
