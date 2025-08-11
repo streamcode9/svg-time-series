@@ -11,7 +11,7 @@ import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
 import type { ChartData } from "./data.ts";
 import { createDimensions } from "./render/utils.ts";
 import { SeriesRenderer } from "./seriesRenderer.ts";
-import { SeriesManager } from "./series.ts";
+import { createSeries } from "./series.ts";
 
 function createYAxis(
   orientation: Orientation,
@@ -118,10 +118,9 @@ export function setupRender(
     a.transform.onReferenceViewWindowResize(referenceBasis);
   }
 
-  const seriesManager = new SeriesManager(svg, data.seriesAxes);
+  const series = createSeries(svg, data.seriesAxes);
   const seriesRenderer = new SeriesRenderer();
-  seriesRenderer.series = seriesManager.series;
-  const { series } = seriesManager;
+  seriesRenderer.series = series;
   const xAxis = new MyAxis(Orientation.Bottom, xScale)
     .ticks(4)
     .setTickSize(height)

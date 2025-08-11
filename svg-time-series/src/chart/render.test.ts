@@ -5,14 +5,14 @@ import { describe, it, expect, vi } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import { SeriesRenderer } from "./seriesRenderer.ts";
-import { SeriesManager } from "./series.ts";
+import { createSeries } from "./series.ts";
 
 describe("SeriesRenderer", () => {
   describe("draw", () => {
     it("skips segments for NaN values", () => {
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       const renderer = new SeriesRenderer();
-      const manager = new SeriesManager(
+      renderer.series = createSeries(
         select(svg) as unknown as Selection<
           SVGSVGElement,
           unknown,
@@ -21,7 +21,6 @@ describe("SeriesRenderer", () => {
         >,
         [0, 1],
       );
-      renderer.series = manager.series;
       const data: Array<[number, number]> = [
         [0, 0],
         [NaN, NaN],
@@ -40,9 +39,9 @@ describe("SeriesRenderer", () => {
         "svg",
       ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
       const renderer = new SeriesRenderer();
-      const manager = new SeriesManager(svgSelection, [0]);
-      const [series] = manager.series;
-      renderer.series = manager.series;
+      const seriesList = createSeries(svgSelection, [0]);
+      const [series] = seriesList;
+      renderer.series = seriesList;
       const pathNode = series.path;
       const spy = vi.spyOn(pathNode, "setAttribute");
 
@@ -57,13 +56,12 @@ describe("SeriesRenderer", () => {
   });
 });
 
-describe("SeriesManager", () => {
+describe("createSeries", () => {
   it("creates a view and path", () => {
     const svgSelection = select(document.createElement("div")).append(
       "svg",
     ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
-    const manager = new SeriesManager(svgSelection, [0]);
-    const [series] = manager.series;
+    const [series] = createSeries(svgSelection, [0]);
 
     expect(series.view.tagName).toBe("g");
     expect(series.path.tagName).toBe("path");
