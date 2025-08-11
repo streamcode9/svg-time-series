@@ -16,12 +16,18 @@ export class ZoomState {
   private scaleExtent: [number, number];
 
   public static validateScaleExtent(extent: unknown) {
-    if (!Array.isArray(extent) || extent.length !== 2) {
+    if (!Array.isArray(extent)) {
       throw new Error(
-        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: ${Array.isArray(extent) ? extent.join(",") : String(extent)}`,
+        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: ${String(extent)}`,
       );
     }
-    const [min, max] = extent as [number, number];
+    const arr = extent as [number, number];
+    if (extent.length !== 2) {
+      throw new Error(
+        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: ${arr.join(",")}`,
+      );
+    }
+    const [min, max] = arr;
     if (
       typeof min !== "number" ||
       typeof max !== "number" ||
@@ -32,7 +38,7 @@ export class ZoomState {
       min >= max
     ) {
       throw new Error(
-        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: [${extent.join(",")}]`,
+        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: [${arr.join(",")}]`,
       );
     }
   }
