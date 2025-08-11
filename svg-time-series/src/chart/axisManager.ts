@@ -25,6 +25,8 @@ export interface AxisModel {
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
   tree: SegmentTree<IMinMax>;
+  min: number;
+  max: number;
 }
 
 export interface AxisRenderState {
@@ -57,6 +59,8 @@ export class AxisManager {
       transform: new ViewportTransform(),
       scale: scaleLinear<number, number>(),
       tree: new SegmentTree([minMaxIdentity], buildMinMax, minMaxIdentity),
+      min: 0,
+      max: 1,
     }));
     return this.axes;
   }
@@ -67,14 +71,6 @@ export class AxisManager {
 
   updateScales(bIndex: AR1Basis, data: ChartData): void {
     updateScaleX(this.x, bIndex, data);
-
-    const domains = this.axes.map((a) => ({
-      min: Infinity,
-      max: -Infinity,
-      transform: a.transform,
-      scale: a.scale,
-    }));
-
     const axisIndices: number[] = [];
     for (const idx of data.seriesAxes) {
       if (!axisIndices.includes(idx)) {
@@ -94,22 +90,17 @@ export class AxisManager {
       const axis = this.axes[i]!;
       axis.tree = tree;
       const dp = data.updateScaleY(bIndex, tree);
-      const [min, max] = dp.y().toArr();
-      const domain = domains[i]!;
-      domain.min = Math.min(domain.min, min);
-      domain.max = Math.max(domain.max, max);
-    }
-
-    for (const domain of domains) {
-      let { min, max } = domain;
+      let [min, max] = dp.y().toArr();
       if (!Number.isFinite(min) || !Number.isFinite(max)) {
         min = 0;
         max = 1;
       }
+      axis.min = min;
+      axis.max = max;
       const b = new AR1Basis(min, max);
-      const dp = DirectProductBasis.fromProjections(data.bIndexFull, b);
-      domain.transform.onReferenceViewWindowResize(dp);
-      domain.scale.domain([min, max]);
+      const dpRef = DirectProductBasis.fromProjections(data.bIndexFull, b);
+      axis.transform.onReferenceViewWindowResize(dpRef);
+      axis.scale.domain([min, max]);
     }
   }
 }
