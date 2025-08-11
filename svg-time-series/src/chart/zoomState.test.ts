@@ -7,6 +7,7 @@ import { select } from "d3-selection";
 import type { RenderState } from "./render.ts";
 import { ZoomState } from "./zoomState.ts";
 import type { D3ZoomEvent } from "./zoomState.ts";
+import { ZoomScheduler } from "./zoomScheduler.ts";
 
 interface MockZoomBehavior {
   (_s: unknown): void;
@@ -293,14 +294,12 @@ describe("ZoomState", () => {
 
     vi.runAllTimers();
 
-    expect(
-      (zs1 as unknown as { pendingZoomBehaviorTransform: boolean })
-        .pendingZoomBehaviorTransform,
-    ).toBe(false);
-    expect(
-      (zs1 as unknown as { currentPanZoomTransformState: unknown })
-        .currentPanZoomTransformState,
-    ).toBeNull();
+    interface ZoomStateInternal {
+      zoomScheduler: ZoomScheduler;
+    }
+    const zs1Internal = zs1 as unknown as ZoomStateInternal;
+    expect(zs1Internal.zoomScheduler.isPending()).toBe(false);
+    expect(zs1Internal.zoomScheduler.getCurrentTransform()).toBeNull();
   });
 
   it("programmatic zoom does not reapply transform on subsequent refresh", () => {
@@ -409,9 +408,11 @@ describe("ZoomState", () => {
     expect(y.onZoomPan).toHaveBeenCalledWith(
       expect.objectContaining({ k: 1, x: 0, y: 0 }),
     );
+    interface ZoomStateInternal {
+      zoomScheduler: ZoomScheduler;
+    }
     expect(
-      (zs as unknown as { currentPanZoomTransformState: unknown })
-        .currentPanZoomTransformState,
+      (zs as unknown as ZoomStateInternal).zoomScheduler.getCurrentTransform(),
     ).toBeNull();
     expect(refresh).toHaveBeenCalledTimes(1);
   });

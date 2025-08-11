@@ -7,6 +7,7 @@ import { select } from "d3-selection";
 import type { RenderState } from "./render.ts";
 import { ZoomState } from "./zoomState.ts";
 import type { D3ZoomEvent } from "./zoomState.ts";
+import { ZoomScheduler } from "./zoomScheduler.ts";
 
 interface MockZoomBehavior {
   (_s: unknown): void;
@@ -80,10 +81,10 @@ describe("ZoomState transform state", () => {
 
     expect(transformSpy).toHaveBeenCalledWith(rect, { x: 1, k: 2 });
     interface ZoomStateInternal {
-      currentPanZoomTransformState: unknown;
+      zoomScheduler: ZoomScheduler;
     }
     expect(
-      (zs as unknown as ZoomStateInternal).currentPanZoomTransformState,
+      (zs as unknown as ZoomStateInternal).zoomScheduler.getCurrentTransform(),
     ).toBeNull();
 
     transformSpy.mockClear();

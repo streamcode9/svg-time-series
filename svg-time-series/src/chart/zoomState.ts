@@ -1,11 +1,10 @@
 import type { Selection } from "d3-selection";
 import { zoom as d3zoom, ZoomTransform, zoomIdentity } from "d3-zoom";
 import type { D3ZoomEvent, ZoomBehavior } from "d3-zoom";
-import { drawProc } from "../utils/drawProc.ts";
+import { ZoomScheduler, sameTransform } from "./zoomScheduler.ts";
 import type { RenderState } from "./render.ts";
 
-export const sameTransform = (a: ZoomTransform, b: ZoomTransform): boolean =>
-  a.k === b.k && a.x === b.x && a.y === b.y;
+export { sameTransform };
 
 export interface IZoomStateOptions {
   scaleExtent: [number, number];
@@ -13,12 +12,10 @@ export interface IZoomStateOptions {
 
 export class ZoomState {
   public zoomBehavior: ZoomBehavior<SVGRectElement, unknown>;
-  private currentPanZoomTransformState: ZoomTransform | null = null;
-  private pendingZoomBehaviorTransform = false;
-  private scheduleRefresh: () => void;
-  private cancelRefresh: () => void;
+  private zoomScheduler: ZoomScheduler;
   private scaleExtent: [number, number];
-  private validateScaleExtent(extent: unknown) {
+
+  public static validateScaleExtent(extent: unknown) {
     if (!Array.isArray(extent) || extent.length !== 2) {
       throw new Error(
         `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: ${Array.isArray(extent) ? extent.join(",") : String(extent)}`,
@@ -49,7 +46,7 @@ export class ZoomState {
     ) => void = () => {},
     options: IZoomStateOptions = { scaleExtent: [1, 40] },
   ) {
-    this.validateScaleExtent(options.scaleExtent);
+    ZoomState.validateScaleExtent(options.scaleExtent);
     this.scaleExtent = options.scaleExtent;
     this.zoomBehavior = d3zoom<SVGRectElement, unknown>()
       .scaleExtent(this.scaleExtent)
@@ -63,54 +60,25 @@ export class ZoomState {
 
     this.zoomArea.call(this.zoomBehavior);
 
-    const { wrapped, cancel } = drawProc(() => {
-      if (this.currentPanZoomTransformState != null) {
-        this.zoomBehavior.transform(
-          this.zoomArea,
-          this.currentPanZoomTransformState,
-        );
-        this.currentPanZoomTransformState = null;
-      } else {
-        this.refreshChart();
-      }
-    });
-    this.scheduleRefresh = wrapped;
-    this.cancelRefresh = cancel;
+    this.zoomScheduler = new ZoomScheduler((t: ZoomTransform) => {
+      this.zoomBehavior.transform(this.zoomArea, t);
+    }, this.refreshChart);
   }
 
   public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
-    const prevTransform = this.currentPanZoomTransformState;
-    this.currentPanZoomTransformState = event.transform;
     this.state.axes.y.forEach((a) => a.transform.onZoomPan(event.transform));
-    if (event.sourceEvent) {
-      this.pendingZoomBehaviorTransform = true;
-      this.scheduleRefresh();
-    } else if (!this.pendingZoomBehaviorTransform) {
-      this.pendingZoomBehaviorTransform = true;
-      this.zoomBehavior.transform(
-        this.zoomArea,
-        this.currentPanZoomTransformState,
-      );
-    } else if (
-      prevTransform !== null &&
-      !sameTransform(event.transform, prevTransform)
-    ) {
-      this.currentPanZoomTransformState = prevTransform;
+    if (!this.zoomScheduler.zoom(event.transform, event.sourceEvent)) {
       return;
-    } else {
-      this.pendingZoomBehaviorTransform = false;
-      this.refreshChart();
-      this.currentPanZoomTransformState = null;
     }
     this.zoomCallback(event);
   };
 
   public refresh = () => {
-    this.scheduleRefresh();
+    this.zoomScheduler.refresh();
   };
 
   public setScaleExtent = (extent: [number, number]) => {
-    this.validateScaleExtent(extent);
+    ZoomState.validateScaleExtent(extent);
     this.scaleExtent = extent;
     this.zoomBehavior.scaleExtent(extent);
   };
@@ -132,7 +100,7 @@ export class ZoomState {
   };
 
   public destroy = () => {
-    this.cancelRefresh();
+    this.zoomScheduler.destroy();
     this.zoomArea.on(".zoom", null);
     this.zoomBehavior.on("zoom", null);
   };
