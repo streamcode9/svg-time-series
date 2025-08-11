@@ -172,7 +172,7 @@ export class ChartData {
     tree: SegmentTree<IMinMax>,
   ): DirectProductBasis {
     const bAxisVisible = this.bAxisVisible(bIndexVisible, tree);
-    return DirectProductBasis.fromProjections(this.bIndexFull, bAxisVisible);
+    return DirectProductBasis.fromProjections(bIndexVisible, bAxisVisible);
   }
 
   combinedAxisDp(
