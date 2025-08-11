@@ -29,23 +29,30 @@ export class ZoomScheduler {
   public zoom(transform: ZoomTransform, sourceEvent: unknown): boolean {
     const prevTransform = this.currentPanZoomTransformState;
     this.currentPanZoomTransformState = transform;
+    // 1. direct user interaction, wait for d3 to emit final transform
     if (sourceEvent) {
       this.pendingZoomBehaviorTransform = true;
       this.scheduleRefresh();
-    } else if (!this.pendingZoomBehaviorTransform) {
+      return true;
+    }
+
+    // 2. first programmatic transform before d3 zoom behavior fires
+    if (!this.pendingZoomBehaviorTransform) {
       this.pendingZoomBehaviorTransform = true;
-      this.applyTransform(this.currentPanZoomTransformState);
-    } else if (
-      prevTransform !== null &&
-      !sameTransform(transform, prevTransform)
-    ) {
+      this.applyTransform(transform);
+      return true;
+    }
+
+    // 3. conflicting programmatic transform while waiting for refresh
+    if (prevTransform !== null && !sameTransform(transform, prevTransform)) {
       this.currentPanZoomTransformState = prevTransform;
       return false;
-    } else {
-      this.pendingZoomBehaviorTransform = false;
-      this.refreshChart();
-      this.currentPanZoomTransformState = null;
     }
+
+    // 4. final refresh after d3 confirms transform
+    this.pendingZoomBehaviorTransform = false;
+    this.refreshChart();
+    this.currentPanZoomTransformState = null;
     return true;
   }
 
