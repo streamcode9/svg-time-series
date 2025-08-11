@@ -34,7 +34,9 @@ export function drawCharts(
     event: MouseEvent,
   ) {
     const [x] = pointer(event, this);
-    charts.forEach((c) => c.interaction.onHover(x));
+    charts.forEach((c) => {
+      c.interaction.onHover(x);
+    });
   };
 
   const onSelectChart: ValueFn<HTMLElement, unknown, void> = function () {
@@ -49,15 +51,13 @@ export function drawCharts(
       getSeries: (i, seriesIdx) => data[i][seriesIdx],
     };
     const legendController = new LegendController(legend);
-    // eslint-disable-next-line prefer-const
-    let chart: TimeSeriesChart;
-    const zoomHandler = (event: D3ZoomEvent<SVGRectElement, unknown>) =>
-      onZoom(chart, event);
-    chart = new TimeSeriesChart(
+    const chart = new TimeSeriesChart(
       svg,
       source,
       legendController,
-      zoomHandler,
+      (event: D3ZoomEvent<SVGRectElement, unknown>) => {
+        onZoom(chart, event);
+      },
       onMouseMove,
     );
     charts.push(chart);
@@ -68,7 +68,9 @@ export function drawCharts(
   let j = 0;
   setInterval(function () {
     const newData = data[j % data.length];
-    charts.forEach((c) => c.updateChartWithNewData(newData[0], newData[1]));
+    charts.forEach((c) => {
+      c.updateChartWithNewData(newData[0], newData[1]);
+    });
     j++;
   }, 5000);
   measure(3, ({ fps }) => {
@@ -82,7 +84,7 @@ export function onCsv(f: (csv: [number, number][]) => void): void {
       parseFloat(d.NY.split(";")[0]),
       parseFloat(d.SF.split(";")[0]),
     ])
-    .get((error: null, data: [number, number][]) => {
+    .get((error: Error | null, data: [number, number][]) => {
       if (error != null) {
         alert("Data can't be downloaded or parsed");
         return;
@@ -106,7 +108,9 @@ export function loadAndDraw(seriesAxes: number[] = [0, 0]) {
 
     resize.request = function () {
       if (resize.timer) clearTimeout(resize.timer);
-      resize.timer = setTimeout(resize.eval, resize.interval);
+      resize.timer = setTimeout(() => {
+        resize.eval?.();
+      }, resize.interval);
     };
     resize.eval = function () {
       selectAll("svg").remove();
