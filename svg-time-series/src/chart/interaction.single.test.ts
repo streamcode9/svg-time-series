@@ -109,13 +109,23 @@ function createChart(data: Array<[number]>) {
     length: data.length,
     seriesCount: 1,
     seriesAxes: [0],
-    getSeries: (i) => data[i][0],
+    getSeries: (i) => data[i]![0],
   };
   const legendController = new LegendController(
-    select(legend) as Selection<HTMLElement, unknown, null, undefined>,
+    select(legend) as unknown as Selection<
+      HTMLElement,
+      unknown,
+      HTMLElement,
+      unknown
+    >,
   );
   const chart = new TimeSeriesChart(
-    select(svgEl) as Selection<SVGSVGElement, unknown, null, undefined>,
+    select(svgEl) as unknown as Selection<
+      SVGSVGElement,
+      unknown,
+      HTMLElement,
+      unknown
+    >,
     source,
     legendController,
     () => {},
@@ -152,9 +162,9 @@ describe("chart interaction single-axis", () => {
     const { zoom } = createChart([[0], [1]]);
     vi.runAllTimers();
 
-    const xAxis = axisInstances[0];
+    const xAxis = axisInstances[0]!;
     const yAxis = axisInstances[1];
-    const mtNy = transformInstances[0];
+    const mtNy = transformInstances[0]!;
     const xCalls = xAxis.axisUpCalls;
     const yCalls = yAxis.axisUpCalls;
     const callCount = updateNodeCalls;

@@ -22,7 +22,7 @@ function createSvg() {
   const div = dom.window.document.getElementById("c") as HTMLDivElement;
   Object.defineProperty(div, "clientWidth", { value: 100 });
   Object.defineProperty(div, "clientHeight", { value: 100 });
-  return select(div).select("svg") as Selection<
+  return select(div).select("svg") as unknown as Selection<
     SVGSVGElement,
     unknown,
     HTMLElement,
@@ -40,7 +40,7 @@ describe("RenderState.refresh integration", () => {
       seriesCount: 2,
       seriesAxes: [0, 1],
       getSeries: (i, seriesIdx) =>
-        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
+        seriesIdx === 0 ? [1, 2, 3][i]! : [10, 20, 30][i]!,
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
@@ -49,15 +49,15 @@ describe("RenderState.refresh integration", () => {
       .mockImplementation(() => {});
 
     const xBefore = state.axes.x.scale.domain().slice();
-    const yNyBefore = state.axes.y[0].scale.domain().slice();
-    const ySfBefore = state.axes.y[1].scale.domain().slice();
+    const yNyBefore = state.axes.y[0]!.scale.domain().slice();
+    const ySfBefore = state.axes.y[1]!.scale.domain().slice();
 
     data.append(100, 200);
     state.refresh(data);
 
     const xAfter = state.axes.x.scale.domain();
-    const yNyAfter = state.axes.y[0].scale.domain();
-    const ySfAfter = state.axes.y[1].scale.domain();
+    const yNyAfter = state.axes.y[0]!.scale.domain();
+    const ySfAfter = state.axes.y[1]!.scale.domain();
 
     expect(xAfter).not.toEqual(xBefore);
     expect(yNyAfter).not.toEqual(yNyBefore);
@@ -70,10 +70,10 @@ describe("RenderState.refresh integration", () => {
       (state.axes.x.axis as unknown as AxisWithScale1).scale1.domain(),
     ).toEqual(xAfter);
     expect(
-      (state.axisRenders[0].axis as unknown as AxisWithScale1).scale1.domain(),
+      (state.axisRenders[0]!.axis as unknown as AxisWithScale1).scale1.domain(),
     ).toEqual(yNyAfter);
     expect(
-      (state.axisRenders[1].axis as unknown as AxisWithScale1).scale1.domain(),
+      (state.axisRenders[1]!.axis as unknown as AxisWithScale1).scale1.domain(),
     ).toEqual(ySfAfter);
 
     expect(updateNodeSpy).toHaveBeenCalledTimes(state.series.length);

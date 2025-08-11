@@ -38,7 +38,7 @@ function createSvg() {
   const div = dom.window.document.getElementById("c") as HTMLDivElement;
   Object.defineProperty(div, "clientWidth", { value: 100 });
   Object.defineProperty(div, "clientHeight", { value: 100 });
-  return select(div).select("svg") as Selection<
+  return select(div).select("svg") as unknown as Selection<
     SVGSVGElement,
     unknown,
     HTMLElement,
@@ -55,7 +55,7 @@ describe("RenderState.refresh", () => {
       length: 3,
       seriesCount: 1,
       seriesAxes: [0],
-      getSeries: (i) => [1, 2, 3][i],
+      getSeries: (i) => [1, 2, 3][i]!,
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
@@ -65,12 +65,12 @@ describe("RenderState.refresh", () => {
     state.refresh(data);
 
     expect(state.series.length).toBe(1);
-    expect(state.axes.y[state.series[0].axisIdx].scale.domain()).toEqual([
+    expect(state.axes.y[state.series[0]!.axisIdx]!.scale.domain()).toEqual([
       1, 3,
     ]);
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
     state.series.forEach((s, i) => {
-      const t = state.axes.y[s.axisIdx].transform;
+      const t = state.axes.y[s.axisIdx]!.transform;
       expect(updateNodeMock).toHaveBeenNthCalledWith(i + 1, s.view, t.matrix);
     });
   });
