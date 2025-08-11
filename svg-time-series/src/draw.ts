@@ -163,8 +163,7 @@ export class TimeSeriesChart {
     }
 
     this.state.refresh(this.data);
-    this.state.seriesRenderer.draw(this.data.data);
-    this.legendController.refresh();
+    this.refreshAll();
   };
 
   public onHover = (x: number) => {
@@ -174,6 +173,10 @@ export class TimeSeriesChart {
   };
 
   private drawNewData = () => {
+    this.refreshAll();
+  };
+
+  private refreshAll = () => {
     this.state.seriesRenderer.draw(this.data.data);
     this.zoomState.refresh();
     this.legendController.refresh();

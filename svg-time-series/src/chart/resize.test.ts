@@ -69,16 +69,23 @@ describe("TimeSeriesChart.resize", () => {
       source,
       legend,
     );
+    interface ChartInternal {
+      zoomState: { refresh: Mock };
+    }
+    const chartInternal = chart as unknown as ChartInternal;
+    const zoomRefreshSpy = vi.spyOn(chartInternal.zoomState, "refresh");
 
     renderSpy.mockClear();
     axisInstances.forEach((a) => a.axisUp.mockClear());
     legend.refresh.mockClear();
+    zoomRefreshSpy.mockClear();
 
     chart.resize({ width: 200, height: 150 });
 
     axisInstances.forEach((a) => expect(a.axisUp).toHaveBeenCalled());
     expect(renderSpy).toHaveBeenCalled();
     expect(legend.refresh).toHaveBeenCalled();
+    expect(zoomRefreshSpy).toHaveBeenCalled();
   });
 
   it("uses explicit dimensions for zoom extents and axes", () => {
