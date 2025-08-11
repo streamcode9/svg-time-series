@@ -163,15 +163,13 @@ describe("chart interaction single-axis", () => {
     vi.runAllTimers();
 
     const xAxis = axisInstances[0]!;
-    const yAxis = axisInstances[1];
+    const yAxis = axisInstances[1]!;
     const mtNy = transformInstances[0]!;
     const xCalls = xAxis.axisUpCalls;
     const yCalls = yAxis.axisUpCalls;
     const callCount = updateNodeCalls;
 
-    zoom({ transform: { x: 10, k: 2 } } as unknown as {
-      transform: { x: number; k: number };
-    });
+    zoom({ transform: { x: 10, k: 2 } } as Parameters<typeof zoom>[0]);
     vi.runAllTimers();
     vi.runAllTimers();
 
