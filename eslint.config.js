@@ -16,7 +16,9 @@ export default tsEslint.config(
       parserOptions: {
         project: [
           "./segment-tree-rmq/tsconfig.json",
+          "./segment-tree-rmq/tsconfig.bench.json",
           "./svg-time-series/tsconfig.json",
+          "./svg-time-series/tsconfig.bench.json",
           "./samples/tsconfig.json",
           "./samples/demos/tsconfig.json",
           "./samples/misc/tsconfig.json",
@@ -41,7 +43,6 @@ export default tsEslint.config(
     },
   },
   { files: ["test/**/*.ts"], ...tsEslint.configs.disableTypeChecked },
-  { files: ["**/*.bench.ts", "**/bench/**/*.ts"], ...tsEslint.configs.disableTypeChecked },
   { files: ["samples/benchmarks/**"], ...tsEslint.configs.disableTypeChecked },
   { files: ["**/*.cjs", "**/*.mjs", "**/vite.config.ts"], ...tsEslint.configs.disableTypeChecked },
   { files: ["eslint.config.js"], ...tsEslint.configs.disableTypeChecked },

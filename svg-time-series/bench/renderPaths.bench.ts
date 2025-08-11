@@ -15,7 +15,7 @@ describe("renderPaths performance", () => {
 
   sizes.forEach((size, idx) => {
     const data = datasets[idx];
-    bench(`size ${size}`, () => {
+    bench(`size ${String(size)}`, () => {
       renderer.draw(data);
     });
   });
