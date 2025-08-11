@@ -7,7 +7,7 @@ import {
 } from "../math/affine.ts";
 import { AxisManager } from "./axisManager.ts";
 import { ChartData } from "./data.ts";
-import "../../../test/setupDom.ts";
+import "../setupDom.ts";
 
 describe("updateScales", () => {
   it("updates domains for two axes using ChartData", () => {

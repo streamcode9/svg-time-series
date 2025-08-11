@@ -1,4 +1,4 @@
-import "../../test/setupDom.ts";
+import "./setupDom.ts";
 import { beforeAll, describe, expect, it } from "vitest";
 import { zoomIdentity } from "d3-zoom";
 import { AR1Basis, DirectProductBasis } from "./math/affine.ts";

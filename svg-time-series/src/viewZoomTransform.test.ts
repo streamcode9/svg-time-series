@@ -12,7 +12,7 @@ import {
   applyDirectProductToMatrix,
 } from "./utils/domMatrix.ts";
 import { updateNode } from "./utils/domNodeTransform.ts";
-import { Matrix } from "../../test/setupDom.ts";
+import { Matrix } from "./setupDom.ts";
 
 describe("AR1 and AR1Basis", () => {
   it("composes and inverts transformations", () => {

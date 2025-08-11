@@ -17,8 +17,8 @@ import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource, IZoomStateOptions } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
-import "../../../test/setupDom.ts";
-import type { Matrix } from "../../../test/setupDom.ts";
+import "../setupDom.ts";
+import type { Matrix } from "../setupDom.ts";
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
 vi.mock("../utils/domNodeTransform.ts", () => ({
@@ -139,13 +139,23 @@ function createChart(
     length: data.length,
     seriesCount: 2,
     seriesAxes: [0, 1],
-    getSeries: (i, seriesIdx) => data[i][seriesIdx],
+    getSeries: (i, seriesIdx) => data[i]![seriesIdx]!,
   };
   const legendController = new LegendController(
-    select(legend) as Selection<HTMLElement, unknown, null, undefined>,
+    select(legend) as unknown as Selection<
+      HTMLElement,
+      unknown,
+      HTMLElement,
+      unknown
+    >,
   );
   const chart = new TimeSeriesChart(
-    select(svgEl) as Selection<SVGSVGElement, unknown, null, undefined>,
+    select(svgEl) as unknown as Selection<
+      SVGSVGElement,
+      unknown,
+      HTMLElement,
+      unknown
+    >,
     source,
     legendController,
     () => {},
@@ -176,7 +186,7 @@ describe("interaction.resetZoom", () => {
     ]);
     vi.runAllTimers();
     legendRefresh.mockClear();
-    const transform = transformInstances[0];
+    const transform = transformInstances[0]!;
     transform.onZoomPan.mockClear();
 
     interaction.resetZoom();

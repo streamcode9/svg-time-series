@@ -9,8 +9,8 @@ import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import type { ILegendController, LegendContext } from "./legend.ts";
-import "../../../test/setupDom.ts";
-import type { Matrix } from "../../../test/setupDom.ts";
+import "../setupDom.ts";
+import type { Matrix } from "../setupDom.ts";
 
 vi.mock("../utils/domNodeTransform.ts", () => ({
   updateNode: (_node: SVGGraphicsElement, _matrix: Matrix) => {},

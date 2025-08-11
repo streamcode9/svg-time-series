@@ -30,7 +30,7 @@ import { select } from "d3-selection";
 import { SeriesRenderer } from "./seriesRenderer.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
-import "../../../test/setupDom.ts";
+import "../setupDom.ts";
 
 describe("TimeSeriesChart.resize", () => {
   it("updates axes, paths, and legend", () => {
@@ -132,7 +132,7 @@ describe("TimeSeriesChart.resize", () => {
     const chartInternal = chart as unknown as ChartInternal;
     const updateSpy = vi.spyOn(chartInternal.zoomState, "updateExtents");
     const resizeSpy = vi.spyOn(
-      chartInternal.state.axes.y[0].transform,
+      chartInternal.state.axes.y[0]!.transform,
       "onViewPortResize",
     );
 

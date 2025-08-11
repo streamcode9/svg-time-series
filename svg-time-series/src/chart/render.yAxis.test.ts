@@ -5,7 +5,7 @@ import { select } from "d3-selection";
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
-import "../../../test/setupDom.ts";
+import "../setupDom.ts";
 
 function createSvg() {
   const dom = new JSDOM(`<div id="c"><svg></svg></div>`, {

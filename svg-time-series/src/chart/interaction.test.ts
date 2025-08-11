@@ -17,7 +17,7 @@ import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
-import { Matrix } from "../../../test/setupDom.ts";
+import { Matrix } from "../setupDom.ts";
 import type { D3ZoomEvent } from "d3-zoom";
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();

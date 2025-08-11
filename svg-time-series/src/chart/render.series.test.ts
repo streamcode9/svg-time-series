@@ -8,7 +8,7 @@ import { select } from "d3-selection";
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
-import "../../../test/setupDom.ts";
+import "../setupDom.ts";
 
 function createSvg() {
   const dom = new JSDOM(`<div id="c"><svg></svg></div>`, {
@@ -21,7 +21,7 @@ function createSvg() {
   const div = dom.window.document.getElementById("c") as HTMLDivElement;
   Object.defineProperty(div, "clientWidth", { value: 100 });
   Object.defineProperty(div, "clientHeight", { value: 100 });
-  return select(div).select("svg") as Selection<
+  return select(div).select("svg") as unknown as Selection<
     SVGSVGElement,
     unknown,
     HTMLElement,
@@ -38,7 +38,7 @@ describe("buildSeries", () => {
       length: 3,
       seriesCount: 1,
       seriesAxes: [0],
-      getSeries: (i) => [1, 2, 3][i],
+      getSeries: (i) => [1, 2, 3][i]!,
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
@@ -55,7 +55,7 @@ describe("buildSeries", () => {
       seriesCount: 2,
       seriesAxes: [0, 0],
       getSeries: (i, seriesIdx) =>
-        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
+        seriesIdx === 0 ? [1, 2, 3][i]! : [10, 20, 30][i]!,
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
@@ -73,7 +73,7 @@ describe("buildSeries", () => {
       seriesCount: 2,
       seriesAxes: [0, 1],
       getSeries: (i, seriesIdx) =>
-        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
+        seriesIdx === 0 ? [1, 2, 3][i]! : [10, 20, 30][i]!,
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
@@ -93,12 +93,12 @@ describe("setupRender DOM order", () => {
       seriesCount: 2,
       seriesAxes: [0, 1],
       getSeries: (i, seriesIdx) =>
-        seriesIdx === 0 ? [1, 2, 3][i] : [10, 20, 30][i],
+        seriesIdx === 0 ? [1, 2, 3][i]! : [10, 20, 30][i]!,
     };
     const data = new ChartData(source);
     setupRender(svg, data);
     const groups = svg.selectAll("g").nodes() as SVGGElement[];
-    expect(groups[0].classList.contains("view")).toBe(true);
-    expect(groups[1].classList.contains("view")).toBe(true);
+    expect(groups[0]!.classList.contains("view")).toBe(true);
+    expect(groups[1]!.classList.contains("view")).toBe(true);
   });
 });

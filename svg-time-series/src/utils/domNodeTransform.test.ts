@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { updateNode } from "./domNodeTransform.ts";
-import { Matrix } from "../../../test/setupDom.ts";
+import { Matrix } from "../setupDom.ts";
 
 class FakeSVGMatrix {
   constructor(

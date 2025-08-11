@@ -5,7 +5,7 @@ import {
   applyAR1ToMatrixY,
   applyDirectProductToMatrix,
 } from "./domMatrix.ts";
-import { Matrix } from "../../../test/setupDom.ts";
+import { Matrix } from "../setupDom.ts";
 
 describe("applyAR1ToMatrix helpers", () => {
   it("translates and scales along X axis", () => {

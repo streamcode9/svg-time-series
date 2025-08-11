@@ -483,7 +483,12 @@ describe("ZoomState", () => {
       axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
     );
@@ -550,7 +555,12 @@ describe("ZoomState", () => {
       axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
     );
@@ -576,13 +586,18 @@ describe("ZoomState", () => {
       axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
     );
 
     zs.zoomBehavior.transform(rect, { k: 10, x: 0, y: 0 });
-    const scaleSpy = zs.zoomBehavior.scaleTo as unknown as vi.Mock;
+    const scaleSpy = zs.zoomBehavior.scaleTo as unknown as Mock;
     scaleSpy.mockClear();
 
     zs.setScaleExtent([1, 5]);
@@ -606,7 +621,7 @@ describe("ZoomState", () => {
     );
 
     zs.zoomBehavior.transform(rect, { k: 0.2, x: 0, y: 0 });
-    const scaleSpy = zs.zoomBehavior.scaleTo as unknown as vi.Mock;
+    const scaleSpy = zs.zoomBehavior.scaleTo as unknown as Mock;
     scaleSpy.mockClear();
 
     zs.setScaleExtent([0.5, 5]);
