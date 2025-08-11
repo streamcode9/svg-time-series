@@ -46,4 +46,26 @@ describe("ZoomScheduler", () => {
     );
     expect(apply).toHaveBeenCalledTimes(1);
   });
+
+  it("clears state on destroy and supports subsequent zooms", () => {
+    const apply = vi.fn();
+    const refresh = vi.fn();
+    const zs = new ZoomScheduler(apply, refresh);
+
+    expect(zs.zoom({ x: 1, k: 2 } as unknown as ZoomTransform, {})).toBe(true);
+    expect(zs.getCurrentTransform()).toEqual({ x: 1, k: 2 });
+    expect(zs.isPending()).toBe(true);
+
+    zs.destroy();
+    expect(zs.getCurrentTransform()).toBeNull();
+    expect(zs.isPending()).toBe(false);
+
+    vi.runAllTimers();
+    expect(apply).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
+
+    expect(zs.zoom({ x: 5, k: 3 } as unknown as ZoomTransform, {})).toBe(true);
+    vi.runAllTimers();
+    expect(apply).toHaveBeenCalledWith({ x: 5, k: 3 });
+  });
 });
