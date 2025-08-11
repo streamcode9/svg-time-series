@@ -6,10 +6,34 @@ import {
   betweenTBasesAR1,
 } from "../math/affine.ts";
 import { AxisManager } from "./axisManager.ts";
-import type { ChartData } from "./data.ts";
+import { ChartData } from "./data.ts";
 import "../../../test/setupDom.ts";
 
 describe("updateScales", () => {
+  it("updates domains for two axes using ChartData", () => {
+    const axisManager = new AxisManager();
+    axisManager.setXAxis(scaleTime().range([0, 1]));
+    const axes = axisManager.create(2);
+    axes.forEach((a) => a.scale.range([0, 1]));
+
+    const source = {
+      startTime: 0,
+      timeStep: 1,
+      length: 2,
+      seriesCount: 2,
+      seriesAxes: [0, 1],
+      getSeries: (i: number, seriesIdx: number) =>
+        seriesIdx === 0 ? [1, 3][i]! : [10, 30][i]!,
+    };
+    const data = new ChartData(source);
+
+    const bIndexVisible = new AR1Basis(0, 1);
+    axisManager.updateScales(bIndexVisible, data);
+
+    expect(axes[0].scale.domain()).toEqual([1, 3]);
+    expect(axes[1].scale.domain()).toEqual([10, 30]);
+  });
+
   it("updates domains for multiple axes", () => {
     const axisManager = new AxisManager();
     axisManager.setXAxis(scaleTime().range([0, 1]));

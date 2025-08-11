@@ -71,14 +71,10 @@ export class AxisManager {
 
   updateScales(bIndex: AR1Basis, data: ChartData): void {
     updateScaleX(this.x, bIndex, data);
-    const axisIndices: number[] = [];
-    for (const idx of data.seriesAxes) {
-      if (!axisIndices.includes(idx)) {
-        axisIndices.push(idx);
+    for (const [i, idxs] of data.seriesByAxis.entries()) {
+      if (idxs.length === 0) {
+        continue;
       }
-    }
-
-    for (const i of axisIndices) {
       if (i >= this.axes.length) {
         throw new Error(
           `Series axis index ${String(i)} out of bounds (max ${String(
