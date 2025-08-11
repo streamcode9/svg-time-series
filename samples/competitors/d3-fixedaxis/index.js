@@ -22,13 +22,13 @@ function myAxis(orient, scale) {
     var values =
         tickValues == null
           ? scale.ticks
-            ? scale.ticks.apply(scale, tickArguments)
+            ? scale.ticks(...tickArguments)
             : scale.domain()
           : tickValues,
       format =
         tickFormat == null
           ? scale.tickFormat
-            ? scale.tickFormat.apply(scale, tickArguments)
+            ? scale.tickFormat(...tickArguments)
             : identity
           : tickFormat,
       spacing = Math.max(tickSizeInner, 0) + tickPadding,
@@ -152,13 +152,13 @@ function myAxis(orient, scale) {
     var values =
         tickValues == null
           ? scale.ticks
-            ? scale.ticks.apply(scale, tickArguments)
+            ? scale.ticks(...tickArguments)
             : scale.domain()
           : tickValues,
       format =
         tickFormat == null
           ? scale.tickFormat
-            ? scale.tickFormat.apply(scale, tickArguments)
+            ? scale.tickFormat(...tickArguments)
             : identity
           : tickFormat,
       spacing = Math.max(tickSizeInner, 0) + tickPadding,
@@ -184,27 +184,28 @@ function myAxis(orient, scale) {
         .enter()
         .append("path")
         .attr("class", "domain")
-        .attr("stroke", "#000")
-        .attr(
-          "d",
-          orient === left || orient == right
-            ? "M" +
-                k * tickSizeOuter +
-                "," +
-                range0 +
-                "H0.5V" +
-                range1 +
-                "H" +
-                k * tickSizeOuter
-            : "M" +
-                range0 +
-                "," +
-                k * tickSizeOuter +
-                "V0.5H" +
-                range1 +
-                "V" +
-                k * tickSizeOuter,
-        ),
+        .attr("stroke", "#000"),
+    );
+
+    path.attr(
+      "d",
+      orient === left || orient == right
+        ? "M" +
+            k * tickSizeOuter +
+            "," +
+            range0 +
+            "H0.5V" +
+            range1 +
+            "H" +
+            k * tickSizeOuter
+        : "M" +
+            range0 +
+            "," +
+            k * tickSizeOuter +
+            "V0.5H" +
+            range1 +
+            "V" +
+            k * tickSizeOuter,
     );
 
     tickEnter

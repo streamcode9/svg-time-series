@@ -54,10 +54,6 @@ export default tsEslint.config(
     },
     rules: {
       ...disableTypeChecked.rules,
-      "prefer-const": "off",
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": "off",
-      "prefer-spread": "off",
     },
   },
   { files: ["**/*.test.ts"], ...vitest.configs.recommended, ...tsEslint.configs.disableTypeChecked },
