@@ -13,16 +13,44 @@ describe("ChartData", () => {
     seriesAxes,
   });
 
-  it("throws if constructed with empty data", () => {
-    const source: IDataSource = {
+  it("throws when length is not a positive integer", () => {
+    const base: IDataSource = {
       startTime: 0,
       timeStep: 1,
-      length: 0,
+      length: 1,
       seriesCount: 1,
       getSeries: () => 0,
       seriesAxes: [0],
     };
-    expect(() => new ChartData(source)).toThrow(/non-empty data array/);
+    expect(() => new ChartData({ ...base, length: 0 })).toThrow(
+      /length.*positive integer/,
+    );
+    expect(() => new ChartData({ ...base, length: -1 })).toThrow(
+      /length.*positive integer/,
+    );
+    expect(() => new ChartData({ ...base, length: 1.5 })).toThrow(
+      /length.*positive integer/,
+    );
+  });
+
+  it("throws when seriesCount is not a positive integer", () => {
+    const base: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 1,
+      seriesCount: 1,
+      getSeries: () => 0,
+      seriesAxes: [0],
+    };
+    expect(() => new ChartData({ ...base, seriesCount: 0 })).toThrow(
+      /seriesCount.*positive integer/,
+    );
+    expect(() => new ChartData({ ...base, seriesCount: -1 })).toThrow(
+      /seriesCount.*positive integer/,
+    );
+    expect(() => new ChartData({ ...base, seriesCount: 1.5 })).toThrow(
+      /seriesCount.*positive integer/,
+    );
   });
 
   it("throws when startTime is not finite", () => {

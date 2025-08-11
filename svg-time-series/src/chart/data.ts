@@ -26,11 +26,11 @@ export interface IDataSource {
 }
 
 function validateSource(source: IDataSource): void {
-  if (source.length === 0) {
-    throw new Error("ChartData requires a non-empty data array");
+  if (!Number.isInteger(source.length) || source.length <= 0) {
+    throw new Error("ChartData requires length to be a positive integer");
   }
-  if (source.seriesCount < 1) {
-    throw new Error("ChartData requires at least one series");
+  if (!Number.isInteger(source.seriesCount) || source.seriesCount <= 0) {
+    throw new Error("ChartData requires seriesCount to be a positive integer");
   }
   if (!Number.isFinite(source.startTime)) {
     throw new Error("ChartData requires startTime to be a finite number");
