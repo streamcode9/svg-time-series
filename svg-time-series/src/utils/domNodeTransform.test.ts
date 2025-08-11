@@ -62,7 +62,7 @@ describe("updateNode", () => {
   it("converts DOMMatrix to SVGMatrix", () => {
     const node = createNode();
     const domMatrix = new Matrix().translate(5, 6);
-    updateNode(node, domMatrix);
+    updateNode(node, domMatrix as unknown as DOMMatrix);
     const last = node.transform.baseVal.last as FakeSVGMatrix;
     expect(last).toBeInstanceOf(FakeSVGMatrix);
     expect(last.e).toBeCloseTo(5);

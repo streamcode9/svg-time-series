@@ -23,8 +23,8 @@ function createSegmentTree<T>(
 test("SegmentTree operations", () => {
   const data = [1, 3, 2, 5, 4];
   const buildTuple = (index: number, elements: readonly number[]): IMinMax => ({
-    min: elements[index],
-    max: elements[index],
+    min: elements[index]!,
+    max: elements[index]!,
   });
 
   const tree = createSegmentTree(data, data.length, buildTuple);
@@ -63,7 +63,7 @@ test("SegmentTree with IMinMax", () => {
     { min: 4, max: 7 },
   ];
   const buildTuple = (index: number, elements: readonly IMinMax[]): IMinMax =>
-    elements[index];
+    elements[index]!;
 
   const tree = createSegmentTree(data, data.length, buildTuple);
 
