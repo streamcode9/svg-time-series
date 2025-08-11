@@ -49,8 +49,8 @@
 
     // compensate for the difference between base measurement units (MU) and View Window (ruler, grid, snapper) MU
     let scaleToVO = this.newMatrix();
-    //        scaleToVO = scaleToVO.scaleNonUniform(1 / this.pxPerSec, 1)
-    scaleToVO = scaleToVO.scaleNonUniform(1, 1);
+    //        scaleToVO = scaleToVO.scale(1 / this.pxPerSec, 1)
+    scaleToVO = scaleToVO.scale(1, 1);
 
     this.VOMatrix = this.VOMatrix.multiply(scaleToVO);
 
@@ -68,8 +68,8 @@
 
     // 2.1) take into account View Window MU
     let scaleToVOCompensate = this.newMatrix();
-    //        scaleToVOCompensate = scaleToVOCompensate.scaleNonUniform(this.pxPerSec, 1)
-    scaleToVOCompensate = scaleToVOCompensate.scaleNonUniform(1, 1);
+    //        scaleToVOCompensate = scaleToVOCompensate.scale(this.pxPerSec, 1)
+    scaleToVOCompensate = scaleToVOCompensate.scale(1, 1);
 
     // 2) translate to the left bottom corner of the view window from the WC (Window Center)
     let translate = this.newMatrix();
@@ -85,7 +85,7 @@
 
     // 3) scale to 1 x 1 "Normalized View Window"
     let scaleToNPC = this.newMatrix();
-    scaleToNPC = scaleToNPC.scaleNonUniform(
+    scaleToNPC = scaleToNPC.scale(
       1 / (this.uMax - this.uMin),
       1 / (this.vMax - this.vMin),
     );
@@ -105,7 +105,7 @@
 
     // 3.1) invert Y axis (from cartesian coordinates to device coordiantes)
     let YAxisInvert = this.newMatrix();
-    YAxisInvert = YAxisInvert.scaleNonUniform(1.0, -1.0);
+    YAxisInvert = YAxisInvert.scale(1.0, -1.0);
 
     // 3.2) translate bottom left corner of the canonical window (1x1 window) to the Top Left corner - the origin of the device coordiante system
 
@@ -114,7 +114,7 @@
 
     // 3.3) scale from canonical 1x1 dimension window to the view port actual width and height window
     let scaleToPdc = this.newMatrix();
-    scaleToPdc = scaleToPdc.scaleNonUniform(
+    scaleToPdc = scaleToPdc.scale(
       this.vpxMax - this.vpxMin,
       this.vpyMax - this.vpyMin,
     );
@@ -187,30 +187,30 @@
     "svg",
   );
 
-  private VOMatrix: SVGMatrix;
-  private NPCMatrix: SVGMatrix;
-  private PDCMatrix: SVGMatrix;
+  private VOMatrix!: SVGMatrix;
+  private NPCMatrix!: SVGMatrix;
+  private PDCMatrix!: SVGMatrix;
 
-  private GeneralMatrix: SVGMatrix;
-  private VOMatrixInversed: SVGMatrix;
-  private GeneralMatrixInversed: SVGMatrix;
+  private GeneralMatrix!: SVGMatrix;
+  private VOMatrixInversed!: SVGMatrix;
+  private GeneralMatrixInversed!: SVGMatrix;
 
   private pxPerSec = 96 / 25; // 96 px / 25 sec
 
-  private uMin: number;
-  private uMax: number;
-  private vMin: number;
-  private vMax: number;
+  private uMin = 0;
+  private uMax = 0;
+  private vMin = 0;
+  private vMax = 0;
 
-  private vpxMax: number;
-  private vpxMin: number;
-  private vpyMax: number;
-  private vpyMin: number;
+  private vpxMax = 0;
+  private vpxMin = 0;
+  private vpyMax = 0;
+  private vpyMin = 0;
 
-  private WCX: number;
-  private WCY: number;
+  private WCX = 0;
+  private WCY = 0;
 
   private ViewScale: number = 1.0;
 
-  private svgTranformList: SVGTransformList;
+  private svgTranformList!: SVGTransformList;
 }

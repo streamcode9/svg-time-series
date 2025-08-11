@@ -10,8 +10,6 @@
     "misc/**",
     "demos/**",
     "benchmarks/**",
-    "competitors/**",
-    "LegendController.ts",
-    "ViewWindowTransform.ts"
+    "competitors/**"
   ]
 }

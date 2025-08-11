@@ -34,7 +34,11 @@ export class LegendController implements ILegendController {
 
   public init(context: LegendContext): void {
     this.context = context;
-    const svg = context.series[0].path.ownerSVGElement as SVGSVGElement;
+    const firstSeries = context.series[0];
+    if (!firstSeries) {
+      throw new Error("No series available");
+    }
+    const svg = firstSeries.path.ownerSVGElement;
     if (!svg) {
       throw new Error("SVG element not found");
     }
@@ -50,9 +54,9 @@ export class LegendController implements ILegendController {
         .attr("stroke", color)
         .node() as SVGCircleElement;
     };
-    this.highlightedGreenDot = makeDot(context.series[0].path);
+    this.highlightedGreenDot = makeDot(firstSeries.path);
     this.highlightedBlueDot = makeDot(
-      context.series[1]?.path ?? context.series[0].path,
+      context.series[1]?.path ?? firstSeries.path,
     );
     if (!context.series[1]) {
       this.highlightedBlueDot.style.display = "none";
@@ -85,8 +89,11 @@ export class LegendController implements ILegendController {
 
     if (Array.isArray(rawPoint)) {
       [timestamp, ...values] = rawPoint;
-    } else if (rawPoint && Array.isArray(rawPoint.values)) {
-      ({ timestamp, values } = rawPoint);
+    } else if ("values" in rawPoint) {
+      ({ timestamp, values } = rawPoint as {
+        timestamp: number;
+        values: number[];
+      });
     } else {
       return;
     }
@@ -107,22 +114,27 @@ export class LegendController implements ILegendController {
       const safeVal = val ?? NaN;
       legendSel.text(fixNaN(safeVal, " "));
       node.style.display = "";
-      const point = new DOMPoint(
-        x,
-        fixNaN(safeVal, 0) as number,
-      ).matrixTransform(transform.matrix);
+      const point = new DOMPoint(x, fixNaN(safeVal, 0)).matrixTransform(
+        transform.matrix,
+      );
       updateNode(node, this.identityMatrix.translate(point.x, point.y));
     };
 
+    const firstSeries = this.context.series[0]!;
     updateDot(
       greenData,
       this.legendGreen,
       this.highlightedGreenDot,
-      this.context.series[0].transform,
+      firstSeries.transform,
     );
-    if (this.context.series[1]) {
-      const tf = this.context.series[1].transform;
-      updateDot(blueData, this.legendBlue, this.highlightedBlueDot, tf);
+    const secondSeries = this.context.series[1];
+    if (secondSeries) {
+      updateDot(
+        blueData,
+        this.legendBlue,
+        this.highlightedBlueDot,
+        secondSeries.transform,
+      );
     }
   }
 
