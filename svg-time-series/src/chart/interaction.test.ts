@@ -2,7 +2,15 @@
  * @vitest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type Mock,
+} from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
@@ -10,6 +18,7 @@ import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
 import { Matrix } from "../../../test/setupDom.ts";
+import type { D3ZoomEvent } from "d3-zoom";
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
 let updateNodeCalls = 0;
@@ -21,7 +30,7 @@ vi.mock("../utils/domNodeTransform.ts", () => ({
 }));
 
 let currentDataLength = 0;
-const transformInstances: Array<{ onZoomPan: vi.Mock }> = [];
+const transformInstances: Array<{ onZoomPan: Mock }> = [];
 vi.mock("../ViewportTransform.ts", () => ({
   ViewportTransform: class {
     constructor() {
@@ -38,7 +47,7 @@ vi.mock("../ViewportTransform.ts", () => ({
   },
 }));
 
-const axisInstances: Array<{ axisUpCalls: number; axisUp: vi.Mock }> = [];
+const axisInstances: Array<{ axisUpCalls: number; axisUp: Mock }> = [];
 vi.mock("../axis.ts", () => ({
   Orientation: { Bottom: 0, Right: 1 },
   MyAxis: class {
@@ -105,14 +114,24 @@ function createChart(
     length: data.length,
     seriesCount: 2,
     seriesAxes: [0, 1],
-    getSeries: (i, seriesIdx) => data[i][seriesIdx],
+    getSeries: (i, seriesIdx) => data[i]![seriesIdx]!,
   };
   const legendController = new LegendController(
-    select(legend) as Selection<HTMLElement, unknown, null, undefined>,
+    select(legend) as unknown as Selection<
+      HTMLElement,
+      unknown,
+      HTMLElement,
+      unknown
+    >,
     formatTime,
   );
   const chart = new TimeSeriesChart(
-    select(svgEl) as Selection<SVGSVGElement, unknown, null, undefined>,
+    select(svgEl) as unknown as Selection<
+      SVGSVGElement,
+      unknown,
+      HTMLElement,
+      unknown
+    >,
     source,
     legendController,
     () => {},
@@ -152,17 +171,18 @@ describe("chart interaction", () => {
     ]);
     vi.runAllTimers();
 
-    const xAxis = axisInstances[0];
-    const yAxis = axisInstances[1];
-    const mtNy = transformInstances[0];
-    const mtSf = transformInstances[1];
+    const xAxis = axisInstances[0]!;
+    const yAxis = axisInstances[1]!;
+    const mtNy = transformInstances[0]!;
+    const mtSf = transformInstances[1]!;
     const xCalls = xAxis.axisUpCalls;
     const yCalls = yAxis.axisUpCalls;
     const callCount = updateNodeCalls;
 
-    zoom({ transform: { x: 10, k: 2 } } as unknown as {
-      transform: { x: number; k: number };
-    });
+    zoom({ transform: { x: 10, k: 2 } } as unknown as D3ZoomEvent<
+      SVGRectElement,
+      unknown
+    >);
     vi.runAllTimers();
     vi.runAllTimers();
 
@@ -329,13 +349,23 @@ describe("chart interaction", () => {
       length: 2,
       seriesCount: 2,
       seriesAxes: [0, 1],
-      getSeries: (i) => [0, 1][i],
+      getSeries: (i) => [0, 1][i]!,
     };
     const legendController = new LegendController(
-      select(legend) as Selection<HTMLElement, unknown, null, undefined>,
+      select(legend) as unknown as Selection<
+        HTMLElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
     );
     const chart = new TimeSeriesChart(
-      select(svgEl) as Selection<SVGSVGElement, unknown, null, undefined>,
+      select(svgEl) as unknown as Selection<
+        SVGSVGElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       source,
       legendController,
       () => {},

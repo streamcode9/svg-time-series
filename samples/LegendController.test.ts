@@ -44,12 +44,12 @@ describe("LegendController", () => {
       timeStep: 1,
       length: 2,
       seriesCount: 1,
-      getSeries: (i) => [10, 20][i],
+      getSeries: (i) => [10, 20][i]!,
       seriesAxes: [0],
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
-    select(state.series[0].path).attr("stroke", "green");
+    select(state.series[0]!.path as SVGPathElement).attr("stroke", "green");
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
@@ -89,7 +89,7 @@ describe("LegendController", () => {
       timeStep: 1,
       length: 2,
       seriesCount: 1,
-      getSeries: (i) => [10, 20][i],
+      getSeries: (i) => [10, 20][i]!,
       seriesAxes: [0],
     };
     const data = new ChartData(source);
@@ -100,7 +100,7 @@ describe("LegendController", () => {
       return [timestamp, ...values] as [number, ...number[]];
     }) as unknown as typeof data.getPoint;
     const state = setupRender(svg, data);
-    select(state.series[0].path).attr("stroke", "green");
+    select(state.series[0]!.path as SVGPathElement).attr("stroke", "green");
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
@@ -129,7 +129,7 @@ describe("LegendController", () => {
       timeStep: 1,
       length: 2,
       seriesCount: 1,
-      getSeries: (i) => [10, 20][i],
+      getSeries: (i) => [10, 20][i]!,
       seriesAxes: [0],
     };
     const data = new ChartData(source);
@@ -140,7 +140,7 @@ describe("LegendController", () => {
       return { timestamp } as { timestamp: number } & Record<string, unknown>;
     }) as unknown as typeof data.getPoint;
     const state = setupRender(svg, data);
-    select(state.series[0].path).attr("stroke", "green");
+    select(state.series[0]!.path as SVGPathElement).attr("stroke", "green");
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
