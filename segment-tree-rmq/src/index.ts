@@ -15,6 +15,14 @@ export class SegmentTree<T> {
     }
   }
 
+  private assertValidRange(start: number, end: number): void {
+    this.assertValidIndex(start);
+    this.assertValidIndex(end);
+    if (start > end) {
+      throw new Error("Range is not valid");
+    }
+  }
+
   /**
    * Creates a new segment tree.
    *
@@ -50,14 +58,18 @@ export class SegmentTree<T> {
     }
   }
 
-  query(left: number, right: number): T {
-    this.assertValidIndex(left);
-    this.assertValidIndex(right);
-    if (left > right) {
-      throw new Error("Range is not valid");
-    }
-    left += this.size;
-    right += this.size;
+  /**
+   * Queries the range [start, endInclusive] in the tree.
+   *
+   * Both indices are zero-based and inclusive.
+   *
+   * @param start - Start index (inclusive).
+   * @param endInclusive - End index (inclusive).
+   */
+  query(start: number, endInclusive: number): T {
+    this.assertValidRange(start, endInclusive);
+    let left = start + this.size;
+    let right = endInclusive + this.size;
     let result = this.identity;
 
     while (left < right) {
