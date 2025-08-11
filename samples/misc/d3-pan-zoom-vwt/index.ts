@@ -90,7 +90,7 @@ let newZoomT = identityTransform();
 // бескоординатная обертка вокруг координатного setViewWindow
 // координаты нигде не фигурируют - этот код полностью в "аффинном сне"
 function zoomAffineTransform(t: ZoomTransform) {
-  return identityTransform().translate(t.x, 0).scaleNonUniform(t.k, 1);
+  return identityTransform().translate(t.x, 0).scale(t.k, 1);
 }
 
 const draw = drawProc(function () {
@@ -132,7 +132,9 @@ measure(3, ({ fps }) => {
 });
 
 measureOnce(60, ({ fps }) => {
-  alert(`${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`);
+  alert(
+    `${window.innerWidth.toString()}x${window.innerHeight.toString()} FPS = ${fps.toFixed(2)}`,
+  );
 });
 
 function test(svgNode: SVGSVGElement, viewNode: SVGGElement, width: number) {
@@ -154,7 +156,7 @@ function test(svgNode: SVGSVGElement, viewNode: SVGGElement, width: number) {
 
     const rev = zoomed.inverse();
     const pp = newPoint(0, 0).matrixTransform(rev);
-    document.getElementById("misc").textContent = `${pp.x}`;
+    document.getElementById("misc").textContent = pp.x.toString();
 
     updateNode(viewNode, zoomed);
   };

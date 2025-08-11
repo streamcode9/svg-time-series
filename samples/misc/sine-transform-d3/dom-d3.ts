@@ -19,6 +19,6 @@ run(100, delta, scale, (delt, scal) => {
   paths.attr("transform", (d, i) => {
     const tx = -delt;
     const ty = i * 50;
-    return `translate(${tx}, ${ty}) scale(${scal}, 100)`;
+    return `translate(${tx.toString()}, ${ty.toString()}) scale(${scal.toString()}, 100)`;
   });
 });

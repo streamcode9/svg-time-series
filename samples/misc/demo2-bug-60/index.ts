@@ -43,7 +43,7 @@ function createSegmentTree(
   elements: number[][],
   size: number,
 ): SegmentTree<IMinMax> {
-  const data: IMinMax[] = new Array(size);
+  const data: IMinMax[] = new Array<IMinMax>(size);
   for (let i = 0; i < size; i++) {
     data[i] = buildSegmentTreeTuple(i, elements);
   }
@@ -53,8 +53,11 @@ function createSegmentTree(
 export function drawCharts(data: [number, number][]) {
   const charts: TimeSeriesChart[] = [];
 
-  const onZoom = (event: D3ZoomEvent<SVGSVGElement, unknown>) =>
-    charts.forEach((c) => c.zoom(event));
+  const onZoom = (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
+    charts.forEach((c) => {
+      c.zoom(event);
+    });
+  };
 
   const onSelectChart: ValueFn<SVGSVGElement, unknown, void> = function () {
     const chart = new TimeSeriesChart(
@@ -318,9 +321,7 @@ export class TimeSeriesChart {
           .x((d: [number, number], i: number) => i)
           .y((d: [number, number]) => d[cityIdx]);
 
-      path.attr("d", (cityIndex: number) =>
-        drawLine(cityIndex).call(null, this.data),
-      );
+      path.attr("d", (cityIndex: number) => drawLine(cityIndex)(this.data));
       scheduleRefresh();
     };
 

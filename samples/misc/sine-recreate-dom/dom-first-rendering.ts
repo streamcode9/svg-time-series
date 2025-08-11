@@ -16,8 +16,11 @@ function animate(id: string, yOffset: number) {
   const delta = 0;
   const scale = 0.2;
 
-  const path = document.getElementById(id) as unknown as SVGPathElement;
-  const pathData = [{ type: "M", values: [0, 100] }];
+  type PathCmd = { type: string; values: number[] };
+  const path = document.getElementById(id)! as SVGPathElement & {
+    setPathData: (d: PathCmd[]) => void;
+  };
+  const pathData: PathCmd[] = [{ type: "M", values: [0, 100] }];
   for (let x = 0; x < 5000; x++) {
     pathData.push({ type: "L", values: [x, f(x)] });
   }
@@ -31,8 +34,10 @@ function animate(id: string, yOffset: number) {
 const start = Date.now();
 function render() {
   for (let i = 0; i < 9; i++) {
-    animate("g" + i, 50 + i * 50);
+    animate("g" + i.toString(), 50 + i * 50);
   }
-  window.requestAnimationFrame(() => console.log(Date.now() - start));
+  window.requestAnimationFrame(() => {
+    console.log(Date.now() - start);
+  });
 }
 window.requestAnimationFrame(render);
