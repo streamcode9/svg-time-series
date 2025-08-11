@@ -2,7 +2,15 @@
  * @vitest-environment jsdom
  */
 /* eslint-disable @typescript-eslint/no-useless-constructor */
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type Mock,
+} from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
@@ -20,7 +28,7 @@ vi.mock("../utils/domNodeTransform.ts", () => ({
 }));
 
 let currentDataLength = 0;
-const transformInstances: Array<{ onZoomPan: vi.Mock }> = [];
+const transformInstances: Array<{ onZoomPan: Mock }> = [];
 vi.mock("../ViewportTransform.ts", () => ({
   ViewportTransform: class {
     constructor() {
@@ -49,10 +57,10 @@ vi.mock("../axis.ts", () => ({
   },
 }));
 
-let zoomReset: vi.Mock;
-let legendRefresh: vi.Mock;
+let zoomReset: Mock;
+let legendRefresh: Mock;
 let zoomOptions: unknown;
-let zoomSetScaleExtent: vi.Mock;
+let zoomSetScaleExtent: Mock;
 vi.mock("../../../samples/LegendController.ts", () => ({
   LegendController: class {
     refresh = vi.fn();

@@ -9,7 +9,7 @@ describe("ChartData", () => {
     timeStep: 1,
     length: data.length,
     seriesCount: data[0]?.length ?? 0,
-    getSeries: (i, seriesIdx) => data[i][seriesIdx]!,
+    getSeries: (i, seriesIdx) => data[i]![seriesIdx]!,
     seriesAxes,
   });
 
@@ -450,7 +450,7 @@ describe("ChartData", () => {
         timeStep: 1,
         length: 2,
         seriesCount: 1,
-        getSeries: (i) => [0, 1][i],
+        getSeries: (i) => [0, 1][i]!,
         seriesAxes: [0],
       };
       const cd = new ChartData(source);
@@ -467,7 +467,7 @@ describe("ChartData", () => {
         timeStep: 1,
         length: 1,
         seriesCount: 1,
-        getSeries: (i) => [0][i],
+        getSeries: (i) => [0][i]!,
         seriesAxes: [0],
       };
       const cd = new ChartData(source);

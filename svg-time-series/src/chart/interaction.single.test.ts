@@ -2,7 +2,15 @@
  * @vitest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type Mock,
+} from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
@@ -21,7 +29,7 @@ vi.mock("../utils/domNodeTransform.ts", () => ({
 }));
 
 let currentDataLength = 0;
-const transformInstances: Array<{ onZoomPan: vi.Mock }> = [];
+const transformInstances: Array<{ onZoomPan: Mock }> = [];
 vi.mock("../ViewportTransform.ts", () => ({
   ViewportTransform: class {
     constructor() {
@@ -38,7 +46,7 @@ vi.mock("../ViewportTransform.ts", () => ({
   },
 }));
 
-const axisInstances: Array<{ axisUpCalls: number; axisUp: vi.Mock }> = [];
+const axisInstances: Array<{ axisUpCalls: number; axisUp: Mock }> = [];
 vi.mock("../axis.ts", () => ({
   Orientation: { Bottom: 0, Right: 1 },
   MyAxis: class {
