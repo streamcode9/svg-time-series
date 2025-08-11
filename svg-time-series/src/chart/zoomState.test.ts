@@ -30,13 +30,29 @@ interface MockZoomBehavior {
 }
 
 vi.mock("d3-zoom", () => {
-  const transforms = new Map<Element, unknown>();
-  const zoomTransformFn = (node: Element) =>
-    (transforms.get(node) as { k: number; x?: number; y?: number }) || {
-      k: 1,
-      x: 0,
-      y: 0,
+  const transforms = new Map<Element, ReturnType<typeof createTransform>>();
+  function createTransform(k = 1, x = 0, y = 0) {
+    return {
+      k,
+      x,
+      y,
+      translate(dx: number, dy: number) {
+        return createTransform(
+          this.k,
+          this.x + this.k * dx,
+          this.y + this.k * dy,
+        );
+      },
+      invertX(x: number) {
+        return (x - this.x) / this.k;
+      },
+      invertY(y: number) {
+        return (y - this.y) / this.k;
+      },
     };
+  }
+  const zoomTransformFn = (node: Element) =>
+    transforms.get(node) || createTransform();
   const getNode = (s: unknown): Element =>
     typeof (s as Selection<Element, unknown, HTMLElement, unknown>).node ===
     "function"
@@ -80,7 +96,7 @@ vi.mock("d3-zoom", () => {
       };
       return behavior;
     },
-    zoomIdentity: { k: 1, x: 0, y: 0 },
+    zoomIdentity: createTransform(),
     zoomTransform: zoomTransformFn,
   };
 });

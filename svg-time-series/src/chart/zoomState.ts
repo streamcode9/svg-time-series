@@ -1,11 +1,6 @@
 import type { Selection } from "d3-selection";
-import {
-  zoom as d3zoom,
-  ZoomTransform,
-  zoomIdentity,
-  zoomTransform,
-} from "d3-zoom";
-import type { D3ZoomEvent, ZoomBehavior } from "d3-zoom";
+import { zoom as d3zoom, zoomIdentity, zoomTransform } from "d3-zoom";
+import type { D3ZoomEvent, ZoomBehavior, ZoomTransform } from "d3-zoom";
 import { ZoomScheduler, sameTransform } from "./zoomScheduler.ts";
 import type { RenderState } from "./render.ts";
 
@@ -104,6 +99,17 @@ export class ZoomState {
       [0, 0],
       [dimensions.width, dimensions.height],
     ]);
+    const current = zoomTransform(this.zoomArea.node()!);
+    const x0 = current.invertX(0);
+    const x1 = current.invertX(dimensions.width) - dimensions.width;
+    const y0 = current.invertY(0);
+    const y1 = current.invertY(dimensions.height) - dimensions.height;
+    const tx = x1 > x0 ? (x0 + x1) / 2 : Math.min(0, x0) || Math.max(0, x1);
+    const ty = y1 > y0 ? (y0 + y1) / 2 : Math.min(0, y0) || Math.max(0, y1);
+    if (tx !== 0 || ty !== 0) {
+      const constrained = current.translate(tx, ty);
+      this.zoomBehavior.transform(this.zoomArea, constrained);
+    }
   };
 
   public reset = () => {
