@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["*.ts", "../test/**/*.ts"],
+  "exclude": [
+    "misc/**",
+    "demos/**",
+    "benchmarks/**",
+    "competitors/**",
+    "unused/**"
+  ],
+  "compilerOptions": {
+    "rootDir": ".."
+  }
+}

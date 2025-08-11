@@ -35,7 +35,7 @@
     "prepare": "npm run build",
     "build": "tsc && vite build",
     "lint": "eslint src",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
     "preview": "vite preview",
     "bench": "vitest bench bench/*.bench.ts"
   }

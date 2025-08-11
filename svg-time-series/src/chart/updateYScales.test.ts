@@ -30,8 +30,8 @@ describe("updateScales", () => {
     const bIndexVisible = new AR1Basis(0, 1);
     axisManager.updateScales(bIndexVisible, data);
 
-    expect(axes[0].scale.domain()).toEqual([1, 3]);
-    expect(axes[1].scale.domain()).toEqual([10, 30]);
+    expect(axes[0]!.scale.domain()).toEqual([1, 3]);
+    expect(axes[1]!.scale.domain()).toEqual([10, 30]);
   });
 
   it("updates domains for multiple axes", () => {
@@ -66,9 +66,9 @@ describe("updateScales", () => {
     const bIndexVisible = new AR1Basis(0, 1);
     axisManager.updateScales(bIndexVisible, data as unknown as ChartData);
 
-    expect(axes[0].scale.domain()).toEqual([1, 3]);
-    expect(axes[1].scale.domain()).toEqual([10, 30]);
-    expect(axes[2].scale.domain()).toEqual([-5, 5]);
+    expect(axes[0]!.scale.domain()).toEqual([1, 3]);
+    expect(axes[1]!.scale.domain()).toEqual([10, 30]);
+    expect(axes[2]!.scale.domain()).toEqual([-5, 5]);
   });
 
   it("throws when a series references an out-of-range axis index", () => {

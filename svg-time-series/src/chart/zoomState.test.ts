@@ -77,7 +77,7 @@ vi.mock("d3-zoom", () => {
         .fn<(s: unknown, transform: unknown) => void>()
         .mockImplementation((s, transform) => {
           const node = getNode(s);
-          transforms.set(node, transform);
+          transforms.set(node, transform as ReturnType<typeof createTransform>);
           behavior._zoomHandler?.({ transform });
           return behavior;
         });
@@ -150,7 +150,7 @@ describe("ZoomState", () => {
     expect(refresh).toHaveBeenCalledTimes(1);
     expect(zoomCb).toHaveBeenCalledTimes(2);
     expect(zoomCb).toHaveBeenNthCalledWith(1, event);
-    const internalEvent = zoomCb.mock.calls[1][0];
+    const internalEvent = zoomCb.mock.calls.at(1)![0];
     expect(internalEvent).toMatchObject({ transform: { x: 5, k: 2 } });
     expect(internalEvent.sourceEvent).toBeUndefined();
   });
@@ -197,7 +197,7 @@ describe("ZoomState", () => {
     expect(refresh).toHaveBeenCalledTimes(1);
     expect(zoomCb).toHaveBeenCalledTimes(2);
     expect(zoomCb).toHaveBeenNthCalledWith(1, event);
-    const internalEvent = zoomCb.mock.calls[1][0];
+    const internalEvent = zoomCb.mock.calls.at(1)![0];
     expect(internalEvent).toMatchObject({ transform: { x: 2, k: 3 } });
     expect(internalEvent.sourceEvent).toBeUndefined();
   });

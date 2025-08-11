@@ -1,19 +1,28 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock,
+} from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
+import type { ZoomTransform } from "d3-zoom";
 import type { RenderState } from "./render.ts";
 import { ZoomState } from "./zoomState.ts";
 import { ZoomScheduler } from "./zoomScheduler.ts";
 
 interface MockZoomBehavior {
   (_s: unknown): void;
-  scaleExtent: vi.Mock;
-  translateExtent: vi.Mock;
-  on: vi.Mock;
-  transform: vi.Mock;
+  scaleExtent: Mock;
+  translateExtent: Mock;
+  on: Mock;
+  transform: Mock;
   triggerZoom: (transform: unknown) => void;
   _zoomHandler?: (event: unknown) => void;
 }
@@ -66,13 +75,18 @@ describe("ZoomState programmatic transforms", () => {
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       refresh,
     );
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as vi.Mock;
-    const initial = { x: 1, y: 2, k: 3 };
+    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
+    const initial = { x: 1, y: 2, k: 3 } as unknown as ZoomTransform;
     zs.zoomBehavior.transform(rect, initial);
     vi.runAllTimers();
 

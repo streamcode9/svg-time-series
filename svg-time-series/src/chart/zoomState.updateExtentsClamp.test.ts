@@ -112,7 +112,12 @@ describe("ZoomState.updateExtents clamp", () => {
       axisRenders: [],
     } as unknown as RenderState;
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       vi.fn(),
     );

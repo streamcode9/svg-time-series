@@ -150,10 +150,10 @@ describe("TimeSeriesChart.resize", () => {
 
     expect(updateSpy).toHaveBeenCalledWith({ width: 250, height: 120 });
     expect(chartInternal.state.dimensions).toEqual({ width: 250, height: 120 });
-    const arg = resizeSpy.mock.calls[0][0];
+    const arg = resizeSpy.mock.calls.at(0)![0];
     expect(arg.x().toArr()).toEqual([0, 250]);
     expect(arg.y().toArr()).toEqual([120, 0]);
     expect(chartInternal.state.axes.x.scale.range()).toEqual([0, 250]);
-    expect(chartInternal.state.axes.y[0].scale.range()).toEqual([120, 0]);
+    expect(chartInternal.state.axes.y[0]!.scale.range()).toEqual([120, 0]);
   });
 });

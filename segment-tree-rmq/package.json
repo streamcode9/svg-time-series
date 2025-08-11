@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint src",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
     "bench": "npm run bench:segment-tree",
     "bench:segment-tree": "vitest bench bench/segmentTree.bench.ts --run"
   }

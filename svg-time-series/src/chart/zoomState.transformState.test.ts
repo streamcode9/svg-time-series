@@ -66,7 +66,12 @@ describe("ZoomState transform state", () => {
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(
-      rect as Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
       state,
       refresh,
     );
