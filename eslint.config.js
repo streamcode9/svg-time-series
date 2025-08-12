@@ -9,7 +9,7 @@ const disableTypeChecked = tsEslint.configs.disableTypeChecked;
 
 export default tsEslint.config(
   {
-    ignores: ["**/dist/**"],
+    ignores: ["**/dist/**", "samples/unused/**"],
   },
   {
     languageOptions: {
