@@ -60,11 +60,6 @@ export default tsEslint.config(
     ...tsEslint.configs.disableTypeChecked,
     rules: {
       ...disableTypeChecked.rules,
-      "import/no-unresolved": "off",
-      "import/order": "off",
-      "import/default": "off",
-      "import/no-named-as-default-member": "off",
-      "import/no-named-as-default": "off",
     },
   },
     {
@@ -103,11 +98,6 @@ export default tsEslint.config(
     },
     rules: {
       ...disableTypeChecked.rules,
-      "import/no-unresolved": "off",
-      "import/order": "off",
-      "import/default": "off",
-      "import/no-named-as-default-member": "off",
-      "import/no-named-as-default": "off",
     },
   },
   {

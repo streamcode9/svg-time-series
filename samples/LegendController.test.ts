@@ -7,12 +7,13 @@ import { JSDOM } from "jsdom";
 import { select } from "d3-selection";
 import type { Selection } from "d3-selection";
 
-import { LegendController } from "./LegendController.ts";
 import type { IDataSource } from "../svg-time-series/src/chart/data.ts";
 import { ChartData } from "../svg-time-series/src/chart/data.ts";
 import { setupRender } from "../svg-time-series/src/chart/render.ts";
 import * as domNode from "../svg-time-series/src/utils/domNodeTransform.ts";
 import "../test/setupDom.ts";
+
+import { LegendController } from "./LegendController.ts";
 
 function createSvgAndLegend() {
   const dom = new JSDOM(

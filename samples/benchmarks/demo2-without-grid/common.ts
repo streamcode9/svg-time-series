@@ -1,7 +1,8 @@
-import * as draw from "./draw.ts";
-import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
 import type { D3ZoomEvent } from "d3-zoom";
 import { select, selectAll } from "d3-selection";
+
+import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
+import * as draw from "./draw.ts";
 
 function buildSegmentTreeTuple(
   index: number,

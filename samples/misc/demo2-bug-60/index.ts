@@ -1,16 +1,15 @@
 import { scaleLinear, scaleTime } from "d3-scale";
+import type { ScaleLinear } from "d3-scale";
 import { select, selectAll } from "d3-selection";
 import type { ValueFn, BaseType, Selection } from "d3-selection";
+import { zoomIdentity, zoom as d3zoom } from "d3-zoom";
 import type { D3ZoomEvent } from "d3-zoom";
-import type { ScaleLinear } from "d3-scale";
 import { line } from "d3-shape";
 import { timeout as runTimeout, timer as runTimer } from "d3-timer";
-import { zoomIdentity, zoom as d3zoom } from "d3-zoom";
+import { SegmentTree } from "segment-tree-rmq";
 
 import { MyAxis, Orientation } from "../../../svg-time-series/src/axis.ts";
 import { ViewportTransform } from "../../../svg-time-series/src/ViewportTransform.ts";
-import { updateNode } from "../../../svg-time-series/src/utils/domNodeTransform.ts";
-import { SegmentTree } from "segment-tree-rmq";
 import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
 import type { AR1 } from "../../../svg-time-series/src/math/affine.ts";
 import {
@@ -20,6 +19,7 @@ import {
   bPlaceholder,
   bUnit,
 } from "../../../svg-time-series/src/math/affine.ts";
+import { updateNode } from "../../../svg-time-series/src/utils/domNodeTransform.ts";
 import { onCsv } from "../../demos/common.ts";
 
 function buildSegmentTreeTuple(index: number, elements: number[][]): IMinMax {

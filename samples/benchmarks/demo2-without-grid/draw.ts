@@ -1,14 +1,15 @@
-import type { D3ZoomEvent } from "d3-zoom";
 import { zoom } from "d3-zoom";
+import type { D3ZoomEvent } from "d3-zoom";
 import { SegmentTree } from "segment-tree-rmq";
-import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
 import { timeout as runTimeout } from "d3-timer";
-import type { Selection } from "d3-selection";
 import { selectAll } from "d3-selection";
+import type { Selection } from "d3-selection";
 import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
 import type { ScaleLinear, ScaleOrdinal, ScaleTime } from "d3-scale";
 import { line } from "d3-shape";
 import type { Line } from "d3-shape";
+
+import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
 
 interface IChartData {
   name: string;

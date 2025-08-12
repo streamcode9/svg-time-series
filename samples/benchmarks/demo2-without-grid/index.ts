@@ -1,7 +1,8 @@
-import { measure, measureOnce } from "../bench.ts";
-import * as common from "./common.ts";
 import { csv } from "d3-request";
 import { select, selectAll } from "d3-selection";
+
+import { measure, measureOnce } from "../bench.ts";
+import * as common from "./common.ts";
 
 const resize: {
   interval: number;

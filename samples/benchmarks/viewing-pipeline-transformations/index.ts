@@ -1,8 +1,7 @@
 import { csv } from "d3-request";
 
-import d3shape from "d3-shape";
-
-import d3selection from "d3-selection";
+import { line } from "d3-shape";
+import { select, selectAll, type Selection } from "d3-selection";
 import * as draw from "./draw.ts";
 import * as drawModelCS from "./drawModelCS.ts";
 
@@ -19,16 +18,10 @@ csv("../../demos/ny-vs-sf.csv")
     }
 
     const onPath = (
-      path: d3selection.Selection<
-        SVGPathElement,
-        number[],
-        SVGGElement,
-        unknown
-      >,
+      path: Selection<SVGPathElement, number[], SVGGElement, unknown>,
     ) => {
       path.attr("d", (cityIdx: number) =>
-        d3shape
-          .line<number[]>()
+        line<number[]>()
           .defined((d: number[]) => !!d[cityIdx])
           .x((d: number[], i: number) => i)
           .y((d: number[]) => d[cityIdx])
@@ -37,16 +30,10 @@ csv("../../demos/ny-vs-sf.csv")
     };
 
     const onPathModel = (
-      path: d3selection.Selection<
-        SVGPathElement,
-        number[],
-        SVGGElement,
-        unknown
-      >,
+      path: Selection<SVGPathElement, number[], SVGGElement, unknown>,
     ) => {
       path.attr("d", (cityIdx: number) =>
-        d3shape
-          .line()
+        line()
           .defined((d: number[]) => !!d[cityIdx])
           .x((d: number[], i: number) => calcDate(i, startDate, 86400000))
           .y((d: number[]) => d[cityIdx])
@@ -54,19 +41,12 @@ csv("../../demos/ny-vs-sf.csv")
       );
     };
 
-    d3selection.selectAll("svg#default").each(function () {
-      new draw.TimeSeriesChart(
-        d3selection.select(this),
-        0,
-        1,
-        [0, 1],
-        onPath,
-        data.length,
-      );
+    selectAll("svg#default").each(function () {
+      new draw.TimeSeriesChart(select(this), 0, 1, [0, 1], onPath, data.length);
     });
-    d3selection.selectAll("svg#model").each(function () {
+    selectAll("svg#model").each(function () {
       new drawModelCS.TimeSeriesChartModelCS(
-        d3selection.select(this),
+        select(this),
         startDate,
         86400000,
         [0, 1],

@@ -1,5 +1,6 @@
-﻿import * as VWTransform from "../../ViewWindowTransform.ts";
 import type { Selection } from "d3-selection";
+
+import * as VWTransform from "../../ViewWindowTransform.ts";
 
 export class TimeSeriesChart {
   private SVGNode: SVGSVGElement;

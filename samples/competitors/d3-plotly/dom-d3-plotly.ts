@@ -1,5 +1,6 @@
-﻿import * as common from "../../misc/common.ts";
-import Plotly from "plotly.js";
+import { newPlot } from "plotly.js";
+
+import * as common from "../../misc/common.ts";
 
 function generateData() {
   return Array.from({ length: 10 }, (_, i) => {
@@ -20,8 +21,7 @@ const layout = {
   xaxis: { showgrid: false, showticklabels: false },
 };
 async function render() {
-  Plotly.newPlot(container, generateData(), layout, { staticPlot: true }).then(
-    () => window.requestAnimationFrame(() => console.log(Date.now() - start)),
-  );
+  await newPlot(container, generateData(), layout, { staticPlot: true });
+  window.requestAnimationFrame(() => console.log(Date.now() - start));
 }
 window.requestAnimationFrame(render);
