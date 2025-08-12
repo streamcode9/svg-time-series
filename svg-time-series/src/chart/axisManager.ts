@@ -21,12 +21,40 @@ const minMaxIdentity: IMinMax = {
   max: -Infinity,
 };
 
-export interface AxisModel {
+export class AxisModel {
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
   tree: SegmentTree<IMinMax>;
   min: number;
   max: number;
+
+  constructor() {
+    this.transform = new ViewportTransform();
+    this.scale = scaleLinear<number, number>();
+    this.tree = new SegmentTree([minMaxIdentity], buildMinMax, minMaxIdentity);
+    this.min = 0;
+    this.max = 1;
+  }
+
+  updateAxisTransform(
+    data: ChartData,
+    axisIdx: number,
+    bIndex: AR1Basis,
+  ): void {
+    this.tree = data.buildAxisTree(axisIdx);
+    const dp = data.updateScaleY(bIndex, this.tree);
+    let [min, max] = dp.y().toArr();
+    if (!Number.isFinite(min) || !Number.isFinite(max)) {
+      min = 0;
+      max = 1;
+    }
+    this.min = min;
+    this.max = max;
+    const b = new AR1Basis(min, max);
+    const dpRef = DirectProductBasis.fromProjections(data.bIndexFull, b);
+    this.transform.onReferenceViewWindowResize(dpRef);
+    this.scale.domain([min, max]);
+  }
 }
 
 export interface AxisRenderState {
@@ -34,34 +62,12 @@ export interface AxisRenderState {
   g: Selection<SVGGElement, unknown, HTMLElement, unknown>;
 }
 
-export function buildAxisTree(
-  data: ChartData,
-  axis: number,
-): SegmentTree<IMinMax> {
-  const idxs = data.seriesByAxis[axis] ?? [];
-  const arr = data.data.map((row) =>
-    idxs
-      .map((j) => {
-        const v = row[j]!;
-        return Number.isFinite(v) ? { min: v, max: v } : minMaxIdentity;
-      })
-      .reduce(buildMinMax, minMaxIdentity),
-  );
-  return new SegmentTree(arr, buildMinMax, minMaxIdentity);
-}
-
 export class AxisManager {
   public axes: AxisModel[] = [];
   public x!: ScaleTime<number, number>;
 
   create(treeCount: number): AxisModel[] {
-    this.axes = Array.from({ length: treeCount }, () => ({
-      transform: new ViewportTransform(),
-      scale: scaleLinear<number, number>(),
-      tree: new SegmentTree([minMaxIdentity], buildMinMax, minMaxIdentity),
-      min: 0,
-      max: 1,
-    }));
+    this.axes = Array.from({ length: treeCount }, () => new AxisModel());
     return this.axes;
   }
 
@@ -82,21 +88,7 @@ export class AxisManager {
           )})`,
         );
       }
-      const tree = buildAxisTree(data, i);
-      const axis = this.axes[i]!;
-      axis.tree = tree;
-      const dp = data.updateScaleY(bIndex, tree);
-      let [min, max] = dp.y().toArr();
-      if (!Number.isFinite(min) || !Number.isFinite(max)) {
-        min = 0;
-        max = 1;
-      }
-      axis.min = min;
-      axis.max = max;
-      const b = new AR1Basis(min, max);
-      const dpRef = DirectProductBasis.fromProjections(data.bIndexFull, b);
-      axis.transform.onReferenceViewWindowResize(dpRef);
-      axis.scale.domain([min, max]);
+      this.axes[i]!.updateAxisTransform(data, i, bIndex);
     }
   }
 }

@@ -48,6 +48,26 @@ describe("updateScales", () => {
         [3, 30, 5, 25],
       ],
       bIndexFull: new AR1Basis(0, 1),
+      buildAxisTree(axis: number) {
+        const idxs = this.seriesByAxis[axis] ?? [];
+        return {
+          query: (start: number, end: number) => {
+            let min = Infinity;
+            let max = -Infinity;
+            for (let i = start; i <= end; i++) {
+              const row = this.data[i]!;
+              for (const j of idxs) {
+                const v = row[j]!;
+                if (Number.isFinite(v)) {
+                  min = Math.min(min, v);
+                  max = Math.max(max, v);
+                }
+              }
+            }
+            return { min, max };
+          },
+        };
+      },
       indexToTime() {
         return betweenTBasesAR1(new AR1Basis(0, 1), new AR1Basis(0, 1));
       },
@@ -84,6 +104,26 @@ describe("updateScales", () => {
         [1, 20, 5],
       ],
       bIndexFull: new AR1Basis(0, 1),
+      buildAxisTree(axis: number) {
+        const idxs = this.seriesByAxis[axis] ?? [];
+        return {
+          query: (start: number, end: number) => {
+            let min = Infinity;
+            let max = -Infinity;
+            for (let i = start; i <= end; i++) {
+              const row = this.data[i]!;
+              for (const j of idxs) {
+                const v = row[j]!;
+                if (Number.isFinite(v)) {
+                  min = Math.min(min, v);
+                  max = Math.max(max, v);
+                }
+              }
+            }
+            return { min, max };
+          },
+        };
+      },
       indexToTime() {
         return betweenTBasesAR1(new AR1Basis(0, 1), new AR1Basis(0, 1));
       },

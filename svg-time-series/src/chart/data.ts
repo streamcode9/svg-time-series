@@ -1,4 +1,4 @@
-import type { SegmentTree } from "segment-tree-rmq";
+import { SegmentTree } from "segment-tree-rmq";
 
 import type { AR1 } from "../math/affine.ts";
 import {
@@ -26,6 +26,18 @@ export interface IDataSource {
   readonly seriesAxes: number[];
   getSeries(index: number, seriesIdx: number): number;
 }
+
+function buildMinMax(fst: Readonly<IMinMax>, snd: Readonly<IMinMax>): IMinMax {
+  return {
+    min: Math.min(fst.min, snd.min),
+    max: Math.max(fst.max, snd.max),
+  } as const;
+}
+
+const minMaxIdentity: IMinMax = {
+  min: Infinity,
+  max: -Infinity,
+};
 
 function validateSource(source: IDataSource): void {
   assertPositiveInteger(source.length, "ChartData length");
@@ -141,6 +153,19 @@ export class ChartData {
    */
   public clampIndex(idx: number): number {
     return Math.min(Math.max(idx, 0), this.window.length - 1);
+  }
+
+  buildAxisTree(axis: number): SegmentTree<IMinMax> {
+    const idxs = this.seriesByAxis[axis] ?? [];
+    const arr = this.data.map((row) =>
+      idxs
+        .map((j) => {
+          const v = row[j]!;
+          return Number.isFinite(v) ? { min: v, max: v } : minMaxIdentity;
+        })
+        .reduce(buildMinMax, minMaxIdentity),
+    );
+    return new SegmentTree(arr, buildMinMax, minMaxIdentity);
   }
   bAxisVisible(bIndexVisible: AR1Basis, tree: SegmentTree<IMinMax>): AR1Basis {
     const [minIdxX, maxIdxX] = bIndexVisible.toArr();

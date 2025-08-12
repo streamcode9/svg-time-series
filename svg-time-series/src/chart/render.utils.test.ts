@@ -8,7 +8,6 @@ import { scaleTime } from "d3-scale";
 import { AR1Basis } from "../math/affine.ts";
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
-import { buildAxisTree } from "./axisManager.ts";
 import { createDimensions, updateScaleX } from "./render/utils.ts";
 
 describe("createDimensions", () => {
@@ -91,7 +90,7 @@ describe("updateScaleY", () => {
 
   it("respects the supplied index window", () => {
     const cd = new ChartData(makeSource([[10], [20], [40], [5]]));
-    const tree = buildAxisTree(cd, 0);
+    const tree = cd.buildAxisTree(0);
     const dp = cd.updateScaleY(new AR1Basis(1, 2), tree);
     expect(dp.x().toArr()).toEqual([1, 2]);
     expect(dp.y().toArr()).toEqual([20, 40]);
