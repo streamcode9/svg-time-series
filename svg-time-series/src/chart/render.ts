@@ -64,6 +64,7 @@ export interface RenderState {
   series: Series[];
   seriesRenderer: SeriesRenderer;
   refresh: (data: ChartData) => void;
+  destroy: () => void;
 }
 
 export function refreshRenderState(state: RenderState, data: ChartData): void {
@@ -81,6 +82,26 @@ export function refreshRenderState(state: RenderState, data: ChartData): void {
     r.axis.axisUp(r.g);
   });
   state.axes.x.axis.axisUp(state.axes.x.g!);
+}
+
+function destroyRenderState(state: RenderState): void {
+  for (const s of state.series) {
+    s.path.remove();
+    s.view.remove();
+  }
+  state.series.length = 0;
+
+  const axisX = state.axes.x;
+  if (axisX.g) {
+    axisX.g.remove();
+    axisX.g = undefined;
+  }
+
+  for (const r of state.axisRenders) {
+    r.g.remove();
+  }
+  state.axisRenders.length = 0;
+  state.axes.y.length = 0;
 }
 
 export function setupRender(
@@ -156,6 +177,7 @@ export function setupRender(
     seriesRenderer,
   } as RenderState;
   state.refresh = refreshRenderState.bind(null, state);
+  state.destroy = destroyRenderState.bind(null, state);
 
   return state;
 }

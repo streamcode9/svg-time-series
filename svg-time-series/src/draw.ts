@@ -102,23 +102,7 @@ export class TimeSeriesChart {
     this.zoomArea.on("mousemove", null).on("mouseleave", null);
     this.zoomArea.remove();
     this.legendController.destroy();
-
-    for (const s of this.state.series) {
-      s.path.remove();
-      s.view.remove();
-    }
-    this.state.series.length = 0;
-    const axisX = this.state.axes.x;
-    if (axisX.g) {
-      axisX.g.remove();
-      axisX.g = undefined;
-    }
-
-    for (const r of this.state.axisRenders) {
-      r.g.remove();
-    }
-    this.state.axisRenders.length = 0;
-    this.state.axes.y.length = 0;
+    this.state.destroy();
   }
 
   public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
