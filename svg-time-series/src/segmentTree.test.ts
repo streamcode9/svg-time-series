@@ -13,10 +13,7 @@ function createSegmentTree<T>(
   size: number,
   buildTuple: (index: number, elements: ReadonlyArray<T>) => IMinMax,
 ): SegmentTree<IMinMax> {
-  const data: IMinMax[] = new Array<IMinMax>(size);
-  for (let i = 0; i < size; i++) {
-    data[i] = buildTuple(i, elements);
-  }
+  const data = Array.from({ length: size }, (_, i) => buildTuple(i, elements));
   return new SegmentTree(data, buildMinMax, minMaxIdentity);
 }
 
