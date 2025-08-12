@@ -21,8 +21,10 @@ export default tsEslint.config(
         project: [
           "./segment-tree-rmq/tsconfig.json",
           "./segment-tree-rmq/tsconfig.bench.json",
+          "./segment-tree-rmq/tsconfig.test.json",
           "./svg-time-series/tsconfig.json",
           "./svg-time-series/tsconfig.bench.json",
+          "./svg-time-series/tsconfig.test.json",
           "./samples/tsconfig.json",
           "./samples/demos/tsconfig.json",
           "./samples/misc/tsconfig.json",
@@ -103,5 +105,13 @@ export default tsEslint.config(
   {
     files: ["**/*.test.ts"],
     ...vitest.configs.recommended,
+    rules: {
+      "@typescript-eslint/no-confusing-void-expression": "off",
+      "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/no-unnecessary-type-assertion": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/restrict-template-expressions": "off",
+    },
   },
 );
