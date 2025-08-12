@@ -1,8 +1,5 @@
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "rootDir": ".."
-  },
+  "extends": "../tsconfig.base.json",
   "include": ["src/**/*.ts", "../test/**/*.ts"],
-  "exclude": ["dist", "vite.config.ts", "**/*.bench.ts"]
+  "exclude": ["**/*.bench.ts"]
 }

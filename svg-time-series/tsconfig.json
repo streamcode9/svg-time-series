@@ -8,5 +8,5 @@
     "declarationDir": "dist"
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["dist", "vite.config.ts", "**/*.test.ts", "**/*.bench.ts"]
+  "exclude": ["**/*.test.ts", "**/*.bench.ts"]
 }

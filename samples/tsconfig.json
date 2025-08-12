@@ -1,10 +1,5 @@
 {
   "extends": "../tsconfig.base.json",
-  "compilerOptions": {
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "noPropertyAccessFromIndexSignature": true
-  },
   "exclude": [
     "**/*.test.ts",
     "misc/**",
