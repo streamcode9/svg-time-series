@@ -48,8 +48,7 @@ function validateSource(source: IDataSource): void {
       )})`,
     );
   }
-  let axisIdx = 0;
-  for (const axis of source.seriesAxes) {
+  source.seriesAxes.forEach((axis, axisIdx) => {
     if (axis !== 0 && axis !== 1) {
       throw new Error(
         `ChartData seriesAxes[${String(axisIdx)}] must be 0 or 1; received ${String(
@@ -57,8 +56,7 @@ function validateSource(source: IDataSource): void {
         )}`,
       );
     }
-    axisIdx++;
-  }
+  });
 }
 
 export class ChartData {
