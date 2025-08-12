@@ -20,10 +20,13 @@ function animate(id: string, yOffset: number) {
   const path = document.getElementById(id)! as SVGPathElement & {
     setPathData: (d: PathCmd[]) => void;
   };
-  const pathData: PathCmd[] = [{ type: "M", values: [0, 100] }];
-  for (let x = 0; x < 5000; x++) {
-    pathData.push({ type: "L", values: [x, common.f(x)] });
-  }
+  const pathData: PathCmd[] = [
+    { type: "M", values: [0, 100] },
+    ...Array.from({ length: 5000 }, (_, x) => ({
+      type: "L",
+      values: [x, common.f(x)],
+    })),
+  ];
   path.setPathData(pathData);
 
   const transformations = path.transform.baseVal;
@@ -36,6 +39,7 @@ function animate(id: string, yOffset: number) {
   });
 }
 
-for (let i = 0; i < 9; i++) {
-  animate("g" + i.toString(), 50 + i * 50);
-}
+// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+Array.from({ length: 9 }).forEach((_, i) => {
+  animate(`g${i}`, 50 + i * 50);
+});
