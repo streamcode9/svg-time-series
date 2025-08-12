@@ -327,45 +327,37 @@ describe("ZoomState", () => {
       axes: { x: { axis: {}, g: {}, scale: {} }, y: [] },
       axisRenders: [],
     } as unknown as RenderState;
-    // eslint-disable-next-line prefer-const
-    let zs2: ZoomState;
-    const zs1 = new ZoomState(
+    const createZoomState = (
+      rect: Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+      forward: () => ZoomState,
+    ) =>
+      new ZoomState(rect, state, vi.fn(), (event) => {
+        if (event.sourceEvent) {
+          const forwarded = {
+            ...event,
+            sourceEvent: null,
+          } as D3ZoomEvent<SVGRectElement, unknown>;
+          forward().zoom(forwarded);
+        }
+      });
+
+    const zs1 = createZoomState(
       rect1 as unknown as Selection<
         SVGRectElement,
         unknown,
         HTMLElement,
         unknown
       >,
-      state,
-      vi.fn(),
-      (event) => {
-        if (event.sourceEvent) {
-          const forwarded = {
-            ...event,
-            sourceEvent: null,
-          } as D3ZoomEvent<SVGRectElement, unknown>;
-          zs2.zoom(forwarded);
-        }
-      },
+      () => zs2,
     );
-    zs2 = new ZoomState(
+    const zs2 = createZoomState(
       rect2 as unknown as Selection<
         SVGRectElement,
         unknown,
         HTMLElement,
         unknown
       >,
-      state,
-      vi.fn(),
-      (event) => {
-        if (event.sourceEvent) {
-          const forwarded = {
-            ...event,
-            sourceEvent: null,
-          } as D3ZoomEvent<SVGRectElement, unknown>;
-          zs1.zoom(forwarded);
-        }
-      },
+      () => zs1,
     );
 
     const event1 = {
