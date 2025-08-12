@@ -20,10 +20,13 @@ function animate(id: string, yOffset: number) {
   const path = document.getElementById(id)! as SVGPathElement & {
     setPathData: (d: PathCmd[]) => void;
   };
-  const pathData: PathCmd[] = [{ type: "M", values: [0, 100] }];
-  for (let x = 0; x < 5000; x++) {
-    pathData.push({ type: "L", values: [x, f(x)] });
-  }
+  const pathData = [
+    { type: "M", values: [0, 100] },
+    ...Array.from({ length: 5000 }, (_, x) => ({
+      type: "L",
+      values: [x, f(x)],
+    })),
+  ];
   path.setPathData(pathData);
 
   const transformations = path.transform.baseVal;
@@ -33,9 +36,7 @@ function animate(id: string, yOffset: number) {
 
 const start = Date.now();
 function render() {
-  for (let i = 0; i < 9; i++) {
-    animate("g" + i.toString(), 50 + i * 50);
-  }
+  Array.from({ length: 9 }, (_, i) => animate(`g${i}`, 50 + i * 50));
   window.requestAnimationFrame(() => {
     console.log(Date.now() - start);
   });
