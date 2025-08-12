@@ -54,9 +54,7 @@
 
     this.VOMatrix = this.VOMatrix.multiply(scaleToVO);
 
-    //update inversed matrix
-    this.VOMatrixInversed = this.VOMatrix.inverse();
-
+    // update general matrix
     this.updateGeneral();
   }
 
@@ -176,12 +174,6 @@
     return this._SVG.createSVGMatrix();
   }
 
-  private ToTransform(matrix: SVGMatrix) {
-    const t = this._SVG.createSVGTransform();
-    t.setMatrix(matrix);
-    return t;
-  }
-
   private _SVG: SVGSVGElement = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "svg",
@@ -192,10 +184,7 @@
   private PDCMatrix!: SVGMatrix;
 
   private GeneralMatrix!: SVGMatrix;
-  private VOMatrixInversed!: SVGMatrix;
   private GeneralMatrixInversed!: SVGMatrix;
-
-  private pxPerSec = 96 / 25; // 96 px / 25 sec
 
   private uMin = 0;
   private uMax = 0;

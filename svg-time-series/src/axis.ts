@@ -38,7 +38,6 @@ export class MyAxis {
   private tickValues: number[] | null;
   private tickFormat: ((d: number | Date) => string) | null;
   private tickSizeInner: number;
-  private tickSizeOuter: number;
   private tickPadding: number;
   private orient: Orientation;
   private scale1: ScaleType;
@@ -52,7 +51,6 @@ export class MyAxis {
     this.tickValues = null;
     this.tickFormat = null;
     this.tickSizeInner = 6;
-    this.tickSizeOuter = 6;
     this.tickPadding = 3;
   }
 
@@ -305,17 +303,12 @@ export class MyAxis {
   }
 
   setTickSize(size: number): this {
-    this.tickSizeInner = this.tickSizeOuter = size;
+    this.tickSizeInner = size;
     return this;
   }
 
   setTickSizeInner(size: number): this {
     this.tickSizeInner = size;
-    return this;
-  }
-
-  setTickSizeOuter(size: number): this {
-    this.tickSizeOuter = size;
     return this;
   }
 
