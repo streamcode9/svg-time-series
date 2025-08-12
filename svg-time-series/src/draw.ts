@@ -5,7 +5,6 @@ import { ChartData } from "./chart/data.ts";
 import type { IDataSource } from "./chart/data.ts";
 import { setupRender } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
-import { AR1Basis, DirectProductBasis } from "./math/affine.ts";
 import type { ILegendController, LegendContext } from "./chart/legend.ts";
 import { ZoomState } from "./chart/zoomState.ts";
 import type { IZoomStateOptions } from "./chart/zoomState.ts";
@@ -120,28 +119,7 @@ export class TimeSeriesChart {
   public resize = (dimensions: { width: number; height: number }) => {
     const { width, height } = dimensions;
     this.svg.attr("width", width).attr("height", height);
-
-    const bScreenXVisible = new AR1Basis(0, width);
-    const bScreenYVisible = new AR1Basis(height, 0);
-    const bScreenVisible = DirectProductBasis.fromProjections(
-      bScreenXVisible,
-      bScreenYVisible,
-    );
-
-    this.state.axes.x.scale.range([0, width]);
-    this.state.screenXBasis = bScreenXVisible;
-
-    this.state.dimensions.width = width;
-    this.state.dimensions.height = height;
-
-    this.zoomArea.attr("width", width).attr("height", height);
-    this.zoomState.updateExtents({ width, height });
-
-    for (const a of this.state.axes.y) {
-      a.transform.onViewPortResize(bScreenVisible);
-      a.scale.range([height, 0]);
-    }
-
+    this.state.resize(dimensions, this.zoomState);
     this.state.refresh(this.data);
     this.refreshAll();
   };

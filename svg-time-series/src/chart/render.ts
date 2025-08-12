@@ -5,8 +5,7 @@ import type { Line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
-import type { AR1Basis } from "../math/affine.ts";
-import { DirectProductBasis, bPlaceholder } from "../math/affine.ts";
+import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
 
 import { AxisManager } from "./axisManager.ts";
 import type { AxisModel, AxisRenderState } from "./axisManager.ts";
@@ -14,6 +13,7 @@ import type { ChartData } from "./data.ts";
 import { createDimensions } from "./render/utils.ts";
 import { SeriesRenderer } from "./seriesRenderer.ts";
 import { createSeries } from "./series.ts";
+import type { ZoomState } from "./zoomState.ts";
 
 function createYAxis(
   orientation: Orientation,
@@ -64,6 +64,7 @@ export interface RenderState {
   series: Series[];
   seriesRenderer: SeriesRenderer;
   refresh: (data: ChartData) => void;
+  resize: (dimensions: Dimensions, zoomState: ZoomState) => void;
   destroy: () => void;
 }
 
@@ -102,6 +103,30 @@ function destroyRenderState(state: RenderState): void {
   }
   state.axisRenders.length = 0;
   state.axes.y.length = 0;
+}
+
+function resizeRenderState(
+  state: RenderState,
+  dimensions: Dimensions,
+  zoomState: ZoomState,
+): void {
+  const { width, height } = dimensions;
+  const bScreenXVisible = new AR1Basis(0, width);
+  const bScreenYVisible = new AR1Basis(height, 0);
+  const bScreenVisible = DirectProductBasis.fromProjections(
+    bScreenXVisible,
+    bScreenYVisible,
+  );
+
+  state.axes.x.scale.range([0, width]);
+  state.screenXBasis = bScreenXVisible;
+
+  zoomState.updateExtents(dimensions);
+
+  for (const a of state.axes.y) {
+    a.transform.onViewPortResize(bScreenVisible);
+    a.scale.range([height, 0]);
+  }
 }
 
 export function setupRender(
@@ -177,6 +202,7 @@ export function setupRender(
     seriesRenderer,
   } as RenderState;
   state.refresh = refreshRenderState.bind(null, state);
+  state.resize = resizeRenderState.bind(null, state);
   state.destroy = destroyRenderState.bind(null, state);
 
   return state;
