@@ -1,8 +1,11 @@
 import { csv } from "d3-request";
-import { ValueFn, select, selectAll, pointer } from "d3-selection";
-import { D3ZoomEvent, zoomIdentity } from "d3-zoom";
+import type { ValueFn } from "d3-selection";
+import { select, selectAll, pointer } from "d3-selection";
+import type { D3ZoomEvent } from "d3-zoom";
+import { zoomIdentity } from "d3-zoom";
 
-import { TimeSeriesChart, IDataSource } from "svg-time-series";
+import type { IDataSource } from "svg-time-series";
+import { TimeSeriesChart } from "svg-time-series";
 import { LegendController } from "../LegendController.ts";
 import { measure } from "../measure.ts";
 

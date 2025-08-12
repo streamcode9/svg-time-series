@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { JSDOM } from "jsdom";
-import { select, Selection } from "d3-selection";
+import type { Selection } from "d3-selection";
+import { select } from "d3-selection";
 import { scaleLinear } from "d3-scale";
 import { MyAxis, Orientation } from "./axis.ts";
 

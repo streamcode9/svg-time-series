@@ -8,7 +8,8 @@ import { select } from "d3-selection";
 import type { Selection } from "d3-selection";
 
 import { LegendController } from "./LegendController.ts";
-import { ChartData, IDataSource } from "../svg-time-series/src/chart/data.ts";
+import type { IDataSource } from "../svg-time-series/src/chart/data.ts";
+import { ChartData } from "../svg-time-series/src/chart/data.ts";
 import { setupRender } from "../svg-time-series/src/chart/render.ts";
 import * as domNode from "../svg-time-series/src/utils/domNodeTransform.ts";
 import "../test/setupDom.ts";

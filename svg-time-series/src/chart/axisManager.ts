@@ -3,7 +3,7 @@ import type { ScaleLinear, ScaleTime } from "d3-scale";
 import type { Selection } from "d3-selection";
 import { SegmentTree } from "segment-tree-rmq";
 
-import { MyAxis } from "../axis.ts";
+import type { MyAxis } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
 import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
 import type { ChartData, IMinMax } from "./data.ts";

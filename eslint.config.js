@@ -38,6 +38,7 @@ export default tsEslint.config(
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
+      "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/no-unsafe-function-type": "error",
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/no-useless-constructor": "error",

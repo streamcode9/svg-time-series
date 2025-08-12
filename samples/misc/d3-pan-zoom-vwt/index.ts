@@ -1,8 +1,8 @@
 import { select } from "d3-selection";
 import { range } from "d3-array";
 import { measure, measureOnce } from "../../benchmarks/bench.ts";
-import { zoom, ZoomTransform } from "d3-zoom";
-import type { D3ZoomEvent } from "d3-zoom";
+import { zoom } from "d3-zoom";
+import type { D3ZoomEvent, ZoomTransform } from "d3-zoom";
 import { betweenBasesAR1 } from "../../../svg-time-series/src/math/affine.ts";
 import {
   applyAR1ToMatrixX,

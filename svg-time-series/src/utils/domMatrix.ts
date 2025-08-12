@@ -1,4 +1,4 @@
-import { AR1, DirectProduct } from "../math/affine.ts";
+import type { AR1, DirectProduct } from "../math/affine.ts";
 
 export function applyAR1ToMatrixX(transform: AR1, sm: DOMMatrix): DOMMatrix {
   const [a, b] = transform.m;

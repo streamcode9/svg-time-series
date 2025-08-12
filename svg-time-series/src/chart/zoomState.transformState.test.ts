@@ -8,7 +8,7 @@ import { select } from "d3-selection";
 import type { RenderState } from "./render.ts";
 import { ZoomState } from "./zoomState.ts";
 import type { D3ZoomEvent } from "./zoomState.ts";
-import { ZoomScheduler } from "./zoomScheduler.ts";
+import type { ZoomScheduler } from "./zoomScheduler.ts";
 
 interface MockZoomBehavior {
   (_s: unknown): void;

@@ -1,7 +1,7 @@
-import { ZoomTransform } from "d3-zoom";
+import type { ZoomTransform } from "d3-zoom";
+import type { DirectProductBasis } from "./math/affine.ts";
 import {
   AR1Basis,
-  DirectProductBasis,
   betweenTBasesDirectProduct,
   dpbPlaceholder,
 } from "./math/affine.ts";

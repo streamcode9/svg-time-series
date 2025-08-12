@@ -2,8 +2,9 @@ import "./setupDom.ts";
 import { beforeAll, describe, expect, it } from "vitest";
 import { zoomIdentity } from "d3-zoom";
 import { AR1Basis, DirectProductBasis } from "./math/affine.ts";
+import type { ViewportTransform as ViewportTransformClass } from "./ViewportTransform.ts";
 
-let ViewportTransform: typeof import("./ViewportTransform.ts").ViewportTransform;
+let ViewportTransform: typeof ViewportTransformClass;
 
 beforeAll(async () => {
   ({ ViewportTransform } = await import("./ViewportTransform.ts"));

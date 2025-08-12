@@ -12,9 +12,9 @@ import { ViewportTransform } from "../../../svg-time-series/src/ViewportTransfor
 import { updateNode } from "../../../svg-time-series/src/utils/domNodeTransform.ts";
 import { SegmentTree } from "segment-tree-rmq";
 import type { IMinMax } from "../../../svg-time-series/src/chart/data.ts";
+import type { AR1 } from "../../../svg-time-series/src/math/affine.ts";
 import {
   AR1Basis,
-  AR1,
   DirectProductBasis,
   betweenTBasesAR1,
   bPlaceholder,
