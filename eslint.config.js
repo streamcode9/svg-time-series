@@ -13,6 +13,9 @@ export default tsEslint.config(
     ignores: ["**/dist/**", "samples/unused/**"],
   },
   {
+    settings: { "import/resolver": { typescript: {} } },
+  },
+  {
     languageOptions: {
       parserOptions: {
         project: [
@@ -60,6 +63,8 @@ export default tsEslint.config(
       "import/no-unresolved": "off",
       "import/order": "off",
       "import/default": "off",
+      "import/no-named-as-default-member": "off",
+      "import/no-named-as-default": "off",
     },
   },
     {
@@ -74,6 +79,8 @@ export default tsEslint.config(
         "import/no-unresolved": "off",
         "import/order": "off",
         "import/default": "off",
+        "import/no-named-as-default-member": "off",
+        "import/no-named-as-default": "off",
       },
     },
   {
@@ -84,6 +91,8 @@ export default tsEslint.config(
         "import/no-unresolved": "off",
         "import/order": "off",
         "import/default": "off",
+        "import/no-named-as-default-member": "off",
+        "import/no-named-as-default": "off",
       },
   },
   {
@@ -97,6 +106,8 @@ export default tsEslint.config(
       "import/no-unresolved": "off",
       "import/order": "off",
       "import/default": "off",
+      "import/no-named-as-default-member": "off",
+      "import/no-named-as-default": "off",
     },
   },
   {
@@ -108,6 +119,8 @@ export default tsEslint.config(
         "import/no-unresolved": "off",
         "import/order": "off",
         "import/default": "off",
+        "import/no-named-as-default-member": "off",
+        "import/no-named-as-default": "off",
       },
   },
 );
