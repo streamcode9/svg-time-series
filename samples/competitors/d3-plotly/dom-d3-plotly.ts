@@ -2,17 +2,11 @@
 import Plotly from "plotly.js";
 
 function generateData() {
-  const lines = [];
-  for (let i = 0; i < 10; i++) {
-    const xs = [],
-      ys = [];
-    for (let x = 0; x < 5000; x++) {
-      xs.push(x * 0.2);
-      ys.push(common.f(x) * 100 + 50 * i);
-    }
-    lines.push({ y: ys, x: xs, line: { width: 1 }, showlegend: false });
-  }
-  return lines;
+  return Array.from({ length: 10 }, (_, i) => {
+    const xs = Array.from({ length: 5000 }, (_, x) => x * 0.2);
+    const ys = xs.map((_, x) => common.f(x) * 100 + 50 * i);
+    return { y: ys, x: xs, line: { width: 1 }, showlegend: false };
+  });
 }
 
 const container = document.getElementById("plotly-container");
