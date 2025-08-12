@@ -103,9 +103,5 @@ export default tsEslint.config(
   {
     files: ["**/*.test.ts"],
     ...vitest.configs.recommended,
-    ...tsEslint.configs.disableTypeChecked,
-    rules: {
-      ...disableTypeChecked.rules,
-    },
   },
 );
