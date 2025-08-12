@@ -47,7 +47,17 @@ export default tsEslint.config(
   },
   { files: ["test/**/*.ts"], ...tsEslint.configs.disableTypeChecked },
   { files: ["samples/benchmarks/**"], ...tsEslint.configs.disableTypeChecked },
-  { files: ["**/*.cjs", "**/*.mjs", "**/vite.config.ts"], ...tsEslint.configs.disableTypeChecked },
+  {
+    files: ["**/*.cjs", "**/*.mjs", "**/vite.config.ts"],
+    languageOptions: {
+      ...disableTypeChecked.languageOptions,
+      sourceType: "commonjs",
+      globals: globals.node,
+    },
+    rules: {
+      ...disableTypeChecked.rules,
+    },
+  },
   { files: ["eslint.config.js"], ...tsEslint.configs.disableTypeChecked },
   {
     files: ["samples/competitors/**"],
