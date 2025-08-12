@@ -38,10 +38,9 @@ function createSegmentTree<T>(
   size: number,
   buildTuple: (index: number, elements: ReadonlyArray<T>) => IMinMax,
 ): SegmentTree<IMinMax> {
-  const data: IMinMax[] = new Array(size);
-  for (let i = 0; i < size; i++) {
-    data[i] = buildTuple(i, elements);
-  }
+  const data: IMinMax[] = Array.from({ length: size }, (_, i) =>
+    buildTuple(i, elements),
+  );
   return new SegmentTree(data, buildMinMax, minMaxIdentity);
 }
 
@@ -220,7 +219,7 @@ export class TimeSeriesChart {
   ): [number, number] {
     let from = intervalSize;
     let to = 0;
-    for (let i = 0; i < intervalSize; i++) {
+    Array.from({ length: intervalSize }).forEach((_, i) => {
       if (
         this.calcDate(i, this.minX) >= xSubInterval[0] &&
         this.calcDate(i, this.minX) <= xSubInterval[1]
@@ -228,7 +227,7 @@ export class TimeSeriesChart {
         if (i > to) to = i;
         if (i < from) from = i;
       }
-    }
+    });
     return [from, to];
   }
 
