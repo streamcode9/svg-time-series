@@ -114,13 +114,8 @@ export default tsEslint.config(
     files: ["**/*.test.ts"],
     ...vitest.configs.recommended,
     ...tsEslint.configs.disableTypeChecked,
-      rules: {
-        ...disableTypeChecked.rules,
-        "import/no-unresolved": "off",
-        "import/order": "off",
-        "import/default": "off",
-        "import/no-named-as-default-member": "off",
-        "import/no-named-as-default": "off",
-      },
+    rules: {
+      ...disableTypeChecked.rules,
+    },
   },
 );
