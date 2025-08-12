@@ -1,10 +1,11 @@
+import type { SegmentTree } from "segment-tree-rmq";
+
 import type { AR1 } from "../math/affine.ts";
 import {
   AR1Basis,
   DirectProductBasis,
   betweenTBasesAR1,
 } from "../math/affine.ts";
-import type { SegmentTree } from "segment-tree-rmq";
 import { SlidingWindow } from "./slidingWindow.ts";
 
 export interface IMinMax {

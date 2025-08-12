@@ -4,6 +4,7 @@ import tsEslint from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
 import vitest from "@vitest/eslint-plugin";
 import globals from "globals";
+import importPlugin from "eslint-plugin-import";
 
 const disableTypeChecked = tsEslint.configs.disableTypeChecked;
 
@@ -29,9 +30,13 @@ export default tsEslint.config(
   },
   ...tsEslint.configs.recommendedTypeChecked,
   ...tsEslint.configs.strictTypeChecked,
-  prettierConfig,
+    importPlugin.flatConfigs.recommended,
+    importPlugin.flatConfigs.typescript,
+    prettierConfig,
   {
     rules: {
+      "import/no-unresolved": "error",
+      "import/order": "error",
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-empty-object-type": "error",
       "@typescript-eslint/no-unused-vars": [
@@ -47,19 +52,40 @@ export default tsEslint.config(
     },
   },
   { files: ["test/**/*.ts"], ...tsEslint.configs.disableTypeChecked },
-  { files: ["samples/benchmarks/**"], ...tsEslint.configs.disableTypeChecked },
   {
-    files: ["**/*.cjs", "**/*.mjs", "**/vite.config.ts"],
-    languageOptions: {
-      ...disableTypeChecked.languageOptions,
-      sourceType: "commonjs",
-      globals: globals.node,
-    },
+    files: ["samples/**"],
+    ...tsEslint.configs.disableTypeChecked,
     rules: {
       ...disableTypeChecked.rules,
+      "import/no-unresolved": "off",
+      "import/order": "off",
+      "import/default": "off",
     },
   },
-  { files: ["eslint.config.js"], ...tsEslint.configs.disableTypeChecked },
+    {
+      files: ["**/*.cjs", "**/*.mjs", "**/vite.config.ts"],
+      languageOptions: {
+        ...disableTypeChecked.languageOptions,
+        sourceType: "commonjs",
+        globals: globals.node,
+      },
+      rules: {
+        ...disableTypeChecked.rules,
+        "import/no-unresolved": "off",
+        "import/order": "off",
+        "import/default": "off",
+      },
+    },
+  {
+    files: ["eslint.config.js"],
+    ...tsEslint.configs.disableTypeChecked,
+      rules: {
+        ...disableTypeChecked.rules,
+        "import/no-unresolved": "off",
+        "import/order": "off",
+        "import/default": "off",
+      },
+  },
   {
     files: ["samples/competitors/**"],
     languageOptions: {
@@ -68,7 +94,20 @@ export default tsEslint.config(
     },
     rules: {
       ...disableTypeChecked.rules,
+      "import/no-unresolved": "off",
+      "import/order": "off",
+      "import/default": "off",
     },
   },
-  { files: ["**/*.test.ts"], ...vitest.configs.recommended, ...tsEslint.configs.disableTypeChecked },
+  {
+    files: ["**/*.test.ts"],
+    ...vitest.configs.recommended,
+    ...tsEslint.configs.disableTypeChecked,
+      rules: {
+        ...disableTypeChecked.rules,
+        "import/no-unresolved": "off",
+        "import/order": "off",
+        "import/default": "off",
+      },
+  },
 );

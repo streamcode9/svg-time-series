@@ -4,11 +4,12 @@ import type { ScaleTime, ScaleLinear } from "d3-scale";
 import type { Line } from "d3-shape";
 
 import { MyAxis, Orientation } from "../axis.ts";
-import { AxisManager } from "./axisManager.ts";
-import type { AxisModel, AxisRenderState } from "./axisManager.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import type { AR1Basis } from "../math/affine.ts";
 import { DirectProductBasis, bPlaceholder } from "../math/affine.ts";
+
+import { AxisManager } from "./axisManager.ts";
+import type { AxisModel, AxisRenderState } from "./axisManager.ts";
 import type { ChartData } from "./data.ts";
 import { createDimensions } from "./render/utils.ts";
 import { SeriesRenderer } from "./seriesRenderer.ts";
