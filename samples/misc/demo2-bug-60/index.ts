@@ -43,10 +43,9 @@ function createSegmentTree(
   elements: number[][],
   size: number,
 ): SegmentTree<IMinMax> {
-  const data: IMinMax[] = new Array<IMinMax>(size);
-  for (let i = 0; i < size; i++) {
-    data[i] = buildSegmentTreeTuple(i, elements);
-  }
+  const data = Array.from({ length: size }, (_, i) =>
+    buildSegmentTreeTuple(i, elements),
+  );
   return new SegmentTree(data, buildMinMax, minMaxIdentity);
 }
 
