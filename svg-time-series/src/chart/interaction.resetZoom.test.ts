@@ -1,7 +1,6 @@
 /**
  * @vitest-environment jsdom
  */
-/* eslint-disable @typescript-eslint/no-useless-constructor */
 import {
   describe,
   it,
@@ -47,7 +46,6 @@ vi.mock("../ViewportTransform.ts", () => ({
 vi.mock("../axis.ts", () => ({
   Orientation: { Bottom: 0, Right: 1 },
   MyAxis: class {
-    constructor() {}
     setScale = vi.fn(() => this);
     axis = vi.fn();
     axisUp = vi.fn();
