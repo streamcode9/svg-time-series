@@ -7,6 +7,7 @@ import { MyAxis, Orientation } from "../axis.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
 
+import { ViewportTransform } from "../ViewportTransform.ts";
 import { AxisManager } from "./axisManager.ts";
 import type { AxisModel, AxisRenderState } from "./axisManager.ts";
 import type { ChartData } from "./data.ts";
@@ -59,6 +60,7 @@ export interface RenderState {
   axisManager: AxisManager;
   axes: Axes;
   axisRenders: AxisRenderState[];
+  xTransform: ViewportTransform;
   screenXBasis: AR1Basis;
   dimensions: Dimensions;
   series: Series[];
@@ -69,7 +71,12 @@ export interface RenderState {
 }
 
 export function refreshRenderState(state: RenderState, data: ChartData): void {
-  const bIndexVisible = state.axes.y[0]!.transform.fromScreenToModelBasisX(
+  const referenceBasis = DirectProductBasis.fromProjections(
+    data.bIndexFull,
+    bPlaceholder,
+  );
+  state.xTransform.onReferenceViewWindowResize(referenceBasis);
+  const bIndexVisible = state.xTransform.fromScreenToModelBasisX(
     state.screenXBasis,
   );
 
@@ -123,6 +130,7 @@ function resizeRenderState(
 
   zoomState.updateExtents(dimensions);
 
+  state.xTransform.onViewPortResize(bScreenVisible);
   for (const a of state.axes.y) {
     a.transform.onViewPortResize(bScreenVisible);
     a.scale.range([height, 0]);
@@ -165,6 +173,9 @@ export function setupRender(
     a.transform.onViewPortResize(screenBasis);
     a.transform.onReferenceViewWindowResize(referenceBasis);
   }
+  const xTransform = new ViewportTransform();
+  xTransform.onViewPortResize(screenBasis);
+  xTransform.onReferenceViewWindowResize(referenceBasis);
 
   const series = createSeries(svg, data.seriesAxes);
   const seriesRenderer = new SeriesRenderer();
@@ -196,6 +207,7 @@ export function setupRender(
     axisManager,
     axes,
     axisRenders,
+    xTransform,
     screenXBasis,
     dimensions,
     series,

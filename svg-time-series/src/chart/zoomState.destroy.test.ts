@@ -67,6 +67,7 @@ describe("ZoomState.destroy", () => {
         y: [{ transform: { onZoomPan: vi.fn<(t: unknown) => void>() } }],
       },
       axisRenders: [],
+      xTransform: { onZoomPan: vi.fn<(t: unknown) => void>() },
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zoomCb = vi.fn();
@@ -111,6 +112,7 @@ describe("ZoomState.destroy", () => {
         y: [{ transform: { onZoomPan: vi.fn<(t: unknown) => void>() } }],
       },
       axisRenders: [],
+      xTransform: { onZoomPan: vi.fn<(t: unknown) => void>() },
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(

@@ -106,10 +106,12 @@ describe("ZoomState.updateExtents clamp", () => {
   it("clamps existing translation to new bounds", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const rect = select(svg).append("rect");
+    const x = { onZoomPan: vi.fn<(t: unknown) => void>() };
     const state = {
       dimensions: { width: 100, height: 100 },
       axes: { x: { axis: {}, g: {}, scale: {} }, y: [] },
       axisRenders: [],
+      xTransform: x,
     } as unknown as RenderState;
     const zs = new ZoomState(
       rect as unknown as Selection<
@@ -125,6 +127,7 @@ describe("ZoomState.updateExtents clamp", () => {
     const initial = zoomIdentity.translate(-120, -80).scale(2);
     zs.zoomBehavior.transform(rect, initial);
     const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
+    expect(x.onZoomPan).toHaveBeenCalledWith(initial);
     transformSpy.mockClear();
 
     zs.updateExtents({ width: 50, height: 50 });

@@ -75,11 +75,13 @@ vi.mock("./zoomState.ts", () => ({
   ZoomState: class {
     private state: {
       axes: { y: Array<{ transform: { onZoomPan: (t: unknown) => void } }> };
+      xTransform: { onZoomPan: (t: unknown) => void };
     };
     private refreshChart: () => void;
     private zoomCallback: (e: unknown) => void;
     reset = vi.fn(() => {
       const identity = { x: 0, k: 1 };
+      this.state.xTransform.onZoomPan(identity);
       this.state.axes.y.forEach((a) => {
         a.transform.onZoomPan(identity);
       });
@@ -94,6 +96,7 @@ vi.mock("./zoomState.ts", () => ({
       _zoomArea: unknown,
       state: {
         axes: { y: Array<{ transform: { onZoomPan: (t: unknown) => void } }> };
+        xTransform: { onZoomPan: (t: unknown) => void };
       },
       refreshChart: () => void,
       zoomCallback: (e: unknown) => void,
