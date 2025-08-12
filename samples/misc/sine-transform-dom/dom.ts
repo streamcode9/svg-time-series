@@ -39,7 +39,6 @@ function animate(id: string, yOffset: number) {
   });
 }
 
-// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
 Array.from({ length: 9 }).forEach((_, i) => {
-  animate(`g${i}`, 50 + i * 50);
+  animate(`g${String(i)}`, 50 + i * 50);
 });
