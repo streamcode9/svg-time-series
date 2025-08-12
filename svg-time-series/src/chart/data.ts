@@ -77,11 +77,9 @@ export class ChartData {
     validateSource(source);
     this.seriesCount = source.seriesCount;
     this.seriesAxes = source.seriesAxes;
-    let axisIdx = 0;
-    for (const axis of this.seriesAxes) {
-      this.seriesByAxis[axis as 0 | 1].push(axisIdx);
-      axisIdx++;
-    }
+    this.seriesAxes.forEach((axis, axisIdx) =>
+      this.seriesByAxis[axis as 0 | 1].push(axisIdx),
+    );
     const initialData = Array.from({ length: source.length }).map((_, i) =>
       Array.from({ length: this.seriesCount }).map((_, j) =>
         source.getSeries(i, j),
