@@ -40,9 +40,9 @@ export class SegmentTree<T> {
     this.op = op;
     this.identity = identity;
 
-    for (let i = 0; i < this.size; i++) {
-      this.tree[this.size + i] = data[i]!;
-    }
+    data.forEach((value, i) => {
+      this.tree[this.size + i] = value;
+    });
     for (let i = this.size - 1; i > 0; i--) {
       this.tree[i] = this.op(this.tree[i << 1]!, this.tree[(i << 1) | 1]!);
     }
