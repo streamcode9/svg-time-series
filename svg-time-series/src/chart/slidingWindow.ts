@@ -16,8 +16,7 @@ export class SlidingWindow {
           )} values, received ${String(row.length)}`,
         );
       }
-      let valueIdx = 0;
-      for (const val of row) {
+      row.forEach((val, valueIdx) => {
         if (!Number.isFinite(val) && !Number.isNaN(val)) {
           throw new Error(
             `SlidingWindow requires row ${String(rowIdx)} series ${String(
@@ -25,8 +24,7 @@ export class SlidingWindow {
             )} value to be a finite number or NaN`,
           );
         }
-        valueIdx++;
-      }
+      });
     });
     this.data = initialData;
     this.seriesCount = seriesCount;
@@ -40,8 +38,7 @@ export class SlidingWindow {
         )} values, received ${String(values.length)}`,
       );
     }
-    let valueIdx = 0;
-    for (const val of values) {
+    values.forEach((val, valueIdx) => {
       if (!Number.isFinite(val) && !Number.isNaN(val)) {
         throw new Error(
           `SlidingWindow.append requires series ${String(
@@ -49,8 +46,7 @@ export class SlidingWindow {
           )} value to be a finite number or NaN`,
         );
       }
-      valueIdx++;
-    }
+    });
     this.data.push(values);
     this.data.shift();
     this.startIndex++;
