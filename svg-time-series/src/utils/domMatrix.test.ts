@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { AR1, DirectProduct } from "../math/affine.ts";
+import { Matrix } from "../setupDom.ts";
 import {
   applyAR1ToMatrixX,
   applyAR1ToMatrixY,
   applyDirectProductToMatrix,
 } from "./domMatrix.ts";
-import { Matrix } from "../setupDom.ts";
 
 describe("applyAR1ToMatrix helpers", () => {
   it("translates and scales along X axis", () => {

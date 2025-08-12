@@ -13,12 +13,12 @@ import {
 } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
+import type { D3ZoomEvent } from "d3-zoom";
 import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
 import { Matrix } from "../setupDom.ts";
-import type { D3ZoomEvent } from "d3-zoom";
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
 let updateNodeCalls = 0;

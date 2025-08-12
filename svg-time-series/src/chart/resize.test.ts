@@ -27,9 +27,9 @@ vi.mock("../axis.ts", () => {
 
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
-import { SeriesRenderer } from "./seriesRenderer.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
+import { SeriesRenderer } from "./seriesRenderer.ts";
 import "../setupDom.ts";
 
 describe("TimeSeriesChart.resize", () => {

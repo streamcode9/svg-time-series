@@ -21,11 +21,11 @@ vi.mock("../axis.ts", () => {
 import { JSDOM } from "jsdom";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
+import { updateNode } from "../utils/domNodeTransform.ts";
+import "../setupDom.ts";
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
-import { updateNode } from "../utils/domNodeTransform.ts";
-import "../setupDom.ts";
 
 function createSvg() {
   const dom = new JSDOM(`<div id="c"><svg></svg></div>`, {

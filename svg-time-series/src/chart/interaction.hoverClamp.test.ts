@@ -7,9 +7,9 @@ import { select } from "d3-selection";
 import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
-import type { ILegendController, LegendContext } from "./legend.ts";
 import "../setupDom.ts";
 import type { Matrix } from "../setupDom.ts";
+import type { ILegendController, LegendContext } from "./legend.ts";
 
 vi.mock("../utils/domNodeTransform.ts", () => ({
   updateNode: (_node: SVGGraphicsElement, _matrix: Matrix) => {},

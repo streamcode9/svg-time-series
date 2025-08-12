@@ -5,11 +5,11 @@ import { describe, it, expect, vi } from "vitest";
 import { JSDOM } from "jsdom";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
+import * as domNode from "../utils/domNodeTransform.ts";
+import "../setupDom.ts";
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
-import * as domNode from "../utils/domNodeTransform.ts";
-import "../setupDom.ts";
 
 function createSvg() {
   const dom = new JSDOM(`<div id="c"><svg></svg></div>`, {
