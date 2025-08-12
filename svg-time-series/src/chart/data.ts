@@ -7,6 +7,7 @@ import {
   betweenTBasesAR1,
 } from "../math/affine.ts";
 import { SlidingWindow } from "./slidingWindow.ts";
+import { assertFiniteNumber, assertPositiveInteger } from "./validation.ts";
 
 export interface IMinMax {
   readonly min: number;
@@ -27,18 +28,10 @@ export interface IDataSource {
 }
 
 function validateSource(source: IDataSource): void {
-  if (!Number.isInteger(source.length) || source.length <= 0) {
-    throw new Error("ChartData requires length to be a positive integer");
-  }
-  if (!Number.isInteger(source.seriesCount) || source.seriesCount <= 0) {
-    throw new Error("ChartData requires seriesCount to be a positive integer");
-  }
-  if (!Number.isFinite(source.startTime)) {
-    throw new Error("ChartData requires startTime to be a finite number");
-  }
-  if (!Number.isFinite(source.timeStep)) {
-    throw new Error("ChartData requires timeStep to be a finite number");
-  }
+  assertPositiveInteger(source.length, "ChartData length");
+  assertPositiveInteger(source.seriesCount, "ChartData seriesCount");
+  assertFiniteNumber(source.startTime, "ChartData startTime");
+  assertFiniteNumber(source.timeStep, "ChartData timeStep");
   if (source.timeStep <= 0) {
     throw new Error("ChartData requires timeStep to be greater than 0");
   }
@@ -114,9 +107,7 @@ export class ChartData {
     values: number[];
     timestamp: number;
   } {
-    if (!Number.isFinite(idx)) {
-      throw new Error("ChartData.getPoint requires idx to be a finite number");
-    }
+    assertFiniteNumber(idx, "ChartData.getPoint idx");
     const clamped = this.clampIndex(Math.round(idx));
     return {
       values: this.window.data[clamped]!,
@@ -138,11 +129,7 @@ export class ChartData {
   }
 
   timeToIndex(time: number): number {
-    if (!Number.isFinite(time)) {
-      throw new Error(
-        "ChartData.timeToIndex requires time to be a finite number",
-      );
-    }
+    assertFiniteNumber(time, "ChartData.timeToIndex time");
     const transform = this.indexToTime().inverse();
     const idx = transform.applyToPoint(time);
     return this.clampIndex(idx);
