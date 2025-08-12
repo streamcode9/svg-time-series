@@ -40,24 +40,16 @@ function createSegmentTree(
   elements: IElement[],
   size: number,
 ): SegmentTree<IMinMax> {
-  const data: IMinMax[] = new Array(size);
-  for (let i = 0; i < size; i++) {
-    data[i] = buildSegmentTreeTuple(i, elements);
-  }
+  const data = Array.from({ length: size }, (_, i) =>
+    buildSegmentTreeTuple(i, elements),
+  );
   return new SegmentTree(data, buildMinMax, minMaxIdentity);
 }
 
 function generateData(): IElement[] {
-  const data = [];
-
-  for (let j = 0; j < 2; j++) {
-    const values = [];
-    for (let i = 0; i < serieLength; i++) {
-      values.push(Math.random());
-    }
-    data[j] = { values };
-  }
-  return data;
+  return Array.from({ length: 2 }, () => ({
+    values: Array.from({ length: serieLength }, () => Math.random()),
+  }));
 }
 
 const data = generateData();
