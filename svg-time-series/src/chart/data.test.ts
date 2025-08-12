@@ -278,9 +278,9 @@ describe("ChartData", () => {
       [0, 1],
     );
     const cd = new ChartData(source);
-    expect(() => cd.append(undefined as unknown as number, 2)).toThrow(
-      /series 0/,
-    );
+    expect(() => {
+      cd.append(undefined as unknown as number, 2);
+    }).toThrow(/series 0/);
   });
 
   it("throws when sf is invalid", () => {
@@ -292,9 +292,9 @@ describe("ChartData", () => {
       [0, 1],
     );
     const cd = new ChartData(source);
-    expect(() => cd.append(2, undefined as unknown as number)).toThrow(
-      /series 1/,
-    );
+    expect(() => {
+      cd.append(2, undefined as unknown as number);
+    }).toThrow(/series 1/);
   });
 
   it("computes visible temperature bounds", () => {
@@ -499,7 +499,9 @@ describe("ChartData", () => {
         seriesAxes: [0],
       };
       const cd = new ChartData(source);
-      expect(() => cd.append(1)).not.toThrow();
+      expect(() => {
+        cd.append(1);
+      }).not.toThrow();
       expect(cd.data).toEqual([[1]]);
     });
 

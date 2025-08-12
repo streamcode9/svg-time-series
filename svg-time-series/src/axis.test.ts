@@ -10,8 +10,8 @@ function createGroup() {
   const dom = new JSDOM(`<svg xmlns="${NS}"></svg>`, {
     contentType: "image/svg+xml",
   });
-  const svg = dom.window.document.querySelector("svg") as SVGSVGElement;
-  const g = dom.window.document.createElementNS(NS, "g") as SVGGElement;
+  const svg = dom.window.document.querySelector<SVGSVGElement>("svg")!;
+  const g = dom.window.document.createElementNS(NS, "g");
   svg.appendChild(g);
   return { g };
 }

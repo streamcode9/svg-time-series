@@ -100,8 +100,8 @@ describe("updateScales", () => {
     };
 
     const bIndexVisible = new AR1Basis(0, 1);
-    expect(() =>
-      axisManager.updateScales(bIndexVisible, data as unknown as ChartData),
-    ).toThrow(/axis index 2/i);
+    expect(() => {
+      axisManager.updateScales(bIndexVisible, data as unknown as ChartData);
+    }).toThrow(/axis index 2/i);
   });
 });

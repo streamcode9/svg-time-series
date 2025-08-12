@@ -255,7 +255,7 @@ describe("chart interaction", () => {
       [10, 20],
       [30, 40],
     ];
-    const formatter = vi.fn((ts: number) => `ts:${ts}`);
+    const formatter = vi.fn((ts: number) => `ts:${String(ts)}`);
     const { onHover, legend } = createChart(data, formatter);
     vi.runAllTimers();
 

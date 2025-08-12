@@ -192,7 +192,7 @@ describe("chart interaction single-axis", () => {
       legend.querySelector(".chart-legend__green_value")!.textContent,
     ).toBe("30");
 
-    const circle = svgEl.querySelector("circle")! as SVGCircleElement;
+    const circle = svgEl.querySelector<SVGCircleElement>("circle")!;
     const transform = nodeTransforms.get(circle)!;
     expect(transform.tx).toBe(1);
     expect(transform.ty).toBe(30);
@@ -213,7 +213,7 @@ describe("chart interaction single-axis", () => {
       legend.querySelector(".chart-legend__green_value")!.textContent,
     ).toBe("50");
 
-    const circle = svgEl.querySelector("circle")! as SVGCircleElement;
+    const circle = svgEl.querySelector<SVGCircleElement>("circle")!;
     const transform = nodeTransforms.get(circle)!;
     expect(transform.tx).toBe(1);
     expect(transform.ty).toBe(50);

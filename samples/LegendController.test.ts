@@ -27,7 +27,8 @@ function createSvgAndLegend() {
   const div = dom.window.document.getElementById("c") as HTMLDivElement;
   Object.defineProperty(div, "clientWidth", { value: 100 });
   Object.defineProperty(div, "clientHeight", { value: 100 });
-  const svg = select<HTMLDivElement, unknown>(div).select<SVGSVGElement>(
+
+  const svg = select<HTMLDivElement, unknown>(div).select(
     "svg",
   ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
   const legendDiv = select(
@@ -49,7 +50,10 @@ describe("LegendController", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
-    select(state.series[0]!.path as SVGPathElement).attr("stroke", "green");
+    select<SVGPathElement, unknown>(state.series[0]!.path).attr(
+      "stroke",
+      "green",
+    );
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
@@ -67,7 +71,7 @@ describe("LegendController", () => {
     lc.highlightIndex(1);
 
     const lastCall = updateSpy.mock.calls.at(-1)!;
-    const matrix = lastCall[1] as DOMMatrix;
+    const matrix = lastCall[1]!;
     const modelPoint = new DOMPoint(1, data.getPoint(1).values[0]);
     const expected = modelPoint.matrixTransform(
       state.axes.y[0]!.transform.matrix,
@@ -100,7 +104,10 @@ describe("LegendController", () => {
       return [timestamp, ...values] as [number, ...number[]];
     }) as unknown as typeof data.getPoint;
     const state = setupRender(svg, data);
-    select(state.series[0]!.path as SVGPathElement).attr("stroke", "green");
+    select<SVGPathElement, unknown>(state.series[0]!.path).attr(
+      "stroke",
+      "green",
+    );
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
@@ -140,7 +147,10 @@ describe("LegendController", () => {
       return { timestamp } as { timestamp: number } & Record<string, unknown>;
     }) as unknown as typeof data.getPoint;
     const state = setupRender(svg, data);
-    select(state.series[0]!.path as SVGPathElement).attr("stroke", "green");
+    select<SVGPathElement, unknown>(state.series[0]!.path).attr(
+      "stroke",
+      "green",
+    );
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),

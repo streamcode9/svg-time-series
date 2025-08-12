@@ -82,7 +82,9 @@ describe("TimeSeriesChart.resize", () => {
 
     chart.resize({ width: 200, height: 150 });
 
-    axisInstances.forEach((a) => expect(a.axisUp).toHaveBeenCalled());
+    axisInstances.forEach((a) => {
+      expect(a.axisUp).toHaveBeenCalled();
+    });
     expect(renderSpy).toHaveBeenCalled();
     expect(legend.refresh).toHaveBeenCalled();
     expect(zoomRefreshSpy).toHaveBeenCalled();
@@ -150,9 +152,15 @@ describe("TimeSeriesChart.resize", () => {
 
     expect(updateSpy).toHaveBeenCalledWith({ width: 250, height: 120 });
     expect(chartInternal.state.dimensions).toEqual({ width: 250, height: 120 });
-    const arg = resizeSpy.mock.calls.at(0)![0];
+
+    interface AxisRange {
+      x(): { toArr(): [number, number] };
+      y(): { toArr(): [number, number] };
+    }
+    const arg = resizeSpy.mock.calls.at(0)![0] as unknown as AxisRange;
     expect(arg.x().toArr()).toEqual([0, 250]);
     expect(arg.y().toArr()).toEqual([120, 0]);
+
     expect(chartInternal.state.axes.x.scale.range()).toEqual([0, 250]);
     expect(chartInternal.state.axes.y[0]!.scale.range()).toEqual([120, 0]);
   });
