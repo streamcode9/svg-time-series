@@ -31,8 +31,6 @@ export default config(
   },
   {
     settings: { "import/resolver": { typescript: {} } },
-  },
-  {
     languageOptions: {
       parserOptions: {
         project: [
@@ -55,9 +53,9 @@ export default config(
     },
   },
   ...configs.strictTypeChecked,
-    importPlugin.flatConfigs.recommended,
-    importPlugin.flatConfigs.typescript,
-    prettierConfig,
+  importPlugin.flatConfigs.recommended,
+  importPlugin.flatConfigs.typescript,
+  prettierConfig,
   {
     rules: {
       "import/no-unresolved": "error",
