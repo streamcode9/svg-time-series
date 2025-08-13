@@ -8,6 +8,7 @@ import {
 } from "../math/affine.ts";
 import { SlidingWindow } from "./slidingWindow.ts";
 import { assertFiniteNumber, assertPositiveInteger } from "./validation.ts";
+import { buildMinMax, minMaxIdentity } from "./minMax.ts";
 
 export interface IMinMax {
   readonly min: number;
@@ -26,18 +27,6 @@ export interface IDataSource {
   readonly seriesAxes: number[];
   getSeries(index: number, seriesIdx: number): number;
 }
-
-function buildMinMax(fst: Readonly<IMinMax>, snd: Readonly<IMinMax>): IMinMax {
-  return {
-    min: Math.min(fst.min, snd.min),
-    max: Math.max(fst.max, snd.max),
-  } as const;
-}
-
-const minMaxIdentity: IMinMax = {
-  min: Infinity,
-  max: -Infinity,
-};
 
 function validateSource(source: IDataSource): void {
   assertPositiveInteger(source.length, "ChartData length");

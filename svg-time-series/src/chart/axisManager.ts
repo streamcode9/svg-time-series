@@ -8,18 +8,7 @@ import { ViewportTransform } from "../ViewportTransform.ts";
 import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
 import type { ChartData, IMinMax } from "./data.ts";
 import { updateScaleX } from "./render/utils.ts";
-
-function buildMinMax(fst: Readonly<IMinMax>, snd: Readonly<IMinMax>): IMinMax {
-  return {
-    min: Math.min(fst.min, snd.min),
-    max: Math.max(fst.max, snd.max),
-  } as const;
-}
-
-const minMaxIdentity: IMinMax = {
-  min: Infinity,
-  max: -Infinity,
-};
+import { buildMinMax, minMaxIdentity } from "./minMax.ts";
 
 export class AxisModel {
   transform: ViewportTransform;
