@@ -471,6 +471,11 @@ describe("ChartData", () => {
     expect(tree.query(0, 2)).toEqual({ min: 1, max: 3 });
   });
 
+  it("throws when building axis tree with invalid axis index", () => {
+    const cd = new ChartData(makeSource([[0], [1]], [0]));
+    expect(() => cd.buildAxisTree(2)).toThrow(/axis.*0 or 1/);
+  });
+
   describe("single-axis", () => {
     it("handles data without second series", () => {
       const source: IDataSource = {
