@@ -26,7 +26,11 @@ const nodeOverride = {
 
 export default config(
   {
-    ignores: ["**/dist/**", "samples/unused/**"],
+    ignores: [
+      "**/dist/**",
+      "samples/unused/**",
+      "samples/benchmarks/path-data-polyfill.js",
+    ],
   },
   {
     settings: { "import/resolver": { typescript: {} } },
@@ -45,6 +49,8 @@ export default config(
           "./samples/demos/tsconfig.json",
           "./samples/misc/tsconfig.json",
           "./samples/competitors/tsconfig.json",
+          "./samples/benchmarks/tsconfig.json",
+          "./samples/tsconfig.test.json",
           "./test/tsconfig.json",
         ],
         tsconfigRootDir: import.meta.dirname,
@@ -74,14 +80,6 @@ export default config(
       "prefer-spread": "error",
     },
   },
-    {
-      files: ["samples/**"],
-      ignores: ["samples/competitors/**"],
-      ...configs.disableTypeChecked,
-      rules: {
-        ...disableTypeChecked.rules,
-      },
-    },
     {
       files: ["scripts/**", "**/*.config.*", "**/*.cjs", "**/*.mjs"],
       ...nRecommended,
@@ -114,11 +112,21 @@ export default config(
         sourceType: "module",
       },
     },
-  {
-    files: ["samples/competitors/**"],
-    languageOptions: {
-      globals: { ...globals.browser, d3: "readonly" },
+    {
+      files: ["samples/benchmarks/**"],
+      rules: {
+        "@typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        "@typescript-eslint/no-unsafe-return": "off",
+      },
     },
+    {
+      files: ["samples/competitors/**"],
+      languageOptions: {
+        globals: { ...globals.browser, d3: "readonly" },
+      },
   },
   {
     files: ["**/*.test.ts"],

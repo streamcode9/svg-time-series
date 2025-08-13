@@ -9,17 +9,17 @@ onCsv((data) => {
   const drawLine = (cityIdx: number, off: number) => {
     const idx = (i: number) => (i + off) % dataLength;
 
-    return line()
+    const pathData = line()
       .defined((d, i, arr) => !isNaN(arr[idx(i)][cityIdx]))
       .x((d, i) => i)
-      .y((d, i, arr) => arr[idx(i)][cityIdx])
-      .call(null, data);
+      .y((d, i, arr) => arr[idx(i)][cityIdx])(data) as string;
+    return pathData;
   };
 
   selectAll("g.view").selectAll("path").data([0, 1]).enter().append("path");
 
   selectAll("svg").each(function () {
-    return new TimeSeriesChart(select(this), dataLength, drawLine);
+    TimeSeriesChart(select(this), dataLength, drawLine);
   });
 
   measure(3, ({ fps }) => {
@@ -28,7 +28,7 @@ onCsv((data) => {
 
   measureOnce(60, ({ fps }) => {
     console.log(
-      `${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`,
+      `${String(window.innerWidth)}x${String(window.innerHeight)} FPS = ${fps.toFixed(2)}`,
     );
   });
 });

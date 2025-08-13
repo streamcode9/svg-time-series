@@ -95,7 +95,7 @@ onCsv((data) => {
 
   measureOnce(60, ({ fps }) => {
     console.log(
-      `${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`,
+      `${String(window.innerWidth)}x${String(window.innerHeight)} FPS = ${fps.toFixed(2)}`,
     );
   });
 });

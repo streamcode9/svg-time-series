@@ -23,7 +23,9 @@ csv("../../demos/ny-vs-sf.csv")
 
       resize.request = () => {
         if (resize.timer) clearTimeout(resize.timer);
-        resize.timer = setTimeout(resize.eval, resize.interval);
+        resize.timer = setTimeout(() => {
+          resize.eval?.();
+        }, resize.interval);
       };
       resize.eval = () => {
         selectAll("svg").remove();
@@ -40,6 +42,6 @@ measure(3, ({ fps }) => {
 
 measureOnce(60, ({ fps }) => {
   console.log(
-    `${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`,
+    `${String(window.innerWidth)}x${String(window.innerHeight)} FPS = ${fps.toFixed(2)}`,
   );
 });

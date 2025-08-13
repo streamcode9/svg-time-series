@@ -104,27 +104,22 @@ onCsv((data) => {
 
   selectAll("svg").each(function (_: unknown, i: number) {
     // Draw paths
-    const svg = select(this as SVGSVGElement);
+    const svg = select<SVGSVGElement, unknown>(this);
     const paths: Selection<SVGPathElement, number, SVGGElement, unknown> = svg
       .select("g.view")
       .selectAll<SVGPathElement, number>("path");
-    paths.each(function (cityIdx: number) {
-      const pathElement = this as SVGPathElement;
-
-      pathElement.pathSegList.appendItem(
-        pathElement.createSVGPathSegMovetoAbs(
-          0,
-          pathsData[cityIdx][0].values[1],
-        ),
+    paths.each(function (this: SVGPathElement, cityIdx: number) {
+      this.pathSegList.appendItem(
+        this.createSVGPathSegMovetoAbs(0, pathsData[cityIdx][0].values[1]),
       );
 
       pathsData[cityIdx].forEach(
         (d: { type: string; values: [number, number] }, i: number) => {
           const point =
             d.type == "M"
-              ? pathElement.createSVGPathSegMovetoAbs(i, d.values[1])
-              : pathElement.createSVGPathSegLinetoAbs(i, d.values[1]);
-          pathElement.pathSegList.appendItem(point);
+              ? this.createSVGPathSegMovetoAbs(i, d.values[1])
+              : this.createSVGPathSegLinetoAbs(i, d.values[1]);
+          this.pathSegList.appendItem(point);
         },
       );
     });
@@ -138,7 +133,7 @@ onCsv((data) => {
 
   measureOnce(60, ({ fps }) => {
     console.log(
-      `${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`,
+      `${String(window.innerWidth)}x${String(window.innerHeight)} FPS = ${fps.toFixed(2)}`,
     );
   });
 });

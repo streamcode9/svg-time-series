@@ -73,7 +73,7 @@ describe("LegendController", () => {
     lc.highlightIndex(1);
 
     const lastCall = updateSpy.mock.calls.at(-1)!;
-    const matrix = lastCall[1]!;
+    const matrix = lastCall[1];
     const modelPoint = new DOMPoint(1, data.getPoint(1).values[0]);
     const expected = modelPoint.matrixTransform(
       state.axes.y[0]!.transform.matrix,

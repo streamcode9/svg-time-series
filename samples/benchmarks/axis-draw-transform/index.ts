@@ -3,11 +3,11 @@ import { select, selectAll } from "d3-selection";
 import { measure, measureOnce } from "../bench.ts";
 import { TimeSeriesChart } from "./draw.ts";
 
-function makeChart() {
-  return new TimeSeriesChart(select(this), 1070);
+function makeChart(this: SVGSVGElement): void {
+  TimeSeriesChart(select<SVGSVGElement, unknown>(this), 1070);
 }
 
-selectAll("svg").each(makeChart);
+selectAll<SVGSVGElement, unknown>("svg").each(makeChart);
 
 measure(3, ({ fps }) => {
   document.getElementById("fps").textContent = fps.toFixed(2);
@@ -15,6 +15,6 @@ measure(3, ({ fps }) => {
 
 measureOnce(60, ({ fps }) => {
   console.log(
-    `${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`,
+    `${String(window.innerWidth)}x${String(window.innerHeight)} FPS = ${fps.toFixed(2)}`,
   );
 });

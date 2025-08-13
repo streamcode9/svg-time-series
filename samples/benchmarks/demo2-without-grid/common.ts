@@ -37,7 +37,9 @@ export function drawCharts(data: { NY: number; SF: number }[]) {
     if (z == newZoom) return;
 
     newZoom = z;
-    charts.forEach((c) => c.zoom(event.transform));
+    charts.forEach((c) => {
+      c.zoom(event.transform);
+    });
   }
 
   selectAll("svg").each(function () {
@@ -54,12 +56,12 @@ export function drawCharts(data: { NY: number; SF: number }[]) {
 
   setInterval(() => {
     const newData = data[j % data.length];
-    charts.forEach((c) =>
+    charts.forEach((c) => {
       c.updateChartWithNewData([
         newData == undefined ? undefined : newData.NY,
         newData == undefined ? undefined : newData.SF,
-      ]),
-    );
+      ]);
+    });
     j++;
   }, 1000);
 }

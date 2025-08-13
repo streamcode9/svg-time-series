@@ -65,4 +65,4 @@ for (let n = 0; n < 100; n++) {
 }
 
 const avgTimeMs = times.reduce((sum, next) => sum + next, 0) / 100;
-console.log(`${avgTimeMs} ms`);
+console.log(`${avgTimeMs.toString()} ms`);

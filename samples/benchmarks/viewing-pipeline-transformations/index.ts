@@ -20,25 +20,25 @@ csv("../../demos/ny-vs-sf.csv")
     const onPath = (
       path: Selection<SVGPathElement, number[], SVGGElement, unknown>,
     ) => {
-      path.attr("d", (cityIdx: number) =>
-        line<number[]>()
+      path.attr("d", (cityIdx: number) => {
+        const pathData = line<number[]>()
           .defined((d: number[]) => !!d[cityIdx])
           .x((d: number[], i: number) => i)
-          .y((d: number[]) => d[cityIdx])
-          .call(null, data),
-      );
+          .y((d: number[]) => d[cityIdx])(data) as string;
+        return pathData;
+      });
     };
 
     const onPathModel = (
       path: Selection<SVGPathElement, number[], SVGGElement, unknown>,
     ) => {
-      path.attr("d", (cityIdx: number) =>
-        line()
+      path.attr("d", (cityIdx: number) => {
+        const pathData = line()
           .defined((d: number[]) => !!d[cityIdx])
           .x((d: number[], i: number) => calcDate(i, startDate, 86400000))
-          .y((d: number[]) => d[cityIdx])
-          .call(null, data),
-      );
+          .y((d: number[]) => d[cityIdx])(data) as string;
+        return pathData;
+      });
     };
 
     selectAll("svg#default").each(function () {

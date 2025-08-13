@@ -131,7 +131,9 @@ export class TimeSeriesChart {
 
       this.chart.view.attr(
         "transform",
-        `translate(${translateX},${translateY}) scale(${scaleX},${scaleY})`,
+        `translate(${String(translateX)},${String(translateY)}) scale(${String(
+          scaleX,
+        )},${String(scaleY)})`,
       );
     }.bind(this),
   );

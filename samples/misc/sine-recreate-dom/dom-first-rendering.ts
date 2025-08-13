@@ -36,7 +36,9 @@ function animate(id: string, yOffset: number) {
 
 const start = Date.now();
 function render() {
-  Array.from({ length: 9 }, (_, i) => animate(`g${i}`, 50 + i * 50));
+  Array.from({ length: 9 }, (_, i) => {
+    animate(`g${String(i)}`, 50 + i * 50);
+  });
   window.requestAnimationFrame(() => {
     console.log(Date.now() - start);
   });

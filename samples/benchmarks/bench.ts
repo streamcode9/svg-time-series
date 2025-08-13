@@ -9,7 +9,7 @@ export function onCsv(f: (csv: number[][]) => void): void {
       parseFloat(d.NY.split(";")[0]),
       parseFloat(d.SF.split(";")[0]),
     ])
-    .get((error: null, data: number[][]) => {
+    .get((error: Error | null, data: number[][]) => {
       if (error != null) {
         console.error("Data can't be downloaded or parsed");
         return;

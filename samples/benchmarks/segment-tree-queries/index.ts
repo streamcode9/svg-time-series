@@ -11,16 +11,16 @@ onCsv((data: number[][]) => {
     .data([0, 1])
     .enter()
     .append("path")
-    .attr("d", (cityIdx: number) =>
-      line<number[]>()
+    .attr("d", (cityIdx: number) => {
+      const pathData = line<number[]>()
         .defined((d) => !isNaN(d[cityIdx]))
         .x((d, i) => i * 10)
-        .y((d) => d[cityIdx])
-        .call(null, filteredData),
-    );
+        .y((d) => d[cityIdx])(filteredData) as string;
+      return pathData;
+    });
 
   selectAll("svg").each(function () {
-    return new TimeSeriesChart(select(this), data);
+    TimeSeriesChart(select(this), data);
   });
 
   measure(3, ({ fps }) => {
@@ -29,7 +29,7 @@ onCsv((data: number[][]) => {
 
   measureOnce(60, ({ fps }) => {
     console.log(
-      `${window.innerWidth}x${window.innerHeight} FPS = ${fps.toFixed(2)}`,
+      `${String(window.innerWidth)}x${String(window.innerHeight)} FPS = ${fps.toFixed(2)}`,
     );
   });
 });
