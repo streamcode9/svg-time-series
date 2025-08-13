@@ -35,10 +35,42 @@ describe("SlidingWindow", () => {
     }).toThrow(/requires 2 values, received 1/);
   });
 
-  it("throws when appended values contain infinite numbers", () => {
+  it("throws when appended values contain non-finite numbers", () => {
     const sw = new SlidingWindow([[0]]);
     expect(() => {
       sw.append(Infinity);
     }).toThrow(/series 0.*finite number or NaN/);
+    expect(() => {
+      sw.append(-Infinity);
+    }).toThrow(/series 0.*finite number or NaN/);
+  });
+
+  it("shifts data and increments startIndex on append", () => {
+    const sw = new SlidingWindow([
+      [0, 1],
+      [2, 3],
+    ]);
+    sw.append(4, 5);
+    expect(sw.data).toEqual([
+      [2, 3],
+      [4, 5],
+    ]);
+    expect(sw.startIndex).toBe(1);
+
+    sw.append(6, 7);
+    expect(sw.data).toEqual([
+      [4, 5],
+      [6, 7],
+    ]);
+    expect(sw.startIndex).toBe(2);
+  });
+
+  it("reports constant length after multiple appends", () => {
+    const sw = new SlidingWindow([[0], [1], [2]]);
+    expect(sw.length).toBe(3);
+    sw.append(3);
+    sw.append(4);
+    sw.append(5);
+    expect(sw.length).toBe(3);
   });
 });
