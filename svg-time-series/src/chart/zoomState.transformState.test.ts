@@ -78,7 +78,7 @@ describe("ZoomState transform state", () => {
       refresh,
     );
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
+    const transformSpy = vi.spyOn(zs.zoomBehavior, "transform");
 
     const first = {
       transform: { x: 1, k: 2 },

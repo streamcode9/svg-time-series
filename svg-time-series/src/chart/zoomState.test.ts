@@ -153,7 +153,10 @@ describe("ZoomState", () => {
     expect(refresh).toHaveBeenCalledTimes(1);
     expect(zoomCb).toHaveBeenCalledTimes(2);
     expect(zoomCb).toHaveBeenNthCalledWith(1, event);
-    const internalEvent = zoomCb.mock.calls.at(1)![0];
+    const internalEvent = zoomCb.mock.calls.at(1)![0] as {
+      transform: { x: number; k: number };
+      sourceEvent?: unknown;
+    };
     expect(internalEvent).toMatchObject({ transform: { x: 5, k: 2 } });
     expect(internalEvent.sourceEvent).toBeUndefined();
   });
@@ -186,7 +189,7 @@ describe("ZoomState", () => {
       zoomCb,
     );
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
+    const transformSpy = vi.spyOn(zs.zoomBehavior, "transform");
     transformSpy.mockClear();
     const event = {
       transform: { x: 2, k: 3 },
@@ -204,7 +207,10 @@ describe("ZoomState", () => {
     expect(refresh).toHaveBeenCalledTimes(1);
     expect(zoomCb).toHaveBeenCalledTimes(2);
     expect(zoomCb).toHaveBeenNthCalledWith(1, event);
-    const internalEvent = zoomCb.mock.calls.at(1)![0];
+    const internalEvent = zoomCb.mock.calls.at(1)![0] as {
+      transform: { x: number; k: number };
+      sourceEvent?: unknown;
+    };
     expect(internalEvent).toMatchObject({ transform: { x: 2, k: 3 } });
     expect(internalEvent.sourceEvent).toBeUndefined();
   });
@@ -235,7 +241,7 @@ describe("ZoomState", () => {
       refresh,
     );
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
+    const transformSpy = vi.spyOn(zs.zoomBehavior, "transform");
     transformSpy.mockClear();
 
     const forwarded = {
@@ -307,7 +313,7 @@ describe("ZoomState", () => {
       },
     );
 
-    const transformSpy = zs2.zoomBehavior.transform as unknown as Mock;
+    const transformSpy = vi.spyOn(zs2.zoomBehavior, "transform");
     transformSpy.mockClear();
 
     const event1 = {
@@ -428,7 +434,7 @@ describe("ZoomState", () => {
       refresh,
     );
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
+    const transformSpy = vi.spyOn(zs.zoomBehavior, "transform");
 
     zs.zoom({
       transform: { x: 4, k: 5 },
@@ -481,7 +487,7 @@ describe("ZoomState", () => {
     expect(x.onZoomPan).toHaveBeenCalledWith({ x: 1, k: 1 });
     expect(y.onZoomPan).toHaveBeenCalledWith({ x: 1, k: 1 });
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
+    const transformSpy = vi.spyOn(zs.zoomBehavior, "transform");
     transformSpy.mockClear();
     refresh.mockClear();
 
@@ -518,7 +524,7 @@ describe("ZoomState", () => {
       refresh,
     );
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
+    const transformSpy = vi.spyOn(zs.zoomBehavior, "transform");
     transformSpy.mockClear();
     y.onZoomPan.mockClear();
     x.onZoomPan.mockClear();
@@ -531,7 +537,7 @@ describe("ZoomState", () => {
       rect,
       expect.objectContaining({ k: 1, x: 0, y: 0 }),
     );
-    const identity = expect.objectContaining({ k: 1, x: 0, y: 0 });
+    const identity = expect.objectContaining({ k: 1, x: 0, y: 0 }) as unknown;
     expect(x.onZoomPan).toHaveBeenCalledWith(identity);
     expect(y.onZoomPan).toHaveBeenCalledWith(identity);
     interface ZoomStateInternal {
@@ -686,7 +692,7 @@ describe("ZoomState", () => {
       y: 0,
     } as unknown as ZoomTransform);
     expect(x.onZoomPan).toHaveBeenCalledWith({ k: 10, x: 0, y: 0 });
-    const scaleSpy = zs.zoomBehavior.scaleTo as unknown as Mock;
+    const scaleSpy = vi.spyOn(zs.zoomBehavior, "scaleTo");
     scaleSpy.mockClear();
 
     zs.setScaleExtent([1, 5]);
@@ -722,7 +728,7 @@ describe("ZoomState", () => {
       y: 0,
     } as unknown as ZoomTransform);
     expect(x2.onZoomPan).toHaveBeenCalledWith({ k: 0.2, x: 0, y: 0 });
-    const scaleSpy = zs.zoomBehavior.scaleTo as unknown as Mock;
+    const scaleSpy = vi.spyOn(zs.zoomBehavior, "scaleTo");
     scaleSpy.mockClear();
 
     zs.setScaleExtent([0.5, 5]);
@@ -755,7 +761,9 @@ describe("ZoomState", () => {
       vi.fn(),
     );
 
-    expect(() => zs.setScaleExtent([min, max])).not.toThrow();
+    expect(() => {
+      zs.setScaleExtent([min, max]);
+    }).not.toThrow();
   });
 
   it.each([
@@ -787,9 +795,9 @@ describe("ZoomState", () => {
       vi.fn(),
     );
 
-    expect(() => zs.setScaleExtent([min, max])).toThrow(
-      /scaleExtent must be two finite, positive numbers/,
-    );
+    expect(() => {
+      zs.setScaleExtent([min, max]);
+    }).toThrow(/scaleExtent must be two finite, positive numbers/);
   });
 
   it("rejects scale extents that do not contain exactly two values", () => {
@@ -810,12 +818,12 @@ describe("ZoomState", () => {
       vi.fn(),
     );
 
-    expect(() => zs.setScaleExtent([1] as unknown as [number, number])).toThrow(
-      /scaleExtent must be two finite, positive numbers/,
-    );
-    expect(() =>
-      zs.setScaleExtent([1, 2, 3] as unknown as [number, number]),
-    ).toThrow(/scaleExtent must be two finite, positive numbers/);
+    expect(() => {
+      zs.setScaleExtent([1] as unknown as [number, number]);
+    }).toThrow(/scaleExtent must be two finite, positive numbers/);
+    expect(() => {
+      zs.setScaleExtent([1, 2, 3] as unknown as [number, number]);
+    }).toThrow(/scaleExtent must be two finite, positive numbers/);
   });
 
   it.each([

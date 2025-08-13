@@ -135,13 +135,5 @@ export default tsEslint.config(
   {
     files: ["**/*.test.ts"],
     ...vitest.configs.recommended,
-    rules: {
-      "@typescript-eslint/no-confusing-void-expression": "off",
-      "@typescript-eslint/unbound-method": "off",
-      "@typescript-eslint/no-unnecessary-type-assertion": "off",
-      "@typescript-eslint/no-unsafe-assignment": "off",
-      "@typescript-eslint/no-unsafe-member-access": "off",
-      "@typescript-eslint/restrict-template-expressions": "off",
-    },
   },
 );

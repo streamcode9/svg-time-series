@@ -87,9 +87,10 @@ function createChart(data: Array<[number]>) {
     length: data.length,
     seriesCount: 1,
     seriesAxes: [0],
-    getSeries: (i) => data[i]![0]!,
+    getSeries: (i) => data[i]![0],
   };
   const legendController = new StubLegendController();
+
   const chart = new TimeSeriesChart(
     select(svgEl) as unknown as Selection<
       SVGSVGElement,

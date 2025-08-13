@@ -87,7 +87,7 @@ describe("ZoomState programmatic transforms", () => {
       refresh,
     );
 
-    const transformSpy = zs.zoomBehavior.transform as unknown as Mock;
+    const transformSpy = vi.spyOn(zs.zoomBehavior, "transform");
     const initial = { x: 1, y: 2, k: 3 } as unknown as ZoomTransform;
     zs.zoomBehavior.transform(rect, initial);
     vi.runAllTimers();
