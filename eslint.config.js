@@ -7,6 +7,20 @@ import globals from "globals";
 import importPlugin from "eslint-plugin-import";
 
 const disableTypeChecked = tsEslint.configs.disableTypeChecked;
+const nodeOverride = {
+  languageOptions: {
+    ...disableTypeChecked.languageOptions,
+    globals: globals.node,
+  },
+  rules: {
+    ...disableTypeChecked.rules,
+    "import/no-unresolved": "off",
+    "import/order": "off",
+    "import/default": "off",
+    "import/no-named-as-default-member": "off",
+    "import/no-named-as-default": "off",
+  },
+};
 
 export default tsEslint.config(
   {
@@ -65,19 +79,19 @@ export default tsEslint.config(
     },
   },
     {
-      files: ["**/*.cjs", "**/*.mjs", "**/vite.config.ts"],
+      files: ["**/*.cjs", "**/vite.config.ts"],
+      ...nodeOverride,
       languageOptions: {
-        ...disableTypeChecked.languageOptions,
+        ...nodeOverride.languageOptions,
         sourceType: "commonjs",
-        globals: globals.node,
       },
-      rules: {
-        ...disableTypeChecked.rules,
-        "import/no-unresolved": "off",
-        "import/order": "off",
-        "import/default": "off",
-        "import/no-named-as-default-member": "off",
-        "import/no-named-as-default": "off",
+    },
+    {
+      files: ["**/*.mjs"],
+      ...nodeOverride,
+      languageOptions: {
+        ...nodeOverride.languageOptions,
+        sourceType: "module",
       },
     },
   {
