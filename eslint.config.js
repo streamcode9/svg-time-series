@@ -81,7 +81,7 @@ export default config(
     },
   },
     {
-      files: ["scripts/**", "**/*.config.*", "**/*.cjs", "**/*.mjs"],
+      files: ["scripts/**", "**/*.config.*"],
       ...nRecommended,
       ...configs.disableTypeChecked,
       settings: {
