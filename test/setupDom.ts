@@ -103,8 +103,12 @@ class Point {
 }
 
 const globalObj = globalThis as unknown as Record<string, unknown>;
-globalObj["DOMMatrix"] = Matrix;
-globalObj["DOMPoint"] = Point;
+if (typeof globalObj["DOMMatrix"] === "undefined") {
+  globalObj["DOMMatrix"] = Matrix;
+}
+if (typeof globalObj["DOMPoint"] === "undefined") {
+  globalObj["DOMPoint"] = Point;
+}
 if (typeof SVGSVGElement !== "undefined") {
   (
     SVGSVGElement.prototype as unknown as {
