@@ -78,7 +78,7 @@ export class TimeSeriesChart {
       zoomOptions,
     );
 
-    this.drawNewData();
+    this.refreshAll();
     this.onHover(this.state.dimensions.width - 1);
   }
 
@@ -93,7 +93,7 @@ export class TimeSeriesChart {
 
   public updateChartWithNewData(...values: number[]): void {
     this.data.append(...values);
-    this.drawNewData();
+    this.refreshAll();
   }
 
   public dispose() {
@@ -129,10 +129,6 @@ export class TimeSeriesChart {
     idx = this.data.clampIndex(idx);
     this.legendController.highlightIndex(idx);
   };
-
-  private drawNewData(): void {
-    this.refreshAll();
-  }
 
   private refreshAll(): void {
     this.state.seriesRenderer.draw(this.data.data);
