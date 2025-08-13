@@ -5,10 +5,7 @@ import { f, run } from "../common.ts";
 
 const delta = 0;
 const scale = 0.2;
-const data = [];
-for (let x = 0; x < 5000; x++) {
-  data.push(f(x));
-}
+const data = Array.from({ length: 5000 }, (_, x) => f(x));
 const line = d3_line<number>()
   .x((y, i) => i)
   .y((y) => y);
