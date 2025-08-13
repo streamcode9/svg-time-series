@@ -9,6 +9,7 @@ import {
 import { SlidingWindow } from "./slidingWindow.ts";
 import { assertFiniteNumber, assertPositiveInteger } from "./validation.ts";
 import { buildMinMax, minMaxIdentity } from "./minMax.ts";
+import type { LegendPoint } from "./legend.ts";
 
 export interface IMinMax {
   readonly min: number;
@@ -104,10 +105,7 @@ export class ChartData {
     return this.window.startIndex;
   }
 
-  getPoint(idx: number): {
-    values: number[];
-    timestamp: number;
-  } {
+  getPoint(idx: number): LegendPoint {
     assertFiniteNumber(idx, "ChartData.getPoint idx");
     const clamped = this.clampIndex(Math.round(idx));
     return {

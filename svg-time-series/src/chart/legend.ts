@@ -5,9 +5,10 @@ export interface LegendSeriesInfo {
   transform: ViewportTransform;
 }
 
-export type LegendPoint =
-  | { values: number[]; timestamp: number }
-  | [number, ...number[]];
+export interface LegendPoint {
+  values: number[];
+  timestamp?: number;
+}
 
 export interface LegendContext {
   getPoint(idx: number): LegendPoint;

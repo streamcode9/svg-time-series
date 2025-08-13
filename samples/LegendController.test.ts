@@ -88,49 +88,6 @@ describe("LegendController", () => {
     lc.destroy();
   });
 
-  it("handles legacy tuple return from getPoint", () => {
-    const { svg, legendDiv } = createSvgAndLegend();
-    const source: IDataSource = {
-      startTime: 0,
-      timeStep: 1,
-      length: 2,
-      seriesCount: 1,
-      getSeries: (i) => [10, 20][i]!,
-      seriesAxes: [0],
-    };
-    const data = new ChartData(source);
-    const originalGetPoint = data.getPoint.bind(data);
-    // mimic old API returning [timestamp, value...]
-    data.getPoint = ((idx: number) => {
-      const { values, timestamp } = originalGetPoint(idx);
-      return [timestamp, ...values] as [number, ...number[]];
-    }) as unknown as typeof data.getPoint;
-    const state = setupRender(svg, data);
-    select<SVGPathElement, unknown>(state.series[0]!.path).attr(
-      "stroke",
-      "green",
-    );
-    const lc = new LegendController(legendDiv);
-    lc.init({
-      getPoint: data.getPoint.bind(data),
-      length: data.length,
-      series: state.series.map((s) => ({
-        path: s.path,
-        transform: state.axes.y[s.axisIdx]!.transform,
-      })),
-    });
-
-    const updateSpy = vi
-      .spyOn(domNode, "updateNode")
-      .mockImplementation(() => {});
-
-    expect(() => {
-      lc.highlightIndex(1);
-    }).not.toThrow();
-    updateSpy.mockRestore();
-    lc.destroy();
-  });
-
   it("ignores results missing values array", () => {
     const { svg, legendDiv } = createSvgAndLegend();
     const source: IDataSource = {

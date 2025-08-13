@@ -83,24 +83,20 @@ export class LegendController implements ILegendController {
   }
 
   private update() {
-    const rawPoint = this.context.getPoint(this.highlightedDataIdx);
-    let values: number[];
-    let timestamp: number;
-
-    if (Array.isArray(rawPoint)) {
-      [timestamp, ...values] = rawPoint;
-    } else if ("values" in rawPoint) {
-      ({ timestamp, values } = rawPoint as {
-        timestamp: number;
-        values: number[];
-      });
-    } else {
+    const { values, timestamp } = this.context.getPoint(
+      this.highlightedDataIdx,
+    ) as { values?: number[]; timestamp?: number };
+    if (!values) {
       return;
     }
 
     const greenData = values[0];
     const blueData = values[1];
-    this.legendTime.text(this.formatTime(timestamp));
+    if (timestamp !== undefined) {
+      this.legendTime.text(this.formatTime(timestamp));
+    } else {
+      this.legendTime.text("");
+    }
 
     const fixNaN = <T>(n: number, valueForNaN: T): number | T =>
       isNaN(n) ? valueForNaN : n;
