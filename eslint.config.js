@@ -44,6 +44,7 @@ export default tsEslint.config(
           "./samples/tsconfig.json",
           "./samples/demos/tsconfig.json",
           "./samples/misc/tsconfig.json",
+          "./samples/competitors/tsconfig.json",
           "./test/tsconfig.json",
         ],
         tsconfigRootDir: import.meta.dirname,
@@ -75,6 +76,7 @@ export default tsEslint.config(
   },
   {
     files: ["samples/**"],
+    ignores: ["samples/competitors/**"],
     ...tsEslint.configs.disableTypeChecked,
     rules: {
       ...disableTypeChecked.rules,
@@ -125,11 +127,18 @@ export default tsEslint.config(
   {
     files: ["samples/competitors/**"],
     languageOptions: {
-      ...disableTypeChecked.languageOptions,
       globals: { ...globals.browser, d3: "readonly" },
     },
     rules: {
-      ...disableTypeChecked.rules,
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/restrict-plus-operands": "off",
+      "@typescript-eslint/no-confusing-void-expression": "off",
+      "@typescript-eslint/no-misused-promises": "off",
     },
   },
   {
