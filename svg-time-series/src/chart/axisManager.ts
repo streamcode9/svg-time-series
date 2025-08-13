@@ -5,7 +5,7 @@ import { SegmentTree } from "segment-tree-rmq";
 
 import type { MyAxis } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
-import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
+import type { AR1Basis } from "../math/affine.ts";
 import type { ChartData, IMinMax } from "./data.ts";
 import { updateScaleX } from "./render/utils.ts";
 import { buildMinMax, minMaxIdentity } from "./minMax.ts";
@@ -30,17 +30,10 @@ export class AxisModel {
     axisIdx: number,
     bIndex: AR1Basis,
   ): void {
-    this.tree = data.buildAxisTree(axisIdx);
-    const dp = data.updateScaleY(bIndex, this.tree);
-    let [min, max] = dp.y().toArr();
-    if (!Number.isFinite(min) || !Number.isFinite(max)) {
-      min = 0;
-      max = 1;
-    }
+    const { tree, min, max, dpRef } = data.axisTransform(axisIdx, bIndex);
+    this.tree = tree;
     this.min = min;
     this.max = max;
-    const b = new AR1Basis(min, max);
-    const dpRef = DirectProductBasis.fromProjections(data.bIndexFull, b);
     this.transform.onReferenceViewWindowResize(dpRef);
     this.scale.domain([min, max]);
   }

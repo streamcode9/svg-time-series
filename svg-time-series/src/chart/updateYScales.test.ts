@@ -81,6 +81,17 @@ describe("updateScales", () => {
         const by = new AR1Basis(min, max);
         return DirectProductBasis.fromProjections(b, by);
       },
+      axisTransform(axis: number, b: AR1Basis) {
+        const tree = this.buildAxisTree(axis);
+        const dp = this.updateScaleY(b, tree);
+        const [min, max] = dp.y().toArr();
+        const bAxis = new AR1Basis(min, max);
+        const dpRef = DirectProductBasis.fromProjections(
+          this.bIndexFull,
+          bAxis,
+        );
+        return { tree, min, max, dpRef };
+      },
     };
 
     const bIndexVisible = new AR1Basis(0, 1);
@@ -136,6 +147,17 @@ describe("updateScales", () => {
         const { min, max } = tree.query(0, 1);
         const by = new AR1Basis(min, max);
         return DirectProductBasis.fromProjections(b, by);
+      },
+      axisTransform(axis: number, b: AR1Basis) {
+        const tree = this.buildAxisTree(axis);
+        const dp = this.updateScaleY(b, tree);
+        const [min, max] = dp.y().toArr();
+        const bAxis = new AR1Basis(min, max);
+        const dpRef = DirectProductBasis.fromProjections(
+          this.bIndexFull,
+          bAxis,
+        );
+        return { tree, min, max, dpRef };
       },
     };
 

@@ -180,6 +180,27 @@ export class ChartData {
     return DirectProductBasis.fromProjections(bIndexVisible, bAxisVisible);
   }
 
+  axisTransform(
+    axisIdx: number,
+    bIndexVisible: AR1Basis,
+  ): {
+    tree: SegmentTree<IMinMax>;
+    min: number;
+    max: number;
+    dpRef: DirectProductBasis;
+  } {
+    const tree = this.buildAxisTree(axisIdx);
+    const dp = this.updateScaleY(bIndexVisible, tree);
+    let [min, max] = dp.y().toArr();
+    if (!Number.isFinite(min) || !Number.isFinite(max)) {
+      min = 0;
+      max = 1;
+    }
+    const b = new AR1Basis(min, max);
+    const dpRef = DirectProductBasis.fromProjections(this.bIndexFull, b);
+    return { tree, min, max, dpRef };
+  }
+
   combinedAxisDp(
     bIndexVisible: AR1Basis,
     tree0: SegmentTree<IMinMax>,
