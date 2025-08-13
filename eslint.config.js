@@ -57,7 +57,6 @@ export default config(
       },
     },
   },
-  ...configs.recommendedTypeChecked,
   ...configs.strictTypeChecked,
     importPlugin.flatConfigs.recommended,
     importPlugin.flatConfigs.typescript,
