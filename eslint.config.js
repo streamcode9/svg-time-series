@@ -5,8 +5,10 @@ import prettierConfig from "eslint-config-prettier";
 import vitest from "@vitest/eslint-plugin";
 import globals from "globals";
 import importPlugin from "eslint-plugin-import";
+import n from "eslint-plugin-n";
 
 const disableTypeChecked = tsEslint.configs.disableTypeChecked;
+const nRecommended = n.configs["flat/recommended"];
 const nodeOverride = {
   languageOptions: {
     ...disableTypeChecked.languageOptions,
@@ -76,6 +78,20 @@ export default tsEslint.config(
     ...tsEslint.configs.disableTypeChecked,
     rules: {
       ...disableTypeChecked.rules,
+    },
+  },
+  {
+    files: ["scripts/**", "**/*.config.*", "**/*.cjs", "**/*.mjs"],
+    ...nRecommended,
+    settings: {
+      node: { version: ">=20.11.0" },
+    },
+    rules: {
+      ...nRecommended.rules,
+      "n/no-extraneous-import": "off",
+      "n/no-process-exit": "off",
+      "n/process-exit-as-throw": "off",
+      "n/no-unsupported-features/node-builtins": "off",
     },
   },
     {
