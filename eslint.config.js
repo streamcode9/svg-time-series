@@ -1,13 +1,13 @@
 // @ts-check
 
-import tsEslint from "typescript-eslint";
+import { config, configs } from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
 import vitest from "@vitest/eslint-plugin";
 import globals from "globals";
 import importPlugin from "eslint-plugin-import";
 import n from "eslint-plugin-n";
 
-const disableTypeChecked = tsEslint.configs.disableTypeChecked;
+const disableTypeChecked = configs.disableTypeChecked;
 const nRecommended = n.configs["flat/recommended"];
 const nodeOverride = {
   languageOptions: {
@@ -24,7 +24,7 @@ const nodeOverride = {
   },
 };
 
-export default tsEslint.config(
+export default config(
   {
     ignores: ["**/dist/**", "samples/unused/**"],
   },
@@ -51,8 +51,8 @@ export default tsEslint.config(
       },
     },
   },
-  ...tsEslint.configs.recommendedTypeChecked,
-  ...tsEslint.configs.strictTypeChecked,
+  ...configs.recommendedTypeChecked,
+  ...configs.strictTypeChecked,
     importPlugin.flatConfigs.recommended,
     importPlugin.flatConfigs.typescript,
     prettierConfig,
@@ -74,28 +74,30 @@ export default tsEslint.config(
       "prefer-spread": "error",
     },
   },
-  {
-    files: ["samples/**"],
-    ignores: ["samples/competitors/**"],
-    ...tsEslint.configs.disableTypeChecked,
-    rules: {
-      ...disableTypeChecked.rules,
+    {
+      files: ["samples/**"],
+      ignores: ["samples/competitors/**"],
+      ...configs.disableTypeChecked,
+      rules: {
+        ...disableTypeChecked.rules,
+      },
     },
-  },
-  {
-    files: ["scripts/**", "**/*.config.*", "**/*.cjs", "**/*.mjs"],
-    ...nRecommended,
-    settings: {
-      node: { version: ">=20.11.0" },
+    {
+      files: ["scripts/**", "**/*.config.*", "**/*.cjs", "**/*.mjs"],
+      ...nRecommended,
+      ...configs.disableTypeChecked,
+      settings: {
+        node: { version: ">=20.11.0" },
+      },
+      rules: {
+        ...nRecommended.rules,
+        ...disableTypeChecked.rules,
+        "n/no-extraneous-import": "off",
+        "n/no-process-exit": "off",
+        "n/process-exit-as-throw": "off",
+        "n/no-unsupported-features/node-builtins": "off",
+      },
     },
-    rules: {
-      ...nRecommended.rules,
-      "n/no-extraneous-import": "off",
-      "n/no-process-exit": "off",
-      "n/process-exit-as-throw": "off",
-      "n/no-unsupported-features/node-builtins": "off",
-    },
-  },
     {
       files: ["**/*.cjs", "**/vite.config.ts"],
       ...nodeOverride,
@@ -112,18 +114,6 @@ export default tsEslint.config(
         sourceType: "module",
       },
     },
-  {
-    files: ["eslint.config.js"],
-    ...tsEslint.configs.disableTypeChecked,
-      rules: {
-        ...disableTypeChecked.rules,
-        "import/no-unresolved": "off",
-        "import/order": "off",
-        "import/default": "off",
-        "import/no-named-as-default-member": "off",
-        "import/no-named-as-default": "off",
-      },
-  },
   {
     files: ["samples/competitors/**"],
     languageOptions: {
