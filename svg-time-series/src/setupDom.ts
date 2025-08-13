@@ -32,28 +32,46 @@ class Matrix {
       this.b * m.e + this.d * m.f + this.f,
     );
   }
+
+  private multiplyValues(
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    e: number,
+    f: number,
+  ) {
+    const { a: a0, b: b0, c: c0, d: d0, e: e0, f: f0 } = this;
+    this.a = a0 * a + c0 * b;
+    this.b = b0 * a + d0 * b;
+    this.c = a0 * c + c0 * d;
+    this.d = b0 * c + d0 * d;
+    this.e = a0 * e + c0 * f + e0;
+    this.f = b0 * e + d0 * f + f0;
+    return this;
+  }
   multiplySelf(m: Matrix) {
-    return Object.assign(this, this.multiply(m));
+    return this.multiplyValues(m.a, m.b, m.c, m.d, m.e, m.f);
   }
 
   translate(tx: number, ty: number) {
     return this.multiply(new Matrix(1, 0, 0, 1, tx, ty));
   }
   translateSelf(tx: number, ty: number) {
-    return Object.assign(this, this.translate(tx, ty));
+    return this.multiplyValues(1, 0, 0, 1, tx, ty);
   }
 
   scale(sx: number, sy = sx) {
     return this.multiply(new Matrix(sx, 0, 0, sy, 0, 0));
   }
   scaleSelf(sx: number, sy = sx) {
-    return Object.assign(this, this.scale(sx, sy));
+    return this.multiplyValues(sx, 0, 0, sy, 0, 0);
   }
   scaleNonUniform(sx: number, sy: number) {
     return this.scale(sx, sy);
   }
   scaleNonUniformSelf(sx: number, sy: number) {
-    return Object.assign(this, this.scaleNonUniform(sx, sy));
+    return this.multiplyValues(sx, 0, 0, sy, 0, 0);
   }
 
   inverse() {
