@@ -47,24 +47,29 @@ export interface AxisRenderState {
 export class AxisManager {
   public axes: AxisModel[] = [];
   public x!: ScaleTime<number, number>;
+  private data: ChartData;
 
-  create(treeCount: number): AxisModel[] {
+  constructor(treeCount: number, data: ChartData) {
+    this.data = data;
     this.axes = Array.from({ length: treeCount }, () => new AxisModel());
-    return this.axes;
+  }
+
+  setData(data: ChartData): void {
+    this.data = data;
   }
 
   setXAxis(scale: ScaleTime<number, number>): void {
     this.x = scale;
   }
 
-  updateScales(bIndex: AR1Basis, data: ChartData): void {
-    data.assertAxisBounds(this.axes.length);
-    updateScaleX(this.x, bIndex, data);
-    for (const [i, idxs] of data.seriesByAxis.entries()) {
+  updateScales(bIndex: AR1Basis): void {
+    this.data.assertAxisBounds(this.axes.length);
+    updateScaleX(this.x, bIndex, this.data);
+    for (const [i, idxs] of this.data.seriesByAxis.entries()) {
       if (idxs.length === 0) {
         continue;
       }
-      this.axes[i]!.updateAxisTransform(data, i, bIndex);
+      this.axes[i]!.updateAxisTransform(this.data, i, bIndex);
     }
   }
 }

@@ -17,33 +17,29 @@ const makeChartData = (): ChartData =>
 
 describe("AxisManager", () => {
   it("throws when series axes exceed created axes", () => {
-    const axisManager = new AxisManager();
-    axisManager.setXAxis(scaleTime().range([0, 1]));
-    const axes = axisManager.create(1);
-    axes.forEach((a) => a.scale.range([0, 1]));
-
     const data = makeChartData();
+    const axisManager = new AxisManager(1, data);
+    axisManager.setXAxis(scaleTime().range([0, 1]));
+    axisManager.axes.forEach((a) => a.scale.range([0, 1]));
     const spy = vi.spyOn(data, "assertAxisBounds");
     const bIndexVisible = new AR1Basis(0, 1);
 
     expect(() => {
-      axisManager.updateScales(bIndexVisible, data);
+      axisManager.updateScales(bIndexVisible);
     }).toThrowError("Series axis index 1 out of bounds (max 0)");
     expect(spy).toHaveBeenCalledWith(1);
   });
 
   it("does not throw when series axis indices are within bounds", () => {
-    const axisManager = new AxisManager();
-    axisManager.setXAxis(scaleTime().range([0, 1]));
-    const axes = axisManager.create(2);
-    axes.forEach((a) => a.scale.range([0, 1]));
-
     const data = makeChartData();
+    const axisManager = new AxisManager(2, data);
+    axisManager.setXAxis(scaleTime().range([0, 1]));
+    axisManager.axes.forEach((a) => a.scale.range([0, 1]));
     const spy = vi.spyOn(data, "assertAxisBounds");
     const bIndexVisible = new AR1Basis(0, 1);
 
     expect(() => {
-      axisManager.updateScales(bIndexVisible, data);
+      axisManager.updateScales(bIndexVisible);
     }).not.toThrow();
     expect(spy).toHaveBeenCalledWith(2);
   });

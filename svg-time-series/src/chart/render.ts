@@ -80,7 +80,8 @@ export function refreshRenderState(state: RenderState, data: ChartData): void {
     state.screenXBasis,
   );
 
-  state.axisManager.updateScales(bIndexVisible, data);
+  state.axisManager.setData(data);
+  state.axisManager.updateScales(bIndexVisible);
 
   for (const s of state.series) {
     const t = state.axes.y[s.axisIdx]!.transform;
@@ -157,13 +158,13 @@ export function setupRender(
   ];
   const xScale: ScaleTime<number, number> = scaleTime().range(xRange);
 
-  const axisManager = new AxisManager();
+  const axisManager = new AxisManager(axisCount, data);
   axisManager.setXAxis(xScale);
-  const yAxes = axisManager.create(axisCount);
+  const yAxes = axisManager.axes;
   for (const a of yAxes) {
     a.scale.range(yRange);
   }
-  axisManager.updateScales(data.bIndexFull, data);
+  axisManager.updateScales(data.bIndexFull);
 
   const referenceBasis = DirectProductBasis.fromProjections(
     data.bIndexFull,

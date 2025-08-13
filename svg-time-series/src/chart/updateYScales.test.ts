@@ -11,11 +11,6 @@ import "../setupDom.ts";
 
 describe("updateScales", () => {
   it("updates domains for two axes using ChartData", () => {
-    const axisManager = new AxisManager();
-    axisManager.setXAxis(scaleTime().range([0, 1]));
-    const axes = axisManager.create(2);
-    axes.forEach((a) => a.scale.range([0, 1]));
-
     const source = {
       startTime: 0,
       timeStep: 1,
@@ -26,20 +21,18 @@ describe("updateScales", () => {
         seriesIdx === 0 ? [1, 3][i]! : [10, 30][i]!,
     };
     const data = new ChartData(source);
+    const axisManager = new AxisManager(2, data);
+    axisManager.setXAxis(scaleTime().range([0, 1]));
+    axisManager.axes.forEach((a) => a.scale.range([0, 1]));
 
     const bIndexVisible = new AR1Basis(0, 1);
-    axisManager.updateScales(bIndexVisible, data);
+    axisManager.updateScales(bIndexVisible);
 
-    expect(axes[0]!.scale.domain()).toEqual([1, 3]);
-    expect(axes[1]!.scale.domain()).toEqual([10, 30]);
+    expect(axisManager.axes[0]!.scale.domain()).toEqual([1, 3]);
+    expect(axisManager.axes[1]!.scale.domain()).toEqual([10, 30]);
   });
 
   it("updates domains for multiple axes", () => {
-    const axisManager = new AxisManager();
-    axisManager.setXAxis(scaleTime().range([0, 1]));
-    const axes = axisManager.create(3);
-    axes.forEach((a) => a.scale.range([0, 1]));
-
     const data = {
       seriesAxes: [0, 1, 2, 1],
       seriesByAxis: [[0], [1, 3], [2]],
@@ -104,20 +97,19 @@ describe("updateScales", () => {
         return { tree, min, max, dpRef };
       },
     };
+    const axisManager = new AxisManager(3, data as unknown as ChartData);
+    axisManager.setXAxis(scaleTime().range([0, 1]));
+    axisManager.axes.forEach((a) => a.scale.range([0, 1]));
 
     const bIndexVisible = new AR1Basis(0, 1);
-    axisManager.updateScales(bIndexVisible, data as unknown as ChartData);
+    axisManager.updateScales(bIndexVisible);
 
-    expect(axes[0]!.scale.domain()).toEqual([1, 3]);
-    expect(axes[1]!.scale.domain()).toEqual([10, 30]);
-    expect(axes[2]!.scale.domain()).toEqual([-5, 5]);
+    expect(axisManager.axes[0]!.scale.domain()).toEqual([1, 3]);
+    expect(axisManager.axes[1]!.scale.domain()).toEqual([10, 30]);
+    expect(axisManager.axes[2]!.scale.domain()).toEqual([-5, 5]);
   });
 
   it("throws when a series references an out-of-range axis index", () => {
-    const axisManager = new AxisManager();
-    axisManager.setXAxis(scaleTime().range([0, 1]));
-    axisManager.create(2).forEach((a) => a.scale.range([0, 1]));
-
     const data = {
       seriesAxes: [0, 1, 2],
       seriesByAxis: [[0], [1], [2]],
@@ -182,10 +174,13 @@ describe("updateScales", () => {
         return { tree, min, max, dpRef };
       },
     };
+    const axisManager = new AxisManager(2, data as unknown as ChartData);
+    axisManager.setXAxis(scaleTime().range([0, 1]));
+    axisManager.axes.forEach((a) => a.scale.range([0, 1]));
 
     const bIndexVisible = new AR1Basis(0, 1);
     expect(() => {
-      axisManager.updateScales(bIndexVisible, data as unknown as ChartData);
+      axisManager.updateScales(bIndexVisible);
     }).toThrow(/axis index 2/i);
   });
 });
