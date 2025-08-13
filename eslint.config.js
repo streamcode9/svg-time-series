@@ -10,12 +10,9 @@ import n from "eslint-plugin-n";
 const disableTypeChecked = configs.disableTypeChecked;
 const nRecommended = n.configs["flat/recommended"];
 const nodeOverride = {
-  languageOptions: {
-    ...disableTypeChecked.languageOptions,
-    globals: globals.node,
-  },
+  ...disableTypeChecked,
+  languageOptions: { globals: globals.node },
   rules: {
-    ...disableTypeChecked.rules,
     "import/no-unresolved": "off",
     "import/order": "off",
     "import/default": "off",
