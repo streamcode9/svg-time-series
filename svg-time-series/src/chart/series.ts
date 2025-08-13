@@ -6,7 +6,7 @@ import { createSeriesNodes } from "./render/utils.ts";
 
 function createLine(seriesIdx: number): Line<number[]> {
   return line<number[]>()
-    .defined((d) => !isNaN(d[seriesIdx]!))
+    .defined((d) => !Number.isNaN(d[seriesIdx]!))
     .x((_, i) => i)
     .y((d) => d[seriesIdx]!);
 }
