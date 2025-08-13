@@ -27,4 +27,18 @@ describe("SlidingWindow", () => {
         ]),
     ).not.toThrow();
   });
+
+  it("throws when appended values have different length", () => {
+    const sw = new SlidingWindow([[0, 1]]);
+    expect(() => {
+      sw.append(1);
+    }).toThrow(/requires 2 values, received 1/);
+  });
+
+  it("throws when appended values contain infinite numbers", () => {
+    const sw = new SlidingWindow([[0]]);
+    expect(() => {
+      sw.append(Infinity);
+    }).toThrow(/series 0.*finite number or NaN/);
+  });
 });

@@ -7,46 +7,15 @@ export class SlidingWindow {
     if (initialData.length === 0) {
       throw new Error("SlidingWindow requires a non-empty data array");
     }
-    const seriesCount = initialData[0]!.length;
+    this.seriesCount = initialData[0]!.length;
     initialData.forEach((row, rowIdx) => {
-      if (row.length !== seriesCount) {
-        throw new Error(
-          `SlidingWindow requires row ${String(rowIdx)} to have ${String(
-            seriesCount,
-          )} values, received ${String(row.length)}`,
-        );
-      }
-      row.forEach((val, valueIdx) => {
-        if (!Number.isFinite(val) && !Number.isNaN(val)) {
-          throw new Error(
-            `SlidingWindow requires row ${String(rowIdx)} series ${String(
-              valueIdx,
-            )} value to be a finite number or NaN`,
-          );
-        }
-      });
+      this.validateValues(row, rowIdx);
     });
     this.data = initialData;
-    this.seriesCount = seriesCount;
   }
 
   append(...values: number[]): void {
-    if (values.length !== this.seriesCount) {
-      throw new Error(
-        `SlidingWindow.append requires ${String(
-          this.seriesCount,
-        )} values, received ${String(values.length)}`,
-      );
-    }
-    values.forEach((val, valueIdx) => {
-      if (!Number.isFinite(val) && !Number.isNaN(val)) {
-        throw new Error(
-          `SlidingWindow.append requires series ${String(
-            valueIdx,
-          )} value to be a finite number or NaN`,
-        );
-      }
-    });
+    this.validateValues(values);
     this.data.push(values);
     this.data.shift();
     this.startIndex++;
@@ -54,5 +23,38 @@ export class SlidingWindow {
 
   get length(): number {
     return this.data.length;
+  }
+
+  private validateValues(row: number[], rowIdx?: number): void {
+    if (row.length !== this.seriesCount) {
+      if (rowIdx === undefined) {
+        throw new Error(
+          `SlidingWindow.append requires ${String(
+            this.seriesCount,
+          )} values, received ${String(row.length)}`,
+        );
+      }
+      throw new Error(
+        `SlidingWindow requires row ${String(rowIdx)} to have ${String(
+          this.seriesCount,
+        )} values, received ${String(row.length)}`,
+      );
+    }
+    row.forEach((val, valueIdx) => {
+      if (!Number.isFinite(val) && !Number.isNaN(val)) {
+        if (rowIdx === undefined) {
+          throw new Error(
+            `SlidingWindow.append requires series ${String(
+              valueIdx,
+            )} value to be a finite number or NaN`,
+          );
+        }
+        throw new Error(
+          `SlidingWindow requires row ${String(rowIdx)} series ${String(
+            valueIdx,
+          )} value to be a finite number or NaN`,
+        );
+      }
+    });
   }
 }
