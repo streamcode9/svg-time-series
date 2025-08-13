@@ -48,6 +48,17 @@ describe("updateScales", () => {
         [3, 30, 5, 25],
       ],
       bIndexFull: new AR1Basis(0, 1),
+      assertAxisBounds(axisCount: number) {
+        this.seriesByAxis.forEach((series: number[], i: number) => {
+          if (i >= axisCount && series.length > 0) {
+            throw new Error(
+              `Series axis index ${String(i)} out of bounds (max ${String(
+                axisCount - 1,
+              )})`,
+            );
+          }
+        });
+      },
       buildAxisTree(axis: number) {
         const idxs = this.seriesByAxis[axis] ?? [];
         return {
@@ -115,6 +126,17 @@ describe("updateScales", () => {
         [1, 20, 5],
       ],
       bIndexFull: new AR1Basis(0, 1),
+      assertAxisBounds(axisCount: number) {
+        this.seriesByAxis.forEach((series: number[], i: number) => {
+          if (i >= axisCount && series.length > 0) {
+            throw new Error(
+              `Series axis index ${String(i)} out of bounds (max ${String(
+                axisCount - 1,
+              )})`,
+            );
+          }
+        });
+      },
       buildAxisTree(axis: number) {
         const idxs = this.seriesByAxis[axis] ?? [];
         return {

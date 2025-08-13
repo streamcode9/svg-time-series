@@ -121,6 +121,21 @@ describe("ChartData", () => {
     expect(() => new ChartData(source)).toThrow(/0 or 1/);
   });
 
+  it("throws when series axis index exceeds axisCount", () => {
+    const cd = new ChartData(
+      makeSource(
+        [
+          [0, 0],
+          [1, 1],
+        ],
+        [0, 1],
+      ),
+    );
+    expect(() => {
+      cd.assertAxisBounds(1);
+    }).toThrowError("Series axis index 1 out of bounds (max 0)");
+  });
+
   it("updates data and time mapping on append", () => {
     const source = makeSource(
       [

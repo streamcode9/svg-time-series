@@ -58,17 +58,11 @@ export class AxisManager {
   }
 
   updateScales(bIndex: AR1Basis, data: ChartData): void {
+    data.assertAxisBounds(this.axes.length);
     updateScaleX(this.x, bIndex, data);
     for (const [i, idxs] of data.seriesByAxis.entries()) {
       if (idxs.length === 0) {
         continue;
-      }
-      if (i >= this.axes.length) {
-        throw new Error(
-          `Series axis index ${String(i)} out of bounds (max ${String(
-            this.axes.length - 1,
-          )})`,
-        );
       }
       this.axes[i]!.updateAxisTransform(data, i, bIndex);
     }

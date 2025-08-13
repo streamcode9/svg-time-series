@@ -142,6 +142,16 @@ export class ChartData {
     return Math.min(Math.max(idx, 0), this.window.length - 1);
   }
 
+  public assertAxisBounds(axisCount: number): void {
+    this.seriesByAxis.forEach((series, i) => {
+      if (i >= axisCount && series.length > 0) {
+        throw new Error(
+          `Series axis index ${String(i)} out of bounds (max ${String(axisCount - 1)})`,
+        );
+      }
+    });
+  }
+
   buildAxisTree(axis: number): SegmentTree<IMinMax> {
     if (axis !== 0 && axis !== 1) {
       throw new Error(
