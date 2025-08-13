@@ -125,7 +125,7 @@ export class TimeSeriesChart {
   };
 
   public onHover = (x: number) => {
-    let idx = this.state.xTransform.fromScreenToModelX(x);
+    let idx = Math.round(this.state.xTransform.fromScreenToModelX(x));
     idx = this.data.clampIndex(idx);
     this.legendController.highlightIndex(idx);
   };

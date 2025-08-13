@@ -138,4 +138,19 @@ describe("TimeSeriesChart hover clamping", () => {
 
     expect(legendController.highlightIndex).toHaveBeenCalledWith(2);
   });
+
+  it("highlights nearest point for fractional positions", () => {
+    const { onHover, legendController } = createChart([[10], [20], [30]]);
+    vi.runAllTimers();
+    legendController.highlightIndex.mockClear();
+
+    onHover(1.4);
+    vi.runAllTimers();
+    expect(legendController.highlightIndex).toHaveBeenCalledWith(1);
+
+    legendController.highlightIndex.mockClear();
+    onHover(1.6);
+    vi.runAllTimers();
+    expect(legendController.highlightIndex).toHaveBeenCalledWith(2);
+  });
 });
