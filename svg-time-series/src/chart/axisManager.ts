@@ -14,15 +14,29 @@ export class AxisModel {
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
   tree: SegmentTree<IMinMax>;
-  min: number;
-  max: number;
 
   constructor() {
     this.transform = new ViewportTransform();
-    this.scale = scaleLinear<number, number>();
+    this.scale = scaleLinear<number, number>().domain([0, 1]);
     this.tree = new SegmentTree([minMaxIdentity], buildMinMax, minMaxIdentity);
-    this.min = 0;
-    this.max = 1;
+  }
+
+  get min(): number {
+    return this.scale.domain()[0]!;
+  }
+
+  set min(v: number) {
+    const [, max] = this.scale.domain();
+    this.scale.domain([v, max!]);
+  }
+
+  get max(): number {
+    return this.scale.domain()[1]!;
+  }
+
+  set max(v: number) {
+    const [min] = this.scale.domain();
+    this.scale.domain([min!, v]);
   }
 
   updateAxisTransform(
@@ -32,8 +46,6 @@ export class AxisModel {
   ): void {
     const { tree, min, max, dpRef } = data.axisTransform(axisIdx, bIndex);
     this.tree = tree;
-    this.min = min;
-    this.max = max;
     this.transform.onReferenceViewWindowResize(dpRef);
     this.scale.domain([min, max]);
   }
