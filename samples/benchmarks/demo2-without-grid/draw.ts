@@ -45,10 +45,10 @@ function createSegmentTree<T>(
   return new SegmentTree(data, buildMinMax, minMaxIdentity);
 }
 
-function drawProc(f: (...params: unknown[]) => void) {
+function drawProc<T extends unknown[]>(f: (...params: T) => void) {
   let requested = false;
 
-  return function (...params: unknown[]) {
+  return function (...params: T) {
     if (!requested) {
       requested = true;
       runTimeout(() => {
@@ -109,41 +109,43 @@ export class TimeSeriesChart {
     this.drawNewData();
   }
 
-  public zoom = drawProc(
-    function (param: [D3ZoomEvent<SVGSVGElement, unknown>]) {
-      const zoomTransform = param[0];
-      zoom().transform(selectAll(".zoom"), zoomTransform);
-      const translateX = zoomTransform.x;
-      const scaleX = zoomTransform.k;
+  public zoom = drawProc(([event]: [D3ZoomEvent<SVGSVGElement, unknown>]) => {
+    const { transform: zoomTransform } = event;
+    zoom().transform(
+      selectAll<SVGRectElement, unknown>(".zoom"),
+      zoomTransform,
+    );
+    const translateX = zoomTransform.x;
+    const scaleX = zoomTransform.k;
 
-      this.chart.rx = zoomTransform.rescaleX(this.chart.x);
-      const domainX = this.chart.rx.domain();
-      const ySubInterval = this.getZoomIntervalY(
-        domainX,
-        this.chart.data[0].values.length,
-      );
-      const minMax = this.tree.query(ySubInterval[0], ySubInterval[1]);
-      const domainY = [minMax.min, minMax.max];
-      const newRangeY = [this.chart.y(domainY[0]), this.chart.y(domainY[1])];
-      const oldRangeY = this.chart.y.range();
-      const scaleY = oldRangeY[0] / (newRangeY[0] - newRangeY[1]);
-      const translateY = scaleY * (oldRangeY[1] - newRangeY[1]);
+    this.chart.rx = zoomTransform.rescaleX(this.chart.x);
+    const domainX = this.chart.rx.domain();
+    const ySubInterval = this.getZoomIntervalY(
+      domainX,
+      this.chart.data[0].values.length,
+    );
+    const minMax = this.tree.query(ySubInterval[0], ySubInterval[1]);
+    const domainY = [minMax.min, minMax.max];
+    const newRangeY = [this.chart.y(domainY[0]), this.chart.y(domainY[1])];
+    const oldRangeY = this.chart.y.range();
+    const scaleY = oldRangeY[0] / (newRangeY[0] - newRangeY[1]);
+    const translateY = scaleY * (oldRangeY[1] - newRangeY[1]);
 
-      this.chart.view.attr(
-        "transform",
-        `translate(${String(translateX)},${String(translateY)}) scale(${String(
-          scaleX,
-        )},${String(scaleY)})`,
-      );
-    }.bind(this),
-  );
+    this.chart.view.attr(
+      "transform",
+      `translate(${String(translateX)},${String(translateY)}) scale(${String(
+        scaleX,
+      )},${String(scaleY)})`,
+    );
+  });
 
   private drawChart(
     svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
     data: { NY: number; SF: number }[],
   ) {
-    const width = svg.node().parentNode.clientWidth,
-      height = svg.node().parentNode.clientHeight;
+    const parent = svg.node()!.parentNode as HTMLElement;
+    const width = parent.clientWidth,
+      height = parent.clientHeight;
     svg.attr("width", width);
     svg.attr("height", height);
 
@@ -234,28 +236,23 @@ export class TimeSeriesChart {
     return [from, to];
   }
 
-  private drawNewData = drawProc(
-    function () {
-      const stepsToDraw = this.missedStepsCount;
-      this.missedStepsCount = 0;
+  private drawNewData = drawProc(() => {
+    const stepsToDraw = this.missedStepsCount;
+    this.missedStepsCount = 0;
 
-      this.minX = this.calcDate(stepsToDraw, this.minX);
-      this.maxX = this.calcDate(
-        this.chart.data[0].values.length - 1,
-        this.minX,
-      );
+    this.minX = this.calcDate(stepsToDraw, this.minX);
+    this.maxX = this.calcDate(this.chart.data[0].values.length - 1, this.minX);
 
-      const minimumRX = this.calcDate(stepsToDraw, this.chart.rx.domain()[0]);
-      const maximumRX = this.calcDate(stepsToDraw, this.chart.rx.domain()[1]);
+    const minimumRX = this.calcDate(stepsToDraw, this.chart.rx.domain()[0]);
+    const maximumRX = this.calcDate(stepsToDraw, this.chart.rx.domain()[1]);
 
-      this.chart.x.domain([this.minX, this.maxX]);
-      this.chart.view
-        .selectAll<SVGPathElement, IChartData>("path")
-        .attr("d", (d: IChartData) => this.chart.line(d.values));
+    this.chart.x.domain([this.minX, this.maxX]);
+    this.chart.view
+      .selectAll<SVGPathElement, IChartData>("path")
+      .attr("d", (d) => this.chart.line(d.values));
 
-      this.chart.rx.domain([minimumRX, maximumRX]);
-    }.bind(this),
-  );
+    this.chart.rx.domain([minimumRX, maximumRX]);
+  });
 
   private calcDate(index: number, offset: Date) {
     return new Date(index * this.stepX + offset.getTime());

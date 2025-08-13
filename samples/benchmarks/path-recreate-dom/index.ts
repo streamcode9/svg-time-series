@@ -1,6 +1,10 @@
-﻿import { select, selectAll } from "d3-selection";
+import { select, selectAll } from "d3-selection";
 import { measure, measureOnce, onCsv } from "../bench.ts";
 import { TimeSeriesChart } from "./draw.ts";
+
+interface PathDataSVGPathElement extends SVGPathElement {
+  setPathData: (pathData: { type: string; values: [number, number] }[]) => void;
+}
 
 onCsv((data) => {
   const dataLength = data.length;
@@ -71,7 +75,9 @@ onCsv((data) => {
     }
 
     // Draw
-    pathElement.setPathData(pathsData[cityIdx]);
+    (pathElement as unknown as PathDataSVGPathElement).setPathData(
+      pathsData[cityIdx],
+    );
   };
 
   selectAll("g.view")
@@ -81,12 +87,7 @@ onCsv((data) => {
     .append("path");
 
   selectAll("svg").each(function (_, i: number) {
-    return new TimeSeriesChart(
-      select(this as SVGSVGElement),
-      dataLength,
-      drawLine,
-      i,
-    );
+    new TimeSeriesChart(select(this as SVGSVGElement), dataLength, drawLine, i);
   });
 
   measure(3, ({ fps }) => {

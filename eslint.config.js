@@ -113,16 +113,6 @@ export default config(
       },
     },
     {
-      files: ["samples/benchmarks/**"],
-      rules: {
-        "@typescript-eslint/no-unsafe-argument": "off",
-        "@typescript-eslint/no-unsafe-assignment": "off",
-        "@typescript-eslint/no-unsafe-member-access": "off",
-        "@typescript-eslint/no-unsafe-call": "off",
-        "@typescript-eslint/no-unsafe-return": "off",
-      },
-    },
-    {
       files: ["samples/competitors/**"],
       languageOptions: {
         globals: { ...globals.browser, d3: "readonly" },

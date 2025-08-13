@@ -3,6 +3,18 @@ import { select, selectAll } from "d3-selection";
 import { measure, measureOnce, onCsv } from "../bench.ts";
 import { TimeSeriesChart } from "./draw.ts";
 
+type SVGPathSeg = unknown;
+
+interface PathSegSVGPathElement extends SVGPathElement {
+  pathSegList: {
+    appendItem: (item: SVGPathSeg) => void;
+    replaceItem: (item: SVGPathSeg, index: number) => void;
+    removeItem: (index: number) => void;
+  };
+  createSVGPathSegMovetoAbs: (x: number, y: number) => SVGPathSeg;
+  createSVGPathSegLinetoAbs: (x: number, y: number) => SVGPathSeg;
+}
+
 onCsv((data) => {
   const dataLength = data.length;
 
@@ -72,28 +84,30 @@ onCsv((data) => {
       pathsData[cityIdx].shift();
     }
 
+    const path = pathElement as unknown as PathSegSVGPathElement;
+
     // Draw new point
     const point =
       newData[cityIdx].type == "M"
-        ? pathElement.createSVGPathSegMovetoAbs(
+        ? path.createSVGPathSegMovetoAbs(
             newData[cityIdx].values[0],
             newData[cityIdx].values[1],
           )
-        : pathElement.createSVGPathSegLinetoAbs(
+        : path.createSVGPathSegLinetoAbs(
             newData[cityIdx].values[0],
             newData[cityIdx].values[1],
           );
-    pathElement.pathSegList.appendItem(point);
+    path.pathSegList.appendItem(point);
 
     // Change start point
-    pathElement.pathSegList.replaceItem(
-      pathElement.createSVGPathSegMovetoAbs(
+    path.pathSegList.replaceItem(
+      path.createSVGPathSegMovetoAbs(
         pathsData[cityIdx][0].values[0],
         pathsData[cityIdx][0].values[1],
       ),
       0,
     );
-    pathElement.pathSegList.removeItem(1);
+    path.pathSegList.removeItem(1);
   };
 
   selectAll("g.view")
@@ -109,22 +123,23 @@ onCsv((data) => {
       .select("g.view")
       .selectAll<SVGPathElement, number>("path");
     paths.each(function (this: SVGPathElement, cityIdx: number) {
-      this.pathSegList.appendItem(
-        this.createSVGPathSegMovetoAbs(0, pathsData[cityIdx][0].values[1]),
+      const path = this as unknown as PathSegSVGPathElement;
+      path.pathSegList.appendItem(
+        path.createSVGPathSegMovetoAbs(0, pathsData[cityIdx][0].values[1]),
       );
 
       pathsData[cityIdx].forEach(
         (d: { type: string; values: [number, number] }, i: number) => {
           const point =
             d.type == "M"
-              ? this.createSVGPathSegMovetoAbs(i, d.values[1])
-              : this.createSVGPathSegLinetoAbs(i, d.values[1]);
-          this.pathSegList.appendItem(point);
+              ? path.createSVGPathSegMovetoAbs(i, d.values[1])
+              : path.createSVGPathSegLinetoAbs(i, d.values[1]);
+          path.pathSegList.appendItem(point);
         },
       );
     });
 
-    return new TimeSeriesChart(svg, dataLength, drawLine, i);
+    new TimeSeriesChart(svg, dataLength, drawLine, i);
   });
 
   measure(3, ({ fps }) => {

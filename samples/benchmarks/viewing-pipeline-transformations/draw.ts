@@ -21,13 +21,14 @@ export class TimeSeriesChart {
   ) {
     this.stepX = stepX;
 
-    this.SVGNode = svg.node();
+    this.SVGNode = svg.node()!;
     this.vwTransform = new VWTransform.ViewWindowTransform(
       this.SVGNode.transform.baseVal,
     );
 
-    const width = svg.node().parentNode.clientWidth,
-      height = svg.node().parentNode.clientHeight;
+    const parent = svg.node()!.parentNode as HTMLElement;
+    const width = parent.clientWidth,
+      height = parent.clientHeight;
     svg.attr("width", width);
     svg.attr("height", height);
 
