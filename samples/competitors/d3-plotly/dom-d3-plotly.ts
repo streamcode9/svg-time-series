@@ -20,8 +20,13 @@ const layout = {
   yaxis: { showgrid: false, showticklabels: false },
   xaxis: { showgrid: false, showticklabels: false },
 };
-async function render() {
+async function render(): Promise<void> {
   await newPlot(container, generateData(), layout, { staticPlot: true });
-  window.requestAnimationFrame(() => console.log(Date.now() - start));
+  window.requestAnimationFrame(() => {
+    console.log(Date.now() - start);
+  });
 }
-window.requestAnimationFrame(render);
+
+window.requestAnimationFrame(() => {
+  void render();
+});

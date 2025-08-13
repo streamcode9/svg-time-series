@@ -129,17 +129,6 @@ export default tsEslint.config(
     languageOptions: {
       globals: { ...globals.browser, d3: "readonly" },
     },
-    rules: {
-      "@typescript-eslint/no-unsafe-assignment": "off",
-      "@typescript-eslint/no-unsafe-call": "off",
-      "@typescript-eslint/no-unsafe-member-access": "off",
-      "@typescript-eslint/no-unsafe-argument": "off",
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-unsafe-return": "off",
-      "@typescript-eslint/restrict-plus-operands": "off",
-      "@typescript-eslint/no-confusing-void-expression": "off",
-      "@typescript-eslint/no-misused-promises": "off",
-    },
   },
   {
     files: ["**/*.test.ts"],
