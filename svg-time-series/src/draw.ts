@@ -98,9 +98,8 @@ export class TimeSeriesChart {
 
   public dispose() {
     this.zoomState.destroy();
-    this.clearEventListeners();
-    this.clearSeries();
-    this.removeAxes();
+    this.zoomArea.on("mousemove", null).on("mouseleave", null);
+    this.state.destroy();
     this.zoomArea.remove();
     this.legendController.destroy();
   }
@@ -139,30 +138,5 @@ export class TimeSeriesChart {
     this.state.seriesRenderer.draw(this.data.data);
     this.zoomState.refresh();
     this.legendController.refresh();
-  }
-
-  private clearEventListeners(): void {
-    this.zoomArea.on("mousemove", null).on("mouseleave", null);
-  }
-
-  private clearSeries(): void {
-    for (const s of this.state.series) {
-      s.path.remove();
-      s.view.remove();
-    }
-    this.state.series.length = 0;
-  }
-
-  private removeAxes(): void {
-    const axisX = this.state.axes.x;
-    if (axisX.g) {
-      axisX.g.remove();
-      axisX.g = undefined;
-    }
-    for (const r of this.state.axisRenders) {
-      r.g.remove();
-    }
-    this.state.axisRenders.length = 0;
-    this.state.axes.y.length = 0;
   }
 }

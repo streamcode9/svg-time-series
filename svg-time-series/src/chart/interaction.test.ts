@@ -325,7 +325,7 @@ describe("chart interaction", () => {
     }).toThrow();
   });
 
-  it("dispose removes event listeners and DOM elements", () => {
+  it("dispose cleans up resources", () => {
     const parent = document.createElement("div");
     Object.defineProperty(parent, "clientWidth", {
       value: 10,
@@ -373,6 +373,10 @@ describe("chart interaction", () => {
       () => {},
       mouseMoveHandler,
     );
+    const destroySpy = vi.spyOn(
+      (chart as unknown as { state: { destroy: () => void } }).state,
+      "destroy",
+    );
 
     const zoomRect = svgEl.querySelector("rect.zoom") as SVGRectElement;
     expect(zoomRect).not.toBeNull();
@@ -381,6 +385,8 @@ describe("chart interaction", () => {
     expect(mouseMoveHandler).toHaveBeenCalledTimes(1);
 
     chart.dispose();
+
+    expect(destroySpy).toHaveBeenCalled();
 
     expect(svgEl.querySelector("rect.zoom")).toBeNull();
     expect(svgEl.querySelectorAll("circle").length).toBe(0);
