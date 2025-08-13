@@ -1,5 +1,4 @@
 class Matrix {
-  [key: string]: unknown;
   constructor(
     public a = 1,
     public b = 0,
@@ -102,7 +101,6 @@ class Matrix {
 }
 
 class Point {
-  [key: string]: unknown;
   constructor(
     public x = 0,
     public y = 0,
@@ -120,12 +118,17 @@ class Point {
   }
 }
 
-const globalObj = globalThis as unknown as Record<string, unknown>;
-if (typeof globalObj["DOMMatrix"] === "undefined") {
-  globalObj["DOMMatrix"] = Matrix;
+interface DOMGlobals {
+  DOMMatrix?: typeof Matrix;
+  DOMPoint?: typeof Point;
 }
-if (typeof globalObj["DOMPoint"] === "undefined") {
-  globalObj["DOMPoint"] = Point;
+
+const globalObj = globalThis as unknown as DOMGlobals;
+if (typeof globalObj.DOMMatrix === "undefined") {
+  globalObj.DOMMatrix = Matrix;
+}
+if (typeof globalObj.DOMPoint === "undefined") {
+  globalObj.DOMPoint = Point;
 }
 if (typeof SVGSVGElement !== "undefined") {
   (

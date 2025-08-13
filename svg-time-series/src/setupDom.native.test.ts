@@ -3,9 +3,13 @@ import { describe, it, expect, vi } from "vitest";
 // Ensure native DOMMatrix/DOMPoint are preserved
 describe("setupDom", () => {
   it("does not override existing DOMMatrix and DOMPoint", async () => {
-    const globalObj = globalThis as Record<string, unknown>;
-    const originalMatrix = globalObj["DOMMatrix"];
-    const originalPoint = globalObj["DOMPoint"];
+    interface DOMGlobals {
+      DOMMatrix?: unknown;
+      DOMPoint?: unknown;
+    }
+    const globalObj = globalThis as DOMGlobals;
+    const originalMatrix = globalObj.DOMMatrix;
+    const originalPoint = globalObj.DOMPoint;
 
     class NativeMatrix {
       // dummy property to satisfy lint
@@ -14,24 +18,24 @@ describe("setupDom", () => {
     class NativePoint {
       p = 0;
     }
-    globalObj["DOMMatrix"] = NativeMatrix;
-    globalObj["DOMPoint"] = NativePoint;
+    globalObj.DOMMatrix = NativeMatrix;
+    globalObj.DOMPoint = NativePoint;
 
     vi.resetModules();
     await import("./setupDom.ts");
 
-    expect(globalObj["DOMMatrix"]).toBe(NativeMatrix);
-    expect(globalObj["DOMPoint"]).toBe(NativePoint);
+    expect(globalObj.DOMMatrix).toBe(NativeMatrix);
+    expect(globalObj.DOMPoint).toBe(NativePoint);
 
     if (originalMatrix === undefined) {
-      delete globalObj["DOMMatrix"];
+      delete globalObj.DOMMatrix;
     } else {
-      globalObj["DOMMatrix"] = originalMatrix;
+      globalObj.DOMMatrix = originalMatrix;
     }
     if (originalPoint === undefined) {
-      delete globalObj["DOMPoint"];
+      delete globalObj.DOMPoint;
     } else {
-      globalObj["DOMPoint"] = originalPoint;
+      globalObj.DOMPoint = originalPoint;
     }
   });
 });
