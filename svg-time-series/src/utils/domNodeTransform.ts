@@ -5,6 +5,24 @@ export function isSVGMatrix(
   return matrix.constructor === svg.createSVGMatrix().constructor;
 }
 
+export function domMatrixToSVGMatrix(
+  svg: SVGSVGElement,
+  m: DOMMatrix,
+): SVGMatrix {
+  if (isSVGMatrix(m, svg)) {
+    return m;
+  }
+  const sm = svg.createSVGMatrix();
+  const dm = m as DOMMatrix;
+  sm.a = dm.a;
+  sm.b = dm.b;
+  sm.c = dm.c;
+  sm.d = dm.d;
+  sm.e = dm.e;
+  sm.f = dm.f;
+  return sm;
+}
+
 export function updateNode(n: SVGGraphicsElement, m: DOMMatrix) {
   const svgTransformList = n.transform.baseVal;
   const svg = (
@@ -13,20 +31,7 @@ export function updateNode(n: SVGGraphicsElement, m: DOMMatrix) {
       : n.ownerSVGElement
   )!;
 
-  let matrix: SVGMatrix;
-  if (isSVGMatrix(m, svg)) {
-    matrix = m;
-  } else {
-    const sm = svg.createSVGMatrix();
-    const dm = m as DOMMatrix;
-    sm.a = dm.a;
-    sm.b = dm.b;
-    sm.c = dm.c;
-    sm.d = dm.d;
-    sm.e = dm.e;
-    sm.f = dm.f;
-    matrix = sm;
-  }
+  const matrix = domMatrixToSVGMatrix(svg, m);
   const t = svgTransformList.createSVGTransformFromMatrix(matrix);
   svgTransformList.initialize(t);
 }

@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { Matrix } from "../setupDom.ts";
-import { updateNode, isSVGMatrix } from "./domNodeTransform.ts";
+import {
+  updateNode,
+  isSVGMatrix,
+  domMatrixToSVGMatrix,
+} from "./domNodeTransform.ts";
 
 class FakeSVGMatrix {
   constructor(
@@ -67,6 +71,30 @@ describe("updateNode", () => {
     expect(last).toBeInstanceOf(FakeSVGMatrix);
     expect(last.e).toBeCloseTo(5);
     expect(last.f).toBeCloseTo(6);
+  });
+});
+
+describe("domMatrixToSVGMatrix", () => {
+  it("returns same matrix for SVGMatrix", () => {
+    const svg = new FakeSVGSVGElement();
+    const matrix = svg.createSVGMatrix();
+    const result = domMatrixToSVGMatrix(
+      svg as unknown as SVGSVGElement,
+      matrix as unknown as DOMMatrix,
+    );
+    expect(result).toBe(matrix);
+  });
+
+  it("converts DOMMatrix to SVGMatrix", () => {
+    const svg = new FakeSVGSVGElement();
+    const domMatrix = new Matrix().translate(5, 6);
+    const result = domMatrixToSVGMatrix(
+      svg as unknown as SVGSVGElement,
+      domMatrix as unknown as DOMMatrix,
+    );
+    expect(result).toBeInstanceOf(FakeSVGMatrix);
+    expect(result.e).toBeCloseTo(5);
+    expect(result.f).toBeCloseTo(6);
   });
 });
 
