@@ -797,7 +797,7 @@ describe("ZoomState", () => {
 
     expect(() => {
       zs.setScaleExtent([min, max]);
-    }).toThrow(/scaleExtent must be two finite, positive numbers/);
+    }).toThrow(new RegExp(`Received: \\[${String(min)},${String(max)}\\]`));
   });
 
   it("rejects scale extents that do not contain exactly two values", () => {
@@ -820,10 +820,10 @@ describe("ZoomState", () => {
 
     expect(() => {
       zs.setScaleExtent([1] as unknown as [number, number]);
-    }).toThrow(/scaleExtent must be two finite, positive numbers/);
+    }).toThrow(/Received: \[1\]/);
     expect(() => {
       zs.setScaleExtent([1, 2, 3] as unknown as [number, number]);
-    }).toThrow(/scaleExtent must be two finite, positive numbers/);
+    }).toThrow(/Received: \[1,2,3\]/);
   });
 
   it.each([
@@ -859,7 +859,7 @@ describe("ZoomState", () => {
           undefined,
           { scaleExtent: [min, max] },
         ),
-    ).toThrow(/scaleExtent must be two finite, positive numbers/);
+    ).toThrow(new RegExp(`Received: \\[${String(min)},${String(max)}\\]`));
   });
 
   it("rejects constructor scale extents without exactly two values", () => {
@@ -884,7 +884,7 @@ describe("ZoomState", () => {
           undefined,
           { scaleExtent: [1] as unknown as [number, number] },
         ),
-    ).toThrow(/scaleExtent must be two finite, positive numbers/);
+    ).toThrow(/Received: \[1\]/);
     expect(
       () =>
         new ZoomState(
@@ -899,6 +899,6 @@ describe("ZoomState", () => {
           undefined,
           { scaleExtent: [1, 2, 3] as unknown as [number, number] },
         ),
-    ).toThrow(/scaleExtent must be two finite, positive numbers/);
+    ).toThrow(/Received: \[1,2,3\]/);
   });
 });

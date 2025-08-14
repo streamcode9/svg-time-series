@@ -11,10 +11,10 @@ describe("ZoomState.validateScaleExtent", () => {
   it("rejects arrays without exactly two elements", () => {
     expect(() => {
       ZoomState.validateScaleExtent([1] as unknown);
-    }).toThrow(/Received: 1/);
+    }).toThrow(/Received: \[1\]/);
     expect(() => {
       ZoomState.validateScaleExtent([1, 2, 3] as unknown);
-    }).toThrow(/Received: 1,2,3/);
+    }).toThrow(/Received: \[1,2,3\]/);
   });
 
   it("rejects non-positive numbers", () => {
@@ -30,5 +30,9 @@ describe("ZoomState.validateScaleExtent", () => {
     expect(() => {
       ZoomState.validateScaleExtent([a, b]);
     }).toThrow(new RegExp(`Received: \\[${String(a)},${String(b)}\\]`));
+  });
+
+  it("returns extent when valid", () => {
+    expect(ZoomState.validateScaleExtent([1, 2])).toEqual([1, 2]);
   });
 });

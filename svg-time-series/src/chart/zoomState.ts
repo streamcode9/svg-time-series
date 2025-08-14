@@ -3,6 +3,7 @@ import { zoom as d3zoom, zoomIdentity, zoomTransform } from "d3-zoom";
 import type { D3ZoomEvent, ZoomBehavior, ZoomTransform } from "d3-zoom";
 import { ZoomScheduler, sameTransform } from "./zoomScheduler.ts";
 import type { RenderState } from "./render.ts";
+import { assertPositiveFinite, assertTupleSize } from "./validation.ts";
 
 export { sameTransform };
 
@@ -15,31 +16,22 @@ export class ZoomState {
   private zoomScheduler: ZoomScheduler;
   private scaleExtent: [number, number];
 
-  public static validateScaleExtent(extent: unknown) {
-    if (!Array.isArray(extent)) {
-      throw new Error(
-        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: ${String(extent)}`,
+  public static validateScaleExtent(extent: unknown): [number, number] {
+    const error = () =>
+      new Error(
+        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: ${Array.isArray(extent) ? `[${extent.join(",")}]` : String(extent)}`,
       );
-    }
-    const arr = extent as [number, number];
-    if (extent.length !== 2) {
-      throw new Error(
-        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: ${arr.join(",")}`,
-      );
-    }
-    const [min, max] = arr;
-    if (
-      typeof min !== "number" ||
-      typeof max !== "number" ||
-      !Number.isFinite(min) ||
-      !Number.isFinite(max) ||
-      min <= 0 ||
-      max <= 0 ||
-      min >= max
-    ) {
-      throw new Error(
-        `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: [${arr.join(",")}]`,
-      );
+    try {
+      assertTupleSize(extent, 2, "scaleExtent");
+      const [min, max] = extent as [unknown, unknown];
+      assertPositiveFinite(min, "scaleExtent[0]");
+      assertPositiveFinite(max, "scaleExtent[1]");
+      if (min >= max) {
+        throw error();
+      }
+      return [min, max];
+    } catch {
+      throw error();
     }
   }
 
@@ -52,8 +44,7 @@ export class ZoomState {
     ) => void = () => {},
     options: IZoomStateOptions = { scaleExtent: [1, 40] },
   ) {
-    ZoomState.validateScaleExtent(options.scaleExtent);
-    this.scaleExtent = options.scaleExtent;
+    this.scaleExtent = ZoomState.validateScaleExtent(options.scaleExtent);
     this.zoomBehavior = d3zoom<SVGRectElement, unknown>()
       .scaleExtent(this.scaleExtent)
       .translateExtent([
@@ -85,11 +76,10 @@ export class ZoomState {
   };
 
   public setScaleExtent = (extent: [number, number]) => {
-    ZoomState.validateScaleExtent(extent);
-    this.scaleExtent = extent;
-    this.zoomBehavior.scaleExtent(extent);
+    this.scaleExtent = ZoomState.validateScaleExtent(extent);
+    this.zoomBehavior.scaleExtent(this.scaleExtent);
     const current = zoomTransform(this.zoomArea.node()!);
-    const [min, max] = extent;
+    const [min, max] = this.scaleExtent;
     const clampedK = Math.max(min, Math.min(max, current.k));
     if (clampedK !== current.k) {
       this.zoomBehavior.scaleTo(this.zoomArea, clampedK);
