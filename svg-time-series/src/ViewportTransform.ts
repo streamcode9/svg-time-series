@@ -61,10 +61,6 @@ export class ViewportTransform {
     }
   }
 
-  private toScreenPoint(x: number, y: number) {
-    return new DOMPoint(x, y).matrixTransform(this.composedMatrix);
-  }
-
   public fromScreenToModelX(x: number) {
     this.assertInvertible(this.scaleX);
     return this.scaleX.invert(x);
@@ -75,28 +71,25 @@ export class ViewportTransform {
     return this.scaleY.invert(y);
   }
 
+  private mapArray<T extends number[]>(b: T, fn: (n: number) => number): T {
+    return b.map(fn) as T;
+  }
+
   public fromScreenToModelBasisX(b: Basis): Basis {
     this.assertInvertible(this.scaleX);
-    const [bp1, bp2] = b;
-    const p1 = this.scaleX.invert(bp1);
-    const p2 = this.scaleX.invert(bp2);
-    return [p1, p2];
+    return this.mapArray(b, (n) => this.scaleX.invert(n));
   }
 
   public toScreenFromModelX(x: number) {
-    return this.toScreenPoint(x, 0).x;
+    return this.scaleX(x);
   }
 
   public toScreenFromModelY(y: number) {
-    return this.toScreenPoint(0, y).y;
+    return this.scaleY(y);
   }
 
   public toScreenFromModelBasisX(b: Basis): Basis {
-    const transformPoint = (x: number) => this.toScreenPoint(x, 0).x;
-    const [bp1, bp2] = b;
-    const p1 = transformPoint(bp1);
-    const p2 = transformPoint(bp2);
-    return [p1, p2];
+    return this.mapArray(b, this.scaleX);
   }
 
   public get matrix(): DOMMatrix {
