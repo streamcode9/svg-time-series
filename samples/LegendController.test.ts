@@ -46,7 +46,6 @@ describe("LegendController", () => {
       startTime: 0,
       timeStep: 1,
       length: 2,
-      seriesCount: 1,
       getSeries: (i) => [10, 20][i]!,
       seriesAxes: [0],
     };
@@ -94,7 +93,6 @@ describe("LegendController", () => {
       startTime: 0,
       timeStep: 1,
       length: 2,
-      seriesCount: 1,
       getSeries: (i) => [10, 20][i]!,
       seriesAxes: [0],
     };

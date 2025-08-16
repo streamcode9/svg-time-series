@@ -51,7 +51,6 @@ function createChart(options?: {
     startTime: 0,
     timeStep: 1,
     length: dataRows.length,
-    seriesCount: 1,
     seriesAxes: [0],
     getSeries: (i, seriesIdx) => dataRows[i]![seriesIdx]!,
   };

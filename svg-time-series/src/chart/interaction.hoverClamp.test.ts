@@ -85,7 +85,6 @@ function createChart(data: Array<[number]>) {
     startTime: 0,
     timeStep: 1,
     length: data.length,
-    seriesCount: 1,
     seriesAxes: [0],
     getSeries: (i) => data[i]![0],
   };

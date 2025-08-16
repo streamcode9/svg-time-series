@@ -10,7 +10,6 @@ const makeChartData = (): ChartData =>
     startTime: 0,
     timeStep: 1,
     length: 2,
-    seriesCount: 2,
     seriesAxes: [0, 1],
     getSeries: (i, seriesIdx) => (seriesIdx === 0 ? [0, 1][i]! : [10, 20][i]!),
   });

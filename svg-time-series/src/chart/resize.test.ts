@@ -46,7 +46,6 @@ describe("TimeSeriesChart.resize", () => {
       startTime: 0,
       timeStep: 1,
       length: 3,
-      seriesCount: 1,
       seriesAxes: [0],
       getSeries: (i) => [1, 2, 3][i]!,
     };
@@ -101,7 +100,6 @@ describe("TimeSeriesChart.resize", () => {
       startTime: 0,
       timeStep: 1,
       length: 3,
-      seriesCount: 1,
       seriesAxes: [0],
       getSeries: (i) => [1, 2, 3][i]!,
     };

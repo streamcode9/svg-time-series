@@ -49,7 +49,6 @@ export function drawCharts(
       startTime: Date.now(),
       timeStep: 86400000,
       length: data.length,
-      seriesCount: 2,
       seriesAxes,
       getSeries: (i, seriesIdx) => data[i][seriesIdx],
     };

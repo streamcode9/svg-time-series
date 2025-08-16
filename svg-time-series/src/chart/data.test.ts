@@ -8,7 +8,6 @@ describe("ChartData", () => {
     startTime: 0,
     timeStep: 1,
     length: data.length,
-    seriesCount: data[0]?.length ?? 0,
     getSeries: (i, seriesIdx) => data[i]![seriesIdx]!,
     seriesAxes,
   });
@@ -18,7 +17,6 @@ describe("ChartData", () => {
       startTime: 0,
       timeStep: 1,
       length: 1,
-      seriesCount: 1,
       getSeries: () => 0,
       seriesAxes: [0],
     };
@@ -33,32 +31,11 @@ describe("ChartData", () => {
     );
   });
 
-  it("throws when seriesCount is not a positive integer", () => {
-    const base: IDataSource = {
-      startTime: 0,
-      timeStep: 1,
-      length: 1,
-      seriesCount: 1,
-      getSeries: () => 0,
-      seriesAxes: [0],
-    };
-    expect(() => new ChartData({ ...base, seriesCount: 0 })).toThrow(
-      /seriesCount.*positive integer/,
-    );
-    expect(() => new ChartData({ ...base, seriesCount: -1 })).toThrow(
-      /seriesCount.*positive integer/,
-    );
-    expect(() => new ChartData({ ...base, seriesCount: 1.5 })).toThrow(
-      /seriesCount.*positive integer/,
-    );
-  });
-
   it("throws when startTime is not finite", () => {
     const source: IDataSource = {
       startTime: NaN,
       timeStep: 1,
       length: 1,
-      seriesCount: 1,
       getSeries: () => 0,
       seriesAxes: [0],
     };
@@ -69,7 +46,6 @@ describe("ChartData", () => {
     const base = {
       startTime: 0,
       length: 1,
-      seriesCount: 1,
       getSeries: () => 0,
       seriesAxes: [0],
     };
@@ -86,7 +62,6 @@ describe("ChartData", () => {
     const base: IDataSource = {
       startTime: 0,
       length: 1,
-      seriesCount: 1,
       getSeries: () => 0,
       seriesAxes: [0],
       timeStep: 0,
@@ -99,17 +74,6 @@ describe("ChartData", () => {
     );
   });
 
-  it("throws when seriesAxes length does not match seriesCount", () => {
-    const source = makeSource(
-      [
-        [0, 0],
-        [1, 1],
-      ],
-      [0],
-    );
-    expect(() => new ChartData(source)).toThrow(/seriesAxes length/);
-  });
-
   it("throws when seriesAxes contains unsupported axis index", () => {
     const source = makeSource(
       [
@@ -119,6 +83,11 @@ describe("ChartData", () => {
       [0, 2],
     );
     expect(() => new ChartData(source)).toThrow(/0 or 1/);
+  });
+
+  it("throws when seriesAxes is empty", () => {
+    const source = makeSource([[0], [1]], []);
+    expect(() => new ChartData(source)).toThrow(/at least one series/);
   });
 
   it("throws when series axis index exceeds axisCount", () => {
@@ -497,7 +466,6 @@ describe("ChartData", () => {
         startTime: 0,
         timeStep: 1,
         length: 2,
-        seriesCount: 1,
         getSeries: (i) => [0, 1][i]!,
         seriesAxes: [0],
       };
@@ -514,7 +482,6 @@ describe("ChartData", () => {
         startTime: 0,
         timeStep: 1,
         length: 1,
-        seriesCount: 1,
         getSeries: (i) => [0][i]!,
         seriesAxes: [0],
       };

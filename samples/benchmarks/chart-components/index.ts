@@ -25,7 +25,6 @@ onCsv((data: [number, number][]) => {
     startTime: Date.now(),
     timeStep: 86400000,
     length: data.length,
-    seriesCount: 2,
     seriesAxes: [0, 1],
     getSeries: (i, seriesIdx) => data[i][seriesIdx],
   };

@@ -140,7 +140,6 @@ function createChart(
     startTime: 0,
     timeStep: 1,
     length: data.length,
-    seriesCount: 2,
     seriesAxes: [0, 1],
     getSeries: (i, seriesIdx) => data[i]![seriesIdx]!,
   };

@@ -44,12 +44,11 @@ work is possible. Keep watching!
 
 ## Y-axis modes
 
-Charts can display one or two data series. The library supports at most two
-series; additional series are ignored. By default, all series share a single
-Y-axis whose scale is computed from the combined minimum and maximum of every
-series. To draw series with different units, assign each series to a Y-axis via
-the `seriesAxes` array. If any series is assigned to axis index 1, a second
-independent Y scale is created automatically.
+Charts can display any number of data series. Each series is assigned to a
+Y-axis via the `seriesAxes` array. Only two Y axes are supported: index `0`
+represents the right axis and index `1` represents the left axis. Series that
+share an index use the same scale, computed from the combined minimum and
+maximum of every series on that axis.
 
 ```ts
 import { TimeSeriesChart, IDataSource } from "svg-time-series";
@@ -59,9 +58,8 @@ const source: IDataSource = {
   startTime,
   timeStep,
   length: data.length,
-  seriesCount: 2,
-  // Assign the first series to the left axis and the second to the right.
-  seriesAxes: [0, 1],
+  // Assign the first two series to axis 0 and the third to axis 1.
+  seriesAxes: [0, 0, 1],
   getSeries: (i, seriesIdx) => data[i][seriesIdx],
 };
 
@@ -77,41 +75,16 @@ const chart = new TimeSeriesChart(
 );
 ```
 
-`getSeries` returns the value for the specified series index, while
-`seriesCount` declares how many series are available from the data source.
-`seriesAxes` maps each series to axis 0 (left) or axis 1 (right), and its
-length must equal `seriesCount`.
+`getSeries` returns the value for the specified series index. `seriesAxes`
+maps each series to a Y-axis, and its length determines how many series are
+available from the data source.
 
 The third argument creates a legend controller, letting you customize how
 legend entries are rendered, including timestamp formatting.
 
-For two series sharing a single Y-axis, assign both series to axis 0:
-
-```ts
-const singleSource: IDataSource = {
-  startTime,
-  timeStep,
-  length: data.length,
-  seriesCount: 2,
-  // Both series use the left axis
-  seriesAxes: [0, 0],
-  getSeries: (i, seriesIdx) => data[i][seriesIdx],
-};
-
-const chartSingle = new TimeSeriesChart(
-  svg,
-  singleSource,
-  (state, data) =>
-    new LegendController(legend, state, data, (ts) =>
-      new Date(ts).toISOString(),
-    ),
-  onZoom,
-  onMouseMove,
-);
-```
-
-If you only have one series, set `seriesCount` to 1; the chart
-will render a single path and axis.
+For a chart where all series share one Y-axis, assign each entry in
+`seriesAxes` to 0. A single-series chart uses `seriesAxes: [0]` and renders one
+path and axis.
 
 ### Adjusting zoom extents
 

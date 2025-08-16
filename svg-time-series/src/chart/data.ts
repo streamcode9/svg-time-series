@@ -16,10 +16,8 @@ export interface IDataSource {
   readonly startTime: number;
   readonly timeStep: number;
   readonly length: number;
-  readonly seriesCount: number;
   /**
-   * Mapping from series index to Y-axis index. Each entry must be either 0 or 1
-   * and the array length must equal `seriesCount`.
+   * Mapping from series index to Y-axis index. Each entry must be either 0 or 1.
    */
   readonly seriesAxes: number[];
   getSeries(index: number, seriesIdx: number): number;
@@ -27,19 +25,15 @@ export interface IDataSource {
 
 function validateSource(source: IDataSource): void {
   assertPositiveInteger(source.length, "ChartData length");
-  assertPositiveInteger(source.seriesCount, "ChartData seriesCount");
   assertFiniteNumber(source.startTime, "ChartData startTime");
   assertFiniteNumber(source.timeStep, "ChartData timeStep");
   if (source.timeStep <= 0) {
     throw new Error("ChartData requires timeStep to be greater than 0");
   }
-  if (source.seriesAxes.length !== source.seriesCount) {
-    throw new Error(
-      `ChartData requires seriesAxes length to match seriesCount (${String(
-        source.seriesCount,
-      )})`,
-    );
-  }
+  assertPositiveInteger(
+    source.seriesAxes.length,
+    "ChartData requires at least one series",
+  );
   source.seriesAxes.forEach((axis, axisIdx) => {
     if (axis !== 0 && axis !== 1) {
       throw new Error(
@@ -67,8 +61,8 @@ export class ChartData {
    */
   constructor(source: IDataSource) {
     validateSource(source);
-    this.seriesCount = source.seriesCount;
     this.seriesAxes = source.seriesAxes;
+    this.seriesCount = this.seriesAxes.length;
     this.seriesAxes.forEach((axis, axisIdx) =>
       this.seriesByAxis[axis as 0 | 1].push(axisIdx),
     );

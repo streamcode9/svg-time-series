@@ -1,6 +1,7 @@
 import type { Series } from "./render.ts";
 
 export class SeriesRenderer {
+  /** Ordered collection of series to render. */
   public series: Series[] = [];
 
   public draw(dataArr: number[][]): void {

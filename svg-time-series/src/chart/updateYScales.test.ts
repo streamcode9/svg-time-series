@@ -11,7 +11,6 @@ describe("updateScales", () => {
       startTime: 0,
       timeStep: 1,
       length: 2,
-      seriesCount: 2,
       seriesAxes: [0, 1],
       getSeries: (i: number, seriesIdx: number) =>
         seriesIdx === 0 ? [1, 3][i]! : [10, 30][i]!,

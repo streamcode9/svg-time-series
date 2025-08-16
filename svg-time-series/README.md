@@ -1,6 +1,6 @@
 # svg-time-series
 
-A small library for rendering high-performance SVG time series charts with D3. It exports a single class, `TimeSeriesChart`, which handles drawing, zooming and hover interactions. The library supports at most two data series.
+A small library for rendering high-performance SVG time series charts with D3. It exports a single class, `TimeSeriesChart`, which handles drawing, zooming and hover interactions. The library supports an arbitrary number of data series across up to two Y axes (left and right).
 
 ## Installation
 
@@ -27,15 +27,16 @@ const legend = select("#legend");
 // example data arrays
 const ny = [10, 11];
 const sf = [12, 13];
+const other = [20, 21];
 
 const source: IDataSource = {
   startTime: Date.now(),
   timeStep: 1000, // time step in ms
   length: ny.length,
-  seriesCount: 2,
-  // Use the left axis for the first series and the right axis for the second
-  seriesAxes: [0, 1],
-  getSeries: (i, seriesIdx) => (seriesIdx === 0 ? ny[i] : sf[i]),
+  // Assign series 0 and 1 to axis 0, and series 2 to axis 1
+  seriesAxes: [0, 0, 1],
+  getSeries: (i, seriesIdx) =>
+    seriesIdx === 0 ? ny[i] : seriesIdx === 1 ? sf[i] : other[i],
 };
 
 const chart = new TimeSeriesChart(
@@ -50,9 +51,10 @@ const chart = new TimeSeriesChart(
 );
 ```
 
-`getSeries` returns a value for the requested series index, while `seriesCount`
-declares how many series are available. The library supports at most two series;
-additional series are ignored.
+`getSeries` returns a value for the requested series index. Any number of
+series may be provided, but each must be assigned to either the left or right Y
+axis by specifying 0 or 1 in `seriesAxes`. The length of `seriesAxes` determines
+how many series are available.
 
 The third argument lets you supply a custom legend controller. See
 `samples/LegendController.ts` for a reference implementation.

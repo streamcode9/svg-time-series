@@ -112,7 +112,6 @@ function createChart(
     startTime: 0,
     timeStep: 1,
     length: data.length,
-    seriesCount: 2,
     seriesAxes: [0, 1],
     getSeries: (i, seriesIdx) => data[i]![seriesIdx]!,
   };
@@ -349,7 +348,6 @@ describe("chart interaction", () => {
       startTime: 0,
       timeStep: 1,
       length: 2,
-      seriesCount: 2,
       seriesAxes: [0, 1],
       getSeries: (i) => [0, 1][i]!,
     };

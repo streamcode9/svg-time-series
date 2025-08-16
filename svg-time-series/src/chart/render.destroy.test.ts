@@ -30,7 +30,6 @@ describe("RenderState.destroy", () => {
       startTime: 0,
       timeStep: 1,
       length: 2,
-      seriesCount: 1,
       seriesAxes: [0],
       getSeries: (i, _s) => [1, 2][i]!,
     };
