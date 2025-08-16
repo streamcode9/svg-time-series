@@ -13,6 +13,7 @@ import {
 } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
+import type * as d3Zoom from "d3-zoom";
 import { AR1Basis } from "../math/affine.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
@@ -65,23 +66,27 @@ vi.mock("../axis.ts", () => ({
   },
 }));
 
-vi.mock("d3-zoom", () => ({
-  zoom: () => {
-    interface ZoomBehavior {
-      (): void;
-      scaleExtent: () => ZoomBehavior;
-      translateExtent: () => ZoomBehavior;
-      on: () => ZoomBehavior;
-      transform: () => void;
-    }
-    const behavior = (() => {}) as ZoomBehavior;
-    behavior.scaleExtent = () => behavior;
-    behavior.translateExtent = () => behavior;
-    behavior.on = () => behavior;
-    behavior.transform = () => {};
-    return behavior;
-  },
-}));
+vi.mock("d3-zoom", async () => {
+  const actual = await vi.importActual<typeof d3Zoom>("d3-zoom");
+  return {
+    ...actual,
+    zoom: () => {
+      interface ZoomBehavior {
+        (): void;
+        scaleExtent: () => ZoomBehavior;
+        translateExtent: () => ZoomBehavior;
+        on: () => ZoomBehavior;
+        transform: () => void;
+      }
+      const behavior = (() => {}) as ZoomBehavior;
+      behavior.scaleExtent = () => behavior;
+      behavior.translateExtent = () => behavior;
+      behavior.on = () => behavior;
+      behavior.transform = () => {};
+      return behavior;
+    },
+  };
+});
 
 function createChart(data: Array<[number]>) {
   currentDataLength = data.length;

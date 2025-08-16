@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { scaleLinear, scaleTime } from "d3-scale";
+import { zoomIdentity, type ZoomTransform } from "d3-zoom";
 import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
 import { AxisManager } from "./axisManager.ts";
 import { ChartData } from "./data.ts";
@@ -17,11 +18,14 @@ describe("updateScales", () => {
     };
     const data = new ChartData(source);
     const axisManager = new AxisManager(2, data);
-    axisManager.setXAxis(scaleTime().range([0, 1]));
+    axisManager.setXAxis(
+      scaleTime()
+        .domain([new Date(0), new Date(1)])
+        .range([0, 1]),
+    );
     axisManager.axes.forEach((a) => a.scale.range([0, 1]));
 
-    const bIndexVisible = new AR1Basis(0, 1);
-    axisManager.updateScales(bIndexVisible);
+    axisManager.updateScales(zoomIdentity);
 
     expect(axisManager.axes[0]!.scale.domain()).toEqual([1, 3]);
     expect(axisManager.axes[1]!.scale.domain()).toEqual([10, 30]);
@@ -70,6 +74,25 @@ describe("updateScales", () => {
       indexToTime() {
         return scaleLinear().domain([0, 1]).range([0, 1]);
       },
+      timeDomainFull(): [Date, Date] {
+        return [new Date(0), new Date(1)];
+      },
+      bIndexFromTransform(
+        transform: ZoomTransform,
+        range: [number, number],
+      ): AR1Basis {
+        const indexBase = scaleLinear()
+          .domain(this.bIndexFull.toArr())
+          .range(range);
+        const [i0, i1] = transform.rescaleX(indexBase).domain() as [
+          number,
+          number,
+        ];
+        return new AR1Basis(i0, i1);
+      },
+      timeToIndex(t: number) {
+        return t;
+      },
       updateScaleY(
         b: AR1Basis,
         tree: {
@@ -93,11 +116,14 @@ describe("updateScales", () => {
       },
     };
     const axisManager = new AxisManager(3, data as unknown as ChartData);
-    axisManager.setXAxis(scaleTime().range([0, 1]));
+    axisManager.setXAxis(
+      scaleTime()
+        .domain([new Date(0), new Date(1)])
+        .range([0, 1]),
+    );
     axisManager.axes.forEach((a) => a.scale.range([0, 1]));
 
-    const bIndexVisible = new AR1Basis(0, 1);
-    axisManager.updateScales(bIndexVisible);
+    axisManager.updateScales(zoomIdentity);
 
     expect(axisManager.axes[0]!.scale.domain()).toEqual([1, 3]);
     expect(axisManager.axes[1]!.scale.domain()).toEqual([10, 30]);
@@ -147,6 +173,22 @@ describe("updateScales", () => {
       indexToTime() {
         return scaleLinear().domain([0, 1]).range([0, 1]);
       },
+      timeDomainFull(): [Date, Date] {
+        return [new Date(0), new Date(1)];
+      },
+      bIndexFromTransform(
+        transform: ZoomTransform,
+        range: [number, number],
+      ): AR1Basis {
+        const indexBase = scaleLinear()
+          .domain(this.bIndexFull.toArr())
+          .range(range);
+        const [i0, i1] = transform.rescaleX(indexBase).domain() as [
+          number,
+          number,
+        ];
+        return new AR1Basis(i0, i1);
+      },
       updateScaleY(
         b: AR1Basis,
         tree: {
@@ -170,12 +212,15 @@ describe("updateScales", () => {
       },
     };
     const axisManager = new AxisManager(2, data as unknown as ChartData);
-    axisManager.setXAxis(scaleTime().range([0, 1]));
+    axisManager.setXAxis(
+      scaleTime()
+        .domain([new Date(0), new Date(1)])
+        .range([0, 1]),
+    );
     axisManager.axes.forEach((a) => a.scale.range([0, 1]));
 
-    const bIndexVisible = new AR1Basis(0, 1);
     expect(() => {
-      axisManager.updateScales(bIndexVisible);
+      axisManager.updateScales(zoomIdentity);
     }).toThrow(/axis index 2/i);
   });
 });

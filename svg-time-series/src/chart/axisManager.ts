@@ -1,6 +1,7 @@
 import { scaleLinear } from "d3-scale";
 import type { ScaleLinear, ScaleTime } from "d3-scale";
 import type { Selection } from "d3-selection";
+import type { ZoomTransform } from "d3-zoom";
 import { SegmentTree } from "segment-tree-rmq";
 
 import type { MyAxis } from "../axis.ts";
@@ -74,9 +75,14 @@ export class AxisManager {
     this.x = scale;
   }
 
-  updateScales(bIndex: AR1Basis): void {
+  updateScales(transform: ZoomTransform): void {
     this.data.assertAxisBounds(this.axes.length);
-    updateScaleX(this.x, bIndex, this.data);
+    this.x.domain(this.data.timeDomainFull());
+    const bIndex = this.data.bIndexFromTransform(
+      transform,
+      this.x.range() as [number, number],
+    );
+    updateScaleX(this.x, transform);
     for (const [i, idxs] of this.data.seriesByAxis.entries()) {
       if (idxs.length === 0) {
         continue;

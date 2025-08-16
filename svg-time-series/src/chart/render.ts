@@ -2,6 +2,7 @@ import type { Selection } from "d3-selection";
 import { scaleTime } from "d3-scale";
 import type { ScaleTime, ScaleLinear } from "d3-scale";
 import type { Line } from "d3-shape";
+import { zoomIdentity, type ZoomTransform } from "d3-zoom";
 
 import { MyAxis, Orientation } from "../axis.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
@@ -65,23 +66,24 @@ export interface RenderState {
   dimensions: Dimensions;
   series: Series[];
   seriesRenderer: SeriesRenderer;
-  refresh: (data: ChartData) => void;
+  refresh: (data: ChartData, transform: ZoomTransform) => void;
   resize: (dimensions: Dimensions, zoomState: ZoomState) => void;
   destroy: () => void;
 }
 
-export function refreshRenderState(state: RenderState, data: ChartData): void {
+export function refreshRenderState(
+  state: RenderState,
+  data: ChartData,
+  transform: ZoomTransform,
+): void {
   const referenceBasis = DirectProductBasis.fromProjections(
     data.bIndexFull,
     bPlaceholder,
   );
   state.xTransform.onReferenceViewWindowResize(referenceBasis);
-  const bIndexVisible = state.xTransform.fromScreenToModelBasisX(
-    state.screenXBasis,
-  );
 
   state.axisManager.setData(data);
-  state.axisManager.updateScales(bIndexVisible);
+  state.axisManager.updateScales(transform);
 
   for (const s of state.series) {
     const t = state.axes.y[s.axisIdx]!.transform;
@@ -164,7 +166,7 @@ export function setupRender(
   for (const a of yAxes) {
     a.scale.range(yRange);
   }
-  axisManager.updateScales(data.bIndexFull);
+  axisManager.updateScales(zoomIdentity);
 
   const referenceBasis = DirectProductBasis.fromProjections(
     data.bIndexFull,

@@ -1,6 +1,6 @@
 import type { Selection } from "d3-selection";
 import type { D3ZoomEvent } from "d3-zoom";
-import { zoomIdentity } from "d3-zoom";
+import { zoomIdentity, zoomTransform } from "d3-zoom";
 import { brush, type BrushBehavior, type D3BrushEvent } from "d3-brush";
 
 import { ChartData } from "./chart/data.ts";
@@ -104,7 +104,8 @@ export class TimeSeriesChart {
       this.zoomArea,
       this.state,
       () => {
-        this.state.refresh(this.data);
+        const t = zoomTransform(this.zoomArea.node()!);
+        this.state.refresh(this.data, t);
       },
       (event) => {
         zoomHandler(event);
@@ -175,7 +176,8 @@ export class TimeSeriesChart {
     const { width, height } = dimensions;
     this.svg.attr("width", width).attr("height", height);
     this.state.resize(dimensions, this.zoomState);
-    this.state.refresh(this.data);
+    const t = zoomTransform(this.zoomArea.node()!);
+    this.state.refresh(this.data, t);
     this.brushBehavior.extent([
       [0, 0],
       [width, height],

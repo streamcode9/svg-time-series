@@ -1,6 +1,7 @@
 import { SegmentTree } from "segment-tree-rmq";
 
 import { scaleLinear, type ScaleLinear } from "d3-scale";
+import type { ZoomTransform } from "d3-zoom";
 import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
 import { SlidingWindow } from "./slidingWindow.ts";
 import { assertFiniteNumber, assertPositiveInteger } from "./validation.ts";
@@ -116,6 +117,25 @@ export class ChartData {
     const scale = this.indexToTime();
     const idx = scale.invert(time);
     return this.clampIndex(idx);
+  }
+
+  timeDomainFull(): [Date, Date] {
+    const toTime = this.indexToTime();
+    return this.bIndexFull.toArr().map((i) => new Date(toTime(i))) as [
+      Date,
+      Date,
+    ];
+  }
+
+  bIndexFromTransform(
+    transform: ZoomTransform,
+    range: [number, number],
+  ): AR1Basis {
+    const indexBase = scaleLinear<number, number>()
+      .domain(this.bIndexFull.toArr())
+      .range(range);
+    const [i0, i1] = transform.rescaleX(indexBase).domain() as [number, number];
+    return new AR1Basis(i0, i1);
   }
 
   /**

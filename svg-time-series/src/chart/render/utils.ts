@@ -1,7 +1,7 @@
 import type { Selection } from "d3-selection";
 import type { ScaleTime } from "d3-scale";
+import type { ZoomTransform } from "d3-zoom";
 import { AR1Basis, DirectProductBasis } from "../../math/affine.ts";
-import type { ChartData } from "../data.ts";
 
 export function createDimensions(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
@@ -32,12 +32,9 @@ export function createDimensions(
 
 export function updateScaleX(
   x: ScaleTime<number, number>,
-  bIndexVisible: AR1Basis,
-  data: ChartData,
-) {
-  const scale = data.indexToTime().copy();
-  const [i0, i1] = bIndexVisible.toArr();
-  x.domain([scale(i0), scale(i1)]);
+  transform: ZoomTransform,
+): void {
+  x.domain(transform.rescaleX(x).domain());
 }
 
 export function createSeriesNodes(

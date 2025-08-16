@@ -5,6 +5,7 @@ import { describe, it, expect } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import { scaleTime } from "d3-scale";
+import { zoomIdentity } from "d3-zoom";
 import { AR1Basis } from "../math/affine.ts";
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
@@ -59,18 +60,11 @@ describe("createDimensions", () => {
 });
 
 describe("updateScaleX", () => {
-  const makeSource = (data: number[][]): IDataSource => ({
-    startTime: 0,
-    timeStep: 1,
-    length: data.length,
-    seriesAxes: [0],
-    getSeries: (i) => data[i]![0]!,
-  });
-
-  it("adjusts domain based on visible index range", () => {
-    const cd = new ChartData(makeSource([[0], [1], [2]]));
-    const x = scaleTime().range([0, 100]);
-    updateScaleX(x, new AR1Basis(0, 2), cd);
+  it("adjusts domain based on zoom transform", () => {
+    const x = scaleTime()
+      .domain([new Date(0), new Date(2)])
+      .range([0, 100]);
+    updateScaleX(x, zoomIdentity);
     const [d0, d1] = x.domain();
     expect(d0!.getTime()).toBe(0);
     expect(d1!.getTime()).toBe(2);

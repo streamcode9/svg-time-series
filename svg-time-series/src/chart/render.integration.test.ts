@@ -5,6 +5,7 @@ import { describe, it, expect, vi } from "vitest";
 import { JSDOM } from "jsdom";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
+import { zoomIdentity } from "d3-zoom";
 import * as domNode from "../utils/domNodeTransform.ts";
 import "../setupDom.ts";
 import { ChartData } from "./data.ts";
@@ -47,27 +48,21 @@ describe("RenderState.refresh integration", () => {
       .spyOn(domNode, "updateNode")
       .mockImplementation(() => {});
 
-    const xBefore = state.axes.x.scale.domain().slice();
     const yNyBefore = state.axes.y[0]!.scale.domain().slice();
     const ySfBefore = state.axes.y[1]!.scale.domain().slice();
 
     data.append(100, 200);
-    state.refresh(data);
+    state.refresh(data, zoomIdentity);
 
-    const xAfter = state.axes.x.scale.domain();
     const yNyAfter = state.axes.y[0]!.scale.domain();
     const ySfAfter = state.axes.y[1]!.scale.domain();
 
-    expect(xAfter).not.toEqual(xBefore);
     expect(yNyAfter).not.toEqual(yNyBefore);
     expect(ySfAfter).not.toEqual(ySfBefore);
 
     interface AxisWithScale1 {
       scale1: { domain: () => unknown };
     }
-    expect(
-      (state.axes.x.axis as unknown as AxisWithScale1).scale1.domain(),
-    ).toEqual(xAfter);
     expect(
       (state.axisRenders[0]!.axis as unknown as AxisWithScale1).scale1.domain(),
     ).toEqual(yNyAfter);

@@ -21,6 +21,7 @@ vi.mock("../axis.ts", () => {
 import { JSDOM } from "jsdom";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
+import { zoomIdentity } from "d3-zoom";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import "../setupDom.ts";
 import { ChartData } from "./data.ts";
@@ -61,7 +62,7 @@ describe("RenderState.refresh", () => {
     const updateNodeMock = vi.mocked(updateNode);
     updateNodeMock.mockClear();
 
-    state.refresh(data);
+    state.refresh(data, zoomIdentity);
 
     expect(state.series.length).toBe(1);
     expect(state.axes.y[state.series[0]!.axisIdx]!.scale.domain()).toEqual([
@@ -88,7 +89,7 @@ describe("RenderState.refresh", () => {
     const updateNodeMock = vi.mocked(updateNode);
     updateNodeMock.mockClear();
 
-    state.refresh(data);
+    state.refresh(data, zoomIdentity);
 
     expect(state.axes.y[state.series[0]!.axisIdx]!.scale.domain()).toEqual([
       1, 3,
@@ -115,7 +116,7 @@ describe("RenderState.refresh", () => {
     const data = new ChartData(source);
     const state = setupRender(svg, data);
 
-    state.refresh(data);
+    state.refresh(data, zoomIdentity);
 
     expect(state.axes.y).toHaveLength(1);
     expect(state.axes.y[0]!.scale.domain()).toEqual([1, 30]);
@@ -132,7 +133,7 @@ describe("RenderState.refresh", () => {
     };
     const data1 = new ChartData(source1);
     const state = setupRender(svg, data1);
-    state.refresh(data1);
+    state.refresh(data1, zoomIdentity);
     const source2: IDataSource = {
       startTime: 0,
       timeStep: 1,
@@ -144,7 +145,7 @@ describe("RenderState.refresh", () => {
     const updateNodeMock = vi.mocked(updateNode);
     updateNodeMock.mockClear();
 
-    state.refresh(data2);
+    state.refresh(data2, zoomIdentity);
 
     expect(state.axes.y[0]!.scale.domain()).toEqual([4, 6]);
     expect(state.axes.y[1]!.scale.domain()).toEqual([40, 60]);
@@ -166,7 +167,7 @@ describe("RenderState.refresh", () => {
     expect(state.axes.y[0]!.tree.query(0, 2)).toEqual({ min: 1, max: 3 });
 
     data.append(4);
-    state.refresh(data);
+    state.refresh(data, zoomIdentity);
 
     expect(state.axes.y[0]!.tree.query(0, 2)).toEqual({ min: 2, max: 4 });
   });

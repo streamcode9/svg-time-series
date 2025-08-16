@@ -66,23 +66,27 @@ vi.mock("../axis.ts", () => ({
   },
 }));
 
-vi.mock("d3-zoom", () => ({
-  zoom: () => {
-    interface ZoomBehavior {
-      (): void;
-      scaleExtent: () => ZoomBehavior;
-      translateExtent: () => ZoomBehavior;
-      on: () => ZoomBehavior;
-      transform: () => void;
-    }
-    const behavior = (() => {}) as ZoomBehavior;
-    behavior.scaleExtent = () => behavior;
-    behavior.translateExtent = () => behavior;
-    behavior.on = () => behavior;
-    behavior.transform = () => {};
-    return behavior;
-  },
-}));
+vi.mock("d3-zoom", async () => {
+  const actual = await vi.importActual("d3-zoom");
+  return {
+    ...actual,
+    zoom: () => {
+      interface ZoomBehavior {
+        (): void;
+        scaleExtent: () => ZoomBehavior;
+        translateExtent: () => ZoomBehavior;
+        on: () => ZoomBehavior;
+        transform: () => void;
+      }
+      const behavior = (() => {}) as ZoomBehavior;
+      behavior.scaleExtent = () => behavior;
+      behavior.translateExtent = () => behavior;
+      behavior.on = () => behavior;
+      behavior.transform = () => {};
+      return behavior;
+    },
+  };
+});
 
 function createChart(
   data: Array<[number, number]>,
@@ -179,10 +183,10 @@ describe("chart interaction", () => {
     const yCalls = yAxis.axisUpCalls;
     const callCount = updateNodeCalls;
 
-    zoom({ transform: { x: 10, k: 2 } } as unknown as D3ZoomEvent<
-      SVGRectElement,
-      unknown
-    >);
+    const event = {
+      transform: { x: 10, k: 2 },
+    } as D3ZoomEvent<SVGRectElement, unknown>;
+    zoom(event);
     vi.runAllTimers();
     vi.runAllTimers();
 
