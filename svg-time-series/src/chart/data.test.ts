@@ -226,12 +226,12 @@ describe("ChartData", () => {
         [0, 1],
       ),
     );
-    const transform = cd.indexToTime();
+    const scale = cd.indexToTime();
     for (let i = 0; i < cd.length; i++) {
-      const t = transform.applyToPoint(i);
+      const t = scale(i);
       const idx = cd.timeToIndex(t);
       expect(idx).toBeCloseTo(i);
-      const t2 = transform.applyToPoint(idx);
+      const t2 = scale(idx);
       expect(t2).toBeCloseTo(t);
     }
   });
@@ -247,9 +247,9 @@ describe("ChartData", () => {
         [0, 1],
       ),
     );
-    const transform = cd.indexToTime();
-    const earliest = transform.applyToPoint(0);
-    const latest = transform.applyToPoint(cd.length - 1);
+    const scale = cd.indexToTime();
+    const earliest = scale(0);
+    const latest = scale(cd.length - 1);
     expect(cd.timeToIndex(earliest - 1000)).toBe(0);
     expect(cd.timeToIndex(latest + 1000)).toBe(cd.length - 1);
     expect(() => cd.timeToIndex(NaN)).toThrow(/time/);

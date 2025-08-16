@@ -35,9 +35,9 @@ export function updateScaleX(
   bIndexVisible: AR1Basis,
   data: ChartData,
 ) {
-  const transform = data.indexToTime();
-  const bTimeVisible = bIndexVisible.transformWith(transform);
-  x.domain(bTimeVisible.toArr());
+  const scale = data.indexToTime().copy();
+  const [i0, i1] = bIndexVisible.toArr();
+  x.domain([scale(i0), scale(i1)]);
 }
 
 export function createSeriesNodes(

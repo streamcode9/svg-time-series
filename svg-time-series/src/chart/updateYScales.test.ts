@@ -1,10 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { scaleTime } from "d3-scale";
-import {
-  AR1Basis,
-  DirectProductBasis,
-  betweenTBasesAR1,
-} from "../math/affine.ts";
+import { scaleLinear, scaleTime } from "d3-scale";
+import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
 import { AxisManager } from "./axisManager.ts";
 import { ChartData } from "./data.ts";
 import "../setupDom.ts";
@@ -73,7 +69,7 @@ describe("updateScales", () => {
         };
       },
       indexToTime() {
-        return betweenTBasesAR1(new AR1Basis(0, 1), new AR1Basis(0, 1));
+        return scaleLinear().domain([0, 1]).range([0, 1]);
       },
       updateScaleY(
         b: AR1Basis,
@@ -150,7 +146,7 @@ describe("updateScales", () => {
         };
       },
       indexToTime() {
-        return betweenTBasesAR1(new AR1Basis(0, 1), new AR1Basis(0, 1));
+        return scaleLinear().domain([0, 1]).range([0, 1]);
       },
       updateScaleY(
         b: AR1Basis,

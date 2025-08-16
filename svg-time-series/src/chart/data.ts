@@ -1,11 +1,7 @@
 import { SegmentTree } from "segment-tree-rmq";
 
-import type { AR1 } from "../math/affine.ts";
-import {
-  AR1Basis,
-  DirectProductBasis,
-  betweenTBasesAR1,
-} from "../math/affine.ts";
+import { scaleLinear, type ScaleLinear } from "d3-scale";
+import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
 import { SlidingWindow } from "./slidingWindow.ts";
 import { assertFiniteNumber, assertPositiveInteger } from "./validation.ts";
 import { buildMinMax, minMaxIdentity } from "./minMax.ts";
@@ -115,22 +111,16 @@ export class ChartData {
     };
   }
 
-  indexToTime(): AR1 {
-    const bIndexBase = new AR1Basis(
-      this.window.startIndex,
-      this.window.startIndex + 1,
-    );
-    const bTimeBase = new AR1Basis(
-      this.startTime,
-      this.startTime + this.timeStep,
-    );
-    return betweenTBasesAR1(bIndexBase, bTimeBase);
+  indexToTime(): ScaleLinear<number, number> {
+    return scaleLinear<number, number>()
+      .domain([this.window.startIndex, this.window.startIndex + 1])
+      .range([this.startTime, this.startTime + this.timeStep]);
   }
 
   timeToIndex(time: number): number {
     assertFiniteNumber(time, "ChartData.timeToIndex time");
-    const transform = this.indexToTime().inverse();
-    const idx = transform.applyToPoint(time);
+    const scale = this.indexToTime();
+    const idx = scale.invert(time);
     return this.clampIndex(idx);
   }
 
