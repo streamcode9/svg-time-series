@@ -1,4 +1,4 @@
-import { scaleLinear } from "d3-scale";
+import { scaleLinear, type ScaleLinear } from "d3-scale";
 import { zoomIdentity, type ZoomTransform } from "d3-zoom";
 import type { Basis, DirectProductBasis } from "./basis.ts";
 import { scalesToDomMatrix } from "./utils/domMatrix.ts";
@@ -10,7 +10,6 @@ export class ViewportTransform {
   private scaleY = this.baseScaleY;
   private zoomTransform: ZoomTransform = zoomIdentity;
   private composedMatrix: DOMMatrix = new DOMMatrix();
-  private inverseMatrix: DOMMatrix | null = new DOMMatrix();
 
   private static readonly DET_EPSILON = 1e-12;
 
@@ -26,26 +25,6 @@ export class ViewportTransform {
       this.scaleY,
       new DOMMatrix(),
     );
-    this.updateInverseMatrix();
-  }
-
-  private updateInverseMatrix() {
-    const m = this.composedMatrix;
-    if (!m.is2D) {
-      this.inverseMatrix = null;
-      return;
-    }
-
-    const det = m.a * m.d - m.b * m.c;
-    if (
-      !Number.isFinite(det) ||
-      Math.abs(det) < ViewportTransform.DET_EPSILON
-    ) {
-      this.inverseMatrix = null;
-      return;
-    }
-
-    this.inverseMatrix = m.inverse();
   }
 
   public onViewPortResize(bScreenVisible: DirectProductBasis): this {
@@ -70,13 +49,20 @@ export class ViewportTransform {
     return this;
   }
 
-  private toModelPoint(x: number, y: number) {
-    if (!this.inverseMatrix) {
+  private assertInvertible(scale: ScaleLinear<number, number>) {
+    const k = this.zoomTransform.k;
+    const [d0, d1] = scale.domain() as [number, number];
+    if (
+      !Number.isFinite(k) ||
+      Math.abs(k) < ViewportTransform.DET_EPSILON ||
+      !Number.isFinite(d0) ||
+      !Number.isFinite(d1) ||
+      Math.abs(d1 - d0) < ViewportTransform.DET_EPSILON
+    ) {
       throw new Error(
         "ViewportTransform: composed matrix is not invertible (determinant is zero)",
       );
     }
-    return new DOMPoint(x, y).matrixTransform(this.inverseMatrix);
   }
 
   private toScreenPoint(x: number, y: number) {
@@ -84,18 +70,20 @@ export class ViewportTransform {
   }
 
   public fromScreenToModelX(x: number) {
-    return this.toModelPoint(x, 0).x;
+    this.assertInvertible(this.scaleX);
+    return this.scaleX.invert(x);
   }
 
   public fromScreenToModelY(y: number) {
-    return this.toModelPoint(0, y).y;
+    this.assertInvertible(this.scaleY);
+    return this.scaleY.invert(y);
   }
 
   public fromScreenToModelBasisX(b: Basis): Basis {
-    const transformPoint = (x: number) => this.toModelPoint(x, 0).x;
+    this.assertInvertible(this.scaleX);
     const [bp1, bp2] = b;
-    const p1 = transformPoint(bp1);
-    const p2 = transformPoint(bp2);
+    const p1 = this.scaleX.invert(bp1);
+    const p2 = this.scaleX.invert(bp2);
     return [p1, p2];
   }
 
