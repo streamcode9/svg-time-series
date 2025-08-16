@@ -6,6 +6,20 @@ import type { RenderState } from "./render.ts";
 
 export { sameTransform };
 
+export const constrainTranslation = (
+  current: ZoomTransform,
+  width: number,
+  height: number,
+): ZoomTransform => {
+  const x0 = current.invertX(0);
+  const x1 = current.invertX(width) - width;
+  const y0 = current.invertY(0);
+  const y1 = current.invertY(height) - height;
+  const tx = x1 > x0 ? (x0 + x1) / 2 : Math.min(0, x0) || Math.max(0, x1);
+  const ty = y1 > y0 ? (y0 + y1) / 2 : Math.min(0, y0) || Math.max(0, y1);
+  return tx !== 0 || ty !== 0 ? current.translate(tx, ty) : current;
+};
+
 export interface IZoomStateOptions {
   scaleExtent: [number, number];
 }
@@ -107,14 +121,12 @@ export class ZoomState {
       [dimensions.width, dimensions.height],
     ]);
     const current = zoomTransform(this.zoomArea.node()!);
-    const x0 = current.invertX(0);
-    const x1 = current.invertX(dimensions.width) - dimensions.width;
-    const y0 = current.invertY(0);
-    const y1 = current.invertY(dimensions.height) - dimensions.height;
-    const tx = x1 > x0 ? (x0 + x1) / 2 : Math.min(0, x0) || Math.max(0, x1);
-    const ty = y1 > y0 ? (y0 + y1) / 2 : Math.min(0, y0) || Math.max(0, y1);
-    if (tx !== 0 || ty !== 0) {
-      const constrained = current.translate(tx, ty);
+    const constrained = constrainTranslation(
+      current,
+      dimensions.width,
+      dimensions.height,
+    );
+    if (constrained !== current) {
       this.zoomBehavior.transform(this.zoomArea, constrained);
     }
   };
