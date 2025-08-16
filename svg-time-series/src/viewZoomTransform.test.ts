@@ -7,12 +7,12 @@ import { Matrix } from "./setupDom.ts";
 describe("viewZoomTransform helpers", () => {
   it("applies scale transforms along X and Y axes", () => {
     const sx = scaleLinear().domain([0, 1]).range([3, 5]);
-    const mx = scaleToDomMatrix(sx, "x", new Matrix() as unknown as DOMMatrix);
+    const mx = scaleToDomMatrix(sx, "x");
     expect(mx.a).toBeCloseTo(2);
     expect(mx.e).toBeCloseTo(3);
 
     const sy = scaleLinear().domain([0, 1]).range([4, 7]);
-    const my = scaleToDomMatrix(sy, "y", new Matrix() as unknown as DOMMatrix);
+    const my = scaleToDomMatrix(sy, "y");
     expect(my.d).toBeCloseTo(3);
     expect(my.f).toBeCloseTo(4);
   });

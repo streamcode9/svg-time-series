@@ -20,11 +20,7 @@ export class ViewportTransform {
   }
 
   private updateComposedMatrix() {
-    this.composedMatrix = scalesToDomMatrix(
-      this.scaleX,
-      this.scaleY,
-      new DOMMatrix(),
-    );
+    this.composedMatrix = scalesToDomMatrix(this.scaleX, this.scaleY);
   }
 
   public onViewPortResize(bScreenVisible: DirectProductBasis): this {

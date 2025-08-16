@@ -136,11 +136,10 @@ measureOnce(60, ({ fps }) => {
 });
 
 function test(svgNode: SVGSVGElement, viewNode: SVGGElement, width: number) {
-  const id = svgNode.createSVGMatrix();
   const scaleX = scaleLinear().domain([-550, 550]).range([0, width]);
   const scaleY = scaleLinear().domain([-550, 550]).range([0, width]);
 
-  const m = scalesToDomMatrix(scaleX, scaleY, id);
+  const m = scalesToDomMatrix(scaleX, scaleY);
 
   const newPoint = (x: number, y: number) => {
     const p = svgNode.createSVGPoint();
