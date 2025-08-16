@@ -42,17 +42,16 @@ export class AxisModel {
     data: ChartData,
     axisIdx: number,
     dIndex: [number, number],
-    transform: ZoomTransform,
   ): void {
     const { tree, scale: scaleRaw } = data.axisTransform(axisIdx, dIndex);
     this.tree = tree;
     const scale = scaleRaw.copy().range(this.scale.range() as [number, number]);
-    const rescaled = transform.rescaleY(scale);
     this.transform.onReferenceViewWindowResize([
       data.bIndexFull,
       scale.domain() as [number, number],
     ]);
-    this.scale = rescaled.copy();
+    // Apply the scale directly so the Y axis always fits the visible data.
+    this.scale = scale.copy();
   }
 }
 
@@ -97,7 +96,6 @@ export class AxisManager {
         this.data,
         i,
         indexScale.domain() as [number, number],
-        transform,
       );
     });
   }

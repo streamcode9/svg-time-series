@@ -51,4 +51,34 @@ describe("AxisManager", () => {
     }).not.toThrow();
     expect(spy).toHaveBeenCalledWith(2);
   });
+
+  it("fits the Y domain to the visible data on zoom", () => {
+    const data = new ChartData({
+      startTime: 0,
+      timeStep: 1,
+      length: 10,
+      seriesAxes: [0],
+      getSeries: (i) => i,
+    });
+    const axisManager = new AxisManager(1, data);
+    axisManager.setXAxis(
+      scaleTime()
+        .domain([new Date(0), new Date(9)])
+        .range([0, 100]),
+    );
+    axisManager.axes[0]!.scale.range([100, 0]);
+
+    const t = zoomIdentity.scale(2);
+    axisManager.updateScales(t);
+
+    const indexScale = data.bIndexFromTransform(
+      t,
+      axisManager.x.range() as [number, number],
+    );
+    const expectedDomain = data
+      .axisTransform(0, indexScale.domain() as [number, number])
+      .scale.domain();
+
+    expect(axisManager.axes[0]!.scale.domain()).toEqual(expectedDomain);
+  });
 });

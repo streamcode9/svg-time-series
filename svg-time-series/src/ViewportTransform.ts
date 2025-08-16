@@ -15,7 +15,9 @@ export class ViewportTransform {
 
   private updateScales() {
     this.scaleX = this.zoomTransform.rescaleX(this.baseScaleX);
-    this.scaleY = this.zoomTransform.rescaleY(this.baseScaleY);
+    // Ignore the zoom transform for the Y axis so that it always fits the data
+    // based on its current domain.
+    this.scaleY = this.baseScaleY.copy();
     this.updateComposedMatrix();
   }
 

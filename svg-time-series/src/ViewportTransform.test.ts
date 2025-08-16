@@ -27,7 +27,7 @@ describe("ViewportTransform", () => {
     // apply zoom: translate 10 and scale 2
     vt.onZoomPan(zoomIdentity.translate(10, 0).scale(2));
     expect(vt.fromScreenToModelX(70)).toBeCloseTo(3);
-    expect(vt.fromScreenToModelY(20)).toBeCloseTo(1);
+    expect(vt.fromScreenToModelY(20)).toBeCloseTo(2);
   });
 
   it("maps screen bases back to model bases through inverse transforms", () => {
@@ -53,7 +53,7 @@ describe("ViewportTransform", () => {
     const x = vt.fromScreenToModelX(70);
     const y = vt.fromScreenToModelY(20);
     expect(x).toBeCloseTo(3);
-    expect(y).toBeCloseTo(1);
+    expect(y).toBeCloseTo(2);
   });
 
   it("round-trips between screen and model coordinates", () => {
