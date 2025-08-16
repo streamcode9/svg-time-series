@@ -14,11 +14,13 @@ import { buildMinMax, minMaxIdentity } from "./minMax.ts";
 export class AxisModel {
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
+  baseScale: ScaleLinear<number, number>;
   tree: SegmentTree<IMinMax>;
 
   constructor() {
     this.transform = new ViewportTransform();
     this.scale = scaleLinear<number, number>().domain([0, 1]);
+    this.baseScale = scaleLinear<number, number>().domain([0, 1]);
     this.tree = new SegmentTree([minMaxIdentity], buildMinMax, minMaxIdentity);
   }
 
@@ -44,11 +46,15 @@ export class AxisModel {
     data: ChartData,
     axisIdx: number,
     bIndex: AR1Basis,
+    transform: ZoomTransform,
   ): void {
-    const { tree, min, max, dpRef } = data.axisTransform(axisIdx, bIndex);
+    const { tree, dpRef } = data.axisTransform(axisIdx, bIndex);
     this.tree = tree;
     this.transform.onReferenceViewWindowResize(dpRef);
-    this.scale.domain([min, max]);
+    const full = tree.query(0, data.length - 1);
+    this.baseScale.domain([full.min, full.max]);
+    const scaled = transform.rescaleY(this.baseScale);
+    this.scale.domain(scaled.domain());
   }
 }
 
@@ -83,11 +89,12 @@ export class AxisManager {
       this.x.range() as [number, number],
     );
     updateScaleX(this.x, transform);
-    for (const [i, idxs] of this.data.seriesByAxis.entries()) {
+    this.axes.forEach((a, i) => {
+      const idxs = this.data.seriesByAxis[i] ?? [];
       if (idxs.length === 0) {
-        continue;
+        return;
       }
-      this.axes[i]!.updateAxisTransform(this.data, i, bIndex);
-    }
+      a.updateAxisTransform(this.data, i, bIndex, transform);
+    });
   }
 }

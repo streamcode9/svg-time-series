@@ -137,6 +137,7 @@ function resizeRenderState(
   for (const a of state.axes.y) {
     a.transform.onViewPortResize(bScreenVisible);
     a.scale.range([height, 0]);
+    a.baseScale.range([height, 0]);
   }
 }
 
@@ -165,6 +166,7 @@ export function setupRender(
   const yAxes = axisManager.axes;
   for (const a of yAxes) {
     a.scale.range(yRange);
+    a.baseScale.range(yRange);
   }
   axisManager.updateScales(zoomIdentity);
 

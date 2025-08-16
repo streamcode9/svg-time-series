@@ -23,7 +23,10 @@ describe("AxisManager", () => {
         .domain([new Date(0), new Date(1)])
         .range([0, 1]),
     );
-    axisManager.axes.forEach((a) => a.scale.range([0, 1]));
+    axisManager.axes.forEach((a) => {
+      a.scale.range([0, 1]);
+      a.baseScale.range([0, 1]);
+    });
     const spy = vi.spyOn(data, "assertAxisBounds");
     expect(() => {
       axisManager.updateScales(zoomIdentity);
@@ -39,7 +42,10 @@ describe("AxisManager", () => {
         .domain([new Date(0), new Date(1)])
         .range([0, 1]),
     );
-    axisManager.axes.forEach((a) => a.scale.range([0, 1]));
+    axisManager.axes.forEach((a) => {
+      a.scale.range([0, 1]);
+      a.baseScale.range([0, 1]);
+    });
     const spy = vi.spyOn(data, "assertAxisBounds");
     expect(() => {
       axisManager.updateScales(zoomIdentity);

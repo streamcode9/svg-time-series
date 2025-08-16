@@ -23,7 +23,10 @@ describe("updateScales", () => {
         .domain([new Date(0), new Date(1)])
         .range([0, 1]),
     );
-    axisManager.axes.forEach((a) => a.scale.range([0, 1]));
+    axisManager.axes.forEach((a) => {
+      a.scale.range([0, 1]);
+      a.baseScale.range([0, 1]);
+    });
 
     axisManager.updateScales(zoomIdentity);
 
@@ -39,6 +42,7 @@ describe("updateScales", () => {
         [1, 10, -5, 15],
         [3, 30, 5, 25],
       ],
+      length: 2,
       bIndexFull: new AR1Basis(0, 1),
       assertAxisBounds(axisCount: number) {
         this.seriesByAxis.forEach((series: number[], i: number) => {
@@ -121,7 +125,10 @@ describe("updateScales", () => {
         .domain([new Date(0), new Date(1)])
         .range([0, 1]),
     );
-    axisManager.axes.forEach((a) => a.scale.range([0, 1]));
+    axisManager.axes.forEach((a) => {
+      a.scale.range([0, 1]);
+      a.baseScale.range([0, 1]);
+    });
 
     axisManager.updateScales(zoomIdentity);
 
@@ -138,6 +145,7 @@ describe("updateScales", () => {
         [0, 10, -5],
         [1, 20, 5],
       ],
+      length: 2,
       bIndexFull: new AR1Basis(0, 1),
       assertAxisBounds(axisCount: number) {
         this.seriesByAxis.forEach((series: number[], i: number) => {
@@ -217,7 +225,10 @@ describe("updateScales", () => {
         .domain([new Date(0), new Date(1)])
         .range([0, 1]),
     );
-    axisManager.axes.forEach((a) => a.scale.range([0, 1]));
+    axisManager.axes.forEach((a) => {
+      a.scale.range([0, 1]);
+      a.baseScale.range([0, 1]);
+    });
 
     expect(() => {
       axisManager.updateScales(zoomIdentity);
