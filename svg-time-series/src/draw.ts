@@ -136,6 +136,8 @@ export class TimeSeriesChart {
       .on("mousemove", null)
       .on("mouseleave", null)
       .on(".zoomCursor", null);
+    this.brushBehavior.on("end", null);
+    this.brushLayer.on(".brush", null).remove();
     this.state.destroy();
     this.zoomArea.remove();
     this.legendController.destroy();
