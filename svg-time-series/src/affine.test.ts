@@ -4,7 +4,6 @@ import {
   AR1Basis,
   DirectProduct,
   DirectProductBasis,
-  betweenTBasesDirectProduct,
   betweenBasesAR1,
 } from "./math/affine.ts";
 
@@ -41,26 +40,6 @@ describe("AR1 and AR1Basis", () => {
 });
 
 describe("DirectProduct", () => {
-  it("creates direct product transforms between bases and composes with inverses", () => {
-    const b1x = new AR1Basis(0, 10);
-    const b1y = new AR1Basis(0, 20);
-    const b2x = new AR1Basis(10, 20);
-    const b2y = new AR1Basis(20, 40);
-    const dpb1 = DirectProductBasis.fromProjections(b1x, b1y);
-    const dpb2 = DirectProductBasis.fromProjections(b2x, b2y);
-    const dp = betweenTBasesDirectProduct(dpb1, dpb2);
-
-    expect(dp.s1.applyToPoint(0)).toBeCloseTo(10);
-    expect(dp.s1.applyToPoint(10)).toBeCloseTo(20);
-    expect(dp.s2.applyToPoint(0)).toBeCloseTo(20);
-    expect(dp.s2.applyToPoint(20)).toBeCloseTo(40);
-
-    const s1Id = dp.s1.composeWith(dp.s1.inverse());
-    const s2Id = dp.s2.composeWith(dp.s2.inverse());
-    expect(s1Id.applyToPoint(5)).toBeCloseTo(5);
-    expect(s2Id.applyToPoint(15)).toBeCloseTo(15);
-  });
-
   it("composes and inverts direct product transforms", () => {
     const dp1 = new DirectProduct(new AR1([2, 3]), new AR1([4, 5]));
     const dp2 = new DirectProduct(new AR1([6, 7]), new AR1([8, 9]));

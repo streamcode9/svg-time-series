@@ -1,42 +1,32 @@
 import { scaleLinear } from "d3-scale";
-import type { ZoomTransform } from "d3-zoom";
+import { zoomIdentity, type ZoomTransform } from "d3-zoom";
 import type { DirectProductBasis } from "./math/affine.ts";
-import { AR1Basis, dpbPlaceholder } from "./math/affine.ts";
+import { AR1Basis } from "./math/affine.ts";
 import { scalesToDomMatrix } from "./utils/domMatrix.ts";
 
 export class ViewportTransform {
-  private viewPortPoints: DirectProductBasis = dpbPlaceholder;
-
-  private referenceViewWindowPoints: DirectProductBasis = dpbPlaceholder;
-
-  private zoomTransform: DOMMatrix = new DOMMatrix();
-  private referenceTransform: DOMMatrix = new DOMMatrix();
+  private baseScaleX = scaleLinear();
+  private baseScaleY = scaleLinear();
+  private scaleX = this.baseScaleX;
+  private scaleY = this.baseScaleY;
+  private zoomTransform: ZoomTransform = zoomIdentity;
   private composedMatrix: DOMMatrix = new DOMMatrix();
   private inverseMatrix: DOMMatrix | null = new DOMMatrix();
 
   private static readonly DET_EPSILON = 1e-12;
 
-  private updateReferenceTransform() {
-    const [refX, refY] = this.referenceViewWindowPoints.toArr() as [
-      [number, number],
-      [number, number],
-    ];
-    const [viewX, viewY] = this.viewPortPoints.toArr() as [
-      [number, number],
-      [number, number],
-    ];
-    const scaleX = scaleLinear().domain(refX).range(viewX);
-    const scaleY = scaleLinear().domain(refY).range(viewY);
-    this.referenceTransform = scalesToDomMatrix(
-      scaleX,
-      scaleY,
-      new DOMMatrix(),
-    );
+  private updateScales() {
+    this.scaleX = this.zoomTransform.rescaleX(this.baseScaleX);
+    this.scaleY = this.zoomTransform.rescaleY(this.baseScaleY);
     this.updateComposedMatrix();
   }
 
   private updateComposedMatrix() {
-    this.composedMatrix = this.zoomTransform.multiply(this.referenceTransform);
+    this.composedMatrix = scalesToDomMatrix(
+      this.scaleX,
+      this.scaleY,
+      new DOMMatrix(),
+    );
     this.updateInverseMatrix();
   }
 
@@ -48,7 +38,10 @@ export class ViewportTransform {
     }
 
     const det = m.a * m.d - m.b * m.c;
-    if (Math.abs(det) < ViewportTransform.DET_EPSILON) {
+    if (
+      !Number.isFinite(det) ||
+      Math.abs(det) < ViewportTransform.DET_EPSILON
+    ) {
       this.inverseMatrix = null;
       return;
     }
@@ -57,20 +50,30 @@ export class ViewportTransform {
   }
 
   public onViewPortResize(bScreenVisible: DirectProductBasis): this {
-    this.viewPortPoints = bScreenVisible;
-    this.updateReferenceTransform();
+    const [viewX, viewY] = bScreenVisible.toArr() as [
+      [number, number],
+      [number, number],
+    ];
+    this.baseScaleX = this.baseScaleX.copy().range(viewX);
+    this.baseScaleY = this.baseScaleY.copy().range(viewY);
+    this.updateScales();
     return this;
   }
 
   public onReferenceViewWindowResize(newPoints: DirectProductBasis): this {
-    this.referenceViewWindowPoints = newPoints;
-    this.updateReferenceTransform();
+    const [refX, refY] = newPoints.toArr() as [
+      [number, number],
+      [number, number],
+    ];
+    this.baseScaleX = this.baseScaleX.copy().domain(refX);
+    this.baseScaleY = this.baseScaleY.copy().domain(refY);
+    this.updateScales();
     return this;
   }
 
   public onZoomPan(t: ZoomTransform): this {
-    this.zoomTransform = new DOMMatrix().translate(t.x, 0).scale(t.k, 1);
-    this.updateComposedMatrix();
+    this.zoomTransform = t;
+    this.updateScales();
     return this;
   }
 

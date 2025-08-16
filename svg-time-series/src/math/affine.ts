@@ -123,15 +123,3 @@ export class DirectProductBasis {
     return new DirectProductBasis([b1x, b1y], [b2x, b2y]);
   }
 }
-
-export const dpbPlaceholder = new DirectProductBasis([0, 0], [1, 1]);
-
-export function betweenTBasesDirectProduct(
-  b1: DirectProductBasis,
-  b2: DirectProductBasis,
-): DirectProduct {
-  return new DirectProduct(
-    betweenTBasesAR1(b1.x(), b2.x()),
-    betweenTBasesAR1(b1.y(), b2.y()),
-  );
-}
