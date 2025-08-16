@@ -54,6 +54,12 @@ export class ChartData {
   public readonly timeStep: number;
   public readonly seriesCount: number;
   public readonly seriesAxes: number[];
+  /**
+   * Persistent mapping from window-relative index to timestamp.
+   * Domain remains [0, 1] and the range shifts forward with the
+   * sliding window to avoid recreating the scale on every query.
+   */
+  public readonly indexToTime: ScaleLinear<number, number>;
 
   /**
    * Creates a new ChartData instance.
@@ -78,10 +84,15 @@ export class ChartData {
     // bIndexFull represents the full range of data indices and remains constant
     // since append() maintains a sliding window of fixed length
     this.bIndexFull = new AR1Basis(0, this.window.length - 1);
+    this.indexToTime = scaleLinear<number, number>()
+      .domain([0, 1])
+      .range([this.startTime, this.startTime + this.timeStep]);
   }
 
   append(...values: number[]): void {
     this.window.append(...values);
+    const [r0, r1] = this.indexToTime.range() as [number, number];
+    this.indexToTime.range([r0 + this.timeStep, r1 + this.timeStep]);
   }
 
   get length(): number {
@@ -106,21 +117,14 @@ export class ChartData {
     };
   }
 
-  indexToTime(): ScaleLinear<number, number> {
-    return scaleLinear<number, number>()
-      .domain([this.window.startIndex, this.window.startIndex + 1])
-      .range([this.startTime, this.startTime + this.timeStep]);
-  }
-
   timeToIndex(time: number): number {
     assertFiniteNumber(time, "ChartData.timeToIndex time");
-    const scale = this.indexToTime();
-    const idx = scale.invert(time);
+    const idx = this.indexToTime.invert(time);
     return this.clampIndex(idx);
   }
 
   timeDomainFull(): [Date, Date] {
-    const toTime = this.indexToTime();
+    const toTime = this.indexToTime;
     return this.bIndexFull.toArr().map((i) => new Date(toTime(i))) as [
       Date,
       Date,

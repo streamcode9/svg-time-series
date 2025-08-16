@@ -75,9 +75,7 @@ describe("updateScales", () => {
           },
         };
       },
-      indexToTime() {
-        return scaleLinear().domain([0, 1]).range([0, 1]);
-      },
+      indexToTime: scaleLinear().domain([0, 1]).range([0, 1]),
       timeDomainFull(): [Date, Date] {
         return [new Date(0), new Date(1)];
       },
@@ -178,9 +176,7 @@ describe("updateScales", () => {
           },
         };
       },
-      indexToTime() {
-        return scaleLinear().domain([0, 1]).range([0, 1]);
-      },
+      indexToTime: scaleLinear().domain([0, 1]).range([0, 1]),
       timeDomainFull(): [Date, Date] {
         return [new Date(0), new Date(1)];
       },

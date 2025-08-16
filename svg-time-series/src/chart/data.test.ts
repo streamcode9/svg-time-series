@@ -195,7 +195,7 @@ describe("ChartData", () => {
         [0, 1],
       ),
     );
-    const scale = cd.indexToTime();
+    const scale = cd.indexToTime.copy();
     for (let i = 0; i < cd.length; i++) {
       const t = scale(i);
       const idx = cd.timeToIndex(t);
@@ -216,7 +216,7 @@ describe("ChartData", () => {
         [0, 1],
       ),
     );
-    const scale = cd.indexToTime();
+    const scale = cd.indexToTime.copy();
     const earliest = scale(0);
     const latest = scale(cd.length - 1);
     expect(cd.timeToIndex(earliest - 1000)).toBe(0);
