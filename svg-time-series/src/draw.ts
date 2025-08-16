@@ -2,6 +2,7 @@ import type { Selection } from "d3-selection";
 import type { D3ZoomEvent } from "d3-zoom";
 import { zoomIdentity, zoomTransform } from "d3-zoom";
 import { brush, type BrushBehavior, type D3BrushEvent } from "d3-brush";
+import { clearBrushSelection } from "./draw/brushUtils.ts";
 
 import { ChartData } from "./chart/data.ts";
 import type { IDataSource } from "./chart/data.ts";
@@ -220,13 +221,6 @@ export class TimeSeriesChart {
   };
 
   private clearBrush = () => {
-    (
-      this.brushBehavior as unknown as {
-        move: (
-          selection: Selection<SVGGElement, unknown, HTMLElement, unknown>,
-          value: null,
-        ) => void;
-      }
-    ).move(this.brushLayer, null);
+    clearBrushSelection(this.brushBehavior, this.brushLayer);
   };
 }
