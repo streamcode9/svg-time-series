@@ -524,4 +524,22 @@ describe("ChartData", () => {
       timestamp: 2,
     });
   });
+
+  it("reuses axis trees until new data arrives", () => {
+    const cd = new ChartData(
+      makeSource(
+        [
+          [0, 10],
+          [1, 20],
+        ],
+        [0, 1],
+      ),
+    );
+    const treeA = cd.buildAxisTree(0);
+    const treeB = cd.buildAxisTree(0);
+    expect(treeA).toBe(treeB);
+    cd.append(2, 30);
+    const treeC = cd.buildAxisTree(0);
+    expect(treeC).not.toBe(treeA);
+  });
 });

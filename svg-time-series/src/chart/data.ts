@@ -67,6 +67,10 @@ export class ChartData {
    * avoid reconstructing the scale for every call.
    */
   private readonly indexScale: ScaleLinear<number, number>;
+  private axisTrees: [
+    SegmentTree<IMinMax> | undefined,
+    SegmentTree<IMinMax> | undefined,
+  ];
 
   /**
    * Creates a new ChartData instance.
@@ -102,12 +106,14 @@ export class ChartData {
       .clamp(true)
       .domain(this.bIndexFull)
       .range([0, 1]);
+    this.axisTrees = [undefined, undefined];
   }
 
   append(...values: number[]): void {
     this.window.append(...values);
     const [r0, r1] = this.indexToTime.range() as [number, number];
     this.indexToTime.range([r0 + this.timeStep, r1 + this.timeStep]);
+    this.axisTrees = [undefined, undefined];
   }
 
   get length(): number {
@@ -174,7 +180,12 @@ export class ChartData {
         `ChartData.buildAxisTree axis must be 0 or 1; received ${String(axis)}`,
       );
     }
-    const idxs = this.seriesByAxis[axis];
+    const axisIdx = axis;
+    const cached = this.axisTrees[axisIdx];
+    if (cached) {
+      return cached;
+    }
+    const idxs = this.seriesByAxis[axisIdx];
     const arr = this.data.map((row) =>
       idxs
         .map((j) => {
@@ -183,7 +194,9 @@ export class ChartData {
         })
         .reduce(buildMinMax, minMaxIdentity),
     );
-    return new SegmentTree(arr, buildMinMax, minMaxIdentity);
+    const tree = new SegmentTree(arr, buildMinMax, minMaxIdentity);
+    this.axisTrees[axisIdx] = tree;
+    return tree;
   }
   scaleY(
     bIndexVisible: Basis,
