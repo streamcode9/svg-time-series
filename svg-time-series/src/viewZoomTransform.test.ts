@@ -1,16 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { scaleLinear } from "d3-scale";
 import {
   AR1,
   AR1Basis,
   betweenTBasesAR1,
   DirectProductBasis,
-  betweenTBasesDirectProduct,
 } from "./math/affine.ts";
-import {
-  applyAR1ToMatrixX,
-  applyAR1ToMatrixY,
-  applyDirectProductToMatrix,
-} from "./utils/domMatrix.ts";
+import { scaleToDomMatrix } from "./utils/domMatrix.ts";
 import { updateNode } from "./utils/domNodeTransform.ts";
 import { Matrix } from "./setupDom.ts";
 
@@ -40,21 +36,6 @@ describe("AR1 and AR1Basis", () => {
   });
 });
 
-describe("DirectProduct", () => {
-  it("applies independent transforms on axes", () => {
-    const identity = new Matrix() as unknown as DOMMatrix;
-    const b1 = new DirectProductBasis([0, 0], [1, 1]);
-    const b2 = new DirectProductBasis([10, 10], [20, 30]);
-    const dp = betweenTBasesDirectProduct(b1, b2);
-    const m = applyDirectProductToMatrix(dp, identity);
-
-    expect(m.a).toBeCloseTo(10);
-    expect(m.d).toBeCloseTo(20);
-    expect(m.e).toBeCloseTo(10);
-    expect(m.f).toBeCloseTo(10);
-  });
-});
-
 describe("DirectProductBasis utilities", () => {
   it("builds from axis projections", () => {
     const bx = new AR1Basis(0, 2);
@@ -71,18 +52,14 @@ describe("DirectProductBasis utilities", () => {
 });
 
 describe("viewZoomTransform helpers", () => {
-  it("applies AR1 transforms along X and Y axes", () => {
-    const mx = applyAR1ToMatrixX(
-      new AR1([2, 3]),
-      new Matrix() as unknown as DOMMatrix,
-    );
+  it("applies scale transforms along X and Y axes", () => {
+    const sx = scaleLinear().domain([0, 1]).range([3, 5]);
+    const mx = scaleToDomMatrix(sx, "x", new Matrix() as unknown as DOMMatrix);
     expect(mx.a).toBeCloseTo(2);
     expect(mx.e).toBeCloseTo(3);
 
-    const my = applyAR1ToMatrixY(
-      new AR1([3, 4]),
-      new Matrix() as unknown as DOMMatrix,
-    );
+    const sy = scaleLinear().domain([0, 1]).range([4, 7]);
+    const my = scaleToDomMatrix(sy, "y", new Matrix() as unknown as DOMMatrix);
     expect(my.d).toBeCloseTo(3);
     expect(my.f).toBeCloseTo(4);
   });

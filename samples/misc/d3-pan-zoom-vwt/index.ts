@@ -2,13 +2,10 @@ import { select } from "d3-selection";
 import { range } from "d3-array";
 import { zoom } from "d3-zoom";
 import type { D3ZoomEvent, ZoomTransform } from "d3-zoom";
+import { scaleLinear } from "d3-scale";
 
 import { measure, measureOnce } from "../../benchmarks/bench.ts";
-import { betweenBasesAR1 } from "../../../svg-time-series/src/math/affine.ts";
-import {
-  applyAR1ToMatrixX,
-  applyAR1ToMatrixY,
-} from "../../../svg-time-series/src/utils/domMatrix.ts";
+import { scalesToDomMatrix } from "../../../svg-time-series/src/utils/domMatrix.ts";
 import { updateNode } from "../../../svg-time-series/src/utils/domNodeTransform.ts";
 
 const svg = select("svg"),
@@ -140,10 +137,10 @@ measureOnce(60, ({ fps }) => {
 
 function test(svgNode: SVGSVGElement, viewNode: SVGGElement, width: number) {
   const id = svgNode.createSVGMatrix();
-  const affX = betweenBasesAR1([-550, 550], [0, width]);
-  const affY = betweenBasesAR1([-550, 550], [0, width]);
+  const scaleX = scaleLinear().domain([-550, 550]).range([0, width]);
+  const scaleY = scaleLinear().domain([-550, 550]).range([0, width]);
 
-  const m = applyAR1ToMatrixY(affY, applyAR1ToMatrixX(affX, id));
+  const m = scalesToDomMatrix(scaleX, scaleY, id);
 
   const newPoint = (x: number, y: number) => {
     const p = svgNode.createSVGPoint();

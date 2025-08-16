@@ -1,11 +1,8 @@
+import { scaleLinear } from "d3-scale";
 import type { ZoomTransform } from "d3-zoom";
 import type { DirectProductBasis } from "./math/affine.ts";
-import {
-  AR1Basis,
-  betweenTBasesDirectProduct,
-  dpbPlaceholder,
-} from "./math/affine.ts";
-import { applyDirectProductToMatrix } from "./utils/domMatrix.ts";
+import { AR1Basis, dpbPlaceholder } from "./math/affine.ts";
+import { scalesToDomMatrix } from "./utils/domMatrix.ts";
 
 export class ViewportTransform {
   private viewPortPoints: DirectProductBasis = dpbPlaceholder;
@@ -20,11 +17,21 @@ export class ViewportTransform {
   private static readonly DET_EPSILON = 1e-12;
 
   private updateReferenceTransform() {
-    const dp = betweenTBasesDirectProduct(
-      this.referenceViewWindowPoints,
-      this.viewPortPoints,
+    const [refX, refY] = this.referenceViewWindowPoints.toArr() as [
+      [number, number],
+      [number, number],
+    ];
+    const [viewX, viewY] = this.viewPortPoints.toArr() as [
+      [number, number],
+      [number, number],
+    ];
+    const scaleX = scaleLinear().domain(refX).range(viewX);
+    const scaleY = scaleLinear().domain(refY).range(viewY);
+    this.referenceTransform = scalesToDomMatrix(
+      scaleX,
+      scaleY,
+      new DOMMatrix(),
     );
-    this.referenceTransform = applyDirectProductToMatrix(dp, new DOMMatrix());
     this.updateComposedMatrix();
   }
 
