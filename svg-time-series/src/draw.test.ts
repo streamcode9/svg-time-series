@@ -193,6 +193,7 @@ describe("TimeSeriesChart", () => {
     expect(rectNode.getAttribute("class")).toContain("zoom-overlay");
     expect(rectNode.classList.contains("cursor-grab")).toBe(true);
     expect(rectNode.style.pointerEvents).toBe("all");
+    expect(rectNode.getAttribute("fill")).toBe("none");
 
     rectNode.dispatchEvent(new Event("pointerdown"));
     expect(rectNode.classList.contains("cursor-grabbing")).toBe(true);

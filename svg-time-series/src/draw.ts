@@ -56,6 +56,7 @@ export class TimeSeriesChart {
       .attr("class", "zoom-overlay cursor-grab")
       .attr("width", this.state.dimensions.width)
       .attr("height", this.state.dimensions.height)
+      .attr("fill", "none")
       .style("pointer-events", "all");
 
     this.brushBehavior = brush()
