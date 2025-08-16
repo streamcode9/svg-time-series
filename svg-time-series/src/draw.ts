@@ -1,7 +1,7 @@
 import type { Selection } from "d3-selection";
 import type { D3ZoomEvent } from "d3-zoom";
 import { zoomIdentity, zoomTransform } from "d3-zoom";
-import { brush, type BrushBehavior, type D3BrushEvent } from "d3-brush";
+import { brushX, type BrushBehavior, type D3BrushEvent } from "d3-brush";
 import { clearBrushSelection } from "./draw/brushUtils.ts";
 
 import { ChartData } from "./chart/data.ts";
@@ -61,7 +61,7 @@ export class TimeSeriesChart {
       .attr("fill", "none")
       .style("pointer-events", "all");
 
-    this.brushBehavior = brush()
+    this.brushBehavior = brushX()
       .extent([
         [0, 0],
         [width, height],
@@ -203,7 +203,7 @@ export class TimeSeriesChart {
     if (!event.selection) {
       return;
     }
-    let [[x0], [x1]] = event.selection as [[number, number], [number, number]];
+    let [x0, x1] = event.selection as [number, number];
     if (x0 === x1) {
       this.clearBrush();
       return;
