@@ -7,7 +7,7 @@
     "dev": "npm run dev --workspace=samples",
     "lint": "eslint . --cache --max-warnings=0 --report-unused-disable-directives",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "vitest run",
+    "test": "vitest run --reporter=dot",
     "bench": "npm run bench --workspaces --if-present",
     "format": "prettier . --write",
     "format:check": "prettier . --check",

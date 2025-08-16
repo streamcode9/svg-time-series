@@ -40,6 +40,6 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
     "preview": "vite preview",
     "bench": "vitest bench bench/*.bench.ts",
-    "test": "vitest run"
+    "test": "vitest run --reporter=dot"
   }
 }
