@@ -12,13 +12,11 @@ import { buildMinMax, minMaxIdentity } from "./minMax.ts";
 export class AxisModel {
   transform: ViewportTransform;
   scale: ScaleLinear<number, number>;
-  baseScale: ScaleLinear<number, number>;
   tree: SegmentTree<IMinMax>;
 
   constructor() {
     this.transform = new ViewportTransform();
     this.scale = scaleLinear<number, number>().domain([0, 1]);
-    this.baseScale = scaleLinear<number, number>().domain([0, 1]);
     this.tree = new SegmentTree([minMaxIdentity], buildMinMax, minMaxIdentity);
   }
 
@@ -46,16 +44,15 @@ export class AxisModel {
     dIndex: [number, number],
     transform: ZoomTransform,
   ): void {
-    const { tree, scale } = data.axisTransform(axisIdx, dIndex);
+    const { tree, scale: scaleRaw } = data.axisTransform(axisIdx, dIndex);
     this.tree = tree;
-    const range = this.baseScale.range() as [number, number];
-    scale.range(range);
-    this.baseScale = scale;
+    const scale = scaleRaw.copy().range(this.scale.range() as [number, number]);
+    const rescaled = transform.rescaleY(scale);
     this.transform.onReferenceViewWindowResize([
       data.bIndexFull,
       scale.domain() as [number, number],
     ]);
-    this.scale = transform.rescaleY(scale).copy();
+    this.scale = rescaled.copy();
   }
 }
 
@@ -89,7 +86,8 @@ export class AxisManager {
       transform,
       this.x.range() as [number, number],
     );
-    this.x = transform.rescaleX(this.x).copy();
+    const rescaledX = transform.rescaleX(this.x);
+    this.x = rescaledX.copy();
     this.axes.forEach((a, i) => {
       const idxs = this.data.seriesByAxis[i] ?? [];
       if (idxs.length === 0) {

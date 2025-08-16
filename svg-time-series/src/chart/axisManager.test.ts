@@ -26,7 +26,6 @@ describe("AxisManager", () => {
     );
     axisManager.axes.forEach((a) => {
       a.scale.range([0, 1]);
-      a.baseScale.range([0, 1]);
     });
     const spy = vi.spyOn(data, "assertAxisBounds");
     expect(() => {
@@ -45,7 +44,6 @@ describe("AxisManager", () => {
     );
     axisManager.axes.forEach((a) => {
       a.scale.range([0, 1]);
-      a.baseScale.range([0, 1]);
     });
     const spy = vi.spyOn(data, "assertAxisBounds");
     expect(() => {

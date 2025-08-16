@@ -145,7 +145,6 @@ export class RenderState {
     for (const a of this.axes.y) {
       a.transform.onViewPortResize(bScreenVisible);
       a.scale.range([height, 0]);
-      a.baseScale.range([height, 0]);
     }
   }
 
@@ -202,7 +201,6 @@ export function setupRender(
   const yAxes = axisManager.axes;
   for (const a of yAxes) {
     a.scale.range([height, 0]);
-    a.baseScale.range([height, 0]);
   }
   axisManager.updateScales(zoomIdentity);
 
