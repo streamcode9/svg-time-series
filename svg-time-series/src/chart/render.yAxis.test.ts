@@ -41,7 +41,7 @@ describe("setupRender Y-axis modes", () => {
     const data = new ChartData(source);
     const state = setupRender(svg, data);
     expect(state.axes.y).toHaveLength(1);
-    expect(state.axes.y[0]!.scale.domain()).toEqual([1, 30]);
+    expect(state.axes.y[0]!.scale.domain()).toEqual([0, 30]);
   });
 
   it("separates scales when series use different axes", () => {

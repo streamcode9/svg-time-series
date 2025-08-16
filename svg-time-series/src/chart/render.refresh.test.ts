@@ -120,7 +120,7 @@ describe("RenderState.refresh", () => {
     state.refresh(data, zoomIdentity);
 
     expect(state.axes.y).toHaveLength(1);
-    expect(state.axes.y[0]!.scale.domain()).toEqual([1, 30]);
+    expect(state.axes.y[0]!.scale.domain()).toEqual([0, 30]);
   });
 
   it("refreshes after data changes", () => {

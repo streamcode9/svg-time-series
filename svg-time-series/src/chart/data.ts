@@ -185,26 +185,25 @@ export class ChartData {
     );
     return new SegmentTree(arr, buildMinMax, minMaxIdentity);
   }
-  bAxisVisible(bIndexVisible: Basis, tree: SegmentTree<IMinMax>): Basis {
+  scaleY(
+    bIndexVisible: Basis,
+    tree: SegmentTree<IMinMax>,
+  ): ScaleLinear<number, number> {
     const [minIdxX, maxIdxX] = bIndexVisible;
     const i0 = this.clampIndex(minIdxX);
     const i1 = this.clampIndex(maxIdxX);
     const startIdx = Math.floor(Math.min(i0, i1));
     const endIdx = Math.ceil(Math.max(i0, i1));
     const { min, max } = tree.query(startIdx, endIdx);
-    const [y0, y1] = extent([min, max]) as [
+    let [y0, y1] = extent([min, max]) as [
       number | undefined,
       number | undefined,
     ];
-    return [y0 ?? NaN, y1 ?? NaN];
-  }
-
-  updateScaleY(
-    bIndexVisible: Basis,
-    tree: SegmentTree<IMinMax>,
-  ): ScaleLinear<number, number> {
-    const [min, max] = this.bAxisVisible(bIndexVisible, tree);
-    return scaleLinear<number, number>().domain([min, max]);
+    if (!Number.isFinite(y0) || !Number.isFinite(y1)) {
+      y0 = 0;
+      y1 = 1;
+    }
+    return scaleLinear<number, number>().domain([y0!, y1!]).nice();
   }
 
   axisTransform(
@@ -215,13 +214,7 @@ export class ChartData {
     scale: ScaleLinear<number, number>;
   } {
     const tree = this.buildAxisTree(axisIdx);
-    const scale = this.updateScaleY([dIndexVisible[0], dIndexVisible[1]], tree);
-    let [min, max] = scale.domain() as [number, number];
-    if (!Number.isFinite(min) || !Number.isFinite(max)) {
-      min = 0;
-      max = 1;
-    }
-    scale.domain([min, max]);
+    const scale = this.scaleY([dIndexVisible[0], dIndexVisible[1]], tree);
     return { tree, scale };
   }
 
@@ -229,14 +222,10 @@ export class ChartData {
     bIndexVisible: Basis,
     tree0: SegmentTree<IMinMax>,
     tree1: SegmentTree<IMinMax>,
-    scale: ScaleLinear<number, number>,
   ): ScaleLinear<number, number> {
-    const b0 = this.bAxisVisible(bIndexVisible, tree0);
-    const b1 = this.bAxisVisible(bIndexVisible, tree1);
-    const [min, max] = extent([...b0, ...b1]) as [
-      number | undefined,
-      number | undefined,
-    ];
-    return scale.domain([min ?? NaN, max ?? NaN]);
+    const d0 = this.scaleY(bIndexVisible, tree0).domain() as [number, number];
+    const d1 = this.scaleY(bIndexVisible, tree1).domain() as [number, number];
+    const [min, max] = extent([...d0, ...d1]) as [number, number];
+    return scaleLinear<number, number>().domain([min, max]).nice();
   }
 }

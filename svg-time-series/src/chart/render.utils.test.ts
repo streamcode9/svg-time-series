@@ -55,7 +55,7 @@ describe("createDimensions", () => {
   });
 });
 
-describe("updateScaleY", () => {
+describe("scaleY", () => {
   const makeSource = (data: number[][]): IDataSource => ({
     startTime: 0,
     timeStep: 1,
@@ -67,7 +67,7 @@ describe("updateScaleY", () => {
   it("respects the supplied index window", () => {
     const cd = new ChartData(makeSource([[10], [20], [40], [5]]));
     const tree = cd.buildAxisTree(0);
-    const scale = cd.updateScaleY([1, 2], tree);
+    const scale = cd.scaleY([1, 2], tree);
     expect(scale.domain()).toEqual([20, 40]);
   });
 });
