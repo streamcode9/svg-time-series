@@ -30,6 +30,10 @@ tree.update(3, 1);
 console.log(tree.query(1, 4)); // 1
 ```
 
+## Testing
+
+Unit tests reside in `src/` and can be run with `npm test` from this package or the repository root.
+
 ## Relation to svg-time-series
 
 `svg-time-series` uses `segment-tree-rmq` to perform fast range minimum/maximum queries when determining the vertical scale of time-series charts.
