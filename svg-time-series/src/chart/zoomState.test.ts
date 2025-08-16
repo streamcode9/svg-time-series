@@ -144,9 +144,8 @@ describe("ZoomState", () => {
 
     expect(applyZoomTransform).toHaveBeenCalledWith({ x: 5, k: 2 });
     expect(refresh).toHaveBeenCalledTimes(1);
-    expect(zoomCb).toHaveBeenCalledTimes(2);
-    expect(zoomCb).toHaveBeenNthCalledWith(1, event);
-    const internalEvent = zoomCb.mock.calls.at(1)![0] as {
+    expect(zoomCb).toHaveBeenCalledTimes(1);
+    const internalEvent = zoomCb.mock.calls.at(0)![0] as {
       transform: { x: number; k: number };
       sourceEvent?: unknown;
     };
@@ -193,14 +192,60 @@ describe("ZoomState", () => {
     });
     expect(applyZoomTransform).toHaveBeenCalledWith({ x: 2, k: 3 });
     expect(refresh).toHaveBeenCalledTimes(1);
-    expect(zoomCb).toHaveBeenCalledTimes(2);
-    expect(zoomCb).toHaveBeenNthCalledWith(1, event);
-    const internalEvent = zoomCb.mock.calls.at(1)![0] as {
+    expect(zoomCb).toHaveBeenCalledTimes(1);
+    const internalEvent = zoomCb.mock.calls.at(0)![0] as {
       transform: { x: number; k: number };
       sourceEvent?: unknown;
     };
     expect(internalEvent).toMatchObject({ transform: { x: 2, k: 3 } });
     expect(internalEvent.sourceEvent).toBeUndefined();
+  });
+
+  it("coalesces rapid pan/zoom events into a single callback per frame", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const applyZoomTransform = vi.fn<(t: unknown) => void>();
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axisRenders: [],
+      applyZoomTransform,
+      setDimensions: vi.fn(),
+    } as unknown as RenderState;
+    const refresh = vi.fn();
+    const zoomCb = vi.fn();
+    const zs = new ZoomState(
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
+      state,
+      refresh,
+      zoomCb,
+    );
+
+    const event1 = {
+      transform: { x: 1, k: 2 },
+      sourceEvent: {},
+    } as unknown as D3ZoomEvent<SVGRectElement, unknown>;
+    const event2 = {
+      transform: { x: 2, k: 3 },
+      sourceEvent: {},
+    } as unknown as D3ZoomEvent<SVGRectElement, unknown>;
+
+    zs.zoom(event1);
+    zs.zoom(event2);
+    vi.runAllTimers();
+
+    expect(applyZoomTransform).toHaveBeenCalledTimes(3);
+    expect(applyZoomTransform).toHaveBeenLastCalledWith({ x: 2, k: 3 });
+    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(zoomCb).toHaveBeenCalledTimes(1);
+    const cbEvent = zoomCb.mock.calls[0]![0] as {
+      transform: { x: number; k: number };
+    };
+    expect(cbEvent.transform).toMatchObject({ x: 2, k: 3 });
   });
 
   it("accumulates forwarded and user zoom events", () => {
@@ -303,6 +348,7 @@ describe("ZoomState", () => {
       sourceEvent: {},
     } as unknown as D3ZoomEvent<SVGRectElement, unknown>;
     zs1.zoom(event1);
+    vi.runAllTimers();
     const event2 = {
       transform: { x: 5, k: 4 },
       sourceEvent: {},

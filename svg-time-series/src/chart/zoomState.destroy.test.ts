@@ -22,10 +22,16 @@ vi.mock("d3-zoom", () => {
         selection: Selection<Element, unknown, Element, unknown>,
       ) => {
         selection.on("wheel.zoom", (event: Event) =>
-          behavior._handler?.(event),
+          behavior._handler?.({
+            transform: { x: 0, k: 1 },
+            sourceEvent: event,
+          }),
         );
         selection.on("pointerdown.zoom", (event: Event) =>
-          behavior._handler?.(event),
+          behavior._handler?.({
+            transform: { x: 0, k: 1 },
+            sourceEvent: event,
+          }),
         );
       };
       behavior.scaleExtent = () => behavior;
@@ -81,12 +87,14 @@ describe("ZoomState.destroy", () => {
     );
 
     rect.node()?.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    vi.runAllTimers();
     expect(zoomCb).toHaveBeenCalled();
 
     zoomCb.mockClear();
     zs.destroy();
     rect.node()?.dispatchEvent(new Event("wheel", { bubbles: true }));
     rect.node()?.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    vi.runAllTimers();
     expect(zoomCb).not.toHaveBeenCalled();
   });
 

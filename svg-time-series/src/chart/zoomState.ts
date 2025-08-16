@@ -90,10 +90,9 @@ export class ZoomState {
 
   public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
     this.state.applyZoomTransform(event.transform);
-    if (!this.zoomScheduler.zoom(event.transform, event.sourceEvent)) {
-      return;
-    }
-    this.zoomCallback(event);
+    this.zoomScheduler.zoom(event.transform, event.sourceEvent, event, (e) => {
+      this.zoomCallback(e as D3ZoomEvent<SVGRectElement, unknown>);
+    });
   };
 
   public refresh = () => {

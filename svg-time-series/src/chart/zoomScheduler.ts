@@ -7,6 +7,13 @@ export const sameTransform = (a: ZoomTransform, b: ZoomTransform): boolean =>
 export class ZoomScheduler {
   private currentPanZoomTransformState: ZoomTransform | null = null;
   private pendingZoomBehaviorTransform = false;
+  private callback:
+    | ((e: { transform: ZoomTransform; sourceEvent?: unknown }) => void)
+    | null = null;
+  private callbackEvent: {
+    transform: ZoomTransform;
+    sourceEvent?: unknown;
+  } | null = null;
   private scheduleRefresh: () => void;
   private cancelRefresh: () => void;
 
@@ -16,8 +23,14 @@ export class ZoomScheduler {
   ) {
     const { wrapped, cancel } = drawProc(() => {
       if (this.currentPanZoomTransformState != null) {
-        this.applyTransform(this.currentPanZoomTransformState);
+        const transform = this.currentPanZoomTransformState;
         this.currentPanZoomTransformState = null;
+        this.applyTransform(transform);
+        const cb = this.callback;
+        const event = this.callbackEvent ?? { transform };
+        this.callback = null;
+        this.callbackEvent = null;
+        cb?.(event);
       } else {
         this.refreshChart();
       }
@@ -26,9 +39,18 @@ export class ZoomScheduler {
     this.cancelRefresh = cancel;
   }
 
-  public zoom(transform: ZoomTransform, sourceEvent: unknown): boolean {
+  public zoom(
+    transform: ZoomTransform,
+    sourceEvent: unknown,
+    event?: { transform: ZoomTransform; sourceEvent?: unknown },
+    callback?: (e: { transform: ZoomTransform; sourceEvent?: unknown }) => void,
+  ): boolean {
     const prevTransform = this.currentPanZoomTransformState;
     this.currentPanZoomTransformState = transform;
+    if (callback) {
+      this.callback = callback;
+      this.callbackEvent = event ?? { transform };
+    }
     // 1. direct user interaction, wait for d3 to emit final transform
     if (sourceEvent) {
       this.pendingZoomBehaviorTransform = true;
@@ -39,7 +61,7 @@ export class ZoomScheduler {
     // 2. first programmatic transform before d3 zoom behavior fires
     if (!this.pendingZoomBehaviorTransform) {
       this.pendingZoomBehaviorTransform = true;
-      this.applyTransform(transform);
+      this.scheduleRefresh();
       return true;
     }
 
@@ -51,7 +73,7 @@ export class ZoomScheduler {
 
     // 4. final refresh after d3 confirms transform
     this.pendingZoomBehaviorTransform = false;
-    this.refreshChart();
+    this.scheduleRefresh();
     this.currentPanZoomTransformState = null;
     return true;
   }

@@ -39,11 +39,10 @@ describe("ZoomScheduler", () => {
     expect(zs.zoom({ x: 1, k: 2 } as unknown as ZoomTransform, null)).toBe(
       true,
     );
-    expect(apply).toHaveBeenCalledTimes(1);
-
     expect(zs.zoom({ x: 5, k: 3 } as unknown as ZoomTransform, null)).toBe(
       false,
     );
+    vi.runAllTimers();
     expect(apply).toHaveBeenCalledTimes(1);
   });
 

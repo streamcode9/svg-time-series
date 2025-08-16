@@ -127,6 +127,7 @@ describe("ZoomState.updateExtents clamp", () => {
 
     const initial = zoomIdentity.translate(-120, -80).scale(2);
     zs.zoomBehavior.transform(rect, initial);
+    vi.runAllTimers();
     const transformSpy = vi.spyOn(zs.zoomBehavior, "transform");
     expect(applyZoomTransform).toHaveBeenCalledWith(initial);
     transformSpy.mockClear();
@@ -138,7 +139,7 @@ describe("ZoomState.updateExtents clamp", () => {
       rect,
       expect.objectContaining({ x: -50, y: -50, k: 2 }),
     );
-    expect(transformSpy).toHaveBeenCalledTimes(2);
+    expect(transformSpy).toHaveBeenCalledTimes(1);
     expect(zoomTransform(rect.node()!)).toMatchObject({ x: -50, y: -50, k: 2 });
   });
 });
