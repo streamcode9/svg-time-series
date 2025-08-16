@@ -27,6 +27,7 @@ export default config(
       "**/dist/**",
       "samples/unused/**",
       "samples/benchmarks/path-data-polyfill.js",
+      "samples/misc/demo2-bug-60/**",
     ],
   },
   {
