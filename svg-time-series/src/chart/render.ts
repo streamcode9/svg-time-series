@@ -89,7 +89,11 @@ export function refreshRenderState(
     const t = state.axes.y[s.axisIdx]!.transform;
     updateNode(s.view, t.matrix);
   }
-  state.axisRenders.forEach((r) => {
+  state.axes.x.scale = state.axisManager.x;
+  state.axes.x.axis.setScale(state.axisManager.x);
+  state.axisRenders.forEach((r, i) => {
+    const model = state.axisManager.axes[i]!;
+    r.axis.setScale(model.scale);
     r.axis.axisUp(r.g);
   });
   state.axes.x.axis.axisUp(state.axes.x.g!);
@@ -129,6 +133,8 @@ function resizeRenderState(
   );
 
   state.axes.x.scale.range([0, width]);
+  state.axes.x.axis.setScale(state.axes.x.scale);
+  state.axisManager.setXAxis(state.axes.x.scale);
   state.screenXBasis = bScreenXVisible;
 
   zoomState.updateExtents(dimensions);
@@ -159,10 +165,8 @@ export function setupRender(
     [number, number],
     [number, number],
   ];
-  const xScale: ScaleTime<number, number> = scaleTime().range(xRange);
-
   const axisManager = new AxisManager(axisCount, data);
-  axisManager.setXAxis(xScale);
+  axisManager.setXAxis(scaleTime().range(xRange));
   const yAxes = axisManager.axes;
   for (const a of yAxes) {
     a.scale.range(yRange);
@@ -185,11 +189,11 @@ export function setupRender(
   const series = createSeries(svg, data.seriesAxes);
   const seriesRenderer = new SeriesRenderer();
   seriesRenderer.series = series;
-  const xAxis = new MyAxis(Orientation.Bottom, xScale)
+  const xAxis = new MyAxis(Orientation.Bottom, axisManager.x)
     .ticks(4)
     .setTickSize(height)
     .setTickPadding(8 - height);
-  xAxis.setScale(xScale);
+  xAxis.setScale(axisManager.x);
   const xAxisGroup = svg.append("g").attr("class", "axis");
   xAxisGroup.call(xAxis.axis.bind(xAxis));
 
@@ -203,7 +207,7 @@ export function setupRender(
   });
 
   const axes: Axes = {
-    x: { axis: xAxis, g: xAxisGroup, scale: xScale },
+    x: { axis: xAxis, g: xAxisGroup, scale: axisManager.x },
     y: yAxes,
   };
   const dimensions: Dimensions = { width, height };

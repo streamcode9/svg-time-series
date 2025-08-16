@@ -1,6 +1,4 @@
 import type { Selection } from "d3-selection";
-import type { ScaleTime } from "d3-scale";
-import type { ZoomTransform } from "d3-zoom";
 import { AR1Basis, DirectProductBasis } from "../../math/affine.ts";
 
 export function createDimensions(
@@ -28,13 +26,6 @@ export function createDimensions(
   const bScreenYVisible = new AR1Basis(height, 0);
 
   return DirectProductBasis.fromProjections(bScreenXVisible, bScreenYVisible);
-}
-
-export function updateScaleX(
-  x: ScaleTime<number, number>,
-  transform: ZoomTransform,
-): void {
-  x.domain(transform.rescaleX(x).domain());
 }
 
 export function createSeriesNodes(

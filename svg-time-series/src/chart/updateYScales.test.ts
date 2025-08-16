@@ -79,18 +79,11 @@ describe("updateScales", () => {
       timeDomainFull(): [Date, Date] {
         return [new Date(0), new Date(1)];
       },
-      bIndexFromTransform(
-        transform: ZoomTransform,
-        range: [number, number],
-      ): AR1Basis {
+      bIndexFromTransform(transform: ZoomTransform, range: [number, number]) {
         const indexBase = scaleLinear()
           .domain(this.bIndexFull.toArr())
           .range(range);
-        const [i0, i1] = transform.rescaleX(indexBase).domain() as [
-          number,
-          number,
-        ];
-        return new AR1Basis(i0, i1);
+        return transform.rescaleX(indexBase);
       },
       timeToIndex(t: number) {
         return t;
@@ -105,8 +98,9 @@ describe("updateScales", () => {
         const by = new AR1Basis(min, max);
         return DirectProductBasis.fromProjections(b, by);
       },
-      axisTransform(axis: number, b: AR1Basis) {
+      axisTransform(axis: number, domain: [number, number]) {
         const tree = this.buildAxisTree(axis);
+        const b = new AR1Basis(domain[0], domain[1]);
         const dp = this.updateScaleY(b, tree);
         const [min, max] = dp.y().toArr();
         const bAxis = new AR1Basis(min, max);
@@ -180,18 +174,11 @@ describe("updateScales", () => {
       timeDomainFull(): [Date, Date] {
         return [new Date(0), new Date(1)];
       },
-      bIndexFromTransform(
-        transform: ZoomTransform,
-        range: [number, number],
-      ): AR1Basis {
+      bIndexFromTransform(transform: ZoomTransform, range: [number, number]) {
         const indexBase = scaleLinear()
           .domain(this.bIndexFull.toArr())
           .range(range);
-        const [i0, i1] = transform.rescaleX(indexBase).domain() as [
-          number,
-          number,
-        ];
-        return new AR1Basis(i0, i1);
+        return transform.rescaleX(indexBase);
       },
       updateScaleY(
         b: AR1Basis,
@@ -203,8 +190,9 @@ describe("updateScales", () => {
         const by = new AR1Basis(min, max);
         return DirectProductBasis.fromProjections(b, by);
       },
-      axisTransform(axis: number, b: AR1Basis) {
+      axisTransform(axis: number, domain: [number, number]) {
         const tree = this.buildAxisTree(axis);
+        const b = new AR1Basis(domain[0], domain[1]);
         const dp = this.updateScaleY(b, tree);
         const [min, max] = dp.y().toArr();
         const bAxis = new AR1Basis(min, max);

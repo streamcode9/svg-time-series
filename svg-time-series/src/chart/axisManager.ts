@@ -6,9 +6,7 @@ import { SegmentTree } from "segment-tree-rmq";
 
 import type { MyAxis } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
-import type { AR1Basis } from "../math/affine.ts";
 import type { ChartData, IMinMax } from "./data.ts";
-import { updateScaleX } from "./render/utils.ts";
 import { buildMinMax, minMaxIdentity } from "./minMax.ts";
 
 export class AxisModel {
@@ -45,16 +43,16 @@ export class AxisModel {
   updateAxisTransform(
     data: ChartData,
     axisIdx: number,
-    bIndex: AR1Basis,
+    dIndex: [number, number],
     transform: ZoomTransform,
   ): void {
-    const { tree, dpRef } = data.axisTransform(axisIdx, bIndex);
+    const { tree, dpRef } = data.axisTransform(axisIdx, dIndex);
     this.tree = tree;
     this.transform.onReferenceViewWindowResize(dpRef);
     const full = tree.query(0, data.length - 1);
     this.baseScale.domain([full.min, full.max]);
     const scaled = transform.rescaleY(this.baseScale);
-    this.scale.domain(scaled.domain());
+    this.scale = scaled.copy();
   }
 }
 
@@ -84,17 +82,22 @@ export class AxisManager {
   updateScales(transform: ZoomTransform): void {
     this.data.assertAxisBounds(this.axes.length);
     this.x.domain(this.data.timeDomainFull());
-    const bIndex = this.data.bIndexFromTransform(
+    const indexScale = this.data.bIndexFromTransform(
       transform,
       this.x.range() as [number, number],
     );
-    updateScaleX(this.x, transform);
+    this.x = transform.rescaleX(this.x).copy();
     this.axes.forEach((a, i) => {
       const idxs = this.data.seriesByAxis[i] ?? [];
       if (idxs.length === 0) {
         return;
       }
-      a.updateAxisTransform(this.data, i, bIndex, transform);
+      a.updateAxisTransform(
+        this.data,
+        i,
+        indexScale.domain() as [number, number],
+        transform,
+      );
     });
   }
 }

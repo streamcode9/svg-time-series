@@ -4,12 +4,10 @@
 import { describe, it, expect } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
-import { scaleTime } from "d3-scale";
-import { zoomIdentity } from "d3-zoom";
 import { AR1Basis } from "../math/affine.ts";
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
-import { createDimensions, updateScaleX } from "./render/utils.ts";
+import { createDimensions } from "./render/utils.ts";
 
 describe("createDimensions", () => {
   it("sets width and height and returns screen basis", () => {
@@ -56,18 +54,6 @@ describe("createDimensions", () => {
       unknown
     >;
     expect(() => createDimensions(selection)).toThrow(/HTMLElement parent/);
-  });
-});
-
-describe("updateScaleX", () => {
-  it("adjusts domain based on zoom transform", () => {
-    const x = scaleTime()
-      .domain([new Date(0), new Date(2)])
-      .range([0, 100]);
-    updateScaleX(x, zoomIdentity);
-    const [d0, d1] = x.domain();
-    expect(d0!.getTime()).toBe(0);
-    expect(d1!.getTime()).toBe(2);
   });
 });
 

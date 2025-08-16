@@ -60,6 +60,12 @@ export class ChartData {
    * sliding window to avoid recreating the scale on every query.
    */
   public readonly indexToTime: ScaleLinear<number, number>;
+  /**
+   * Persistent mapping from data index to screen range. The domain never
+   * changes, and the range is updated on demand in `bIndexFromTransform` to
+   * avoid reconstructing the scale for every call.
+   */
+  private readonly indexScale: ScaleLinear<number, number>;
 
   /**
    * Creates a new ChartData instance.
@@ -87,6 +93,9 @@ export class ChartData {
     this.indexToTime = scaleLinear<number, number>()
       .domain([0, 1])
       .range([this.startTime, this.startTime + this.timeStep]);
+    this.indexScale = scaleLinear<number, number>()
+      .domain(this.bIndexFull.toArr())
+      .range([0, 1]);
   }
 
   append(...values: number[]): void {
@@ -134,12 +143,9 @@ export class ChartData {
   bIndexFromTransform(
     transform: ZoomTransform,
     range: [number, number],
-  ): AR1Basis {
-    const indexBase = scaleLinear<number, number>()
-      .domain(this.bIndexFull.toArr())
-      .range(range);
-    const [i0, i1] = transform.rescaleX(indexBase).domain() as [number, number];
-    return new AR1Basis(i0, i1);
+  ): ScaleLinear<number, number> {
+    this.indexScale.range(range);
+    return transform.rescaleX(this.indexScale);
   }
 
   /**
@@ -200,7 +206,7 @@ export class ChartData {
 
   axisTransform(
     axisIdx: number,
-    bIndexVisible: AR1Basis,
+    dIndexVisible: [number, number],
   ): {
     tree: SegmentTree<IMinMax>;
     min: number;
@@ -208,6 +214,7 @@ export class ChartData {
     dpRef: DirectProductBasis;
   } {
     const tree = this.buildAxisTree(axisIdx);
+    const bIndexVisible = new AR1Basis(dIndexVisible[0], dIndexVisible[1]);
     const dp = this.updateScaleY(bIndexVisible, tree);
     let [min, max] = dp.y().toArr();
     if (!Number.isFinite(min) || !Number.isFinite(max)) {
