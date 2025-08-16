@@ -25,29 +25,29 @@ export interface IDataSource {
   getSeries(index: number, seriesIdx: number): number;
 }
 
-function validateSource(source: IDataSource): void {
-  assertPositiveInteger(source.length, "ChartData length");
-  assertFiniteNumber(source.startTime, "ChartData startTime");
-  assertFiniteNumber(source.timeStep, "ChartData timeStep");
-  if (source.timeStep <= 0) {
-    throw new Error("ChartData requires timeStep to be greater than 0");
-  }
-  assertPositiveInteger(
-    source.seriesAxes.length,
-    "ChartData requires at least one series",
-  );
-  source.seriesAxes.forEach((axis, axisIdx) => {
-    if (axis !== 0 && axis !== 1) {
-      throw new Error(
-        `ChartData seriesAxes[${String(axisIdx)}] must be 0 or 1; received ${String(
-          axis,
-        )}`,
-      );
-    }
-  });
-}
-
 export class ChartData {
+  private static validateSource(source: IDataSource): void {
+    assertPositiveInteger(source.length, "ChartData length");
+    assertFiniteNumber(source.startTime, "ChartData startTime");
+    assertFiniteNumber(source.timeStep, "ChartData timeStep");
+    if (source.timeStep <= 0) {
+      throw new Error("ChartData requires timeStep to be greater than 0");
+    }
+    assertPositiveInteger(
+      source.seriesAxes.length,
+      "ChartData requires at least one series",
+    );
+    source.seriesAxes.forEach((axis, axisIdx) => {
+      if (axis !== 0 && axis !== 1) {
+        throw new Error(
+          `ChartData seriesAxes[${String(axisIdx)}] must be 0 or 1; received ${String(
+            axis,
+          )}`,
+        );
+      }
+    });
+  }
+
   private readonly window: SlidingWindow;
   public readonly seriesByAxis: [number[], number[]] = [[], []];
   public bIndexFull: Basis;
@@ -74,7 +74,7 @@ export class ChartData {
    * @throws if the source has length 0.
    */
   constructor(source: IDataSource) {
-    validateSource(source);
+    ChartData.validateSource(source);
     this.seriesAxes = source.seriesAxes;
     this.seriesCount = this.seriesAxes.length;
     this.seriesAxes.forEach((axis, axisIdx) =>
