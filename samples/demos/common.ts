@@ -12,7 +12,7 @@ import { measure } from "../measure.ts";
 export function drawCharts(
   data: [number, number][],
   seriesAxes: number[] = [0, 0],
-) {
+): TimeSeriesChart[] {
   const charts: TimeSeriesChart[] = [];
 
   const onZoom = (
@@ -78,6 +78,8 @@ export function drawCharts(
   measure(3, ({ fps }) => {
     document.getElementById("fps").textContent = fps.toFixed(2);
   });
+
+  return charts;
 }
 
 export function onCsv(f: (csv: [number, number][]) => void): void {
@@ -104,20 +106,26 @@ interface Resize {
 
 const resize: Resize = { interval: 60, request: null, timer: null, eval: null };
 
-export function loadAndDraw(seriesAxes: number[] = [0, 0]) {
-  onCsv((data: [number, number][]) => {
-    drawCharts(data, seriesAxes);
+export function loadAndDraw(
+  seriesAxes: number[] = [0, 0],
+): Promise<TimeSeriesChart[]> {
+  return new Promise((resolve) => {
+    onCsv((data: [number, number][]) => {
+      let charts = drawCharts(data, seriesAxes);
 
-    resize.request = function () {
-      if (resize.timer) clearTimeout(resize.timer);
-      resize.timer = setTimeout(() => {
-        resize.eval?.();
-      }, resize.interval);
-    };
-    resize.eval = function () {
-      selectAll("svg").remove();
-      selectAll(".chart-drawing").append("svg");
-      drawCharts(data, seriesAxes);
-    };
+      resize.request = function () {
+        if (resize.timer) clearTimeout(resize.timer);
+        resize.timer = setTimeout(() => {
+          resize.eval?.();
+        }, resize.interval);
+      };
+      resize.eval = function () {
+        selectAll("svg").remove();
+        selectAll(".chart-drawing").append("svg");
+        charts = drawCharts(data, seriesAxes);
+      };
+
+      resolve(charts);
+    });
   });
 }
