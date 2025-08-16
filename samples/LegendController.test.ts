@@ -125,4 +125,80 @@ describe("LegendController", () => {
     }).not.toThrow();
     lc.destroy();
   });
+
+  it("does not update DOM when highlighting the same index repeatedly", () => {
+    const { svg, legendDiv } = createSvgAndLegend();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 2,
+      getSeries: (i, s) =>
+        (
+          [
+            [10, 30],
+            [20, 40],
+          ] as const
+        )[i]![s]!,
+      seriesAxes: [0, 0],
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg, data);
+    select<SVGPathElement, unknown>(state.series[0]!.path).attr(
+      "stroke",
+      "green",
+    );
+    select<SVGPathElement, unknown>(state.series[1]!.path).attr(
+      "stroke",
+      "blue",
+    );
+    const lc = new LegendController(legendDiv);
+    lc.init({
+      getPoint: data.getPoint.bind(data),
+      length: data.length,
+      series: state.series.map((s) => ({
+        path: s.path,
+        transform: state.axes.y[s.axisIdx]!.transform,
+      })),
+    });
+
+    vi.useFakeTimers();
+    const updateSpy = vi
+      .spyOn(domNode, "updateNode")
+      .mockImplementation(() => {});
+    const timeNode = legendDiv
+      .select(".chart-legend__time")
+      .node() as HTMLElement;
+    const greenNode = legendDiv
+      .select(".chart-legend__green_value")
+      .node() as HTMLElement;
+    const blueNode = legendDiv
+      .select(".chart-legend__blue_value")
+      .node() as HTMLElement;
+    const timeSpy = vi.spyOn(timeNode, "textContent", "set");
+    const greenSpy = vi.spyOn(greenNode, "textContent", "set");
+    const blueSpy = vi.spyOn(blueNode, "textContent", "set");
+    const dots = svg.selectAll("circle").nodes() as SVGCircleElement[];
+    const greenDisplaySpy = vi.spyOn(dots[0]!.style, "display", "set");
+    const blueDisplaySpy = vi.spyOn(dots[1]!.style, "display", "set");
+
+    vi.runAllTimers();
+
+    lc.highlightIndexRaf(1);
+    vi.runAllTimers();
+    const updateCalls = updateSpy.mock.calls.length;
+
+    lc.highlightIndexRaf(1);
+    vi.runAllTimers();
+
+    expect(updateSpy.mock.calls.length).toBe(updateCalls);
+    expect(timeSpy).toHaveBeenCalledTimes(1);
+    expect(greenSpy).toHaveBeenCalledTimes(1);
+    expect(blueSpy).toHaveBeenCalledTimes(1);
+    expect(greenDisplaySpy).toHaveBeenCalledTimes(1);
+    expect(blueDisplaySpy).toHaveBeenCalledTimes(1);
+
+    updateSpy.mockRestore();
+    vi.useRealTimers();
+    lc.destroy();
+  });
 });
