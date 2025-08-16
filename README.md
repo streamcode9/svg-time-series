@@ -20,6 +20,21 @@ D3.js seem slow: [stock D3 panning][d3stock]. But it turns out the SVG rasteriza
 In the demos above, SVG DOM manipulations during grid updates seem to consume at least 20% of drawing time, so further optimization
 work is possible. Keep watching!
 
+## Project Structure
+
+This monorepo is organized into several workspaces:
+
+- `svg-time-series/` – core library for high-performance SVG time series charts. See [svg-time-series/README.md](svg-time-series/README.md) for installation and usage details.
+- `segment-tree-rmq/` – generic segment tree implementation used for range queries.
+- `samples/` – Vite-powered demos and sample code showcasing the library.
+
+Run tests and benchmarks from the repository root:
+
+```sh
+npm test        # run unit tests
+npm run bench   # run micro-benchmarks
+```
+
 ## Build instructions
 
 - Install Node.js 20.x (npm and npx will also be installed)
