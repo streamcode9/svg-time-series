@@ -183,4 +183,24 @@ describe("TimeSeriesChart", () => {
     expect(mouseMove).not.toHaveBeenCalled();
     expect(legend.destroy).toHaveBeenCalled();
   });
+
+  it("toggles cursor classes on the zoom overlay", () => {
+    const { chart } = createChart();
+    const internal = chart as unknown as {
+      zoomArea: Selection<SVGRectElement, unknown, HTMLElement, unknown>;
+    };
+    const rectNode = internal.zoomArea.node()!;
+
+    expect(rectNode.getAttribute("class")).toContain("zoom-overlay");
+    expect(rectNode.classList.contains("cursor-grab")).toBe(true);
+    expect(rectNode.style.pointerEvents).toBe("all");
+
+    rectNode.dispatchEvent(new Event("pointerdown"));
+    expect(rectNode.classList.contains("cursor-grabbing")).toBe(true);
+    expect(rectNode.classList.contains("cursor-grab")).toBe(false);
+
+    rectNode.dispatchEvent(new Event("pointerup"));
+    expect(rectNode.classList.contains("cursor-grab")).toBe(true);
+    expect(rectNode.classList.contains("cursor-grabbing")).toBe(false);
+  });
 });

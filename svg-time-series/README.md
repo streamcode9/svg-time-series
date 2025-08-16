@@ -67,3 +67,24 @@ npx vite
 ```
 
 Then open `demo1.html` or `demo2.html` in your browser for interactive charts.
+
+## Styling
+
+The chart inserts a transparent `<rect>` with the class `zoom-overlay`
+above the plotting area to capture zoom and pan interactions. It uses the
+classes `cursor-grab` and `cursor-grabbing` to signal the cursor state while
+dragging. Provide CSS rules to style these classes as needed, for example:
+
+```css
+.zoom-overlay.cursor-grab {
+  cursor: grab;
+  pointer-events: all;
+}
+
+.zoom-overlay.cursor-grabbing {
+  cursor: grabbing;
+}
+```
+
+Setting `pointer-events: none` on `.zoom-overlay` disables zoom handling so
+other interactions (such as brushing) can temporarily take over.

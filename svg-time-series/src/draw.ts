@@ -45,9 +45,10 @@ export class TimeSeriesChart {
 
     this.zoomArea = svg
       .append("rect")
-      .attr("class", "zoom")
+      .attr("class", "zoom-overlay cursor-grab")
       .attr("width", this.state.dimensions.width)
-      .attr("height", this.state.dimensions.height);
+      .attr("height", this.state.dimensions.height)
+      .style("pointer-events", "all");
 
     this.legendController = legendController;
 
@@ -61,9 +62,21 @@ export class TimeSeriesChart {
     };
     this.legendController.init(context);
 
-    this.zoomArea.on("mousemove", mouseMoveHandler).on("mouseleave", () => {
-      this.legendController.clearHighlight();
-    });
+    this.zoomArea
+      .on("mousemove", mouseMoveHandler)
+      .on("mouseleave", () => {
+        this.legendController.clearHighlight();
+      })
+      .on("pointerdown.zoomCursor", () => {
+        this.zoomArea
+          .classed("cursor-grab", false)
+          .classed("cursor-grabbing", true);
+      })
+      .on("pointerup.zoomCursor pointerleave.zoomCursor", () => {
+        this.zoomArea
+          .classed("cursor-grabbing", false)
+          .classed("cursor-grab", true);
+      });
 
     this.zoomState = new ZoomState(
       this.zoomArea,
@@ -98,7 +111,10 @@ export class TimeSeriesChart {
 
   public dispose() {
     this.zoomState.destroy();
-    this.zoomArea.on("mousemove", null).on("mouseleave", null);
+    this.zoomArea
+      .on("mousemove", null)
+      .on("mouseleave", null)
+      .on(".zoomCursor", null);
     this.state.destroy();
     this.zoomArea.remove();
     this.legendController.destroy();

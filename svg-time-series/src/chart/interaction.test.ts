@@ -378,7 +378,7 @@ describe("chart interaction", () => {
       "destroy",
     );
 
-    const zoomRect = svgEl.querySelector("rect.zoom") as SVGRectElement;
+    const zoomRect = svgEl.querySelector("rect.zoom-overlay") as SVGRectElement;
     expect(zoomRect).not.toBeNull();
 
     zoomRect.dispatchEvent(new MouseEvent("mousemove"));
@@ -388,7 +388,7 @@ describe("chart interaction", () => {
 
     expect(destroySpy).toHaveBeenCalled();
 
-    expect(svgEl.querySelector("rect.zoom")).toBeNull();
+    expect(svgEl.querySelector("rect.zoom-overlay")).toBeNull();
     expect(svgEl.querySelectorAll("circle").length).toBe(0);
 
     mouseMoveHandler.mockClear();
