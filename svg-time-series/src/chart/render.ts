@@ -59,136 +59,133 @@ export interface Series {
   line: Line<number[]>;
 }
 
-export interface RenderState {
-  axisManager: AxisManager;
-  axes: Axes;
-  axisRenders: AxisRenderState[];
-  xTransform: ViewportTransform;
-  screenXBasis: Basis;
-  dimensions: Dimensions;
-  series: Series[];
-  seriesRenderer: SeriesRenderer;
-  refresh: (data: ChartData, transform: ZoomTransform) => void;
-  resize: (dimensions: Dimensions, zoomState: ZoomState) => void;
-  destroy: () => void;
-  getDimensions: () => Dimensions;
-  getLegendSeriesInfo: () => readonly LegendSeriesInfo[];
-  screenToModelX: (x: number) => number;
-  createLegendContext: (data: ChartData) => LegendContext;
-  applyZoomTransform: (transform: ZoomTransform) => void;
-  setDimensions: (dimensions: Dimensions) => void;
-}
+export class RenderState {
+  public axisManager: AxisManager;
+  public axes: Axes;
+  public axisRenders: AxisRenderState[];
+  public xTransform: ViewportTransform;
+  public screenXBasis: Basis;
+  public dimensions: Dimensions;
+  public series: Series[];
+  public seriesRenderer: SeriesRenderer;
 
-export function refreshRenderState(
-  state: RenderState,
-  data: ChartData,
-  transform: ZoomTransform,
-): void {
-  const referenceBasis = toDirectProductBasis(data.bIndexFull, bPlaceholder);
-  state.xTransform.onReferenceViewWindowResize(referenceBasis);
-
-  state.axisManager.setData(data);
-  state.axisManager.updateScales(transform);
-
-  for (const s of state.series) {
-    const t = state.axes.y[s.axisIdx]!.transform;
-    updateNode(s.view, t.matrix);
-  }
-  state.axes.x.scale = state.axisManager.x;
-  state.axes.x.axis.setScale(state.axisManager.x);
-  state.axisRenders.forEach((r, i) => {
-    const model = state.axisManager.axes[i]!;
-    r.axis.setScale(model.scale);
-    r.axis.axisUp(r.g);
-  });
-  state.axes.x.axis.axisUp(state.axes.x.g!);
-}
-
-function destroyRenderState(state: RenderState): void {
-  for (const s of state.series) {
-    s.path.remove();
-    s.view.remove();
-  }
-  state.series.length = 0;
-
-  const axisX = state.axes.x;
-  if (axisX.g) {
-    axisX.g.remove();
-    axisX.g = undefined;
+  constructor(
+    axisManager: AxisManager,
+    axes: Axes,
+    axisRenders: AxisRenderState[],
+    xTransform: ViewportTransform,
+    screenXBasis: Basis,
+    dimensions: Dimensions,
+    series: Series[],
+    seriesRenderer: SeriesRenderer,
+  ) {
+    this.axisManager = axisManager;
+    this.axes = axes;
+    this.axisRenders = axisRenders;
+    this.xTransform = xTransform;
+    this.screenXBasis = screenXBasis;
+    this.dimensions = dimensions;
+    this.series = series;
+    this.seriesRenderer = seriesRenderer;
   }
 
-  for (const r of state.axisRenders) {
-    r.g.remove();
+  public refresh(data: ChartData, transform: ZoomTransform): void {
+    const referenceBasis = toDirectProductBasis(data.bIndexFull, bPlaceholder);
+    this.xTransform.onReferenceViewWindowResize(referenceBasis);
+
+    this.axisManager.setData(data);
+    this.axisManager.updateScales(transform);
+
+    for (const s of this.series) {
+      const t = this.axes.y[s.axisIdx]!.transform;
+      updateNode(s.view, t.matrix);
+    }
+    this.axes.x.scale = this.axisManager.x;
+    this.axes.x.axis.setScale(this.axisManager.x);
+    this.axisRenders.forEach((r, i) => {
+      const model = this.axisManager.axes[i]!;
+      r.axis.setScale(model.scale);
+      r.axis.axisUp(r.g);
+    });
+    this.axes.x.axis.axisUp(this.axes.x.g!);
   }
-  state.axisRenders.length = 0;
-  state.axes.y.length = 0;
-}
 
-function resizeRenderState(
-  state: RenderState,
-  dimensions: Dimensions,
-  zoomState: ZoomState,
-): void {
-  const { width, height } = dimensions;
-  const bScreenXVisible: Basis = [0, width];
-  const bScreenYVisible: Basis = [height, 0];
-  const bScreenVisible = toDirectProductBasis(bScreenXVisible, bScreenYVisible);
+  public destroy(): void {
+    for (const s of this.series) {
+      s.path.remove();
+      s.view.remove();
+    }
+    this.series.length = 0;
 
-  state.axes.x.scale.range([0, width]);
-  state.axes.x.axis.setScale(state.axes.x.scale);
-  state.axisManager.setXAxis(state.axes.x.scale);
-  state.screenXBasis = bScreenXVisible;
+    const axisX = this.axes.x;
+    if (axisX.g) {
+      axisX.g.remove();
+      axisX.g = undefined;
+    }
 
-  zoomState.updateExtents(dimensions);
-
-  state.xTransform.onViewPortResize(bScreenVisible);
-  for (const a of state.axes.y) {
-    a.transform.onViewPortResize(bScreenVisible);
-    a.scale.range([height, 0]);
-    a.baseScale.range([height, 0]);
+    for (const r of this.axisRenders) {
+      r.g.remove();
+    }
+    this.axisRenders.length = 0;
+    this.axes.y.length = 0;
   }
-}
 
-function applyZoomTransformInternal(
-  state: RenderState,
-  transform: ZoomTransform,
-): void {
-  state.xTransform.onZoomPan(transform);
-  state.axes.y.forEach((a) => a.transform.onZoomPan(transform));
-}
+  public resize(dimensions: Dimensions, zoomState: ZoomState): void {
+    const { width, height } = dimensions;
+    const bScreenXVisible: Basis = [0, width];
+    const bScreenYVisible: Basis = [height, 0];
+    const bScreenVisible = toDirectProductBasis(
+      bScreenXVisible,
+      bScreenYVisible,
+    );
 
-function setDimensionsInternal(
-  state: RenderState,
-  dimensions: Dimensions,
-): void {
-  state.dimensions.width = dimensions.width;
-  state.dimensions.height = dimensions.height;
-}
+    this.axes.x.scale.range([0, width]);
+    this.axes.x.axis.setScale(this.axes.x.scale);
+    this.axisManager.setXAxis(this.axes.x.scale);
+    this.screenXBasis = bScreenXVisible;
 
-function getDimensions(state: RenderState): Dimensions {
-  return { ...state.dimensions };
-}
+    zoomState.updateExtents(dimensions);
 
-function getLegendSeriesInfo(state: RenderState): readonly LegendSeriesInfo[] {
-  return state.series.map((s) => ({
-    path: s.path,
-    transform: state.axes.y[s.axisIdx]!.transform,
-  }));
-}
+    this.xTransform.onViewPortResize(bScreenVisible);
+    for (const a of this.axes.y) {
+      a.transform.onViewPortResize(bScreenVisible);
+      a.scale.range([height, 0]);
+      a.baseScale.range([height, 0]);
+    }
+  }
 
-function screenToModelX(state: RenderState, x: number): number {
-  return state.xTransform.fromScreenToModelX(x);
-}
+  public applyZoomTransform(transform: ZoomTransform): void {
+    this.xTransform.onZoomPan(transform);
+    this.axes.y.forEach((a) => a.transform.onZoomPan(transform));
+  }
 
-function createLegendContext(
-  state: RenderState,
-  data: ChartData,
-): LegendContext {
-  return {
-    getPoint: (idx) => data.getPoint(idx),
-    length: data.length,
-    series: getLegendSeriesInfo(state),
-  };
+  public setDimensions(dimensions: Dimensions): void {
+    this.dimensions.width = dimensions.width;
+    this.dimensions.height = dimensions.height;
+  }
+
+  public getDimensions(): Dimensions {
+    return { ...this.dimensions };
+  }
+
+  public getLegendSeriesInfo(): readonly LegendSeriesInfo[] {
+    return this.series.map((s) => ({
+      path: s.path,
+      transform: this.axes.y[s.axisIdx]!.transform,
+    }));
+  }
+
+  public screenToModelX(x: number): number {
+    return this.xTransform.fromScreenToModelX(x);
+  }
+
+  public createLegendContext(data: ChartData): LegendContext {
+    return {
+      getPoint: (idx) => data.getPoint(idx),
+      length: data.length,
+      series: this.getLegendSeriesInfo(),
+    };
+  }
 }
 
 export function setupRender(
@@ -249,8 +246,7 @@ export function setupRender(
     y: yAxes,
   };
   const dimensions: Dimensions = { width, height };
-
-  const state = {
+  return new RenderState(
     axisManager,
     axes,
     axisRenders,
@@ -259,16 +255,5 @@ export function setupRender(
     dimensions,
     series,
     seriesRenderer,
-  } as RenderState;
-  state.refresh = refreshRenderState.bind(null, state);
-  state.resize = resizeRenderState.bind(null, state);
-  state.destroy = destroyRenderState.bind(null, state);
-  state.getDimensions = getDimensions.bind(null, state);
-  state.getLegendSeriesInfo = getLegendSeriesInfo.bind(null, state);
-  state.screenToModelX = screenToModelX.bind(null, state);
-  state.createLegendContext = createLegendContext.bind(null, state);
-  state.applyZoomTransform = applyZoomTransformInternal.bind(null, state);
-  state.setDimensions = setDimensionsInternal.bind(null, state);
-
-  return state;
+  );
 }
