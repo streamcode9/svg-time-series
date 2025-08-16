@@ -64,16 +64,12 @@ describe("ZoomState programmatic transforms", () => {
   it("handles identical value transforms as the same", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const rect = select(svg).append("rect");
-    const y = { onZoomPan: vi.fn<(t: unknown) => void>() };
-    const x = { onZoomPan: vi.fn<(t: unknown) => void>() };
+    const applyZoomTransform = vi.fn<(t: unknown) => void>();
     const state = {
       dimensions: { width: 10, height: 10 },
-      axes: {
-        x: { axis: {}, g: {}, scale: {} },
-        y: [{ transform: y }],
-      },
       axisRenders: [],
-      xTransform: x,
+      applyZoomTransform,
+      setDimensions: vi.fn(),
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(
@@ -93,8 +89,7 @@ describe("ZoomState programmatic transforms", () => {
     vi.runAllTimers();
 
     expect(transformSpy).toHaveBeenCalledTimes(2);
-    expect(x.onZoomPan).toHaveBeenCalledWith(initial);
-    expect(y.onZoomPan).toHaveBeenCalledWith(initial);
+    expect(applyZoomTransform).toHaveBeenCalledWith(initial);
     expect(refresh).toHaveBeenCalledTimes(1);
     interface ZoomStateInternal {
       zoomScheduler: ZoomScheduler;

@@ -63,8 +63,7 @@ export class ZoomState {
   }
 
   public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
-    this.state.xTransform.onZoomPan(event.transform);
-    this.state.axes.y.forEach((a) => a.transform.onZoomPan(event.transform));
+    this.state.applyZoomTransform(event.transform);
     if (!this.zoomScheduler.zoom(event.transform, event.sourceEvent)) {
       return;
     }
@@ -87,8 +86,7 @@ export class ZoomState {
   };
 
   public updateExtents = (dimensions: { width: number; height: number }) => {
-    this.state.dimensions.width = dimensions.width;
-    this.state.dimensions.height = dimensions.height;
+    this.state.setDimensions(dimensions);
     this.zoomArea
       .attr("width", dimensions.width)
       .attr("height", dimensions.height);

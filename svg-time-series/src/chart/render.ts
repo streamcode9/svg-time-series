@@ -74,6 +74,8 @@ export interface RenderState {
   getLegendSeriesInfo: () => readonly LegendSeriesInfo[];
   screenToModelX: (x: number) => number;
   createLegendContext: (data: ChartData) => LegendContext;
+  applyZoomTransform: (transform: ZoomTransform) => void;
+  setDimensions: (dimensions: Dimensions) => void;
 }
 
 export function refreshRenderState(
@@ -150,6 +152,22 @@ function resizeRenderState(
     a.scale.range([height, 0]);
     a.baseScale.range([height, 0]);
   }
+}
+
+function applyZoomTransformInternal(
+  state: RenderState,
+  transform: ZoomTransform,
+): void {
+  state.xTransform.onZoomPan(transform);
+  state.axes.y.forEach((a) => a.transform.onZoomPan(transform));
+}
+
+function setDimensionsInternal(
+  state: RenderState,
+  dimensions: Dimensions,
+): void {
+  state.dimensions.width = dimensions.width;
+  state.dimensions.height = dimensions.height;
 }
 
 function getDimensions(state: RenderState): Dimensions {
@@ -260,6 +278,8 @@ export function setupRender(
   state.getLegendSeriesInfo = getLegendSeriesInfo.bind(null, state);
   state.screenToModelX = screenToModelX.bind(null, state);
   state.createLegendContext = createLegendContext.bind(null, state);
+  state.applyZoomTransform = applyZoomTransformInternal.bind(null, state);
+  state.setDimensions = setDimensionsInternal.bind(null, state);
 
   return state;
 }

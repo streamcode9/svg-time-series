@@ -62,12 +62,9 @@ describe("ZoomState.destroy", () => {
     const rect = select(svg).append("rect");
     const state = {
       dimensions: { width: 10, height: 10 },
-      axes: {
-        x: { axis: {}, g: {}, scale: {} },
-        y: [{ transform: { onZoomPan: vi.fn<(t: unknown) => void>() } }],
-      },
       axisRenders: [],
-      xTransform: { onZoomPan: vi.fn<(t: unknown) => void>() },
+      applyZoomTransform: vi.fn(),
+      setDimensions: vi.fn(),
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zoomCb = vi.fn();
@@ -107,12 +104,9 @@ describe("ZoomState.destroy", () => {
     const rect = select(svg).append("rect");
     const state = {
       dimensions: { width: 10, height: 10 },
-      axes: {
-        x: { axis: {}, g: {}, scale: {} },
-        y: [{ transform: { onZoomPan: vi.fn<(t: unknown) => void>() } }],
-      },
       axisRenders: [],
-      xTransform: { onZoomPan: vi.fn<(t: unknown) => void>() },
+      applyZoomTransform: vi.fn(),
+      setDimensions: vi.fn(),
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(

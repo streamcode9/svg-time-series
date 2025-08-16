@@ -55,16 +55,12 @@ describe("ZoomState transform state", () => {
   it("clears transform after application to avoid reapplying stale values", () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     const rect = select(svg).append("rect");
-    const y = { onZoomPan: vi.fn<(t: unknown) => void>() };
-    const x = { onZoomPan: vi.fn<(t: unknown) => void>() };
+    const applyZoomTransform = vi.fn<(t: unknown) => void>();
     const state = {
       dimensions: { width: 10, height: 10 },
-      axes: {
-        x: { axis: {}, g: {}, scale: {} },
-        y: [{ transform: y }],
-      },
       axisRenders: [],
-      xTransform: x,
+      applyZoomTransform,
+      setDimensions: vi.fn(),
     } as unknown as RenderState;
     const refresh = vi.fn();
     const zs = new ZoomState(
@@ -88,8 +84,7 @@ describe("ZoomState transform state", () => {
     vi.runAllTimers();
 
     expect(transformSpy).toHaveBeenCalledWith(rect, { x: 1, k: 2 });
-    expect(x.onZoomPan).toHaveBeenCalledWith({ x: 1, k: 2 });
-    expect(y.onZoomPan).toHaveBeenCalledWith({ x: 1, k: 2 });
+    expect(applyZoomTransform).toHaveBeenCalledWith({ x: 1, k: 2 });
     interface ZoomStateInternal {
       zoomScheduler: ZoomScheduler;
     }
@@ -118,7 +113,6 @@ describe("ZoomState transform state", () => {
 
     expect(transformSpy).toHaveBeenCalledTimes(1);
     expect(transformSpy).toHaveBeenCalledWith(rect, { x: 5, k: 3 });
-    expect(x.onZoomPan).toHaveBeenLastCalledWith({ x: 5, k: 3 });
-    expect(y.onZoomPan).toHaveBeenLastCalledWith({ x: 5, k: 3 });
+    expect(applyZoomTransform).toHaveBeenLastCalledWith({ x: 5, k: 3 });
   });
 });
