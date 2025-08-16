@@ -136,7 +136,7 @@ describe("TimeSeriesChart", () => {
       zoomInstance,
     );
     expect(refreshSpy).toHaveBeenCalledTimes(1);
-    expect(drawSpy).toHaveBeenCalledTimes(1);
+    expect(drawSpy).not.toHaveBeenCalled();
     expect(zoomRefreshSpy).toHaveBeenCalledTimes(1);
     expect(legendRefreshSpy).toHaveBeenCalledTimes(1);
   });

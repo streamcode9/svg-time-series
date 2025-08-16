@@ -100,7 +100,6 @@ export class TimeSeriesChart {
       this.state,
       () => {
         const t = zoomTransform(this.zoomArea.node()!);
-        this.state.seriesRenderer.draw(this.data.data);
         this.state.refresh(this.data, t);
         this.legendController.refresh();
       },
@@ -196,6 +195,7 @@ export class TimeSeriesChart {
   };
 
   private refreshAll(): void {
+    this.state.seriesRenderer.draw(this.data.data);
     this.zoomState.refresh();
   }
 

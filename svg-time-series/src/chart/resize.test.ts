@@ -34,7 +34,7 @@ import { SeriesRenderer } from "./seriesRenderer.ts";
 polyfillDom();
 
 describe("TimeSeriesChart.resize", () => {
-  it("updates axes, paths, and legend", () => {
+  it("updates axes and legend without redraw", () => {
     const renderSpy = vi.spyOn(SeriesRenderer.prototype, "draw");
     vi.useFakeTimers();
 
@@ -88,7 +88,7 @@ describe("TimeSeriesChart.resize", () => {
     axisInstances.forEach((a) => {
       expect(a.axisUp).toHaveBeenCalled();
     });
-    expect(renderSpy).toHaveBeenCalled();
+    expect(renderSpy).not.toHaveBeenCalled();
     expect(legend.refresh).toHaveBeenCalled();
     expect(zoomRefreshSpy).toHaveBeenCalled();
     vi.useRealTimers();
