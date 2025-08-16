@@ -9,7 +9,7 @@ import type { IDataSource } from "./data.ts";
 import { createDimensions } from "./render/utils.ts";
 
 describe("createDimensions", () => {
-  it("sets width and height and returns screen basis", () => {
+  it("sets width and height and returns dimensions", () => {
     const width = 400;
     const height = 300;
     const div = document.createElement("div");
@@ -23,13 +23,11 @@ describe("createDimensions", () => {
       HTMLElement,
       unknown
     >;
-    const dp = createDimensions(selection);
-    const [xRange, yRange] = dp;
+    const dims = createDimensions(selection);
 
     expect(svg.getAttribute("width")).toBe(String(width));
     expect(svg.getAttribute("height")).toBe(String(height));
-    expect(xRange).toEqual([0, width]);
-    expect(yRange).toEqual([height, 0]);
+    expect(dims).toEqual({ width, height });
   });
 
   it("throws when SVG lacks a parent", () => {

@@ -1,10 +1,9 @@
 import type { Selection } from "d3-selection";
-import type { Basis, DirectProductBasis } from "../../basis.ts";
-import { toDirectProductBasis } from "../../basis.ts";
+// createDimensions no longer returns basis objects; only width and height
 
 export function createDimensions(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
-): DirectProductBasis {
+): { width: number; height: number } {
   const node = svg.node();
   if (!node) {
     throw new Error("SVG selection contains no node");
@@ -23,10 +22,7 @@ export function createDimensions(
   svg.attr("width", width);
   svg.attr("height", height);
 
-  const bScreenXVisible: Basis = [0, width];
-  const bScreenYVisible: Basis = [height, 0];
-
-  return toDirectProductBasis(bScreenXVisible, bScreenYVisible);
+  return { width, height };
 }
 
 export function createSeriesNodes(

@@ -7,7 +7,7 @@ import { zoomIdentity, type ZoomTransform } from "d3-zoom";
 import { MyAxis, Orientation } from "../axis.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import type { Basis } from "../basis.ts";
-import { bPlaceholder, toDirectProductBasis, basisRange } from "../basis.ts";
+import { bPlaceholder, toDirectProductBasis } from "../basis.ts";
 
 import { ViewportTransform } from "../ViewportTransform.ts";
 import { AxisManager } from "./axisManager.ts";
@@ -192,23 +192,22 @@ export function setupRender(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
   data: ChartData,
 ): RenderState {
-  const screenBasis = createDimensions(svg);
-  const screenXBasis = screenBasis[0];
-  const width = basisRange(screenXBasis);
-  const height = basisRange(screenBasis[1]);
+  const { width, height } = createDimensions(svg);
+  const screenXBasis: Basis = [0, width];
+  const screenYBasis: Basis = [height, 0];
+  const screenBasis = toDirectProductBasis(screenXBasis, screenYBasis);
   const maxAxisIdx = data.seriesAxes.reduce(
     (max, idx) => Math.max(max, idx),
     0,
   );
   const axisCount = maxAxisIdx + 1;
 
-  const [xRange, yRange] = screenBasis;
   const axisManager = new AxisManager(axisCount, data);
-  axisManager.setXAxis(scaleTime().range(xRange));
+  axisManager.setXAxis(scaleTime().range([0, width]));
   const yAxes = axisManager.axes;
   for (const a of yAxes) {
-    a.scale.range(yRange);
-    a.baseScale.range(yRange);
+    a.scale.range([height, 0]);
+    a.baseScale.range([height, 0]);
   }
   axisManager.updateScales(zoomIdentity);
 

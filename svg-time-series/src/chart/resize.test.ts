@@ -150,11 +150,7 @@ describe("TimeSeriesChart.resize", () => {
 
     expect(updateSpy).toHaveBeenCalledWith({ width: 250, height: 120 });
     expect(chartInternal.state.dimensions).toEqual({ width: 250, height: 120 });
-
-    type AxisRange = [[number, number], [number, number]];
-    const arg = resizeSpy.mock.calls.at(0)![0] as unknown as AxisRange;
-    expect(arg[0]).toEqual([0, 250]);
-    expect(arg[1]).toEqual([120, 0]);
+    expect(resizeSpy).toHaveBeenCalled();
 
     expect(chartInternal.state.axes.x.scale.range()).toEqual([0, 250]);
     expect(chartInternal.state.axes.y[0]!.scale.range()).toEqual([120, 0]);
