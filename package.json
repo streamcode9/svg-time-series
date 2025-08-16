@@ -1,6 +1,7 @@
 {
   "name": "svg-time-series-monorepo",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "dev": "npm run dev --workspace=samples",
