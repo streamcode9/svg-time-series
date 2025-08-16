@@ -3,7 +3,6 @@ import { zoom as d3zoom, zoomIdentity, zoomTransform } from "d3-zoom";
 import type { D3ZoomEvent, ZoomBehavior, ZoomTransform } from "d3-zoom";
 import { ZoomScheduler, sameTransform } from "./zoomScheduler.ts";
 import type { RenderState } from "./render.ts";
-import { assertPositiveFinite, assertTupleSize } from "./validation.ts";
 
 export { sameTransform };
 
@@ -21,18 +20,31 @@ export class ZoomState {
       new Error(
         `scaleExtent must be two finite, positive numbers where extent[0] < extent[1]. Received: ${Array.isArray(extent) ? `[${extent.join(",")}]` : String(extent)}`,
       );
-    try {
-      assertTupleSize(extent, 2, "scaleExtent");
-      const [min, max] = extent as [unknown, unknown];
-      assertPositiveFinite(min, "scaleExtent[0]");
-      assertPositiveFinite(max, "scaleExtent[1]");
-      if (min >= max) {
-        throw error();
-      }
-      return [min, max];
-    } catch {
+
+    if (!Array.isArray(extent) || extent.length !== 2) {
       throw error();
     }
+
+    const [min, max] = extent as [unknown, unknown];
+
+    if (
+      typeof min !== "number" ||
+      typeof max !== "number" ||
+      !Number.isFinite(min) ||
+      !Number.isFinite(max)
+    ) {
+      throw error();
+    }
+
+    if (min <= 0 || max <= 0) {
+      throw error();
+    }
+
+    if (min >= max) {
+      throw error();
+    }
+
+    return [min, max];
   }
 
   constructor(

@@ -23,6 +23,21 @@ describe("ZoomState.validateScaleExtent", () => {
     }).toThrow(/Received: \[0,2\]/);
   });
 
+  it("rejects non-number or non-finite values", () => {
+    expect(() => {
+      ZoomState.validateScaleExtent(["1", 2] as unknown);
+    }).toThrow(/Received: \[1,2\]/);
+    expect(() => {
+      ZoomState.validateScaleExtent([1, "2"] as unknown);
+    }).toThrow(/Received: \[1,2\]/);
+    expect(() => {
+      ZoomState.validateScaleExtent([NaN, 2]);
+    }).toThrow(/Received: \[NaN,2\]/);
+    expect(() => {
+      ZoomState.validateScaleExtent([1, Infinity]);
+    }).toThrow(/Received: \[1,Infinity\]/);
+  });
+
   it.each([
     [2, 1],
     [1, 1],
