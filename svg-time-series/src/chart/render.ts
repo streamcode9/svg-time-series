@@ -7,7 +7,6 @@ import { zoomIdentity, type ZoomTransform } from "d3-zoom";
 import { MyAxis, Orientation } from "../axis.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
 import type { Basis } from "../basis.ts";
-import { bPlaceholder, toDirectProductBasis } from "../basis.ts";
 
 import { ViewportTransform } from "../ViewportTransform.ts";
 import { AxisManager } from "./axisManager.ts";
@@ -90,8 +89,7 @@ export class RenderState {
   }
 
   public refresh(data: ChartData, transform: ZoomTransform): void {
-    const referenceBasis = toDirectProductBasis(data.bIndexFull, bPlaceholder);
-    this.xTransform.onReferenceViewWindowResize(referenceBasis);
+    this.xTransform.onReferenceViewWindowResize([data.bIndexFull, [0, 1]]);
 
     this.axisManager.setData(data);
     this.axisManager.updateScales(transform);
@@ -134,10 +132,7 @@ export class RenderState {
     const { width, height } = dimensions;
     const bScreenXVisible: Basis = [0, width];
     const bScreenYVisible: Basis = [height, 0];
-    const bScreenVisible = toDirectProductBasis(
-      bScreenXVisible,
-      bScreenYVisible,
-    );
+    const bScreenVisible: [Basis, Basis] = [bScreenXVisible, bScreenYVisible];
 
     this.axes.x.scale.range([0, width]);
     this.axes.x.axis.setScale(this.axes.x.scale);
@@ -195,7 +190,7 @@ export function setupRender(
   const { width, height } = createDimensions(svg);
   const screenXBasis: Basis = [0, width];
   const screenYBasis: Basis = [height, 0];
-  const screenBasis = toDirectProductBasis(screenXBasis, screenYBasis);
+  const screenBasis: [Basis, Basis] = [screenXBasis, screenYBasis];
   const maxAxisIdx = data.seriesAxes.reduce(
     (max, idx) => Math.max(max, idx),
     0,
@@ -211,7 +206,7 @@ export function setupRender(
   }
   axisManager.updateScales(zoomIdentity);
 
-  const referenceBasis = toDirectProductBasis(data.bIndexFull, bPlaceholder);
+  const referenceBasis: [Basis, Basis] = [data.bIndexFull, [0, 1]];
   for (const a of yAxes) {
     a.transform.onViewPortResize(screenBasis);
     a.transform.onReferenceViewWindowResize(referenceBasis);

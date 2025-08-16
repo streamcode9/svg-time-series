@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { scaleLinear } from "d3-scale";
 import type { Basis } from "../basis.ts";
 import type { IDataSource } from "./data.ts";
 import { ChartData } from "./data.ts";
@@ -413,8 +414,9 @@ describe("ChartData", () => {
     );
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
-    const combined = cd.combinedAxisDomain(cd.bIndexFull, tree0, tree1);
-    expect(combined).toEqual([-3, 10]);
+    const scale = scaleLinear<number, number>();
+    cd.combinedAxisDp(cd.bIndexFull, tree0, tree1, scale);
+    expect(scale.domain()).toEqual([-3, 10]);
   });
 
   it("throws when initial data contains infinite values", () => {
