@@ -1,6 +1,7 @@
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import { updateNode } from "../svg-time-series/src/utils/domNodeTransform.ts";
+import { drawProc } from "../svg-time-series/src/utils/drawProc.ts";
 import type {
   ILegendController,
   LegendContext,
@@ -21,6 +22,8 @@ export class LegendController implements ILegendController {
 
   private highlightedDataIdx = 0;
   private context!: LegendContext;
+  private scheduleUpdate: () => void;
+  private cancelUpdate: () => void;
 
   constructor(
     legend: Selection<HTMLElement, unknown, HTMLElement, unknown>,
@@ -30,6 +33,12 @@ export class LegendController implements ILegendController {
     this.legendTime = legend.select(".chart-legend__time");
     this.legendGreen = legend.select(".chart-legend__green_value");
     this.legendBlue = legend.select(".chart-legend__blue_value");
+
+    const { wrapped, cancel } = drawProc(() => {
+      this.update();
+    });
+    this.scheduleUpdate = wrapped;
+    this.cancelUpdate = cancel;
   }
 
   public init(context: LegendContext): void {
@@ -70,8 +79,15 @@ export class LegendController implements ILegendController {
     this.update();
   }
 
+  public highlightIndexRaf(idx: number): void {
+    this.highlightedDataIdx = Math.round(
+      Math.min(Math.max(idx, 0), this.context.length - 1),
+    );
+    this.scheduleUpdate();
+  }
+
   public refresh(): void {
-    this.update();
+    this.scheduleUpdate();
   }
 
   public clearHighlight(): void {
@@ -135,6 +151,7 @@ export class LegendController implements ILegendController {
   }
 
   public destroy(): void {
+    this.cancelUpdate();
     this.highlightedGreenDot.remove();
     this.highlightedBlueDot.remove();
   }

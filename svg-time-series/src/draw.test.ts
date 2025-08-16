@@ -28,6 +28,7 @@ function createLegend() {
   return {
     init: vi.fn(),
     highlightIndex: vi.fn(),
+    highlightIndexRaf: vi.fn(),
     refresh: vi.fn(),
     clearHighlight: vi.fn(),
     destroy: vi.fn(),
@@ -146,9 +147,10 @@ describe("TimeSeriesChart", () => {
 
     chart.onHover(5);
 
-    expect(legend.highlightIndex).toHaveBeenCalledWith(
+    expect(legend.highlightIndexRaf).toHaveBeenCalledWith(
       internal.data.length - 1,
     );
+    expect(legend.highlightIndex).not.toHaveBeenCalled();
   });
 
   it("forwards scale extent to zoom state", () => {
