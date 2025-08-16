@@ -36,6 +36,7 @@ polyfillDom();
 describe("TimeSeriesChart.resize", () => {
   it("updates axes, paths, and legend", () => {
     const renderSpy = vi.spyOn(SeriesRenderer.prototype, "draw");
+    vi.useFakeTimers();
 
     const div = document.createElement("div");
     Object.defineProperty(div, "clientWidth", { value: 100 });
@@ -75,12 +76,14 @@ describe("TimeSeriesChart.resize", () => {
     const chartInternal = chart as unknown as ChartInternal;
     const zoomRefreshSpy = vi.spyOn(chartInternal.zoomState, "refresh");
 
+    vi.runAllTimers();
     renderSpy.mockClear();
     axisInstances.forEach((a) => a.axisUp.mockClear());
     legend.refresh.mockClear();
     zoomRefreshSpy.mockClear();
 
     chart.resize({ width: 200, height: 150 });
+    vi.runAllTimers();
 
     axisInstances.forEach((a) => {
       expect(a.axisUp).toHaveBeenCalled();
@@ -88,6 +91,7 @@ describe("TimeSeriesChart.resize", () => {
     expect(renderSpy).toHaveBeenCalled();
     expect(legend.refresh).toHaveBeenCalled();
     expect(zoomRefreshSpy).toHaveBeenCalled();
+    vi.useRealTimers();
   });
 
   it("uses explicit dimensions for zoom extents and axes", () => {

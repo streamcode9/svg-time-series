@@ -186,9 +186,14 @@ describe("chart interaction", () => {
 
     const event = {
       transform: { x: 10, k: 2 },
+      sourceEvent: new Event("wheel"),
     } as D3ZoomEvent<SVGRectElement, unknown>;
     zoom(event);
     vi.runAllTimers();
+    zoom({ transform: { x: 10, k: 2 } } as D3ZoomEvent<
+      SVGRectElement,
+      unknown
+    >);
     vi.runAllTimers();
 
     expect(mtNy.onZoomPan).toHaveBeenCalledWith({ x: 10, k: 2 });

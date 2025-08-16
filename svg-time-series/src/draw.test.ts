@@ -8,14 +8,19 @@ import { select } from "d3-selection";
 vi.mock("./utils/domNodeTransform.ts", () => ({ updateNode: vi.fn() }));
 vi.mock("./chart/zoomState.ts", () => {
   return {
-    ZoomState: vi.fn().mockImplementation(() => ({
-      refresh: vi.fn(),
-      destroy: vi.fn(),
-      setScaleExtent: vi.fn(),
-      zoom: vi.fn(),
-      reset: vi.fn(),
-      updateExtents: vi.fn(),
-    })),
+    ZoomState: vi.fn().mockImplementation((...args: unknown[]) => {
+      const refreshChart = args[2] as () => void;
+      return {
+        refresh: vi.fn(() => {
+          refreshChart();
+        }),
+        destroy: vi.fn(),
+        setScaleExtent: vi.fn(),
+        zoom: vi.fn(),
+        reset: vi.fn(),
+        updateExtents: vi.fn(),
+      };
+    }),
   };
 });
 
@@ -130,10 +135,10 @@ describe("TimeSeriesChart", () => {
       { width: 200, height: 150 },
       zoomInstance,
     );
-    expect(refreshSpy).toHaveBeenCalled();
-    expect(drawSpy).toHaveBeenCalled();
-    expect(zoomRefreshSpy).toHaveBeenCalled();
-    expect(legendRefreshSpy).toHaveBeenCalled();
+    expect(refreshSpy).toHaveBeenCalledTimes(1);
+    expect(drawSpy).toHaveBeenCalledTimes(1);
+    expect(zoomRefreshSpy).toHaveBeenCalledTimes(1);
+    expect(legendRefreshSpy).toHaveBeenCalledTimes(1);
   });
 
   it("clamps hover index and forwards to legend", () => {

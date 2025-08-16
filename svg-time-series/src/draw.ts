@@ -100,11 +100,12 @@ export class TimeSeriesChart {
       this.state,
       () => {
         const t = zoomTransform(this.zoomArea.node()!);
+        this.state.seriesRenderer.draw(this.data.data);
         this.state.refresh(this.data, t);
+        this.legendController.refresh();
       },
       (event) => {
         zoomHandler(event);
-        this.legendController.refresh();
       },
       zoomOptions,
     );
@@ -173,14 +174,12 @@ export class TimeSeriesChart {
     const { width, height } = dimensions;
     this.svg.attr("width", width).attr("height", height);
     this.state.resize(dimensions, this.zoomState);
-    const t = zoomTransform(this.zoomArea.node()!);
-    this.state.refresh(this.data, t);
     this.brushBehavior.extent([
       [0, 0],
       [width, height],
     ]);
     this.brushLayer.call(this.brushBehavior);
-    this.refreshAll();
+    this.zoomState.refresh();
   };
 
   public onHover = (x: number) => {
@@ -197,9 +196,7 @@ export class TimeSeriesChart {
   };
 
   private refreshAll(): void {
-    this.state.seriesRenderer.draw(this.data.data);
     this.zoomState.refresh();
-    this.legendController.refresh();
   }
 
   private onBrushEnd = (event: D3BrushEvent<unknown>) => {

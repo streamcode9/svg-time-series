@@ -175,8 +175,12 @@ describe("chart interaction single-axis", () => {
     const yCalls = yAxis.axisUpCalls;
     const callCount = updateNodeCalls;
 
-    zoom({ transform: { x: 10, k: 2 } } as Parameters<typeof zoom>[0]);
+    zoom({
+      transform: { x: 10, k: 2 },
+      sourceEvent: new Event("wheel"),
+    } as Parameters<typeof zoom>[0]);
     vi.runAllTimers();
+    zoom({ transform: { x: 10, k: 2 } } as Parameters<typeof zoom>[0]);
     vi.runAllTimers();
 
     expect(mtNy.onZoomPan).toHaveBeenCalledWith({ x: 10, k: 2 });
