@@ -23,10 +23,11 @@ import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import { zoomIdentity } from "d3-zoom";
 import { updateNode } from "../utils/domNodeTransform.ts";
-import "../setupDom.ts";
+import { polyfillDom } from "../setupDom.ts";
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
+polyfillDom();
 
 function createSvg() {
   const dom = new JSDOM(`<div id="c"><svg></svg></div>`, {

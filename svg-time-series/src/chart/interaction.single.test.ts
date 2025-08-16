@@ -18,7 +18,8 @@ import type { Basis } from "../basis.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
-import { Matrix } from "../setupDom.ts";
+import { Matrix, polyfillDom } from "../setupDom.ts";
+polyfillDom();
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
 let updateNodeCalls = 0;

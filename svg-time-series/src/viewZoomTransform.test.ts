@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { scaleLinear } from "d3-scale";
 import { scaleToDomMatrix } from "./utils/domMatrix.ts";
 import { updateNode } from "./utils/domNodeTransform.ts";
-import { Matrix } from "./setupDom.ts";
+import { Matrix, polyfillDom } from "./setupDom.ts";
+polyfillDom();
 
 describe("viewZoomTransform helpers", () => {
   it("applies scale transforms along X and Y axes", () => {

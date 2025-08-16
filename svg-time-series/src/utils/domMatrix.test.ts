@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { scaleLinear } from "d3-scale";
-import { Matrix } from "../setupDom.ts";
+import { Matrix, polyfillDom } from "../setupDom.ts";
 import { scaleToDomMatrix, scalesToDomMatrix } from "./domMatrix.ts";
+polyfillDom();
 
 describe("scaleToDomMatrix", () => {
   it("creates a transform for the X axis without mutating the base", () => {

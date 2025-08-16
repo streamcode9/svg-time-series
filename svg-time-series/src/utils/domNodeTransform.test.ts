@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { Matrix } from "../setupDom.ts";
+import { Matrix, polyfillDom } from "../setupDom.ts";
 import {
   updateNode,
   isSVGMatrix,
   domMatrixToSVGMatrix,
 } from "./domNodeTransform.ts";
+polyfillDom();
 
 class FakeSVGMatrix {
   constructor(

@@ -11,9 +11,11 @@ import type { IDataSource } from "../svg-time-series/src/chart/data.ts";
 import { ChartData } from "../svg-time-series/src/chart/data.ts";
 import { setupRender } from "../svg-time-series/src/chart/render.ts";
 import * as domNode from "../svg-time-series/src/utils/domNodeTransform.ts";
-import "../test/setupDom.ts";
+import { polyfillDom } from "../test/setupDom.ts";
 
 import { LegendController } from "./LegendController.ts";
+
+polyfillDom();
 
 function createSvgAndLegend() {
   const dom = new JSDOM(

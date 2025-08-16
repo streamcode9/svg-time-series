@@ -1,9 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import { scaleTime } from "d3-scale";
 import { zoomIdentity } from "d3-zoom";
+import { polyfillDom } from "../setupDom.ts";
 import { AxisManager } from "./axisManager.ts";
 import { ChartData } from "./data.ts";
-import "../setupDom.ts";
+polyfillDom();
 
 const makeChartData = (): ChartData =>
   new ChartData({

@@ -1,9 +1,11 @@
-import "./setupDom.ts";
 import { beforeAll, describe, expect, it } from "vitest";
 import { zoomIdentity } from "d3-zoom";
+import { polyfillDom } from "./setupDom.ts";
 import type { Basis } from "./basis.ts";
 import { toDirectProductBasis } from "./basis.ts";
 import type { ViewportTransform as ViewportTransformClass } from "./ViewportTransform.ts";
+
+polyfillDom();
 
 let ViewportTransform: typeof ViewportTransformClass;
 

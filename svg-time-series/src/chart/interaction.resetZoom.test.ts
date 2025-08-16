@@ -16,8 +16,8 @@ import type { Basis } from "../basis.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource, IZoomStateOptions } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
-import "../setupDom.ts";
-import type { Matrix } from "../setupDom.ts";
+import { polyfillDom, type Matrix } from "../setupDom.ts";
+polyfillDom();
 
 const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
 vi.mock("../utils/domNodeTransform.ts", () => ({

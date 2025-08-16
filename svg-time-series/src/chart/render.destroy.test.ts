@@ -4,10 +4,11 @@
 import { describe, it, expect } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
+import { polyfillDom } from "../setupDom.ts";
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
-import "../setupDom.ts";
+polyfillDom();
 
 function createSvg(): Selection<SVGSVGElement, unknown, HTMLElement, unknown> {
   const parent = document.createElement("div");

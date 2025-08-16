@@ -29,8 +29,9 @@ import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
+import { polyfillDom } from "../setupDom.ts";
 import { SeriesRenderer } from "./seriesRenderer.ts";
-import "../setupDom.ts";
+polyfillDom();
 
 describe("TimeSeriesChart.resize", () => {
   it("updates axes, paths, and legend", () => {

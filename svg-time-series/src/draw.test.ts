@@ -21,7 +21,8 @@ vi.mock("./chart/zoomState.ts", () => {
 
 import { TimeSeriesChart } from "./draw.ts";
 import type { IDataSource } from "./draw.ts";
-import "./setupDom.ts";
+import { polyfillDom } from "./setupDom.ts";
+polyfillDom();
 
 function createLegend() {
   return {

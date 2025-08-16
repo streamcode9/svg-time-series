@@ -104,20 +104,21 @@ interface DOMGlobals {
   DOMMatrix?: typeof Matrix;
   DOMPoint?: typeof Point;
 }
+function polyfillDom() {
+  const globalObj = globalThis as unknown as DOMGlobals;
+  if (typeof globalObj.DOMMatrix === "undefined") {
+    globalObj.DOMMatrix = Matrix;
+  }
+  if (typeof globalObj.DOMPoint === "undefined") {
+    globalObj.DOMPoint = Point;
+  }
+  if (typeof SVGSVGElement !== "undefined") {
+    (
+      SVGSVGElement.prototype as unknown as {
+        createSVGMatrix: () => Matrix;
+      }
+    ).createSVGMatrix = () => new Matrix();
+  }
+}
 
-const globalObj = globalThis as unknown as DOMGlobals;
-if (typeof globalObj.DOMMatrix === "undefined") {
-  globalObj.DOMMatrix = Matrix;
-}
-if (typeof globalObj.DOMPoint === "undefined") {
-  globalObj.DOMPoint = Point;
-}
-if (typeof SVGSVGElement !== "undefined") {
-  (
-    SVGSVGElement.prototype as unknown as {
-      createSVGMatrix: () => Matrix;
-    }
-  ).createSVGMatrix = () => new Matrix();
-}
-
-export { Matrix, Point };
+export { Matrix, Point, polyfillDom };

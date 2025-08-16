@@ -8,8 +8,8 @@ import type * as d3Zoom from "d3-zoom";
 import type { Basis } from "../basis.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
-import "../setupDom.ts";
-import type { Matrix } from "../setupDom.ts";
+import { polyfillDom, type Matrix } from "../setupDom.ts";
+polyfillDom();
 import type { ILegendController, LegendContext } from "./legend.ts";
 
 vi.mock("../utils/domNodeTransform.ts", () => ({
