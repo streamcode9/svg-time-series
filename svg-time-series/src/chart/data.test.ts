@@ -413,10 +413,8 @@ describe("ChartData", () => {
     );
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
-    const { combined, dp } = cd.combinedAxisDp(cd.bIndexFull, tree0, tree1);
+    const combined = cd.combinedAxisDomain(cd.bIndexFull, tree0, tree1);
     expect(combined).toEqual([-3, 10]);
-    expect(dp[0]).toEqual([0, 2]);
-    expect(dp[1]).toEqual([-3, 10]);
   });
 
   it("throws when initial data contains infinite values", () => {

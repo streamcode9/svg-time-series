@@ -67,8 +67,7 @@ describe("updateScaleY", () => {
   it("respects the supplied index window", () => {
     const cd = new ChartData(makeSource([[10], [20], [40], [5]]));
     const tree = cd.buildAxisTree(0);
-    const dp = cd.updateScaleY([1, 2], tree);
-    expect(dp[0]).toEqual([1, 2]);
-    expect(dp[1]).toEqual([20, 40]);
+    const domain = cd.updateScaleY([1, 2], tree);
+    expect(domain).toEqual([20, 40]);
   });
 });

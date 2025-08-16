@@ -1,5 +1,6 @@
 import { scaleLinear } from "d3-scale";
 import type { ScaleLinear, ScaleTime } from "d3-scale";
+import { extent } from "d3-array";
 import type { Selection } from "d3-selection";
 import type { ZoomTransform } from "d3-zoom";
 import { SegmentTree } from "segment-tree-rmq";
@@ -46,11 +47,12 @@ export class AxisModel {
     dIndex: [number, number],
     transform: ZoomTransform,
   ): void {
-    const { tree, dpRef } = data.axisTransform(axisIdx, dIndex);
+    const { tree, min, max } = data.axisTransform(axisIdx, dIndex);
     this.tree = tree;
-    this.transform.onReferenceViewWindowResize(dpRef);
+    this.transform.onReferenceViewWindowResize([data.bIndexFull, [min, max]]);
     const full = tree.query(0, data.length - 1);
-    this.baseScale.domain([full.min, full.max]);
+    const [fullMin, fullMax] = extent([full.min, full.max]) as [number, number];
+    this.baseScale.domain([fullMin, fullMax]);
     const scaled = transform.rescaleY(this.baseScale);
     this.scale = scaled.copy();
   }

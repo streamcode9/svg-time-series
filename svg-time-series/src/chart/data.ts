@@ -1,9 +1,9 @@
 import { SegmentTree } from "segment-tree-rmq";
 
 import { scaleLinear, type ScaleLinear } from "d3-scale";
+import { extent } from "d3-array";
 import type { ZoomTransform } from "d3-zoom";
-import type { Basis, DirectProductBasis } from "../basis.ts";
-import { toDirectProductBasis } from "../basis.ts";
+import type { Basis } from "../basis.ts";
 import { SlidingWindow } from "./slidingWindow.ts";
 import { assertFiniteNumber, assertPositiveInteger } from "./validation.ts";
 import { buildMinMax, minMaxIdentity } from "./minMax.ts";
@@ -191,15 +191,15 @@ export class ChartData {
       [startIdx, endIdx] = [endIdx, startIdx];
     }
     const { min, max } = tree.query(startIdx, endIdx);
-    return [min, max];
+    const [y0, y1] = extent([min, max]) as [
+      number | undefined,
+      number | undefined,
+    ];
+    return [y0 ?? NaN, y1 ?? NaN];
   }
 
-  updateScaleY(
-    bIndexVisible: Basis,
-    tree: SegmentTree<IMinMax>,
-  ): DirectProductBasis {
-    const bAxisVisible = this.bAxisVisible(bIndexVisible, tree);
-    return toDirectProductBasis(bIndexVisible, bAxisVisible);
+  updateScaleY(bIndexVisible: Basis, tree: SegmentTree<IMinMax>): Basis {
+    return this.bAxisVisible(bIndexVisible, tree);
   }
 
   axisTransform(
@@ -209,35 +209,29 @@ export class ChartData {
     tree: SegmentTree<IMinMax>;
     min: number;
     max: number;
-    dpRef: DirectProductBasis;
   } {
     const tree = this.buildAxisTree(axisIdx);
-    const bIndexVisible: Basis = [dIndexVisible[0], dIndexVisible[1]];
-    const dp = this.updateScaleY(bIndexVisible, tree);
-    let [min, max] = dp[1];
+    const domain = this.updateScaleY(
+      [dIndexVisible[0], dIndexVisible[1]],
+      tree,
+    );
+    let [min, max] = domain;
     if (!Number.isFinite(min) || !Number.isFinite(max)) {
       min = 0;
       max = 1;
     }
-    const b: Basis = [min, max];
-    const dpRef = toDirectProductBasis(this.bIndexFull, b);
-    return { tree, min, max, dpRef };
+    return { tree, min, max };
   }
 
-  combinedAxisDp(
+  combinedAxisDomain(
     bIndexVisible: Basis,
     tree0: SegmentTree<IMinMax>,
     tree1: SegmentTree<IMinMax>,
-  ): {
-    combined: Basis;
-    dp: DirectProductBasis;
-  } {
+  ): Basis {
     const b0 = this.bAxisVisible(bIndexVisible, tree0);
     const b1 = this.bAxisVisible(bIndexVisible, tree1);
     const [min0, max0] = b0;
     const [min1, max1] = b1;
-    const combined: Basis = [Math.min(min0, min1), Math.max(max0, max1)];
-    const dp = toDirectProductBasis(this.bIndexFull, combined);
-    return { combined, dp };
+    return [Math.min(min0, min1), Math.max(max0, max1)];
   }
 }
