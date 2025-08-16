@@ -92,9 +92,14 @@ export class ChartData {
     // since append() maintains a sliding window of fixed length
     this.bIndexFull = [0, this.window.length - 1];
     this.indexToTime = scaleLinear<number, number>()
-      .domain([0, 1])
-      .range([this.startTime, this.startTime + this.timeStep]);
+      .clamp(true)
+      .domain(this.bIndexFull)
+      .range([
+        this.startTime,
+        this.startTime + (this.window.length - 1) * this.timeStep,
+      ]);
     this.indexScale = scaleLinear<number, number>()
+      .clamp(true)
       .domain(this.bIndexFull)
       .range([0, 1]);
   }
@@ -119,7 +124,7 @@ export class ChartData {
 
   getPoint(idx: number): LegendPoint {
     assertFiniteNumber(idx, "ChartData.getPoint idx");
-    const clamped = this.clampIndex(Math.round(idx));
+    const clamped = Math.round(this.clampIndex(idx));
     return {
       values: this.window.data[clamped]!,
       timestamp:
@@ -129,12 +134,11 @@ export class ChartData {
 
   timeToIndex(time: number): number {
     assertFiniteNumber(time, "ChartData.timeToIndex time");
-    const idx = this.indexToTime.invert(time);
-    return this.clampIndex(idx);
+    return this.indexToTime.invert(time);
   }
 
   timeDomainFull(): [Date, Date] {
-    const toTime = this.indexToTime;
+    const toTime = this.indexToTime.copy().clamp(false);
     return this.bIndexFull.map((i) => new Date(toTime(i))) as [Date, Date];
   }
 
@@ -151,7 +155,7 @@ export class ChartData {
    * Exposed for shared bounds checking across components.
    */
   public clampIndex(idx: number): number {
-    return Math.min(Math.max(idx, 0), this.window.length - 1);
+    return this.indexScale.invert(this.indexScale(idx));
   }
 
   public assertAxisBounds(axisCount: number): void {
@@ -183,13 +187,10 @@ export class ChartData {
   }
   bAxisVisible(bIndexVisible: Basis, tree: SegmentTree<IMinMax>): Basis {
     const [minIdxX, maxIdxX] = bIndexVisible;
-    let startIdx = Math.floor(minIdxX);
-    let endIdx = Math.ceil(maxIdxX);
-    startIdx = this.clampIndex(startIdx);
-    endIdx = this.clampIndex(endIdx);
-    if (startIdx > endIdx) {
-      [startIdx, endIdx] = [endIdx, startIdx];
-    }
+    const i0 = this.clampIndex(minIdxX);
+    const i1 = this.clampIndex(maxIdxX);
+    const startIdx = Math.floor(Math.min(i0, i1));
+    const endIdx = Math.ceil(Math.max(i0, i1));
     const { min, max } = tree.query(startIdx, endIdx);
     const [y0, y1] = extent([min, max]) as [
       number | undefined,

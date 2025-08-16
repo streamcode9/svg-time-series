@@ -196,12 +196,11 @@ describe("ChartData", () => {
         [0, 1],
       ),
     );
-    const scale = cd.indexToTime.copy();
     for (let i = 0; i < cd.length; i++) {
-      const t = scale(i);
+      const t = cd.startTime + i * cd.timeStep;
       const idx = cd.timeToIndex(t);
       expect(idx).toBeCloseTo(i);
-      const t2 = scale(idx);
+      const t2 = cd.startTime + idx * cd.timeStep;
       expect(t2).toBeCloseTo(t);
     }
   });
@@ -217,9 +216,8 @@ describe("ChartData", () => {
         [0, 1],
       ),
     );
-    const scale = cd.indexToTime.copy();
-    const earliest = scale(0);
-    const latest = scale(cd.length - 1);
+    const earliest = cd.startTime;
+    const latest = cd.startTime + cd.timeStep * (cd.length - 1);
     expect(cd.timeToIndex(earliest - 1000)).toBe(0);
     expect(cd.timeToIndex(latest + 1000)).toBe(cd.length - 1);
     expect(() => cd.timeToIndex(NaN)).toThrow(/time/);
