@@ -15,6 +15,7 @@ import type { ChartData } from "./data.ts";
 import { createDimensions } from "./render/utils.ts";
 import { SeriesRenderer } from "./seriesRenderer.ts";
 import { createSeries } from "./series.ts";
+import type { LegendContext, LegendSeriesInfo } from "./legend.ts";
 import type { ZoomState } from "./zoomState.ts";
 
 function createYAxis(
@@ -69,6 +70,10 @@ export interface RenderState {
   refresh: (data: ChartData, transform: ZoomTransform) => void;
   resize: (dimensions: Dimensions, zoomState: ZoomState) => void;
   destroy: () => void;
+  getDimensions: () => Dimensions;
+  getLegendSeriesInfo: () => readonly LegendSeriesInfo[];
+  screenToModelX: (x: number) => number;
+  createLegendContext: (data: ChartData) => LegendContext;
 }
 
 export function refreshRenderState(
@@ -145,6 +150,32 @@ function resizeRenderState(
     a.scale.range([height, 0]);
     a.baseScale.range([height, 0]);
   }
+}
+
+function getDimensions(state: RenderState): Dimensions {
+  return { ...state.dimensions };
+}
+
+function getLegendSeriesInfo(state: RenderState): readonly LegendSeriesInfo[] {
+  return state.series.map((s) => ({
+    path: s.path,
+    transform: state.axes.y[s.axisIdx]!.transform,
+  }));
+}
+
+function screenToModelX(state: RenderState, x: number): number {
+  return state.xTransform.fromScreenToModelX(x);
+}
+
+function createLegendContext(
+  state: RenderState,
+  data: ChartData,
+): LegendContext {
+  return {
+    getPoint: (idx) => data.getPoint(idx),
+    length: data.length,
+    series: getLegendSeriesInfo(state),
+  };
 }
 
 export function setupRender(
@@ -225,6 +256,10 @@ export function setupRender(
   state.refresh = refreshRenderState.bind(null, state);
   state.resize = resizeRenderState.bind(null, state);
   state.destroy = destroyRenderState.bind(null, state);
+  state.getDimensions = getDimensions.bind(null, state);
+  state.getLegendSeriesInfo = getLegendSeriesInfo.bind(null, state);
+  state.screenToModelX = screenToModelX.bind(null, state);
+  state.createLegendContext = createLegendContext.bind(null, state);
 
   return state;
 }

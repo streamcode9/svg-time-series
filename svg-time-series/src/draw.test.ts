@@ -138,12 +138,10 @@ describe("TimeSeriesChart", () => {
     const legend = createLegend();
     const { chart } = createChart({ legend });
     const internal = chart as unknown as {
-      state: { xTransform: { fromScreenToModelX: ReturnType<typeof vi.fn> } };
+      state: { screenToModelX: ReturnType<typeof vi.fn> };
       data: { length: number };
     };
-    vi.spyOn(internal.state.xTransform, "fromScreenToModelX").mockReturnValue(
-      10,
-    );
+    vi.spyOn(internal.state, "screenToModelX").mockReturnValue(10);
 
     chart.onHover(5);
 

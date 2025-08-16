@@ -7,7 +7,7 @@ import { ChartData } from "./chart/data.ts";
 import type { IDataSource } from "./chart/data.ts";
 import { setupRender } from "./chart/render.ts";
 import type { RenderState } from "./chart/render.ts";
-import type { ILegendController, LegendContext } from "./chart/legend.ts";
+import type { ILegendController } from "./chart/legend.ts";
 import { ZoomState } from "./chart/zoomState.ts";
 import type { IZoomStateOptions } from "./chart/zoomState.ts";
 
@@ -50,19 +50,20 @@ export class TimeSeriesChart {
     this.data = new ChartData(data);
 
     this.state = setupRender(svg, this.data);
+    const { width, height } = this.state.getDimensions();
 
     this.zoomArea = svg
       .append("rect")
       .attr("class", "zoom-overlay cursor-grab")
-      .attr("width", this.state.dimensions.width)
-      .attr("height", this.state.dimensions.height)
+      .attr("width", width)
+      .attr("height", height)
       .attr("fill", "none")
       .style("pointer-events", "all");
 
     this.brushBehavior = brush()
       .extent([
         [0, 0],
-        [this.state.dimensions.width, this.state.dimensions.height],
+        [width, height],
       ])
       .on("end", this.onBrushEnd);
 
@@ -74,14 +75,7 @@ export class TimeSeriesChart {
 
     this.legendController = legendController;
 
-    const context: LegendContext = {
-      getPoint: (idx) => this.data.getPoint(idx),
-      length: this.data.length,
-      series: this.state.series.map((s) => ({
-        path: s.path,
-        transform: this.state.axes.y[s.axisIdx]!.transform,
-      })),
-    };
+    const context = this.state.createLegendContext(this.data);
     this.legendController.init(context);
 
     this.zoomArea
@@ -115,7 +109,7 @@ export class TimeSeriesChart {
     );
 
     this.refreshAll();
-    this.onHover(this.state.dimensions.width - 1);
+    this.onHover(width - 1);
   }
 
   public get interaction(): IPublicInteraction {
@@ -187,7 +181,7 @@ export class TimeSeriesChart {
   };
 
   public onHover = (x: number) => {
-    let idx = Math.round(this.state.xTransform.fromScreenToModelX(x));
+    let idx = Math.round(this.state.screenToModelX(x));
     idx = this.data.clampIndex(idx);
     this.legendController.highlightIndex(idx);
   };
@@ -210,15 +204,12 @@ export class TimeSeriesChart {
     if (x1 < x0) {
       [x0, x1] = [x1, x0];
     }
-    const m0 = this.data.clampIndex(
-      this.state.xTransform.fromScreenToModelX(x0),
-    );
-    const m1 = this.data.clampIndex(
-      this.state.xTransform.fromScreenToModelX(x1),
-    );
+    const m0 = this.data.clampIndex(this.state.screenToModelX(x0));
+    const m1 = this.data.clampIndex(this.state.screenToModelX(x1));
     const sx0 = this.state.xTransform.toScreenFromModelX(m0);
     const sx1 = this.state.xTransform.toScreenFromModelX(m1);
-    const k = this.state.dimensions.width / (sx1 - sx0);
+    const { width } = this.state.getDimensions();
+    const k = width / (sx1 - sx0);
     const t = zoomIdentity.scale(k).translate(-sx0, 0);
     this.zoomState.zoomBehavior.transform(this.zoomArea, t);
     const startIdx = this.data.startIndex;
