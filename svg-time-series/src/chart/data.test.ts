@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { AR1Basis } from "../math/affine.ts";
+import type { Basis } from "../basis.ts";
 import type { IDataSource } from "./data.ts";
 import { ChartData } from "./data.ts";
 
@@ -292,11 +292,11 @@ describe("ChartData", () => {
         [0, 1],
       ),
     );
-    const range = new AR1Basis(0, 2);
+    const range: Basis = [0, 2];
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
-    expect(cd.bAxisVisible(range, tree0).toArr()).toEqual([10, 50]);
-    expect(cd.bAxisVisible(range, tree1).toArr()).toEqual([20, 60]);
+    expect(cd.bAxisVisible(range, tree0)).toEqual([10, 50]);
+    expect(cd.bAxisVisible(range, tree1)).toEqual([20, 60]);
   });
 
   it("floors and ceils fractional bounds when computing temperature visibility", () => {
@@ -313,9 +313,9 @@ describe("ChartData", () => {
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
 
-    const fractionalRange = new AR1Basis(0.49, 1.49);
-    expect(cd.bAxisVisible(fractionalRange, tree0).toArr()).toEqual([10, 50]);
-    expect(cd.bAxisVisible(fractionalRange, tree1).toArr()).toEqual([20, 60]);
+    const fractionalRange: Basis = [0.49, 1.49];
+    expect(cd.bAxisVisible(fractionalRange, tree0)).toEqual([10, 50]);
+    expect(cd.bAxisVisible(fractionalRange, tree1)).toEqual([20, 60]);
   });
 
   it("handles fractional bounds in the middle of the dataset", () => {
@@ -332,9 +332,9 @@ describe("ChartData", () => {
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
 
-    const fractionalRange = new AR1Basis(1.1, 1.7);
-    expect(cd.bAxisVisible(fractionalRange, tree0).toArr()).toEqual([30, 50]);
-    expect(cd.bAxisVisible(fractionalRange, tree1).toArr()).toEqual([40, 60]);
+    const fractionalRange: Basis = [1.1, 1.7];
+    expect(cd.bAxisVisible(fractionalRange, tree0)).toEqual([30, 50]);
+    expect(cd.bAxisVisible(fractionalRange, tree1)).toEqual([40, 60]);
   });
 
   it("clamps bounds that extend past the data range", () => {
@@ -351,11 +351,11 @@ describe("ChartData", () => {
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
 
-    const outOfRange = new AR1Basis(-0.5, 3.5);
+    const outOfRange: Basis = [-0.5, 3.5];
     expect(() => cd.bAxisVisible(outOfRange, tree0)).not.toThrow();
     expect(() => cd.bAxisVisible(outOfRange, tree1)).not.toThrow();
-    expect(cd.bAxisVisible(outOfRange, tree0).toArr()).toEqual([10, 50]);
-    expect(cd.bAxisVisible(outOfRange, tree1).toArr()).toEqual([20, 60]);
+    expect(cd.bAxisVisible(outOfRange, tree0)).toEqual([10, 50]);
+    expect(cd.bAxisVisible(outOfRange, tree1)).toEqual([20, 60]);
   });
 
   it("clamps bounds completely to the left of the data range", () => {
@@ -372,11 +372,11 @@ describe("ChartData", () => {
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
 
-    const leftRange = new AR1Basis(-5, -1);
+    const leftRange: Basis = [-5, -1];
     expect(() => cd.bAxisVisible(leftRange, tree0)).not.toThrow();
     expect(() => cd.bAxisVisible(leftRange, tree1)).not.toThrow();
-    expect(cd.bAxisVisible(leftRange, tree0).toArr()).toEqual([10, 10]);
-    expect(cd.bAxisVisible(leftRange, tree1).toArr()).toEqual([20, 20]);
+    expect(cd.bAxisVisible(leftRange, tree0)).toEqual([10, 10]);
+    expect(cd.bAxisVisible(leftRange, tree1)).toEqual([20, 20]);
   });
 
   it("clamps bounds completely to the right of the data range", () => {
@@ -393,11 +393,11 @@ describe("ChartData", () => {
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
 
-    const rightRange = new AR1Basis(5, 10);
+    const rightRange: Basis = [5, 10];
     expect(() => cd.bAxisVisible(rightRange, tree0)).not.toThrow();
     expect(() => cd.bAxisVisible(rightRange, tree1)).not.toThrow();
-    expect(cd.bAxisVisible(rightRange, tree0).toArr()).toEqual([50, 50]);
-    expect(cd.bAxisVisible(rightRange, tree1).toArr()).toEqual([60, 60]);
+    expect(cd.bAxisVisible(rightRange, tree0)).toEqual([50, 50]);
+    expect(cd.bAxisVisible(rightRange, tree1)).toEqual([60, 60]);
   });
 
   it("computes combined temperature basis and direct product", () => {
@@ -414,9 +414,9 @@ describe("ChartData", () => {
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
     const { combined, dp } = cd.combinedAxisDp(cd.bIndexFull, tree0, tree1);
-    expect(combined.toArr()).toEqual([-3, 10]);
-    expect(dp.x().toArr()).toEqual([0, 2]);
-    expect(dp.y().toArr()).toEqual([-3, 10]);
+    expect(combined).toEqual([-3, 10]);
+    expect(dp[0]).toEqual([0, 2]);
+    expect(dp[1]).toEqual([-3, 10]);
   });
 
   it("throws when initial data contains infinite values", () => {

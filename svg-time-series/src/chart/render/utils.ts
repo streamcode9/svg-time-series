@@ -1,5 +1,6 @@
 import type { Selection } from "d3-selection";
-import { AR1Basis, DirectProductBasis } from "../../math/affine.ts";
+import type { Basis, DirectProductBasis } from "../../basis.ts";
+import { toDirectProductBasis } from "../../basis.ts";
 
 export function createDimensions(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
@@ -22,10 +23,10 @@ export function createDimensions(
   svg.attr("width", width);
   svg.attr("height", height);
 
-  const bScreenXVisible = new AR1Basis(0, width);
-  const bScreenYVisible = new AR1Basis(height, 0);
+  const bScreenXVisible: Basis = [0, width];
+  const bScreenYVisible: Basis = [height, 0];
 
-  return DirectProductBasis.fromProjections(bScreenXVisible, bScreenYVisible);
+  return toDirectProductBasis(bScreenXVisible, bScreenYVisible);
 }
 
 export function createSeriesNodes(

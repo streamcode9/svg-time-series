@@ -2,7 +2,8 @@ import { SegmentTree } from "segment-tree-rmq";
 
 import { scaleLinear, type ScaleLinear } from "d3-scale";
 import type { ZoomTransform } from "d3-zoom";
-import { AR1Basis, DirectProductBasis } from "../math/affine.ts";
+import type { Basis, DirectProductBasis } from "../basis.ts";
+import { toDirectProductBasis } from "../basis.ts";
 import { SlidingWindow } from "./slidingWindow.ts";
 import { assertFiniteNumber, assertPositiveInteger } from "./validation.ts";
 import { buildMinMax, minMaxIdentity } from "./minMax.ts";
@@ -49,7 +50,7 @@ function validateSource(source: IDataSource): void {
 export class ChartData {
   private readonly window: SlidingWindow;
   public readonly seriesByAxis: [number[], number[]] = [[], []];
-  public bIndexFull: AR1Basis;
+  public bIndexFull: Basis;
   public readonly startTime: number;
   public readonly timeStep: number;
   public readonly seriesCount: number;
@@ -89,12 +90,12 @@ export class ChartData {
     this.timeStep = source.timeStep;
     // bIndexFull represents the full range of data indices and remains constant
     // since append() maintains a sliding window of fixed length
-    this.bIndexFull = new AR1Basis(0, this.window.length - 1);
+    this.bIndexFull = [0, this.window.length - 1];
     this.indexToTime = scaleLinear<number, number>()
       .domain([0, 1])
       .range([this.startTime, this.startTime + this.timeStep]);
     this.indexScale = scaleLinear<number, number>()
-      .domain(this.bIndexFull.toArr())
+      .domain(this.bIndexFull)
       .range([0, 1]);
   }
 
@@ -134,10 +135,7 @@ export class ChartData {
 
   timeDomainFull(): [Date, Date] {
     const toTime = this.indexToTime;
-    return this.bIndexFull.toArr().map((i) => new Date(toTime(i))) as [
-      Date,
-      Date,
-    ];
+    return this.bIndexFull.map((i) => new Date(toTime(i))) as [Date, Date];
   }
 
   bIndexFromTransform(
@@ -183,8 +181,8 @@ export class ChartData {
     );
     return new SegmentTree(arr, buildMinMax, minMaxIdentity);
   }
-  bAxisVisible(bIndexVisible: AR1Basis, tree: SegmentTree<IMinMax>): AR1Basis {
-    const [minIdxX, maxIdxX] = bIndexVisible.toArr();
+  bAxisVisible(bIndexVisible: Basis, tree: SegmentTree<IMinMax>): Basis {
+    const [minIdxX, maxIdxX] = bIndexVisible;
     let startIdx = Math.floor(minIdxX);
     let endIdx = Math.ceil(maxIdxX);
     startIdx = this.clampIndex(startIdx);
@@ -193,15 +191,15 @@ export class ChartData {
       [startIdx, endIdx] = [endIdx, startIdx];
     }
     const { min, max } = tree.query(startIdx, endIdx);
-    return new AR1Basis(min, max);
+    return [min, max];
   }
 
   updateScaleY(
-    bIndexVisible: AR1Basis,
+    bIndexVisible: Basis,
     tree: SegmentTree<IMinMax>,
   ): DirectProductBasis {
     const bAxisVisible = this.bAxisVisible(bIndexVisible, tree);
-    return DirectProductBasis.fromProjections(bIndexVisible, bAxisVisible);
+    return toDirectProductBasis(bIndexVisible, bAxisVisible);
   }
 
   axisTransform(
@@ -214,32 +212,32 @@ export class ChartData {
     dpRef: DirectProductBasis;
   } {
     const tree = this.buildAxisTree(axisIdx);
-    const bIndexVisible = new AR1Basis(dIndexVisible[0], dIndexVisible[1]);
+    const bIndexVisible: Basis = [dIndexVisible[0], dIndexVisible[1]];
     const dp = this.updateScaleY(bIndexVisible, tree);
-    let [min, max] = dp.y().toArr();
+    let [min, max] = dp[1];
     if (!Number.isFinite(min) || !Number.isFinite(max)) {
       min = 0;
       max = 1;
     }
-    const b = new AR1Basis(min, max);
-    const dpRef = DirectProductBasis.fromProjections(this.bIndexFull, b);
+    const b: Basis = [min, max];
+    const dpRef = toDirectProductBasis(this.bIndexFull, b);
     return { tree, min, max, dpRef };
   }
 
   combinedAxisDp(
-    bIndexVisible: AR1Basis,
+    bIndexVisible: Basis,
     tree0: SegmentTree<IMinMax>,
     tree1: SegmentTree<IMinMax>,
   ): {
-    combined: AR1Basis;
+    combined: Basis;
     dp: DirectProductBasis;
   } {
     const b0 = this.bAxisVisible(bIndexVisible, tree0);
     const b1 = this.bAxisVisible(bIndexVisible, tree1);
-    const [min0, max0] = b0.toArr();
-    const [min1, max1] = b1.toArr();
-    const combined = new AR1Basis(Math.min(min0, min1), Math.max(max0, max1));
-    const dp = DirectProductBasis.fromProjections(this.bIndexFull, combined);
+    const [min0, max0] = b0;
+    const [min1, max1] = b1;
+    const combined: Basis = [Math.min(min0, min1), Math.max(max0, max1)];
+    const dp = toDirectProductBasis(this.bIndexFull, combined);
     return { combined, dp };
   }
 }

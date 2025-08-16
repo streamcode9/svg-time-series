@@ -14,7 +14,7 @@ import {
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import type { D3ZoomEvent } from "d3-zoom";
-import { AR1Basis } from "../math/affine.ts";
+import type { Basis } from "../basis.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
@@ -40,7 +40,7 @@ vi.mock("../ViewportTransform.ts", () => ({
     onZoomPan = vi.fn();
     fromScreenToModelX = vi.fn((x: number) => x);
     fromScreenToModelBasisX = vi.fn(
-      () => new AR1Basis(0, Math.max(currentDataLength - 1, 0)),
+      () => [0, Math.max(currentDataLength - 1, 0)] as Basis,
     );
     onViewPortResize = vi.fn();
     onReferenceViewWindowResize = vi.fn();

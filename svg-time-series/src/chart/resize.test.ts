@@ -151,13 +151,10 @@ describe("TimeSeriesChart.resize", () => {
     expect(updateSpy).toHaveBeenCalledWith({ width: 250, height: 120 });
     expect(chartInternal.state.dimensions).toEqual({ width: 250, height: 120 });
 
-    interface AxisRange {
-      x(): { toArr(): [number, number] };
-      y(): { toArr(): [number, number] };
-    }
+    type AxisRange = [[number, number], [number, number]];
     const arg = resizeSpy.mock.calls.at(0)![0] as unknown as AxisRange;
-    expect(arg.x().toArr()).toEqual([0, 250]);
-    expect(arg.y().toArr()).toEqual([120, 0]);
+    expect(arg[0]).toEqual([0, 250]);
+    expect(arg[1]).toEqual([120, 0]);
 
     expect(chartInternal.state.axes.x.scale.range()).toEqual([0, 250]);
     expect(chartInternal.state.axes.y[0]!.scale.range()).toEqual([120, 0]);

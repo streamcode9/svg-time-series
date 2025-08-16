@@ -1,7 +1,6 @@
 import { scaleLinear } from "d3-scale";
 import { zoomIdentity, type ZoomTransform } from "d3-zoom";
-import type { DirectProductBasis } from "./math/affine.ts";
-import { AR1Basis } from "./math/affine.ts";
+import type { Basis, DirectProductBasis } from "./basis.ts";
 import { scalesToDomMatrix } from "./utils/domMatrix.ts";
 
 export class ViewportTransform {
@@ -50,10 +49,7 @@ export class ViewportTransform {
   }
 
   public onViewPortResize(bScreenVisible: DirectProductBasis): this {
-    const [viewX, viewY] = bScreenVisible.toArr() as [
-      [number, number],
-      [number, number],
-    ];
+    const [viewX, viewY] = bScreenVisible;
     this.baseScaleX = this.baseScaleX.copy().range(viewX);
     this.baseScaleY = this.baseScaleY.copy().range(viewY);
     this.updateScales();
@@ -61,10 +57,7 @@ export class ViewportTransform {
   }
 
   public onReferenceViewWindowResize(newPoints: DirectProductBasis): this {
-    const [refX, refY] = newPoints.toArr() as [
-      [number, number],
-      [number, number],
-    ];
+    const [refX, refY] = newPoints;
     this.baseScaleX = this.baseScaleX.copy().domain(refX);
     this.baseScaleY = this.baseScaleY.copy().domain(refY);
     this.updateScales();
@@ -98,12 +91,12 @@ export class ViewportTransform {
     return this.toModelPoint(0, y).y;
   }
 
-  public fromScreenToModelBasisX(b: AR1Basis) {
+  public fromScreenToModelBasisX(b: Basis): Basis {
     const transformPoint = (x: number) => this.toModelPoint(x, 0).x;
-    const [bp1, bp2] = b.toArr();
+    const [bp1, bp2] = b;
     const p1 = transformPoint(bp1);
     const p2 = transformPoint(bp2);
-    return new AR1Basis(p1, p2);
+    return [p1, p2];
   }
 
   public toScreenFromModelX(x: number) {
@@ -114,12 +107,12 @@ export class ViewportTransform {
     return this.toScreenPoint(0, y).y;
   }
 
-  public toScreenFromModelBasisX(b: AR1Basis) {
+  public toScreenFromModelBasisX(b: Basis): Basis {
     const transformPoint = (x: number) => this.toScreenPoint(x, 0).x;
-    const [bp1, bp2] = b.toArr();
+    const [bp1, bp2] = b;
     const p1 = transformPoint(bp1);
     const p2 = transformPoint(bp2);
-    return new AR1Basis(p1, p2);
+    return [p1, p2];
   }
 
   public get matrix(): DOMMatrix {

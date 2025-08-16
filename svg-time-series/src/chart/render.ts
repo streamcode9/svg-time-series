@@ -6,7 +6,8 @@ import { zoomIdentity, type ZoomTransform } from "d3-zoom";
 
 import { MyAxis, Orientation } from "../axis.ts";
 import { updateNode } from "../utils/domNodeTransform.ts";
-import { AR1Basis, DirectProductBasis, bPlaceholder } from "../math/affine.ts";
+import type { Basis } from "../basis.ts";
+import { bPlaceholder, toDirectProductBasis, basisRange } from "../basis.ts";
 
 import { ViewportTransform } from "../ViewportTransform.ts";
 import { AxisManager } from "./axisManager.ts";
@@ -63,7 +64,7 @@ export interface RenderState {
   axes: Axes;
   axisRenders: AxisRenderState[];
   xTransform: ViewportTransform;
-  screenXBasis: AR1Basis;
+  screenXBasis: Basis;
   dimensions: Dimensions;
   series: Series[];
   seriesRenderer: SeriesRenderer;
@@ -83,10 +84,7 @@ export function refreshRenderState(
   data: ChartData,
   transform: ZoomTransform,
 ): void {
-  const referenceBasis = DirectProductBasis.fromProjections(
-    data.bIndexFull,
-    bPlaceholder,
-  );
+  const referenceBasis = toDirectProductBasis(data.bIndexFull, bPlaceholder);
   state.xTransform.onReferenceViewWindowResize(referenceBasis);
 
   state.axisManager.setData(data);
@@ -132,12 +130,9 @@ function resizeRenderState(
   zoomState: ZoomState,
 ): void {
   const { width, height } = dimensions;
-  const bScreenXVisible = new AR1Basis(0, width);
-  const bScreenYVisible = new AR1Basis(height, 0);
-  const bScreenVisible = DirectProductBasis.fromProjections(
-    bScreenXVisible,
-    bScreenYVisible,
-  );
+  const bScreenXVisible: Basis = [0, width];
+  const bScreenYVisible: Basis = [height, 0];
+  const bScreenVisible = toDirectProductBasis(bScreenXVisible, bScreenYVisible);
 
   state.axes.x.scale.range([0, width]);
   state.axes.x.axis.setScale(state.axes.x.scale);
@@ -201,19 +196,16 @@ export function setupRender(
   data: ChartData,
 ): RenderState {
   const screenBasis = createDimensions(svg);
-  const screenXBasis = screenBasis.x();
-  const width = screenXBasis.getRange();
-  const height = screenBasis.y().getRange();
+  const screenXBasis = screenBasis[0];
+  const width = basisRange(screenXBasis);
+  const height = basisRange(screenBasis[1]);
   const maxAxisIdx = data.seriesAxes.reduce(
     (max, idx) => Math.max(max, idx),
     0,
   );
   const axisCount = maxAxisIdx + 1;
 
-  const [xRange, yRange] = screenBasis.toArr() as [
-    [number, number],
-    [number, number],
-  ];
+  const [xRange, yRange] = screenBasis;
   const axisManager = new AxisManager(axisCount, data);
   axisManager.setXAxis(scaleTime().range(xRange));
   const yAxes = axisManager.axes;
@@ -223,10 +215,7 @@ export function setupRender(
   }
   axisManager.updateScales(zoomIdentity);
 
-  const referenceBasis = DirectProductBasis.fromProjections(
-    data.bIndexFull,
-    bPlaceholder,
-  );
+  const referenceBasis = toDirectProductBasis(data.bIndexFull, bPlaceholder);
   for (const a of yAxes) {
     a.transform.onViewPortResize(screenBasis);
     a.transform.onReferenceViewWindowResize(referenceBasis);

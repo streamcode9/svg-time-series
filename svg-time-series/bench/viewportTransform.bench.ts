@@ -1,7 +1,7 @@
 import { bench, describe } from "vitest";
 import { zoomIdentity } from "d3-zoom";
 import { ViewportTransform } from "../src/ViewportTransform.ts";
-import { AR1Basis, DirectProductBasis } from "../src/math/affine.ts";
+import { toDirectProductBasis } from "../src/basis.ts";
 
 class Matrix {
   constructor(
@@ -69,18 +69,8 @@ globalObj.DOMPoint = Point;
 
 describe("ViewportTransform performance", () => {
   const vt = new ViewportTransform();
-  vt.onViewPortResize(
-    DirectProductBasis.fromProjections(
-      new AR1Basis(0, 100),
-      new AR1Basis(0, 100),
-    ),
-  );
-  vt.onReferenceViewWindowResize(
-    DirectProductBasis.fromProjections(
-      new AR1Basis(0, 10),
-      new AR1Basis(0, 10),
-    ),
-  );
+  vt.onViewPortResize(toDirectProductBasis([0, 100], [0, 100]));
+  vt.onReferenceViewWindowResize(toDirectProductBasis([0, 10], [0, 10]));
 
   const t = zoomIdentity.translate(10, 0).scale(2);
 
@@ -93,6 +83,6 @@ describe("ViewportTransform performance", () => {
   });
 
   bench("fromScreenToModelBasisX", () => {
-    vt.fromScreenToModelBasisX(new AR1Basis(20, 40));
+    vt.fromScreenToModelBasisX([20, 40]);
   });
 });
