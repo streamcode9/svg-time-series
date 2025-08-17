@@ -262,6 +262,21 @@ describe("TimeSeriesChart", () => {
     expect(rectNode.classList.contains("cursor-grabbing")).toBe(false);
   });
 
+  it("enabling brush clears selection and resets time window", () => {
+    const { chart } = createChart();
+    const internal = chart as unknown as {
+      clearBrush: ReturnType<typeof vi.fn>;
+      selectedTimeWindow: [number, number] | null;
+    };
+    internal.selectedTimeWindow = [1, 2];
+    const clearBrushSpy = vi.spyOn(internal, "clearBrush");
+
+    chart.enableBrush();
+
+    expect(clearBrushSpy).toHaveBeenCalled();
+    expect(chart.getSelectedTimeWindow()).toBeNull();
+  });
+
   it("clears brush and skips zoom when selection collapses", () => {
     const { chart } = createChart();
     const internal = chart as unknown as {

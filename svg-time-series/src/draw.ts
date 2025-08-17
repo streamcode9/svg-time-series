@@ -169,7 +169,6 @@ export class TimeSeriesChart {
 
   public enableBrush = () => {
     this.clearBrush();
-    this.selectedTimeWindow = null;
     this.brushLayer.style("display", null);
   };
 
