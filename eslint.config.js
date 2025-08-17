@@ -54,7 +54,6 @@ export default config(
     },
   },
   ...configs.strictTypeChecked,
-  importPlugin.flatConfigs.recommended,
   importPlugin.flatConfigs.typescript,
   prettierConfig,
   {
