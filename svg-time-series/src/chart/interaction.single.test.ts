@@ -232,7 +232,7 @@ describe("chart interaction single-axis", () => {
     const { onHover, svgEl, legend, chart } = createChart(data);
     vi.runAllTimers();
 
-    chart.updateChartWithNewData(50);
+    chart.updateChartWithNewData([50]);
     vi.runAllTimers();
 
     onHover(1);

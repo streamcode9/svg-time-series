@@ -71,7 +71,7 @@ export function drawCharts(
   setInterval(function () {
     const newData = data[j % data.length];
     charts.forEach((c) => {
-      c.updateChartWithNewData(newData[0], newData[1]);
+      c.updateChartWithNewData([newData[0], newData[1]]);
     });
     j++;
   }, 5000);

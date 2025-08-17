@@ -101,7 +101,7 @@ describe("TimeSeriesChart", () => {
     appendSpy.mockClear();
     drawSpy.mockClear();
 
-    chart.updateChartWithNewData(10);
+    chart.updateChartWithNewData([10]);
 
     expect(appendSpy).toHaveBeenCalledWith(10);
     expect(drawSpy).toHaveBeenCalledWith(internal.data.data);
@@ -110,7 +110,7 @@ describe("TimeSeriesChart", () => {
   it("throws when provided fewer values than series count", () => {
     const { chart } = createChart();
     expect(() => {
-      chart.updateChartWithNewData();
+      chart.updateChartWithNewData([]);
     }).toThrow(
       "TimeSeriesChart.updateChartWithNewData expected 1 values, received 0",
     );
@@ -119,7 +119,7 @@ describe("TimeSeriesChart", () => {
   it("throws when provided more values than series count", () => {
     const { chart } = createChart();
     expect(() => {
-      chart.updateChartWithNewData(10, 20);
+      chart.updateChartWithNewData([10, 20]);
     }).toThrow(
       "TimeSeriesChart.updateChartWithNewData expected 1 values, received 2",
     );
