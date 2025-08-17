@@ -107,8 +107,8 @@ export class ZoomState {
   };
 
   public setScaleExtent = (extent: [number, number]) => {
-    const node = this.zoomAreaNode;
-    if (!node) {
+    const node = this.zoomArea.node();
+    if (!node || !this.zoomAreaNode) {
       return;
     }
     this.scaleExtent = ZoomState.validateScaleExtent(extent);
@@ -122,8 +122,8 @@ export class ZoomState {
   };
 
   public updateExtents = (dimensions: { width: number; height: number }) => {
-    const node = this.zoomAreaNode;
-    if (!node) {
+    const node = this.zoomArea.node();
+    if (!node || !this.zoomAreaNode) {
       return;
     }
     this.zoomBehavior.scaleExtent(this.scaleExtent).translateExtent([
