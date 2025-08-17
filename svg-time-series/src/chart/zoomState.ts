@@ -29,6 +29,10 @@ export class ZoomState {
   private zoomScheduler: ZoomScheduler;
   private scaleExtent: [number, number];
   private zoomAreaNode: SVGRectElement | null;
+  private getZoomAreaNode(): SVGRectElement | null {
+    const node = this.zoomArea.node();
+    return node && this.zoomAreaNode ? node : null;
+  }
 
   public static validateScaleExtent(extent: unknown): [number, number] {
     const error = () =>
@@ -107,8 +111,8 @@ export class ZoomState {
   };
 
   public setScaleExtent = (extent: [number, number]) => {
-    const node = this.zoomArea.node();
-    if (!node || !this.zoomAreaNode) {
+    const node = this.getZoomAreaNode();
+    if (!node) {
       return;
     }
     this.scaleExtent = ZoomState.validateScaleExtent(extent);
@@ -123,8 +127,8 @@ export class ZoomState {
   };
 
   public updateExtents = (dimensions: { width: number; height: number }) => {
-    const node = this.zoomArea.node();
-    if (!node || !this.zoomAreaNode) {
+    const node = this.getZoomAreaNode();
+    if (!node) {
       return;
     }
     this.zoomBehavior.scaleExtent(this.scaleExtent).translateExtent([
