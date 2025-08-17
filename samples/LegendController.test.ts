@@ -5,6 +5,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { select } from "d3-selection";
 import type { Selection } from "d3-selection";
+import { zoomIdentity } from "d3-zoom";
 
 import type { IDataSource } from "../svg-time-series/src/chart/data.ts";
 import { ChartData } from "../svg-time-series/src/chart/data.ts";
@@ -115,6 +116,60 @@ describe("LegendController", () => {
     expect(() => {
       lc.highlightIndex(1);
     }).not.toThrow();
+    lc.destroy();
+  });
+
+  it("updates dot position when transform changes on refresh", () => {
+    const { svg, legendDiv } = createSvgAndLegend();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 2,
+      getSeries: (i) => [10, 20][i]!,
+      seriesAxes: [0],
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg, data);
+    select<SVGPathElement, unknown>(state.series[0]!.path).attr(
+      "stroke",
+      "green",
+    );
+    const lc = new LegendController(legendDiv);
+    lc.init({
+      getPoint: data.getPoint.bind(data),
+      getLength: () => data.length,
+      series: state.series.map((s) => ({
+        path: s.path,
+        transform: state.axes.y[s.axisIdx]!.transform,
+      })),
+    });
+
+    vi.useFakeTimers();
+    const updateSpy = vi
+      .spyOn(domNode, "updateNode")
+      .mockImplementation(() => {});
+
+    lc.highlightIndex(1);
+    vi.runAllTimers();
+    const initialMatrix = updateSpy.mock.calls.at(-1)![1];
+    updateSpy.mockClear();
+
+    state.axes.y[0]!.transform.onZoomPan(zoomIdentity.translate(10, 0));
+    lc.refresh();
+    vi.runAllTimers();
+
+    expect(updateSpy).toHaveBeenCalled();
+    const updatedMatrix = updateSpy.mock.calls.at(-1)![1];
+    const modelPoint = new DOMPoint(1, data.getPoint(1).values[0]);
+    const expected = modelPoint.matrixTransform(
+      state.axes.y[0]!.transform.matrix,
+    );
+    expect(updatedMatrix.e).toBeCloseTo(expected.x);
+    expect(updatedMatrix.f).toBeCloseTo(expected.y);
+    expect(updatedMatrix.e).not.toBeCloseTo(initialMatrix.e);
+
+    updateSpy.mockRestore();
+    vi.useRealTimers();
     lc.destroy();
   });
 

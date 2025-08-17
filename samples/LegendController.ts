@@ -29,6 +29,7 @@ export class LegendController implements ILegendController {
   private context!: LegendContext;
   private scheduleUpdate: () => void;
   private cancelUpdate: () => void;
+  private forceUpdate = false;
 
   constructor(
     legend: Selection<HTMLElement, unknown, HTMLElement, unknown>,
@@ -102,6 +103,7 @@ export class LegendController implements ILegendController {
   }
 
   public refresh(): void {
+    this.forceUpdate = true;
     this.scheduleUpdate();
   }
 
@@ -149,8 +151,9 @@ export class LegendController implements ILegendController {
       transform: { matrix: DOMMatrix },
       prevVal: number | undefined,
       setPrev: (v: number | undefined) => void,
+      force: boolean,
     ) => {
-      if (!indexChanged && Object.is(val, prevVal)) {
+      if (!indexChanged && Object.is(val, prevVal) && !force) {
         return;
       }
       const safeVal = val ?? NaN;
@@ -171,6 +174,7 @@ export class LegendController implements ILegendController {
       firstSeries.transform,
       this.prevGreen,
       (v) => (this.prevGreen = v),
+      this.forceUpdate,
     );
     const secondSeries = this.context.series[1];
     if (secondSeries) {
@@ -181,9 +185,11 @@ export class LegendController implements ILegendController {
         secondSeries.transform,
         this.prevBlue,
         (v) => (this.prevBlue = v),
+        this.forceUpdate,
       );
     }
     this.lastRenderedIdx = this.highlightedDataIdx;
+    this.forceUpdate = false;
   }
 
   public destroy(): void {
