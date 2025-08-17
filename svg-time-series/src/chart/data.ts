@@ -146,12 +146,7 @@ export class ChartData {
     });
   }
 
-  buildAxisTree(axis: number): SegmentTree<IMinMax> {
-    if (axis !== 0 && axis !== 1) {
-      throw new Error(
-        `ChartData.buildAxisTree axis must be 0 or 1; received ${String(axis)}`,
-      );
-    }
+  buildAxisTree(axis: 0 | 1): SegmentTree<IMinMax> {
     return this.axes[axis].buildTree();
   }
 
