@@ -173,14 +173,8 @@ describe("ChartData", () => {
         [0, 1],
       ),
     );
-    expect(cd.getPoint(1_000_000)).toEqual({
-      values: [50, 60],
-      timestamp: 2,
-    });
-    expect(cd.getPoint(-1_000_000)).toEqual({
-      values: [10, 20],
-      timestamp: 0,
-    });
+    expect(cd.clampIndex(1_000_000)).toBe(cd.length - 1);
+    expect(cd.clampIndex(-1_000_000)).toBe(0);
   });
 
   it("converts time to index and back", () => {

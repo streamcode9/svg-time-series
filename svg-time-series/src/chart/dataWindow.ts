@@ -97,6 +97,7 @@ export class DataWindow {
    * Exposed for shared bounds checking across components.
    */
   public clampIndex(idx: number): number {
-    return this.indexScale.invert(this.indexScale(idx));
+    const max = this.window.length - 1;
+    return Math.max(0, Math.min(idx, max));
   }
 }
