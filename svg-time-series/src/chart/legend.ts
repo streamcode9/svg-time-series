@@ -19,6 +19,7 @@ export interface LegendContext {
 export interface ILegendController {
   init(context: LegendContext): void;
   highlightIndex(idx: number): void;
+  highlightIndexRaf?(idx: number): void;
   refresh(): void;
   clearHighlight(): void;
   destroy(): void;

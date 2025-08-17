@@ -184,9 +184,7 @@ export class TimeSeriesChart {
   public onHover = (x: number) => {
     let idx = Math.round(this.state.screenToModelX(x));
     idx = this.data.clampIndex(idx);
-    const legend = this.legendController as ILegendController & {
-      highlightIndexRaf?: (idx: number) => void;
-    };
+    const legend = this.legendController;
     if (legend.highlightIndexRaf) {
       legend.highlightIndexRaf(idx);
     } else {

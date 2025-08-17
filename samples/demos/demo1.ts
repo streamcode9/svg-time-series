@@ -1,6 +1,9 @@
 import { loadAndDraw } from "./common.ts";
 
 void loadAndDraw([0, 1]).then((charts) => {
+  charts.forEach((c) => {
+    c.interaction.onHover(0);
+  });
   const resetButton = document.getElementById("reset-zoom");
   resetButton?.addEventListener("click", () => {
     charts.forEach((c) => {
