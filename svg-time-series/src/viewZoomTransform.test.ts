@@ -19,22 +19,15 @@ describe("viewZoomTransform helpers", () => {
   });
 
   it("updates SVG node transform with a matrix", () => {
-    const calls: DOMMatrix[] = [];
-    const baseVal = {
-      createSVGTransformFromMatrix: (m: DOMMatrix) => ({ m }),
-      initialize(t: { m: DOMMatrix }) {
-        calls.push(t.m);
-      },
-    };
+    const calls: string[] = [];
     const node = {
-      transform: { baseVal },
-      ownerSVGElement: {
-        createSVGMatrix: () => new DOMMatrix(),
+      setAttribute(_name: string, value: string) {
+        calls.push(value);
       },
     } as unknown as SVGGraphicsElement;
     const matrix = new DOMMatrix([1, 0, 0, 1, 2, 3]);
 
     updateNode(node, matrix);
-    expect(calls[0]).toBe(matrix);
+    expect(calls[0]).toBe("matrix(1,0,0,1,2,3)");
   });
 });
