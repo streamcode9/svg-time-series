@@ -1,3 +1,29 @@
+function formatLengthError(
+  seriesCount: number,
+  rowLength: number,
+  rowIdx?: number,
+): string {
+  if (rowIdx === undefined) {
+    return `SlidingWindow.append requires ${String(
+      seriesCount,
+    )} values, received ${String(rowLength)}`;
+  }
+  return `SlidingWindow requires row ${String(rowIdx)} to have ${String(
+    seriesCount,
+  )} values, received ${String(rowLength)}`;
+}
+
+function formatValueError(valueIdx: number, rowIdx?: number): string {
+  if (rowIdx === undefined) {
+    return `SlidingWindow.append requires series ${String(
+      valueIdx,
+    )} value to be a finite number or NaN`;
+  }
+  return `SlidingWindow requires row ${String(rowIdx)} series ${String(
+    valueIdx,
+  )} value to be a finite number or NaN`;
+}
+
 export class SlidingWindow {
   public readonly data: number[][];
   public startIndex = 0;
@@ -27,33 +53,11 @@ export class SlidingWindow {
 
   private validateValues(row: number[], rowIdx?: number): void {
     if (row.length !== this.seriesCount) {
-      if (rowIdx === undefined) {
-        throw new Error(
-          `SlidingWindow.append requires ${String(
-            this.seriesCount,
-          )} values, received ${String(row.length)}`,
-        );
-      }
-      throw new Error(
-        `SlidingWindow requires row ${String(rowIdx)} to have ${String(
-          this.seriesCount,
-        )} values, received ${String(row.length)}`,
-      );
+      throw new Error(formatLengthError(this.seriesCount, row.length, rowIdx));
     }
     row.forEach((val, valueIdx) => {
       if (!Number.isFinite(val) && !Number.isNaN(val)) {
-        if (rowIdx === undefined) {
-          throw new Error(
-            `SlidingWindow.append requires series ${String(
-              valueIdx,
-            )} value to be a finite number or NaN`,
-          );
-        }
-        throw new Error(
-          `SlidingWindow requires row ${String(rowIdx)} series ${String(
-            valueIdx,
-          )} value to be a finite number or NaN`,
-        );
+        throw new Error(formatValueError(valueIdx, rowIdx));
       }
     });
   }
