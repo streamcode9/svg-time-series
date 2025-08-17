@@ -21,16 +21,17 @@ function scaleYRange(
   const startIdx = Math.floor(Math.min(i0, i1));
   const endIdx = Math.ceil(Math.max(i0, i1));
   const { min, max } = tree.query(startIdx, endIdx);
-  let [y0, y1] = extent([min, max]) as [number | undefined, number | undefined];
+  let y0 = Math.min(min, max);
+  let y1 = Math.max(min, max);
   if (!Number.isFinite(y0) || !Number.isFinite(y1)) {
     y0 = 0;
     y1 = 1;
   } else if (y0 === y1) {
     const epsilon = 0.5;
-    y0 = (y0 as number) - epsilon;
-    y1 = (y1 as number) + epsilon;
+    y0 -= epsilon;
+    y1 += epsilon;
   }
-  return [y0!, y1!];
+  return [y0, y1];
 }
 
 export function scaleY(
