@@ -1,9 +1,4 @@
-import {
-  scaleLinear,
-  scaleUtc,
-  type ScaleLinear,
-  type ScaleTime,
-} from "d3-scale";
+import { scaleLinear, scaleUtc, type ScaleTime } from "d3-scale";
 import type { ZoomTransform } from "d3-zoom";
 
 import { SlidingWindow } from "./slidingWindow.ts";
@@ -19,12 +14,6 @@ export class DataWindow {
    * sliding window to avoid recreating the scale on every query.
    */
   public readonly indexToTime: ScaleTime<Date, Date>;
-  /**
-   * Persistent mapping from data index to screen range. The domain never
-   * changes, and the range is updated on demand in `dIndexFromTransform` to
-   * avoid reconstructing the scale for every call.
-   */
-  private readonly indexScale: ScaleLinear<number, number>;
   public readonly bIndexFull: readonly [number, number];
 
   constructor(initialData: number[][], startTime: number, timeStep: number) {
@@ -39,10 +28,6 @@ export class DataWindow {
         new Date(this.startTime),
         new Date(this.startTime + (this.window.length - 1) * this.timeStep),
       ]);
-    this.indexScale = scaleLinear<number, number>()
-      .clamp(true)
-      .domain(this.bIndexFull)
-      .range([0, 1]);
   }
 
   append(...values: number[]): void {
@@ -88,8 +73,10 @@ export class DataWindow {
     transform: ZoomTransform,
     range: [number, number],
   ): [number, number] {
-    this.indexScale.range(range);
-    return transform.rescaleX(this.indexScale).domain() as [number, number];
+    const indexScale = scaleLinear<number, number>()
+      .domain(this.bIndexFull)
+      .range(range);
+    return transform.rescaleX(indexScale).domain() as [number, number];
   }
 
   /**
