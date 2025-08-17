@@ -1,43 +1,28 @@
 import type { ScaleContinuousNumeric } from "d3-scale";
+import type { ZoomTransform } from "d3-zoom";
 
 /**
- * Build a DOMMatrix representing the mapping from the provided domain to range
- * along the given axis. The supplied matrix is treated as a base value and will
- * not be modified; instead a new matrix with the transform applied is returned.
- */
-function matrixFromDomainRange(
-  domain: [number, number],
-  range: [number, number],
-  axis: "x" | "y",
-  sm: DOMMatrix,
-): DOMMatrix {
-  const [d0, d1] = domain;
-  const [r0, r1] = range;
-  const a = (r1 - r0) / (d1 - d0);
-  const b = r0 - d0 * a;
-  const m = new DOMMatrix().multiply(sm);
-  return axis === "x"
-    ? m.translateSelf(b, 0).scaleSelf(a, 1)
-    : m.translateSelf(0, b).scaleSelf(1, a);
-}
-
-/**
- * Convert a D3 scale's domain and range into a DOMMatrix along a specific axis.
- *
- * The returned matrix is a new instance based on `sm`; the supplied matrix is
- * left unmodified.
+ * Convert a D3 scale into a DOMMatrix along a specific axis. The matrix elements
+ * are derived from `scale(0)` and `scale(1)` rather than manipulating the
+ * domain and range manually. A new matrix is returned based on `sm`; the
+ * supplied matrix itself is never mutated.
  */
 export function scaleToDomMatrix(
   scale: ScaleContinuousNumeric<number, number>,
   axis: "x" | "y" = "x",
   sm: DOMMatrix = new DOMMatrix(),
 ): DOMMatrix {
-  return matrixFromDomainRange(
-    scale.domain() as [number, number],
-    scale.range() as [number, number],
-    axis,
-    sm,
-  );
+  const m = DOMMatrix.fromMatrix(sm);
+  const v0 = scale(0);
+  const v1 = scale(1);
+  if (axis === "x") {
+    m.a *= v1 - v0;
+    m.e += v0;
+  } else {
+    m.d *= v1 - v0;
+    m.f += v0;
+  }
+  return m;
 }
 
 /**
@@ -51,4 +36,17 @@ export function scalesToDomMatrix(
 ): DOMMatrix {
   const mx = scaleToDomMatrix(scaleX, "x", sm);
   return scaleToDomMatrix(scaleY, "y", mx);
+}
+
+/**
+ * Convert a D3 ZoomTransform into a DOMMatrix. The transform is represented by
+ * `{k, x, y}` and directly mapped into the matrix elements. A new matrix is
+ * returned and the supplied `sm` is left unmodified.
+ */
+export function zoomTransformToDomMatrix(
+  t: ZoomTransform,
+  sm: DOMMatrix = new DOMMatrix(),
+): DOMMatrix {
+  const z = DOMMatrix.fromMatrix(new DOMMatrix([t.k, 0, 0, t.k, t.x, t.y]));
+  return sm.multiply(z);
 }

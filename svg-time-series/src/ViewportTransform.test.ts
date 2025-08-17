@@ -1,9 +1,14 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { zoomIdentity } from "d3-zoom";
+import { scaleLinear } from "d3-scale";
 import { polyfillDom } from "./setupDom.ts";
 import type { Basis } from "./basis.ts";
 import { toDirectProductBasis } from "./basis.ts";
 import type { ViewportTransform as ViewportTransformClass } from "./ViewportTransform.ts";
+import {
+  scalesToDomMatrix,
+  zoomTransformToDomMatrix,
+} from "./utils/domMatrix.ts";
 
 await polyfillDom();
 
@@ -25,9 +30,16 @@ describe("ViewportTransform", () => {
     expect(vt.fromScreenToModelY(20)).toBeCloseTo(2);
 
     // apply zoom: translate 10 and scale 2
-    vt.onZoomPan(zoomIdentity.translate(10, 0).scale(2));
+    const zoom = zoomIdentity.translate(10, 0).scale(2);
+    vt.onZoomPan(zoom);
     expect(vt.fromScreenToModelX(70)).toBeCloseTo(3);
     expect(vt.fromScreenToModelY(20)).toBeCloseTo(2);
+
+    const sx = scaleLinear().domain([0, 10]).range([0, 100]);
+    const sy = scaleLinear().domain([0, 10]).range([0, 100]);
+    const expected = zoomTransformToDomMatrix(zoom, scalesToDomMatrix(sx, sy));
+    expect(vt.matrix.a).toBeCloseTo(expected.a);
+    expect(vt.matrix.e).toBeCloseTo(expected.e);
   });
 
   it("maps screen bases back to model bases through inverse transforms", () => {

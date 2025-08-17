@@ -1,7 +1,10 @@
 import { scaleLinear, type ScaleLinear } from "d3-scale";
 import { zoomIdentity, type ZoomTransform } from "d3-zoom";
 import type { Basis, DirectProductBasis } from "./basis.ts";
-import { scalesToDomMatrix } from "./utils/domMatrix.ts";
+import {
+  scalesToDomMatrix,
+  zoomTransformToDomMatrix,
+} from "./utils/domMatrix.ts";
 
 export class ViewportTransform {
   private baseScaleX = scaleLinear();
@@ -22,7 +25,11 @@ export class ViewportTransform {
   }
 
   private updateComposedMatrix() {
-    this.composedMatrix = scalesToDomMatrix(this.scaleX, this.scaleY);
+    const baseMatrix = scalesToDomMatrix(this.baseScaleX, this.baseScaleY);
+    this.composedMatrix = zoomTransformToDomMatrix(
+      this.zoomTransform,
+      baseMatrix,
+    );
   }
 
   public onViewPortResize(bScreenVisible: DirectProductBasis): this {
@@ -73,16 +80,9 @@ export class ViewportTransform {
     return this.scaleY.invert(y);
   }
 
-  private mapArray<T extends readonly number[]>(
-    b: T,
-    fn: (n: number) => number,
-  ): { [K in keyof T]: number } {
-    return b.map(fn) as { [K in keyof T]: number };
-  }
-
   public fromScreenToModelBasisX(b: Basis): Basis {
     this.assertInvertible(this.scaleX);
-    return this.mapArray(b, (n) => this.scaleX.invert(n));
+    return [this.scaleX.invert(b[0]), this.scaleX.invert(b[1])];
   }
 
   public toScreenFromModelX(x: number) {
@@ -94,7 +94,7 @@ export class ViewportTransform {
   }
 
   public toScreenFromModelBasisX(b: Basis): Basis {
-    return this.mapArray(b, this.scaleX);
+    return [this.scaleX(b[0]), this.scaleX(b[1])];
   }
 
   public get matrix(): DOMMatrix {

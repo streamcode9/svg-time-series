@@ -12,6 +12,8 @@ async function polyfillDom(): Promise<void> {
   ) {
     (globalObj as { window?: unknown }).window ??= globalObj;
     await import("geometry-polyfill");
+    (globalObj as { SVGMatrix?: typeof globalThis.DOMMatrix }).SVGMatrix ??=
+      globalObj.DOMMatrix!;
   }
   if (typeof SVGSVGElement !== "undefined") {
     const proto = SVGSVGElement.prototype as unknown as {
