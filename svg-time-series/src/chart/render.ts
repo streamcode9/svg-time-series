@@ -80,6 +80,27 @@ function matricesEqual(a: DOMMatrix, b: DOMMatrix): boolean {
   );
 }
 
+function updateScaleCache(
+  scale: ScaleLinear<number, number> | ScaleTime<number, number>,
+  axis: {
+    axis: MyAxis;
+    g: Selection<SVGGElement, unknown, HTMLElement, unknown>;
+  },
+  cache: ScaleCache,
+): ScaleCache {
+  const domain = scale.domain() as [number | Date, number | Date];
+  const range = scale.range() as [number, number];
+  if (!arraysEqual(domain, cache.domain) || !arraysEqual(range, cache.range)) {
+    axis.axis.setScale(scale);
+    axis.axis.axisUp(axis.g);
+    return {
+      domain: domain.slice() as [number | Date, number | Date],
+      range: range.slice() as [number, number],
+    };
+  }
+  return cache;
+}
+
 export class RenderState {
   public axisManager: AxisManager;
   public axes: Axes;
@@ -132,38 +153,18 @@ export class RenderState {
       }
     }
     this.axes.x.scale = this.axisManager.x;
-    const xDomain = this.axisManager.x.domain() as [
-      number | Date,
-      number | Date,
-    ];
-    const xRange = this.axisManager.x.range() as [number, number];
-    if (
-      !arraysEqual(xDomain, this.xScaleCache.domain) ||
-      !arraysEqual(xRange, this.xScaleCache.range)
-    ) {
-      this.axes.x.axis.setScale(this.axisManager.x);
-      this.axes.x.axis.axisUp(this.axes.x.g!);
-      this.xScaleCache = {
-        domain: xDomain.slice() as [number | Date, number | Date],
-        range: xRange.slice() as [number, number],
-      };
-    }
+    this.xScaleCache = updateScaleCache(
+      this.axisManager.x,
+      { axis: this.axes.x.axis, g: this.axes.x.g! },
+      this.xScaleCache,
+    );
     this.axisRenders.forEach((r, i) => {
       const model = this.axisManager.axes[i]!;
-      const domain = model.scale.domain() as [number | Date, number | Date];
-      const range = model.scale.range() as [number, number];
-      const cache = this.yScaleCache[i]!;
-      if (
-        !arraysEqual(domain, cache.domain) ||
-        !arraysEqual(range, cache.range)
-      ) {
-        r.axis.setScale(model.scale);
-        r.axis.axisUp(r.g);
-        this.yScaleCache[i] = {
-          domain: domain.slice() as [number | Date, number | Date],
-          range: range.slice() as [number, number],
-        };
-      }
+      this.yScaleCache[i] = updateScaleCache(
+        model.scale,
+        r,
+        this.yScaleCache[i]!,
+      );
     });
   }
 
