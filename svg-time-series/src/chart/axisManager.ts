@@ -21,24 +21,6 @@ export class AxisModel {
     this.tree = new SegmentTree([minMaxIdentity], buildMinMax, minMaxIdentity);
   }
 
-  get min(): number {
-    return this.scale.domain()[0]!;
-  }
-
-  set min(v: number) {
-    const [, max] = this.scale.domain();
-    this.scale.domain([v, max!]);
-  }
-
-  get max(): number {
-    return this.scale.domain()[1]!;
-  }
-
-  set max(v: number) {
-    const [min] = this.scale.domain();
-    this.scale.domain([min!, v]);
-  }
-
   updateFromData(
     tree: SegmentTree<IMinMax>,
     baseScaleRaw: ScaleLinear<number, number>,
@@ -46,9 +28,9 @@ export class AxisModel {
     fullIndex: Basis,
   ): void {
     this.tree = tree;
-    const baseScale = baseScaleRaw.range(
-      this.scale.range() as [number, number],
-    );
+    const baseScale = baseScaleRaw
+      .copy()
+      .range(this.scale.range() as [number, number]);
     this.transform.onReferenceViewWindowResize([
       fullIndex,
       baseScale.domain() as [number, number],
@@ -82,12 +64,12 @@ export class AxisManager {
 
   updateScales(transform: ZoomTransform): void {
     this.data.assertAxisBounds(this.axes.length);
-    this.x.domain(this.data.timeDomainFull());
+    const baseX = this.x.copy().domain(this.data.timeDomainFull()).nice();
     const dIndexVisible = this.data.dIndexFromTransform(
       transform,
-      this.x.range() as [number, number],
+      baseX.range() as [number, number],
     );
-    this.x = transform.rescaleX(this.x).copy();
+    this.x = transform.rescaleX(baseX).copy();
     this.axes.forEach((a, i) => {
       const idxs = this.data.seriesByAxis[i] ?? [];
       if (idxs.length === 0) {

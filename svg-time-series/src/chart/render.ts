@@ -255,15 +255,16 @@ export function setupRender(
     a.scale.range([height, 0]);
   }
   axisManager.updateScales(zoomIdentity);
-
-  const referenceBasis: [Basis, Basis] = [data.bIndexFull, [0, 1]];
   for (const a of yAxes) {
     a.transform.onViewPortResize(screenBasis);
-    a.transform.onReferenceViewWindowResize(referenceBasis);
+    a.transform.onReferenceViewWindowResize([
+      data.bIndexFull,
+      a.scale.domain() as [number, number],
+    ]);
   }
   const xTransform = new ViewportTransform();
   xTransform.onViewPortResize(screenBasis);
-  xTransform.onReferenceViewWindowResize(referenceBasis);
+  xTransform.onReferenceViewWindowResize([data.bIndexFull, [0, 1]]);
 
   const series = createSeries(svg, data.seriesAxes);
   const seriesRenderer = new SeriesRenderer();
