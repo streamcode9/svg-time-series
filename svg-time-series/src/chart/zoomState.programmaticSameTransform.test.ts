@@ -90,7 +90,7 @@ describe("ZoomState programmatic transforms", () => {
 
     expect(transformSpy).toHaveBeenCalledTimes(2);
     expect(applyZoomTransform).toHaveBeenCalledWith(initial);
-    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(refresh).toHaveBeenCalledTimes(2);
     interface ZoomStateInternal {
       zoomScheduler: ZoomScheduler;
     }

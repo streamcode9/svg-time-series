@@ -143,7 +143,7 @@ describe("ZoomState", () => {
     vi.runAllTimers();
 
     expect(applyZoomTransform).toHaveBeenCalledWith({ x: 5, k: 2 });
-    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(refresh).toHaveBeenCalledTimes(2);
     expect(zoomCb).toHaveBeenCalledTimes(1);
     const internalEvent = zoomCb.mock.calls.at(0)![0] as {
       transform: { x: number; k: number };
@@ -191,7 +191,7 @@ describe("ZoomState", () => {
       k: 3,
     });
     expect(applyZoomTransform).toHaveBeenCalledWith({ x: 2, k: 3 });
-    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(refresh).toHaveBeenCalledTimes(2);
     expect(zoomCb).toHaveBeenCalledTimes(1);
     const internalEvent = zoomCb.mock.calls.at(0)![0] as {
       transform: { x: number; k: number };
@@ -240,7 +240,7 @@ describe("ZoomState", () => {
 
     expect(applyZoomTransform).toHaveBeenCalledTimes(3);
     expect(applyZoomTransform).toHaveBeenLastCalledWith({ x: 2, k: 3 });
-    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(refresh).toHaveBeenCalledTimes(2);
     expect(zoomCb).toHaveBeenCalledTimes(1);
     const cbEvent = zoomCb.mock.calls[0]![0] as {
       transform: { x: number; k: number };
@@ -297,7 +297,7 @@ describe("ZoomState", () => {
     });
     expect(applyZoomTransform).toHaveBeenCalledWith({ x: 3, k: 2 });
     expect(applyZoomTransform).toHaveBeenCalledWith({ x: 5, k: 4 });
-    expect(refresh).toHaveBeenCalledTimes(2);
+    expect(refresh).toHaveBeenCalledTimes(4);
   });
 
   it("applies forwarded zoom before subsequent zoom on target chart", () => {
@@ -558,7 +558,7 @@ describe("ZoomState", () => {
     expect(
       (zs as unknown as ZoomStateInternal).zoomScheduler.getCurrentTransform(),
     ).toBeNull();
-    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(refresh).toHaveBeenCalledTimes(2);
   });
 
   it("updates zoom extents on resize", () => {

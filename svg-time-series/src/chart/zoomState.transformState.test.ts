@@ -85,6 +85,7 @@ describe("ZoomState transform state", () => {
 
     expect(transformSpy).toHaveBeenCalledWith(rect, { x: 1, k: 2 });
     expect(applyZoomTransform).toHaveBeenCalledWith({ x: 1, k: 2 });
+    expect(refresh).toHaveBeenCalledTimes(2);
     interface ZoomStateInternal {
       zoomScheduler: ZoomScheduler;
     }

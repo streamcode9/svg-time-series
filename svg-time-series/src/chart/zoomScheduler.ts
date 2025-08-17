@@ -26,6 +26,7 @@ export class ZoomScheduler {
         const transform = this.currentPanZoomTransformState;
         this.currentPanZoomTransformState = null;
         this.applyTransform(transform);
+        this.refreshChart();
         const cb = this.callback;
         const event = this.callbackEvent ?? { transform };
         this.callback = null;

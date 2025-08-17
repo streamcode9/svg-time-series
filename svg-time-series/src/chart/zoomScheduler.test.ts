@@ -24,10 +24,11 @@ describe("ZoomScheduler", () => {
     vi.runAllTimers();
     expect(apply).toHaveBeenCalledWith({ x: 1, k: 2 });
     expect(zs.getCurrentTransform()).toBeNull();
+    expect(refresh).toHaveBeenCalledTimes(1);
 
     zs.refresh();
     vi.runAllTimers();
-    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(refresh).toHaveBeenCalledTimes(2);
     expect(apply).toHaveBeenCalledTimes(1);
   });
 
