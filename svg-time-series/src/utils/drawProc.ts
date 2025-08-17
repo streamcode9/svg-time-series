@@ -7,15 +7,17 @@ export function drawProc<F extends (...args: unknown[]) => void>(
   let rafId: number | null = null;
   let latestParams: Parameters<F> | null = null;
 
+  const flush = () => {
+    rafId = null;
+    if (latestParams) {
+      f(...latestParams);
+    }
+  };
+
   const wrapped = (...params: Parameters<F>) => {
     latestParams = params;
     if (rafId === null) {
-      rafId = requestAnimationFrame(() => {
-        rafId = null;
-        if (latestParams) {
-          f(...latestParams);
-        }
-      });
+      rafId = requestAnimationFrame(flush);
     }
   };
 
