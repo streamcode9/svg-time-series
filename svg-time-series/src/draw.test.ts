@@ -125,6 +125,26 @@ describe("TimeSeriesChart", () => {
     );
   });
 
+  it("throws for invalid value types", () => {
+    const { chart } = createChart();
+    expect(() => {
+      chart.updateChartWithNewData([undefined as unknown as number]);
+    }).toThrow(/values\[0\] must be a finite number or NaN/);
+    expect(() => {
+      chart.updateChartWithNewData([Infinity]);
+    }).toThrow(/values\[0\] must be a finite number or NaN/);
+    expect(() => {
+      chart.updateChartWithNewData(["oops" as unknown as number]);
+    }).toThrow(/values\[0\] must be a finite number or NaN/);
+  });
+
+  it("accepts NaN values", () => {
+    const { chart } = createChart();
+    expect(() => {
+      chart.updateChartWithNewData([NaN]);
+    }).not.toThrow();
+  });
+
   it("resizes svg and refreshes render state", () => {
     const { chart, svgEl, legend } = createChart();
     const internal = chart as unknown as {

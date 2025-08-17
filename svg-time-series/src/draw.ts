@@ -11,6 +11,7 @@ import type { RenderState } from "./chart/render.ts";
 import type { ILegendController } from "./chart/legend.ts";
 import { ZoomState } from "./chart/zoomState.ts";
 import type { IZoomStateOptions } from "./chart/zoomState.ts";
+import { assertFiniteOrNaN } from "./chart/validation.ts";
 
 export type { IDataSource } from "./chart/data.ts";
 export type { IMinMax } from "./chart/axisData.ts";
@@ -133,6 +134,9 @@ export class TimeSeriesChart {
           this.data.seriesCount,
         )} values, received ${String(values.length)}`,
       );
+    }
+    for (let i = 0; i < values.length; i++) {
+      assertFiniteOrNaN(values[i], `values[${String(i)}]`);
     }
     this.data.append(...values);
     this.refreshAll();

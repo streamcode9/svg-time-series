@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { assertPositiveInteger, assertFiniteNumber } from "./validation.ts";
+import {
+  assertPositiveInteger,
+  assertFiniteNumber,
+  assertFiniteOrNaN,
+} from "./validation.ts";
 
 describe("assertPositiveInteger", () => {
   it("throws for non-positive or fractional values", () => {
@@ -40,6 +44,29 @@ describe("assertFiniteNumber", () => {
   it("succeeds for finite numbers", () => {
     expect(() => {
       assertFiniteNumber(123, "value");
+    }).not.toThrow();
+  });
+});
+
+describe("assertFiniteOrNaN", () => {
+  it("throws for non-number or infinite values", () => {
+    expect(() => {
+      assertFiniteOrNaN(undefined as unknown as number, "value");
+    }).toThrow(/finite number or NaN/);
+    expect(() => {
+      assertFiniteOrNaN(Infinity, "value");
+    }).toThrow(/finite number or NaN/);
+    expect(() => {
+      assertFiniteOrNaN("foo" as unknown as number, "value");
+    }).toThrow(/finite number or NaN/);
+  });
+
+  it("succeeds for finite numbers and NaN", () => {
+    expect(() => {
+      assertFiniteOrNaN(5, "value");
+    }).not.toThrow();
+    expect(() => {
+      assertFiniteOrNaN(NaN, "value");
     }).not.toThrow();
   });
 });

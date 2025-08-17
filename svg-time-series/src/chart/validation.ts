@@ -28,3 +28,15 @@ export function assertPositiveFinite(
     throw new Error(`${name} must be a finite, positive number`);
   }
 }
+
+export function assertFiniteOrNaN(
+  value: unknown,
+  name: string,
+): asserts value is number {
+  if (
+    typeof value !== "number" ||
+    !(Number.isFinite(value) || Number.isNaN(value))
+  ) {
+    throw new Error(`${name} must be a finite number or NaN`);
+  }
+}
