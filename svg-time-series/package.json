@@ -36,6 +36,7 @@
   },
   "scripts": {
     "prepare": "npm run build",
+    "prebuild": "npm run build -w segment-tree-rmq --if-present",
     "build": "vite build",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit -p tsconfig.test.json",
