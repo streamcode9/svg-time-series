@@ -49,10 +49,15 @@ describe("ViewportTransform", () => {
     vt.onReferenceViewWindowResize(toDirectProductBasis([0, 10], [0, 10]));
     vt.onZoomPan(zoomIdentity.translate(10, 0).scale(2));
 
-    const basis = vt.fromScreenToModelBasisX([20, 40]);
-    const [p1, p2] = basis;
-    expect(p1).toBeCloseTo(0.5);
-    expect(p2).toBeCloseTo(1.5);
+    const basisX = vt.fromScreenToModelBasisX([20, 40]);
+    const [x1, x2] = basisX;
+    expect(x1).toBeCloseTo(0.5);
+    expect(x2).toBeCloseTo(1.5);
+
+    const basisY = vt.fromScreenToModelBasisY([20, 40]);
+    const [y1, y2] = basisY;
+    expect(y1).toBeCloseTo(2);
+    expect(y2).toBeCloseTo(4);
   });
 
   it("converts screen points to model points", () => {
@@ -83,12 +88,19 @@ describe("ViewportTransform", () => {
     const yModel = vt.fromScreenToModelY(yScreen);
     expect(vt.toScreenFromModelY(yModel)).toBeCloseTo(yScreen);
 
-    const basisScreen: Basis = [20, 40];
-    const basisModel = vt.fromScreenToModelBasisX(basisScreen);
-    const roundTrip = vt.toScreenFromModelBasisX(basisModel);
-    const [p1, p2] = roundTrip;
-    expect(p1).toBeCloseTo(20);
-    expect(p2).toBeCloseTo(40);
+    const basisScreenX: Basis = [20, 40];
+    const basisModelX = vt.fromScreenToModelBasisX(basisScreenX);
+    const roundTripX = vt.toScreenFromModelBasisX(basisModelX);
+    const [x1, x2] = roundTripX;
+    expect(x1).toBeCloseTo(20);
+    expect(x2).toBeCloseTo(40);
+
+    const basisScreenY: Basis = [20, 40];
+    const basisModelY = vt.fromScreenToModelBasisY(basisScreenY);
+    const roundTripY = vt.toScreenFromModelBasisY(basisModelY);
+    const [y1, y2] = roundTripY;
+    expect(y1).toBeCloseTo(20);
+    expect(y2).toBeCloseTo(40);
   });
 
   it("keeps pan offset constant when scaling", () => {

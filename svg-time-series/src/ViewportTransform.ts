@@ -6,6 +6,11 @@ import {
   zoomTransformToDomMatrix,
 } from "./utils/domMatrix.ts";
 
+const mapArray = (b: Basis, fn: (v: number) => number): Basis => [
+  fn(b[0]),
+  fn(b[1]),
+];
+
 export class ViewportTransform {
   private baseScaleX = scaleLinear();
   private baseScaleY = scaleLinear();
@@ -85,6 +90,11 @@ export class ViewportTransform {
     return [this.scaleX.invert(b[0]), this.scaleX.invert(b[1])];
   }
 
+  public fromScreenToModelBasisY(b: Basis): Basis {
+    this.assertInvertible(this.scaleY);
+    return mapArray(b, this.scaleY.invert.bind(this.scaleY));
+  }
+
   public toScreenFromModelX(x: number) {
     return this.scaleX(x);
   }
@@ -95,6 +105,11 @@ export class ViewportTransform {
 
   public toScreenFromModelBasisX(b: Basis): Basis {
     return [this.scaleX(b[0]), this.scaleX(b[1])];
+  }
+
+  public toScreenFromModelBasisY(b: Basis): Basis {
+    this.assertInvertible(this.scaleY);
+    return mapArray(b, this.scaleY);
   }
 
   public get matrix(): DOMMatrix {
