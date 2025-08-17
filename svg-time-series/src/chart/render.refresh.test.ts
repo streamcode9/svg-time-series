@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, type Mock } from "vitest";
 
 vi.mock("../utils/domNodeTransform.ts", () => ({ updateNode: vi.fn() }));
 vi.mock("../axis.ts", () => {
@@ -171,6 +171,36 @@ describe("RenderState.refresh", () => {
     state.refresh(data, zoomIdentity);
 
     expect(state.axes.y[0]!.tree.query(0, 2)).toEqual({ min: 2, max: 4 });
+  });
+
+  it("skips axis DOM updates when scales are unchanged", () => {
+    const svg = createSvg();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      seriesAxes: [0],
+      getSeries: (i) => [1, 2, 3][i]!,
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg, data);
+
+    vi.clearAllMocks();
+
+    state.refresh(data, zoomIdentity);
+
+    const xAxis = state.axes.x.axis as unknown as {
+      setScale: Mock;
+      axisUp: Mock;
+    };
+    expect(xAxis.setScale).not.toHaveBeenCalled();
+    expect(xAxis.axisUp).not.toHaveBeenCalled();
+
+    state.axisRenders.forEach((r) => {
+      const axis = r.axis as unknown as { setScale: Mock; axisUp: Mock };
+      expect(axis.setScale).not.toHaveBeenCalled();
+      expect(axis.axisUp).not.toHaveBeenCalled();
+    });
   });
 
   it("throws when series is all Infinity", () => {

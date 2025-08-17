@@ -50,6 +50,18 @@ interface Dimensions {
   height: number;
 }
 
+interface ScaleCache {
+  domain: [number | Date, number | Date];
+  range: [number, number];
+}
+
+function arraysEqual(
+  a: readonly (number | Date)[],
+  b: readonly (number | Date)[],
+): boolean {
+  return a.length === b.length && a.every((v, i) => +v === +b[i]!);
+}
+
 export interface Series {
   axisIdx: number;
   view: SVGGElement;
@@ -66,6 +78,8 @@ export class RenderState {
   public dimensions: Dimensions;
   public series: Series[];
   public seriesRenderer: SeriesRenderer;
+  private xScaleCache: ScaleCache;
+  private yScaleCache: ScaleCache[];
 
   constructor(
     axisManager: AxisManager,
@@ -85,6 +99,14 @@ export class RenderState {
     this.dimensions = dimensions;
     this.series = series;
     this.seriesRenderer = seriesRenderer;
+    this.xScaleCache = {
+      domain: axes.x.scale.domain().slice() as [number | Date, number | Date],
+      range: axes.x.scale.range().slice() as [number, number],
+    };
+    this.yScaleCache = axes.y.map((a) => ({
+      domain: a.scale.domain().slice() as [number | Date, number | Date],
+      range: a.scale.range().slice() as [number, number],
+    }));
   }
 
   public refresh(data: ChartData, transform: ZoomTransform): void {
@@ -98,13 +120,39 @@ export class RenderState {
       updateNode(s.view, t.matrix);
     }
     this.axes.x.scale = this.axisManager.x;
-    this.axes.x.axis.setScale(this.axisManager.x);
+    const xDomain = this.axisManager.x.domain() as [
+      number | Date,
+      number | Date,
+    ];
+    const xRange = this.axisManager.x.range() as [number, number];
+    if (
+      !arraysEqual(xDomain, this.xScaleCache.domain) ||
+      !arraysEqual(xRange, this.xScaleCache.range)
+    ) {
+      this.axes.x.axis.setScale(this.axisManager.x);
+      this.axes.x.axis.axisUp(this.axes.x.g!);
+      this.xScaleCache = {
+        domain: xDomain.slice() as [number | Date, number | Date],
+        range: xRange.slice() as [number, number],
+      };
+    }
     this.axisRenders.forEach((r, i) => {
       const model = this.axisManager.axes[i]!;
-      r.axis.setScale(model.scale);
-      r.axis.axisUp(r.g);
+      const domain = model.scale.domain() as [number | Date, number | Date];
+      const range = model.scale.range() as [number, number];
+      const cache = this.yScaleCache[i]!;
+      if (
+        !arraysEqual(domain, cache.domain) ||
+        !arraysEqual(range, cache.range)
+      ) {
+        r.axis.setScale(model.scale);
+        r.axis.axisUp(r.g);
+        this.yScaleCache[i] = {
+          domain: domain.slice() as [number | Date, number | Date],
+          range: range.slice() as [number, number],
+        };
+      }
     });
-    this.axes.x.axis.axisUp(this.axes.x.g!);
   }
 
   public destroy(): void {
