@@ -1,18 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { JSDOM } from "jsdom";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import { scaleLinear } from "d3-scale";
+import { createSvg } from "../../test/domUtils.ts";
 import { MyAxis, Orientation } from "./axis.ts";
 
 const NS = "http://www.w3.org/2000/svg";
 
 function createGroup() {
-  const dom = new JSDOM(`<svg xmlns="${NS}"></svg>`, {
-    contentType: "image/svg+xml",
-  });
-  const svg = dom.window.document.querySelector<SVGSVGElement>("svg")!;
-  const g = dom.window.document.createElementNS(NS, "g");
+  const { svg } = createSvg();
+  const g = svg.ownerDocument.createElementNS(NS, "g");
   svg.appendChild(g);
   return { g };
 }

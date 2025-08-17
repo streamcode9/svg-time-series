@@ -3,7 +3,6 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { JSDOM } from "jsdom";
 import { select } from "d3-selection";
 import type { Selection } from "d3-selection";
 
@@ -11,6 +10,7 @@ import type { IDataSource } from "../svg-time-series/src/chart/data.ts";
 import { ChartData } from "../svg-time-series/src/chart/data.ts";
 import { setupRender } from "../svg-time-series/src/chart/render.ts";
 import * as domNode from "../svg-time-series/src/utils/domNodeTransform.ts";
+import { createDiv } from "../test/domUtils.ts";
 import { polyfillDom } from "../test/setupDom.ts";
 
 import { LegendController } from "./LegendController.ts";
@@ -18,21 +18,13 @@ import { LegendController } from "./LegendController.ts";
 await polyfillDom();
 
 function createSvgAndLegend() {
-  const dom = new JSDOM(
-    `<div id="c"><svg></svg></div><div id="l"><div class="chart-legend__time"></div><div class="chart-legend__green_value"></div><div class="chart-legend__blue_value"></div></div>`,
-    {
-      pretendToBeVisual: true,
-      contentType: "text/html",
-    },
+  const { dom } = createDiv(
+    '<div id="c"><svg></svg></div><div id="l"><div class="chart-legend__time"></div><div class="chart-legend__green_value"></div><div class="chart-legend__blue_value"></div></div>',
   );
-  (
-    globalThis as unknown as { HTMLElement: typeof dom.window.HTMLElement }
-  ).HTMLElement = dom.window.HTMLElement;
-  const div = dom.window.document.getElementById("c") as HTMLDivElement;
-  Object.defineProperty(div, "clientWidth", { value: 100 });
-  Object.defineProperty(div, "clientHeight", { value: 100 });
-
-  const svg = select<HTMLDivElement, unknown>(div).select(
+  const container = dom.window.document.getElementById("c") as HTMLDivElement;
+  Object.defineProperty(container, "clientWidth", { value: 100 });
+  Object.defineProperty(container, "clientHeight", { value: 100 });
+  const svg = select<HTMLDivElement, unknown>(container).select(
     "svg",
   ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
   const legendDiv = select(
