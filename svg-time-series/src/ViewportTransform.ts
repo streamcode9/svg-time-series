@@ -73,8 +73,11 @@ export class ViewportTransform {
     return this.scaleY.invert(y);
   }
 
-  private mapArray<T extends number[]>(b: T, fn: (n: number) => number): T {
-    return b.map(fn) as T;
+  private mapArray<T extends readonly number[]>(
+    b: T,
+    fn: (n: number) => number,
+  ): { [K in keyof T]: number } {
+    return b.map(fn) as { [K in keyof T]: number };
   }
 
   public fromScreenToModelBasisX(b: Basis): Basis {
