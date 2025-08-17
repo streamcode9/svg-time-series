@@ -53,8 +53,9 @@ const chart = new TimeSeriesChart(
 
 `getSeries` returns a value for the requested series index. Any number of
 series may be provided, but each must be assigned to either the left or right Y
-axis by specifying 0 or 1 in `seriesAxes`. The length of `seriesAxes` determines
-how many series are available.
+axis by specifying 0 or 1 in `seriesAxes`. Axis index `0` corresponds to the
+right Y-axis and index `1` to the left. Multiple series can share an axis, and
+the length of `seriesAxes` determines how many series are available.
 
 The third argument lets you supply a custom legend controller. See
 `samples/LegendController.ts` for a reference implementation.
