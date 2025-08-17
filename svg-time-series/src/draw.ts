@@ -227,8 +227,8 @@ export class TimeSeriesChart {
     }
     const m0 = this.data.clampIndex(this.state.screenToModelX(x0));
     const m1 = this.data.clampIndex(this.state.screenToModelX(x1));
-    const sx0 = this.state.xTransform.toScreenFromModelX(m0);
-    const sx1 = this.state.xTransform.toScreenFromModelX(m1);
+    const sx0 = this.state.axes.x.scale(m0);
+    const sx1 = this.state.axes.x.scale(m1);
     if (m0 === m1 || sx0 === sx1) {
       this.clearBrush();
       return;
@@ -237,9 +237,8 @@ export class TimeSeriesChart {
     const k = width / (sx1 - sx0);
     const t = zoomIdentity.scale(k).translate(-sx0, 0);
     this.zoomState.zoomBehavior.transform(this.zoomArea, t);
-    const startIdx = this.data.startIndex;
-    const t0 = this.data.startTime + (startIdx + m0) * this.data.timeStep;
-    const t1 = this.data.startTime + (startIdx + m1) * this.data.timeStep;
+    const t0 = +this.data.indexToTime(m0);
+    const t1 = +this.data.indexToTime(m1);
     this.clearBrush();
     this.selectedTimeWindow = [t0, t1];
   };

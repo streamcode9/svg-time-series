@@ -267,15 +267,13 @@ describe("TimeSeriesChart", () => {
     const internal = chart as unknown as {
       state: {
         screenToModelX: ReturnType<typeof vi.fn>;
-        xTransform: { toScreenFromModelX: ReturnType<typeof vi.fn> };
+        axes: { x: { scale: ReturnType<typeof vi.fn> } };
       };
       zoomState: { zoomBehavior: { transform: ReturnType<typeof vi.fn> } };
       onBrushEnd: (event: D3BrushEvent<unknown>) => void;
     };
     vi.spyOn(internal.state, "screenToModelX").mockReturnValue(0);
-    vi.spyOn(internal.state.xTransform, "toScreenFromModelX").mockReturnValue(
-      10,
-    );
+    vi.spyOn(internal.state.axes.x, "scale").mockReturnValue(10);
     const transformSpy = vi.spyOn(internal.zoomState.zoomBehavior, "transform");
 
     internal.onBrushEnd({

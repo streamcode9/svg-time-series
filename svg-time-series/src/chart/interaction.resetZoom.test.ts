@@ -216,7 +216,7 @@ describe("interaction.enableBrush", () => {
       onBrushEnd: (e: D3BrushEvent<unknown>) => void;
       state: {
         screenToModelX: (x: number) => number;
-        xTransform: { toScreenFromModelX: (x: number) => number };
+        axes: { x: { scale: (x: number) => number } };
       };
       zoomState: {
         zoomBehavior: { transform: (n: unknown, t: unknown) => void };
@@ -224,9 +224,9 @@ describe("interaction.enableBrush", () => {
     };
     internal.zoomState.zoomBehavior = { transform: vi.fn() };
     internal.state.screenToModelX = (x: number) => x;
-    (
-      internal.state.xTransform as { toScreenFromModelX: (x: number) => number }
-    ).toScreenFromModelX = (x: number) => x;
+    (internal.state.axes.x as { scale: (x: number) => number }).scale = (
+      x: number,
+    ) => x;
     internal.onBrushEnd({
       selection: [0, 10],
     } as unknown as D3BrushEvent<unknown>);
@@ -250,7 +250,7 @@ describe("interaction.disableBrush", () => {
       onBrushEnd: (e: D3BrushEvent<unknown>) => void;
       state: {
         screenToModelX: (x: number) => number;
-        xTransform: { toScreenFromModelX: (x: number) => number };
+        axes: { x: { scale: (x: number) => number } };
       };
       zoomState: {
         zoomBehavior: { transform: (n: unknown, t: unknown) => void };
@@ -258,9 +258,9 @@ describe("interaction.disableBrush", () => {
     };
     internal.zoomState.zoomBehavior = { transform: vi.fn() };
     internal.state.screenToModelX = (x: number) => x;
-    (
-      internal.state.xTransform as { toScreenFromModelX: (x: number) => number }
-    ).toScreenFromModelX = (x: number) => x;
+    (internal.state.axes.x as { scale: (x: number) => number }).scale = (
+      x: number,
+    ) => x;
     internal.onBrushEnd({
       selection: [0, 10],
     } as unknown as D3BrushEvent<unknown>);
