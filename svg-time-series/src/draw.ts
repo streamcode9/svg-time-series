@@ -215,6 +215,10 @@ export class TimeSeriesChart {
     const m1 = this.data.clampIndex(this.state.screenToModelX(x1));
     const sx0 = this.state.xTransform.toScreenFromModelX(m0);
     const sx1 = this.state.xTransform.toScreenFromModelX(m1);
+    if (m0 === m1 || sx0 === sx1) {
+      this.clearBrush();
+      return;
+    }
     const { width } = this.state.getDimensions();
     const k = width / (sx1 - sx0);
     const t = zoomIdentity.scale(k).translate(-sx0, 0);

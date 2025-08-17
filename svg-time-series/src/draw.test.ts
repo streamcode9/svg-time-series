@@ -4,6 +4,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
+import type { D3BrushEvent } from "d3-brush";
 
 vi.mock("./utils/domNodeTransform.ts", () => ({ updateNode: vi.fn() }));
 vi.mock("./chart/zoomState.ts", () => {
@@ -19,13 +20,18 @@ vi.mock("./chart/zoomState.ts", () => {
         zoom: vi.fn(),
         reset: vi.fn(),
         updateExtents: vi.fn(),
+        zoomBehavior: { transform: vi.fn() },
       };
     }),
   };
 });
+vi.mock("./draw/brushUtils.ts", () => ({
+  clearBrushSelection: vi.fn(),
+}));
 
 import { TimeSeriesChart } from "./draw.ts";
 import type { IDataSource } from "./draw.ts";
+import { clearBrushSelection } from "./draw/brushUtils.ts";
 import { polyfillDom } from "./setupDom.ts";
 polyfillDom();
 
@@ -208,5 +214,30 @@ describe("TimeSeriesChart", () => {
     rectNode.dispatchEvent(new Event("pointerup"));
     expect(rectNode.classList.contains("cursor-grab")).toBe(true);
     expect(rectNode.classList.contains("cursor-grabbing")).toBe(false);
+  });
+
+  it("clears brush and skips zoom when selection collapses", () => {
+    const { chart } = createChart();
+    const internal = chart as unknown as {
+      state: {
+        screenToModelX: ReturnType<typeof vi.fn>;
+        xTransform: { toScreenFromModelX: ReturnType<typeof vi.fn> };
+      };
+      zoomState: { zoomBehavior: { transform: ReturnType<typeof vi.fn> } };
+      onBrushEnd: (event: D3BrushEvent<unknown>) => void;
+    };
+    vi.spyOn(internal.state, "screenToModelX").mockReturnValue(0);
+    vi.spyOn(internal.state.xTransform, "toScreenFromModelX").mockReturnValue(
+      10,
+    );
+    const transformSpy = vi.spyOn(internal.zoomState.zoomBehavior, "transform");
+
+    internal.onBrushEnd({
+      selection: [0, 10],
+    } as unknown as D3BrushEvent<unknown>);
+
+    expect(transformSpy).not.toHaveBeenCalled();
+    expect(clearBrushSelection).toHaveBeenCalled();
+    expect(chart.getSelectedTimeWindow()).toBeNull();
   });
 });
