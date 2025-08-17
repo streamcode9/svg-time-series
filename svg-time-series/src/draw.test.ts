@@ -107,6 +107,24 @@ describe("TimeSeriesChart", () => {
     expect(drawSpy).toHaveBeenCalledWith(internal.data.data);
   });
 
+  it("throws when provided fewer values than series count", () => {
+    const { chart } = createChart();
+    expect(() => {
+      chart.updateChartWithNewData();
+    }).toThrow(
+      "TimeSeriesChart.updateChartWithNewData expected 1 values, received 0",
+    );
+  });
+
+  it("throws when provided more values than series count", () => {
+    const { chart } = createChart();
+    expect(() => {
+      chart.updateChartWithNewData(10, 20);
+    }).toThrow(
+      "TimeSeriesChart.updateChartWithNewData expected 1 values, received 2",
+    );
+  });
+
   it("resizes svg and refreshes render state", () => {
     const { chart, svgEl, legend } = createChart();
     const internal = chart as unknown as {

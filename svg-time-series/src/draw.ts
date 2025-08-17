@@ -126,6 +126,13 @@ export class TimeSeriesChart {
   }
 
   public updateChartWithNewData(...values: number[]): void {
+    if (values.length !== this.data.seriesCount) {
+      throw new Error(
+        `TimeSeriesChart.updateChartWithNewData expected ${String(
+          this.data.seriesCount,
+        )} values, received ${String(values.length)}`,
+      );
+    }
     this.data.append(...values);
     this.refreshAll();
   }
