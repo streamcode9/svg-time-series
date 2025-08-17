@@ -18,12 +18,29 @@ interface MockZoomBehavior {
   transform: Mock;
   triggerZoom: (transform: unknown) => void;
   _zoomHandler?: (event: unknown) => void;
+  constrain: Mock;
+  _constrain?: (
+    t: unknown,
+    extent: unknown,
+    translateExtent: unknown,
+  ) => unknown;
 }
 
 vi.mock("d3-zoom", () => {
   const behavior = vi.fn() as unknown as MockZoomBehavior;
   behavior.scaleExtent = vi.fn().mockReturnValue(behavior);
   behavior.translateExtent = vi.fn().mockReturnValue(behavior);
+  behavior.constrain = vi.fn().mockImplementation((fn?: unknown) => {
+    if (fn) {
+      behavior._constrain = fn as (
+        t: unknown,
+        extent: unknown,
+        translateExtent: unknown,
+      ) => unknown;
+      return behavior;
+    }
+    return behavior._constrain;
+  });
   behavior.on = vi
     .fn()
     .mockImplementation((_event: string, handler: (event: unknown) => void) => {

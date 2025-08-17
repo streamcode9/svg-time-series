@@ -11,6 +11,14 @@ interface MockZoomBehavior {
   _handler?: (event: unknown) => void;
   scaleExtent: () => MockZoomBehavior;
   translateExtent: () => MockZoomBehavior;
+  constrain: (
+    fn?: unknown,
+  ) => MockZoomBehavior | ((...args: unknown[]) => unknown) | undefined;
+  _constrain?: (
+    t: unknown,
+    extent: unknown,
+    translateExtent: unknown,
+  ) => unknown;
   on: (_: string, handler: (event: unknown) => void) => MockZoomBehavior;
   transform: ReturnType<typeof vi.fn>;
   scaleTo: ReturnType<typeof vi.fn>;
@@ -37,6 +45,17 @@ vi.mock("d3-zoom", () => {
       };
       behavior.scaleExtent = () => behavior;
       behavior.translateExtent = () => behavior;
+      behavior.constrain = (fn?: unknown) => {
+        if (fn) {
+          behavior._constrain = fn as (
+            t: unknown,
+            extent: unknown,
+            translateExtent: unknown,
+          ) => unknown;
+          return behavior;
+        }
+        return behavior._constrain;
+      };
       behavior.on = (_: string, handler: (event: unknown) => void) => {
         behavior._handler = handler;
         return behavior;

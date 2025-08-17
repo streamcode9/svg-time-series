@@ -6,20 +6,6 @@ import type { RenderState } from "./render.ts";
 
 export { sameTransform };
 
-export const constrainTranslation = (
-  current: ZoomTransform,
-  width: number,
-  height: number,
-): ZoomTransform => {
-  const x0 = current.invertX(0);
-  const x1 = current.invertX(width) - width;
-  const y0 = current.invertY(0);
-  const y1 = current.invertY(height) - height;
-  const tx = x1 > x0 ? (x0 + x1) / 2 : Math.min(0, x0) || Math.max(0, x1);
-  const ty = y1 > y0 ? (y0 + y1) / 2 : Math.min(0, y0) || Math.max(0, y1);
-  return tx !== 0 || ty !== 0 ? current.translate(tx, ty) : current;
-};
-
 export interface IZoomStateOptions {
   scaleExtent: [number, number];
 }
@@ -29,6 +15,19 @@ export class ZoomState {
   private zoomScheduler: ZoomScheduler;
   private scaleExtent: [number, number];
   private zoomAreaNode: SVGRectElement | null;
+  private readonly constrain = (
+    transform: ZoomTransform,
+    extent: [[number, number], [number, number]],
+    translateExtent: [[number, number], [number, number]],
+  ): ZoomTransform => {
+    const x0 = transform.invertX(extent[0][0]) - translateExtent[0][0];
+    const x1 = transform.invertX(extent[1][0]) - translateExtent[1][0];
+    const y0 = transform.invertY(extent[0][1]) - translateExtent[0][1];
+    const y1 = transform.invertY(extent[1][1]) - translateExtent[1][1];
+    const tx = x1 > x0 ? (x0 + x1) / 2 : Math.min(0, x0) || Math.max(0, x1);
+    const ty = y1 > y0 ? (y0 + y1) / 2 : Math.min(0, y0) || Math.max(0, y1);
+    return tx !== 0 || ty !== 0 ? transform.translate(tx, ty) : transform;
+  };
   private getZoomAreaNode(): SVGRectElement | null {
     const node = this.zoomArea.node();
     return node && this.zoomAreaNode ? node : null;
@@ -82,6 +81,7 @@ export class ZoomState {
         [0, 0],
         [state.dimensions.width, state.dimensions.height],
       ])
+      .constrain(this.constrain)
       .on("zoom", (event: D3ZoomEvent<SVGRectElement, unknown>) => {
         this.zoom(event);
       });
@@ -131,16 +131,13 @@ export class ZoomState {
     if (!node) {
       return;
     }
-    this.zoomBehavior.scaleExtent(this.scaleExtent).translateExtent([
+    const extent: [[number, number], [number, number]] = [
       [0, 0],
       [dimensions.width, dimensions.height],
-    ]);
+    ];
+    this.zoomBehavior.scaleExtent(this.scaleExtent).translateExtent(extent);
     const current = zoomTransform(node);
-    const constrained = constrainTranslation(
-      current,
-      dimensions.width,
-      dimensions.height,
-    );
+    const constrained = this.zoomBehavior.constrain()(current, extent, extent);
     if (constrained !== current) {
       this.zoomBehavior.transform(this.zoomArea, constrained);
     }

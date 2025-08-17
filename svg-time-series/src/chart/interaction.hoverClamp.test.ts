@@ -50,12 +50,31 @@ vi.mock("d3-zoom", async () => {
         scaleExtent: () => ZoomBehavior;
         translateExtent: () => ZoomBehavior;
         on: () => ZoomBehavior;
+        constrain: (
+          fn?: unknown,
+        ) => ZoomBehavior | ((...args: unknown[]) => unknown) | undefined;
+        _constrain?: (
+          t: unknown,
+          extent: unknown,
+          translateExtent: unknown,
+        ) => unknown;
         transform: () => void;
       }
       const behavior = (() => {}) as ZoomBehavior;
       behavior.scaleExtent = () => behavior;
       behavior.translateExtent = () => behavior;
       behavior.on = () => behavior;
+      behavior.constrain = (fn?: unknown) => {
+        if (fn) {
+          behavior._constrain = fn as (
+            t: unknown,
+            extent: unknown,
+            translateExtent: unknown,
+          ) => unknown;
+          return behavior;
+        }
+        return behavior._constrain;
+      };
       behavior.transform = () => {};
       return behavior;
     },
