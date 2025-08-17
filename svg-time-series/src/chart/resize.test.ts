@@ -157,6 +157,10 @@ describe("TimeSeriesChart.resize", () => {
     expect(chartInternal.state.dimensions).toEqual({ width: 250, height: 120 });
     expect(resizeSpy).toHaveBeenCalled();
 
+    const overlay = svgEl.querySelector(".zoom-overlay");
+    expect(overlay?.getAttribute("width")).toBe("250");
+    expect(overlay?.getAttribute("height")).toBe("120");
+
     expect(chartInternal.state.axes.x.scale.range()).toEqual([0, 250]);
     expect(chartInternal.state.axes.y[0]!.scale.range()).toEqual([120, 0]);
   });

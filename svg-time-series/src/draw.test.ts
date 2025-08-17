@@ -118,33 +118,41 @@ describe("TimeSeriesChart", () => {
       zoomState: {
         refresh: ReturnType<typeof vi.fn>;
         setScaleExtent: ReturnType<typeof vi.fn>;
+        updateExtents: ReturnType<typeof vi.fn>;
       };
+      zoomArea: Selection<SVGRectElement, unknown, HTMLElement, unknown>;
     };
     const zoomInstance = internal.zoomState;
     const resizeSpy = vi.spyOn(internal.state, "resize");
     const refreshSpy = vi.spyOn(internal.state, "refresh");
     const drawSpy = vi.spyOn(internal.state.seriesRenderer, "draw");
     const zoomRefreshSpy = vi.spyOn(zoomInstance, "refresh");
+    const updateExtentsSpy = vi.spyOn(zoomInstance, "updateExtents");
     const legendRefreshSpy = vi.spyOn(legend, "refresh");
 
     resizeSpy.mockClear();
     refreshSpy.mockClear();
     drawSpy.mockClear();
     zoomRefreshSpy.mockClear();
+    updateExtentsSpy.mockClear();
     legendRefreshSpy.mockClear();
 
     chart.resize({ width: 200, height: 150 });
 
     expect(svgEl.getAttribute("width")).toBe("200");
     expect(svgEl.getAttribute("height")).toBe("150");
-    expect(resizeSpy).toHaveBeenCalledWith(
-      { width: 200, height: 150 },
-      zoomInstance,
-    );
+    expect(resizeSpy).toHaveBeenCalledTimes(1);
+    expect(resizeSpy.mock.calls[0]![0]).toEqual({ width: 200, height: 150 });
+    expect(resizeSpy.mock.calls[0]![1]).toBe(internal.zoomArea);
+    expect(updateExtentsSpy).toHaveBeenCalledWith({ width: 200, height: 150 });
     expect(refreshSpy).toHaveBeenCalledTimes(1);
     expect(drawSpy).not.toHaveBeenCalled();
     expect(zoomRefreshSpy).toHaveBeenCalledTimes(1);
     expect(legendRefreshSpy).toHaveBeenCalledTimes(1);
+
+    const overlay = internal.zoomArea.node()!;
+    expect(overlay.getAttribute("width")).toBe("200");
+    expect(overlay.getAttribute("height")).toBe("150");
   });
 
   it("clamps hover index and forwards to legend", () => {

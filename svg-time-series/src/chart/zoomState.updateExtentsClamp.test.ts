@@ -133,8 +133,8 @@ describe("ZoomState.updateExtents clamp", () => {
     transformSpy.mockClear();
 
     zs.updateExtents({ width: 50, height: 50 });
-    expect(setDimensions).toHaveBeenCalledWith({ width: 50, height: 50 });
 
+    expect(setDimensions).not.toHaveBeenCalled();
     expect(transformSpy).toHaveBeenCalledWith(
       rect,
       expect.objectContaining({ x: -50, y: -50, k: 2 }),

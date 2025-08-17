@@ -172,7 +172,8 @@ export class TimeSeriesChart {
   public resize = (dimensions: { width: number; height: number }) => {
     const { width, height } = dimensions;
     this.svg.attr("width", width).attr("height", height);
-    this.state.resize(dimensions, this.zoomState);
+    this.state.resize(dimensions, this.zoomArea);
+    this.zoomState.updateExtents(dimensions);
     this.brushBehavior.extent([
       [0, 0],
       [width, height],

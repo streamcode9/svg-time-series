@@ -16,7 +16,6 @@ import { createDimensions } from "./render/utils.ts";
 import { SeriesRenderer } from "./seriesRenderer.ts";
 import { createSeries } from "./series.ts";
 import type { LegendContext, LegendSeriesInfo } from "./legend.ts";
-import type { ZoomState } from "./zoomState.ts";
 
 function createYAxis(
   orientation: Orientation,
@@ -128,18 +127,23 @@ export class RenderState {
     this.axes.y.length = 0;
   }
 
-  public resize(dimensions: Dimensions, zoomState: ZoomState): void {
+  public resize(
+    dimensions: Dimensions,
+    zoomOverlay: Selection<SVGRectElement, unknown, HTMLElement, unknown>,
+  ): void {
     const { width, height } = dimensions;
     const bScreenXVisible: Basis = [0, width];
     const bScreenYVisible: Basis = [height, 0];
     const bScreenVisible: [Basis, Basis] = [bScreenXVisible, bScreenYVisible];
 
+    this.dimensions.width = width;
+    this.dimensions.height = height;
+    zoomOverlay.attr("width", width).attr("height", height);
+
     this.axes.x.scale.range([0, width]);
     this.axes.x.axis.setScale(this.axes.x.scale);
     this.axisManager.setXAxis(this.axes.x.scale);
     this.screenXBasis = bScreenXVisible;
-
-    zoomState.updateExtents(dimensions);
 
     this.xTransform.onViewPortResize(bScreenVisible);
     for (const a of this.axes.y) {

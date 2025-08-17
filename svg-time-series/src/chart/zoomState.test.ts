@@ -593,9 +593,7 @@ describe("ZoomState", () => {
 
     zs.updateExtents({ width: 20, height: 30 });
 
-    expect(rect.attr("width")).toBe("20");
-    expect(rect.attr("height")).toBe("30");
-    expect(setDimensions).toHaveBeenCalledWith({ width: 20, height: 30 });
+    expect(setDimensions).not.toHaveBeenCalled();
     expect(scaleSpy).toHaveBeenCalledWith([1, 40]);
     expect(translateSpy).toHaveBeenCalledWith([
       [0, 0],
