@@ -56,6 +56,12 @@ vi.mock("../axis.ts", () => ({
   },
 }));
 
+vi.mock("../draw/brushUtils.ts", () => ({
+  clearBrushSelection: vi.fn(),
+}));
+
+import { clearBrushSelection } from "../draw/brushUtils.ts";
+
 let zoomReset: Mock;
 let legendRefresh: Mock;
 let zoomOptions: unknown;
@@ -198,6 +204,40 @@ describe("interaction.resetZoom", () => {
     expect(zoomReset).toHaveBeenCalled();
     expect(transform.onZoomPan).toHaveBeenCalledWith({ x: 0, k: 1 });
     expect(legendRefresh).toHaveBeenCalled();
+  });
+});
+
+describe("interaction.enableBrush", () => {
+  it("clears selected time window", () => {
+    const { interaction, chart } = createChart([
+      [10, 20],
+      [30, 40],
+    ]);
+    const internal = chart as unknown as {
+      onBrushEnd: (e: D3BrushEvent<unknown>) => void;
+      state: {
+        screenToModelX: (x: number) => number;
+        xTransform: { toScreenFromModelX: (x: number) => number };
+      };
+      zoomState: {
+        zoomBehavior: { transform: (n: unknown, t: unknown) => void };
+      };
+    };
+    internal.zoomState.zoomBehavior = { transform: vi.fn() };
+    internal.state.screenToModelX = (x: number) => x;
+    (
+      internal.state.xTransform as { toScreenFromModelX: (x: number) => number }
+    ).toScreenFromModelX = (x: number) => x;
+    internal.onBrushEnd({
+      selection: [0, 10],
+    } as unknown as D3BrushEvent<unknown>);
+    expect(interaction.getSelectedTimeWindow()).not.toBeNull();
+
+    (clearBrushSelection as Mock).mockClear();
+    interaction.enableBrush();
+
+    expect(clearBrushSelection).toHaveBeenCalled();
+    expect(interaction.getSelectedTimeWindow()).toBeNull();
   });
 });
 
