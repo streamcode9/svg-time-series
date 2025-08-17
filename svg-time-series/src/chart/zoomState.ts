@@ -119,6 +119,7 @@ export class ZoomState {
     if (clampedK !== current.k) {
       this.zoomBehavior.scaleTo(this.zoomArea, clampedK);
     }
+    this.refreshChart();
   };
 
   public updateExtents = (dimensions: { width: number; height: number }) => {
