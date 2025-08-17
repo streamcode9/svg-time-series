@@ -13,6 +13,7 @@ interface MockZoomBehavior {
   translateExtent: () => MockZoomBehavior;
   on: (_: string, handler: (event: unknown) => void) => MockZoomBehavior;
   transform: ReturnType<typeof vi.fn>;
+  scaleTo: ReturnType<typeof vi.fn>;
 }
 
 vi.mock("d3-zoom", () => {
@@ -41,6 +42,7 @@ vi.mock("d3-zoom", () => {
         return behavior;
       };
       behavior.transform = vi.fn();
+      behavior.scaleTo = vi.fn();
       return behavior;
     },
   };
@@ -134,5 +136,43 @@ describe("ZoomState.destroy", () => {
     vi.runAllTimers();
 
     expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it("setScaleExtent and updateExtents no-op after destroy", () => {
+    vi.useFakeTimers();
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const rect = select(svg).append("rect");
+    const state = {
+      dimensions: { width: 10, height: 10 },
+      axisRenders: [],
+      applyZoomTransform: vi.fn(),
+      setDimensions: vi.fn(),
+    } as unknown as RenderState;
+    const refresh = vi.fn();
+    const zs = new ZoomState(
+      rect as unknown as Selection<
+        SVGRectElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
+      state,
+      refresh,
+    );
+
+    const scaleToSpy = vi.spyOn(zs.zoomBehavior, "scaleTo");
+    const transformSpy = vi.spyOn(zs.zoomBehavior, "transform");
+
+    zs.destroy();
+
+    expect(() => {
+      zs.setScaleExtent([1, 2]);
+    }).not.toThrow();
+    expect(scaleToSpy).not.toHaveBeenCalled();
+
+    expect(() => {
+      zs.updateExtents({ width: 20, height: 20 });
+    }).not.toThrow();
+    expect(transformSpy).not.toHaveBeenCalled();
   });
 });

@@ -28,6 +28,7 @@ export class ZoomState {
   public zoomBehavior: ZoomBehavior<SVGRectElement, unknown>;
   private zoomScheduler: ZoomScheduler;
   private scaleExtent: [number, number];
+  private zoomAreaNode: SVGRectElement | null;
 
   public static validateScaleExtent(extent: unknown): [number, number] {
     const error = () =>
@@ -83,6 +84,12 @@ export class ZoomState {
 
     this.zoomArea.call(this.zoomBehavior);
 
+    const zoomAreaNode = this.zoomArea.node();
+    if (!zoomAreaNode) {
+      throw new Error("zoom area element not found");
+    }
+    this.zoomAreaNode = zoomAreaNode;
+
     this.zoomScheduler = new ZoomScheduler((t: ZoomTransform) => {
       this.zoomBehavior.transform(this.zoomArea, t);
     }, this.refreshChart);
@@ -100,9 +107,13 @@ export class ZoomState {
   };
 
   public setScaleExtent = (extent: [number, number]) => {
+    const node = this.zoomAreaNode;
+    if (!node) {
+      return;
+    }
     this.scaleExtent = ZoomState.validateScaleExtent(extent);
     this.zoomBehavior.scaleExtent(this.scaleExtent);
-    const current = zoomTransform(this.zoomArea.node()!);
+    const current = zoomTransform(node);
     const [min, max] = this.scaleExtent;
     const clampedK = Math.max(min, Math.min(max, current.k));
     if (clampedK !== current.k) {
@@ -111,11 +122,15 @@ export class ZoomState {
   };
 
   public updateExtents = (dimensions: { width: number; height: number }) => {
+    const node = this.zoomAreaNode;
+    if (!node) {
+      return;
+    }
     this.zoomBehavior.scaleExtent(this.scaleExtent).translateExtent([
       [0, 0],
       [dimensions.width, dimensions.height],
     ]);
-    const current = zoomTransform(this.zoomArea.node()!);
+    const current = zoomTransform(node);
     const constrained = constrainTranslation(
       current,
       dimensions.width,
@@ -134,6 +149,7 @@ export class ZoomState {
     this.zoomScheduler.destroy();
     this.zoomArea.on(".zoom", null);
     this.zoomBehavior.on("zoom", null);
+    this.zoomAreaNode = null;
   };
 }
 
