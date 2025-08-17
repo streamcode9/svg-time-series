@@ -215,6 +215,10 @@ export class ChartData {
     if (!Number.isFinite(y0) || !Number.isFinite(y1)) {
       y0 = 0;
       y1 = 1;
+    } else if (y0 === y1) {
+      const epsilon = 0.5;
+      y0 = (y0 as number) - epsilon;
+      y1 = (y1 as number) + epsilon;
     }
     return scaleLinear<number, number>().domain([y0!, y1!]).nice();
   }

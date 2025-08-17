@@ -356,6 +356,24 @@ describe("ChartData", () => {
     expect(cd.scaleY(outOfRange, tree1).domain()).toEqual([20, 60]);
   });
 
+  it("expands domain when all axis values are equal", () => {
+    const cd = new ChartData(
+      makeSource(
+        [
+          [0, 10],
+          [0, 10],
+          [0, 10],
+        ],
+        [0, 1],
+      ),
+    );
+    const tree0 = cd.buildAxisTree(0);
+    const tree1 = cd.buildAxisTree(1);
+    const range: Basis = [0, 2];
+    expect(cd.scaleY(range, tree0).domain()).toEqual([-0.5, 0.5]);
+    expect(cd.scaleY(range, tree1).domain()).toEqual([9.5, 10.5]);
+  });
+
   it("clamps bounds completely to the left of the data range", () => {
     const cd = new ChartData(
       makeSource(
@@ -373,8 +391,8 @@ describe("ChartData", () => {
     const leftRange: Basis = [-5, -1];
     expect(() => cd.scaleY(leftRange, tree0)).not.toThrow();
     expect(() => cd.scaleY(leftRange, tree1)).not.toThrow();
-    expect(cd.scaleY(leftRange, tree0).domain()).toEqual([10, 10]);
-    expect(cd.scaleY(leftRange, tree1).domain()).toEqual([20, 20]);
+    expect(cd.scaleY(leftRange, tree0).domain()).toEqual([9.5, 10.5]);
+    expect(cd.scaleY(leftRange, tree1).domain()).toEqual([19.5, 20.5]);
   });
 
   it("clamps bounds completely to the right of the data range", () => {
@@ -394,8 +412,8 @@ describe("ChartData", () => {
     const rightRange: Basis = [5, 10];
     expect(() => cd.scaleY(rightRange, tree0)).not.toThrow();
     expect(() => cd.scaleY(rightRange, tree1)).not.toThrow();
-    expect(cd.scaleY(rightRange, tree0).domain()).toEqual([50, 50]);
-    expect(cd.scaleY(rightRange, tree1).domain()).toEqual([60, 60]);
+    expect(cd.scaleY(rightRange, tree0).domain()).toEqual([49.5, 50.5]);
+    expect(cd.scaleY(rightRange, tree1).domain()).toEqual([59.5, 60.5]);
   });
 
   it("computes combined temperature basis and direct product", () => {
