@@ -87,6 +87,8 @@ export class ZoomScheduler {
     this.cancelRefresh();
     this.currentPanZoomTransformState = null;
     this.pendingZoomBehaviorTransform = false;
+    this.callback = null;
+    this.callbackEvent = null;
   }
 
   public getCurrentTransform(): ZoomTransform | null {

@@ -68,4 +68,23 @@ describe("ZoomScheduler", () => {
     vi.runAllTimers();
     expect(apply).toHaveBeenCalledWith({ x: 5, k: 3 });
   });
+
+  it("does not invoke callbacks after destroy", () => {
+    const apply = vi.fn();
+    const refresh = vi.fn();
+    const cb = vi.fn();
+    const zs = new ZoomScheduler(apply, refresh);
+
+    expect(
+      zs.zoom({ x: 1, k: 2 } as unknown as ZoomTransform, {}, undefined, cb),
+    ).toBe(true);
+
+    zs.destroy();
+    vi.runAllTimers();
+    expect(cb).not.toHaveBeenCalled();
+
+    expect(zs.zoom({ x: 5, k: 3 } as unknown as ZoomTransform, {})).toBe(true);
+    vi.runAllTimers();
+    expect(cb).not.toHaveBeenCalled();
+  });
 });
