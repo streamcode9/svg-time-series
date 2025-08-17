@@ -12,6 +12,7 @@ import {
 } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
+import type { D3BrushEvent } from "d3-brush";
 import type { Basis } from "../basis.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource, IZoomStateOptions } from "../draw.ts";
@@ -165,7 +166,7 @@ function createChart(
     options,
   );
 
-  return { interaction: chart.interaction };
+  return { interaction: chart.interaction, chart };
 }
 
 beforeEach(() => {
@@ -197,6 +198,36 @@ describe("interaction.resetZoom", () => {
     expect(zoomReset).toHaveBeenCalled();
     expect(transform.onZoomPan).toHaveBeenCalledWith({ x: 0, k: 1 });
     expect(legendRefresh).toHaveBeenCalled();
+  });
+});
+
+describe("interaction.disableBrush", () => {
+  it("clears selected time window", () => {
+    const { interaction, chart } = createChart([
+      [10, 20],
+      [30, 40],
+    ]);
+    const internal = chart as unknown as {
+      onBrushEnd: (e: D3BrushEvent<unknown>) => void;
+      state: {
+        screenToModelX: (x: number) => number;
+        xTransform: { toScreenFromModelX: (x: number) => number };
+      };
+      zoomState: {
+        zoomBehavior: { transform: (n: unknown, t: unknown) => void };
+      };
+    };
+    internal.zoomState.zoomBehavior = { transform: vi.fn() };
+    internal.state.screenToModelX = (x: number) => x;
+    (
+      internal.state.xTransform as { toScreenFromModelX: (x: number) => number }
+    ).toScreenFromModelX = (x: number) => x;
+    internal.onBrushEnd({
+      selection: [0, 10],
+    } as unknown as D3BrushEvent<unknown>);
+    expect(interaction.getSelectedTimeWindow()).not.toBeNull();
+    interaction.disableBrush();
+    expect(interaction.getSelectedTimeWindow()).toBeNull();
   });
 });
 

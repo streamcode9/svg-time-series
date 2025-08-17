@@ -169,7 +169,6 @@ export class TimeSeriesChart {
   public disableBrush = () => {
     this.brushLayer.style("display", "none");
     this.clearBrush();
-    this.selectedTimeWindow = null;
   };
 
   public getSelectedTimeWindow = (): [number, number] | null => {
@@ -232,11 +231,12 @@ export class TimeSeriesChart {
     const startIdx = this.data.startIndex;
     const t0 = this.data.startTime + (startIdx + m0) * this.data.timeStep;
     const t1 = this.data.startTime + (startIdx + m1) * this.data.timeStep;
-    this.selectedTimeWindow = [t0, t1];
     this.clearBrush();
+    this.selectedTimeWindow = [t0, t1];
   };
 
   private clearBrush = () => {
     clearBrushSelection(this.brushBehavior, this.brushLayer);
+    this.selectedTimeWindow = null;
   };
 }
