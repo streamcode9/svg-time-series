@@ -79,7 +79,7 @@ export class LegendController implements ILegendController {
 
   public highlightIndex(idx: number): void {
     const clamped = Math.round(
-      Math.min(Math.max(idx, 0), this.context.length - 1),
+      Math.min(Math.max(idx, 0), this.context.getLength() - 1),
     );
     if (clamped === this.lastHighlightedIdx) {
       return;
@@ -91,7 +91,7 @@ export class LegendController implements ILegendController {
 
   public highlightIndexRaf(idx: number): void {
     const clamped = Math.round(
-      Math.min(Math.max(idx, 0), this.context.length - 1),
+      Math.min(Math.max(idx, 0), this.context.getLength() - 1),
     );
     if (clamped === this.lastHighlightedIdx) {
       return;

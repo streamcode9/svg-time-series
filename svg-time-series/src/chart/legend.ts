@@ -12,7 +12,7 @@ export interface LegendPoint {
 
 export interface LegendContext {
   getPoint(idx: number): LegendPoint;
-  length: number;
+  getLength(): number;
   series: readonly LegendSeriesInfo[];
 }
 

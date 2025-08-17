@@ -60,7 +60,7 @@ describe("LegendController", () => {
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
-      length: data.length,
+      getLength: () => data.length,
       series: state.series.map((s) => ({
         path: s.path,
         transform: state.axes.y[s.axisIdx]!.transform,
@@ -113,7 +113,7 @@ describe("LegendController", () => {
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
-      length: data.length,
+      getLength: () => data.length,
       series: state.series.map((s) => ({
         path: s.path,
         transform: state.axes.y[s.axisIdx]!.transform,
@@ -154,7 +154,7 @@ describe("LegendController", () => {
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
-      length: data.length,
+      getLength: () => data.length,
       series: state.series.map((s) => ({
         path: s.path,
         transform: state.axes.y[s.axisIdx]!.transform,

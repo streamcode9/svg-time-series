@@ -244,7 +244,7 @@ export class RenderState {
   public createLegendContext(data: ChartData): LegendContext {
     return {
       getPoint: (idx) => data.getPoint(idx),
-      length: data.length,
+      getLength: () => data.length,
       series: this.getLegendSeriesInfo(),
     };
   }
