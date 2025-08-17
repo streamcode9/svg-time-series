@@ -6,7 +6,6 @@ import { SegmentTree } from "segment-tree-rmq";
 
 import type { MyAxis } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
-import type { Basis } from "../basis.ts";
 import type { ChartData, IMinMax } from "./data.ts";
 import { buildMinMax, minMaxIdentity } from "./minMax.ts";
 
@@ -25,16 +24,16 @@ export class AxisModel {
     tree: SegmentTree<IMinMax>,
     baseScaleRaw: ScaleLinear<number, number>,
     transform: ZoomTransform,
-    fullIndex: Basis,
+    fullIndex: readonly [number, number],
   ): void {
     this.tree = tree;
     const baseScale = baseScaleRaw
       .copy()
       .range(this.scale.range() as [number, number]);
-    this.transform.onReferenceViewWindowResize([
+    this.transform.onReferenceViewWindowResize(
       fullIndex,
       baseScale.domain() as [number, number],
-    ]);
+    );
     this.scale = transform.rescaleY(baseScale).copy();
   }
 }

@@ -1,5 +1,4 @@
 import { describe, it, expect } from "vitest";
-import type { Basis } from "../basis.ts";
 import type { IDataSource } from "./data.ts";
 import { ChartData } from "./data.ts";
 
@@ -290,7 +289,7 @@ describe("ChartData", () => {
         [0, 1],
       ),
     );
-    const range: Basis = [0, 2];
+    const range: [number, number] = [0, 2];
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
     expect(cd.scaleY(range, tree0).domain()).toEqual([10, 50]);
@@ -311,7 +310,7 @@ describe("ChartData", () => {
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
 
-    const fractionalRange: Basis = [0.49, 1.49];
+    const fractionalRange: [number, number] = [0.49, 1.49];
     expect(cd.scaleY(fractionalRange, tree0).domain()).toEqual([10, 50]);
     expect(cd.scaleY(fractionalRange, tree1).domain()).toEqual([20, 60]);
   });
@@ -330,7 +329,7 @@ describe("ChartData", () => {
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
 
-    const fractionalRange: Basis = [1.1, 1.7];
+    const fractionalRange: [number, number] = [1.1, 1.7];
     expect(cd.scaleY(fractionalRange, tree0).domain()).toEqual([30, 50]);
     expect(cd.scaleY(fractionalRange, tree1).domain()).toEqual([40, 60]);
   });
@@ -349,7 +348,7 @@ describe("ChartData", () => {
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
 
-    const outOfRange: Basis = [-0.5, 3.5];
+    const outOfRange: [number, number] = [-0.5, 3.5];
     expect(() => cd.scaleY(outOfRange, tree0)).not.toThrow();
     expect(() => cd.scaleY(outOfRange, tree1)).not.toThrow();
     expect(cd.scaleY(outOfRange, tree0).domain()).toEqual([10, 50]);
@@ -369,7 +368,7 @@ describe("ChartData", () => {
     );
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
-    const range: Basis = [0, 2];
+    const range: [number, number] = [0, 2];
     expect(cd.scaleY(range, tree0).domain()).toEqual([-0.5, 0.5]);
     expect(cd.scaleY(range, tree1).domain()).toEqual([9.5, 10.5]);
   });
@@ -388,7 +387,7 @@ describe("ChartData", () => {
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
 
-    const leftRange: Basis = [-5, -1];
+    const leftRange: [number, number] = [-5, -1];
     expect(() => cd.scaleY(leftRange, tree0)).not.toThrow();
     expect(() => cd.scaleY(leftRange, tree1)).not.toThrow();
     expect(cd.scaleY(leftRange, tree0).domain()).toEqual([9.5, 10.5]);
@@ -409,7 +408,7 @@ describe("ChartData", () => {
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
 
-    const rightRange: Basis = [5, 10];
+    const rightRange: [number, number] = [5, 10];
     expect(() => cd.scaleY(rightRange, tree0)).not.toThrow();
     expect(() => cd.scaleY(rightRange, tree1)).not.toThrow();
     expect(cd.scaleY(rightRange, tree0).domain()).toEqual([49.5, 50.5]);

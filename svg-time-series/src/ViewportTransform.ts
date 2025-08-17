@@ -1,15 +1,9 @@
 import { scaleLinear, type ScaleLinear } from "d3-scale";
 import { zoomIdentity, type ZoomTransform } from "d3-zoom";
-import type { Basis, DirectProductBasis } from "./basis.ts";
 import {
   scalesToDomMatrix,
   zoomTransformToDomMatrix,
 } from "./utils/domMatrix.ts";
-
-const mapArray = (b: Basis, fn: (v: number) => number): Basis => [
-  fn(b[0]),
-  fn(b[1]),
-];
 
 export class ViewportTransform {
   private baseScaleX = scaleLinear();
@@ -37,18 +31,22 @@ export class ViewportTransform {
     );
   }
 
-  public onViewPortResize(bScreenVisible: DirectProductBasis): this {
-    const [viewX, viewY] = bScreenVisible;
-    this.baseScaleX = this.baseScaleX.copy().range(viewX);
-    this.baseScaleY = this.baseScaleY.copy().range(viewY);
+  public onViewPortResize(
+    viewX: readonly [number, number],
+    viewY: readonly [number, number],
+  ): this {
+    this.baseScaleX = this.baseScaleX.copy().range(viewX as [number, number]);
+    this.baseScaleY = this.baseScaleY.copy().range(viewY as [number, number]);
     this.updateScales();
     return this;
   }
 
-  public onReferenceViewWindowResize(newPoints: DirectProductBasis): this {
-    const [refX, refY] = newPoints;
-    this.baseScaleX = this.baseScaleX.copy().domain(refX);
-    this.baseScaleY = this.baseScaleY.copy().domain(refY);
+  public onReferenceViewWindowResize(
+    refX: readonly [number, number],
+    refY: readonly [number, number],
+  ): this {
+    this.baseScaleX = this.baseScaleX.copy().domain(refX as [number, number]);
+    this.baseScaleY = this.baseScaleY.copy().domain(refY as [number, number]);
     this.updateScales();
     return this;
   }
@@ -85,14 +83,18 @@ export class ViewportTransform {
     return this.scaleY.invert(y);
   }
 
-  public fromScreenToModelBasisX(b: Basis): Basis {
+  public fromScreenToModelBasisX(
+    b: readonly [number, number],
+  ): [number, number] {
     this.assertInvertible(this.scaleX);
     return [this.scaleX.invert(b[0]), this.scaleX.invert(b[1])];
   }
 
-  public fromScreenToModelBasisY(b: Basis): Basis {
+  public fromScreenToModelBasisY(
+    b: readonly [number, number],
+  ): [number, number] {
     this.assertInvertible(this.scaleY);
-    return mapArray(b, this.scaleY.invert.bind(this.scaleY));
+    return [this.scaleY.invert(b[0]), this.scaleY.invert(b[1])];
   }
 
   public toScreenFromModelX(x: number) {
@@ -103,13 +105,17 @@ export class ViewportTransform {
     return this.scaleY(y);
   }
 
-  public toScreenFromModelBasisX(b: Basis): Basis {
+  public toScreenFromModelBasisX(
+    b: readonly [number, number],
+  ): [number, number] {
     return [this.scaleX(b[0]), this.scaleX(b[1])];
   }
 
-  public toScreenFromModelBasisY(b: Basis): Basis {
+  public toScreenFromModelBasisY(
+    b: readonly [number, number],
+  ): [number, number] {
     this.assertInvertible(this.scaleY);
-    return mapArray(b, this.scaleY);
+    return [this.scaleY(b[0]), this.scaleY(b[1])];
   }
 
   public get matrix(): DOMMatrix {

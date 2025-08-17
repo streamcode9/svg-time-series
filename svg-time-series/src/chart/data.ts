@@ -8,7 +8,6 @@ import {
 } from "d3-scale";
 import { extent } from "d3-array";
 import type { ZoomTransform } from "d3-zoom";
-import type { Basis } from "../basis.ts";
 import { SlidingWindow } from "./slidingWindow.ts";
 import { assertFiniteNumber, assertPositiveInteger } from "./validation.ts";
 import { buildMinMax, minMaxIdentity } from "./minMax.ts";
@@ -55,7 +54,7 @@ export class ChartData {
 
   private readonly window: SlidingWindow;
   public readonly seriesByAxis: [number[], number[]] = [[], []];
-  public bIndexFull: Basis;
+  public bIndexFull: [number, number];
   public readonly startTime: number;
   public readonly timeStep: number;
   public readonly seriesCount: number;
@@ -207,7 +206,7 @@ export class ChartData {
     return tree;
   }
   scaleY(
-    bIndexVisible: Basis,
+    bIndexVisible: readonly [number, number],
     tree: SegmentTree<IMinMax>,
   ): ScaleLinear<number, number> {
     const [minIdxX, maxIdxX] = bIndexVisible;
@@ -244,7 +243,7 @@ export class ChartData {
   }
 
   combinedAxisDp(
-    bIndexVisible: Basis,
+    bIndexVisible: readonly [number, number],
     tree0: SegmentTree<IMinMax>,
     tree1: SegmentTree<IMinMax>,
   ): ScaleLinear<number, number> {

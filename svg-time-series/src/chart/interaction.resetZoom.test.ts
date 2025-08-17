@@ -13,7 +13,6 @@ import {
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import type { D3BrushEvent } from "d3-brush";
-import type { Basis } from "../basis.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource, IZoomStateOptions } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
@@ -37,7 +36,7 @@ vi.mock("../ViewportTransform.ts", () => ({
     onZoomPan = vi.fn();
     fromScreenToModelX = vi.fn((x: number) => x);
     fromScreenToModelBasisX = vi.fn(
-      () => [0, Math.max(currentDataLength - 1, 0)] as Basis,
+      () => [0, Math.max(currentDataLength - 1, 0)] as [number, number],
     );
     onViewPortResize = vi.fn();
     onReferenceViewWindowResize = vi.fn();
