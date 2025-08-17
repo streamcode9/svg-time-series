@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
 import type { Line } from "d3-shape";
 import { SeriesRenderer } from "./seriesRenderer.ts";
@@ -50,5 +50,27 @@ describe("SeriesRenderer", () => {
     renderer.draw([]);
 
     expect(path.getAttribute("d")).toBe("");
+  });
+
+  it("skips DOM updates when data is unchanged", () => {
+    const renderer = new SeriesRenderer();
+    const data: number[][] = [
+      [0, 1],
+      [2, 3],
+    ];
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const view = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const line = (() => "same") as unknown as Line<number[]>;
+
+    const series: Series = { axisIdx: 0, path, view, line };
+    renderer.series = [series];
+
+    const spy = vi.spyOn(path, "setAttribute");
+
+    renderer.draw(data);
+    renderer.draw(data);
+
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });
