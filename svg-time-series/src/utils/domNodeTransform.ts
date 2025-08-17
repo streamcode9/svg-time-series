@@ -25,12 +25,10 @@ export function domMatrixToSVGMatrix(
 
 export function updateNode(n: SVGGraphicsElement, m: DOMMatrix) {
   const svgTransformList = n.transform.baseVal;
-  const svg = (
-    typeof SVGSVGElement !== "undefined" && n instanceof SVGSVGElement
-      ? n
-      : n.ownerSVGElement
-  )!;
-
+  const svg = n instanceof SVGSVGElement ? n : n.ownerSVGElement;
+  if (!svg) {
+    throw new Error("Cannot update transform: SVG root not found");
+  }
   const matrix = domMatrixToSVGMatrix(svg, m);
   const t = svgTransformList.createSVGTransformFromMatrix(matrix);
   svgTransformList.initialize(t);

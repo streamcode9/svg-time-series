@@ -2,6 +2,7 @@ interface DOMGlobals {
   DOMMatrix?: typeof globalThis.DOMMatrix;
   DOMPoint?: typeof globalThis.DOMPoint;
   window?: unknown;
+  SVGSVGElement?: typeof globalThis.SVGSVGElement;
 }
 
 async function polyfillDom(): Promise<void> {
@@ -15,8 +16,20 @@ async function polyfillDom(): Promise<void> {
     (globalObj as { SVGMatrix?: typeof globalThis.DOMMatrix }).SVGMatrix ??=
       globalObj.DOMMatrix!;
   }
-  if (typeof SVGSVGElement !== "undefined") {
-    const proto = SVGSVGElement.prototype as unknown as {
+  if (typeof globalObj.SVGSVGElement === "undefined") {
+    class SVGSVGElementPolyfill {
+      createSVGMatrix() {
+        return new DOMMatrix();
+      }
+    }
+    (
+      globalObj as {
+        SVGSVGElement: typeof globalThis.SVGSVGElement;
+      }
+    ).SVGSVGElement =
+      SVGSVGElementPolyfill as unknown as typeof globalThis.SVGSVGElement;
+  } else {
+    const proto = globalObj.SVGSVGElement.prototype as unknown as {
       createSVGMatrix?: () => DOMMatrix;
     };
     proto.createSVGMatrix ??= () => new DOMMatrix();

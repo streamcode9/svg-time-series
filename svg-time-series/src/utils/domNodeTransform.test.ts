@@ -73,6 +73,20 @@ describe("updateNode", () => {
     expect(last.e).toBeCloseTo(5);
     expect(last.f).toBeCloseTo(6);
   });
+
+  it("throws when node is detached from SVG root", () => {
+    const node = {
+      transform: { baseVal: new FakeTransformList() },
+      ownerSVGElement: null,
+    } as unknown as SVGGraphicsElement & {
+      transform: { baseVal: FakeTransformList };
+      ownerSVGElement: null;
+    };
+    const matrix = new FakeSVGMatrix();
+    expect(() => {
+      updateNode(node, matrix as unknown as SVGMatrix);
+    }).toThrow(/SVG root not found/);
+  });
 });
 
 describe("domMatrixToSVGMatrix", () => {
