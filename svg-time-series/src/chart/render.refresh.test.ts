@@ -153,6 +153,26 @@ describe("RenderState.refresh", () => {
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
   });
 
+  it("skips updateNode when transform is unchanged", () => {
+    const svg = createSvg();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      seriesAxes: [0],
+      getSeries: (i) => [1, 2, 3][i]!,
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg, data);
+    state.refresh(data, zoomIdentity);
+    const updateNodeMock = vi.mocked(updateNode);
+    updateNodeMock.mockClear();
+
+    state.refresh(data, zoomIdentity);
+
+    expect(updateNodeMock).not.toHaveBeenCalled();
+  });
+
   it("rebuilds axis trees after data append", () => {
     const svg = createSvg();
     const source: IDataSource = {
