@@ -68,7 +68,7 @@ export class ChartData {
   public readonly indexToTime: ScaleTime<Date, Date>;
   /**
    * Persistent mapping from data index to screen range. The domain never
-   * changes, and the range is updated on demand in `bIndexFromTransform` to
+   * changes, and the range is updated on demand in `dIndexFromTransform` to
    * avoid reconstructing the scale for every call.
    */
   private readonly indexScale: ScaleLinear<number, number>;
@@ -156,12 +156,12 @@ export class ChartData {
     return this.bIndexFull.map((i) => toTime(i)) as [Date, Date];
   }
 
-  bIndexFromTransform(
+  dIndexFromTransform(
     transform: ZoomTransform,
     range: [number, number],
-  ): ScaleLinear<number, number> {
+  ): [number, number] {
     this.indexScale.range(range);
-    return transform.rescaleX(this.indexScale);
+    return transform.rescaleX(this.indexScale).domain() as [number, number];
   }
 
   /**

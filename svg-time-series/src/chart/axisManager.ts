@@ -6,6 +6,7 @@ import { SegmentTree } from "segment-tree-rmq";
 
 import type { MyAxis } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
+import type { Basis } from "../basis.ts";
 import type { ChartData, IMinMax } from "./data.ts";
 import { buildMinMax, minMaxIdentity } from "./minMax.ts";
 
@@ -38,20 +39,21 @@ export class AxisModel {
     this.scale.domain([min!, v]);
   }
 
-  updateAxisTransform(
-    data: ChartData,
-    axisIdx: number,
-    dIndex: [number, number],
+  updateFromData(
+    tree: SegmentTree<IMinMax>,
+    baseScaleRaw: ScaleLinear<number, number>,
+    transform: ZoomTransform,
+    fullIndex: Basis,
   ): void {
-    const { tree, scale: scaleRaw } = data.axisTransform(axisIdx, dIndex);
     this.tree = tree;
-    const scale = scaleRaw.copy().range(this.scale.range() as [number, number]);
+    const baseScale = baseScaleRaw.range(
+      this.scale.range() as [number, number],
+    );
     this.transform.onReferenceViewWindowResize([
-      data.bIndexFull,
-      scale.domain() as [number, number],
+      fullIndex,
+      baseScale.domain() as [number, number],
     ]);
-    // Apply the scale directly so the Y axis always fits the visible data.
-    this.scale = scale.copy();
+    this.scale = transform.rescaleY(baseScale).copy();
   }
 }
 
@@ -81,22 +83,21 @@ export class AxisManager {
   updateScales(transform: ZoomTransform): void {
     this.data.assertAxisBounds(this.axes.length);
     this.x.domain(this.data.timeDomainFull());
-    const indexScale = this.data.bIndexFromTransform(
+    const dIndexVisible = this.data.dIndexFromTransform(
       transform,
       this.x.range() as [number, number],
     );
-    const rescaledX = transform.rescaleX(this.x);
-    this.x = rescaledX.copy();
+    this.x = transform.rescaleX(this.x).copy();
     this.axes.forEach((a, i) => {
       const idxs = this.data.seriesByAxis[i] ?? [];
       if (idxs.length === 0) {
         return;
       }
-      a.updateAxisTransform(
-        this.data,
-        i,
-        indexScale.domain() as [number, number],
+      const { tree, scale: baseScaleRaw } = this.data.axisTransform(
+        i as 0 | 1,
+        dIndexVisible,
       );
+      a.updateFromData(tree, baseScaleRaw, transform, this.data.bIndexFull);
     });
   }
 }
