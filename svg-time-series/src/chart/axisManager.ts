@@ -6,7 +6,8 @@ import { SegmentTree } from "segment-tree-rmq";
 
 import type { MyAxis } from "../axis.ts";
 import { ViewportTransform } from "../ViewportTransform.ts";
-import type { ChartData, IMinMax } from "./data.ts";
+import type { ChartData } from "./data.ts";
+import type { IMinMax } from "./axisData.ts";
 import { buildMinMax, minMaxIdentity } from "./minMax.ts";
 
 export class AxisModel {
@@ -17,6 +18,7 @@ export class AxisModel {
   constructor() {
     this.transform = new ViewportTransform();
     this.scale = scaleLinear<number, number>().domain([0, 1]);
+
     this.tree = new SegmentTree([minMaxIdentity], buildMinMax, minMaxIdentity);
   }
 
@@ -63,8 +65,11 @@ export class AxisManager {
 
   updateScales(transform: ZoomTransform): void {
     this.data.assertAxisBounds(this.axes.length);
-    const baseX = this.x.copy().domain(this.data.timeDomainFull()).nice();
-    const dIndexVisible = this.data.dIndexFromTransform(
+    const baseX = this.x
+      .copy()
+      .domain(this.data.window.timeDomainFull())
+      .nice();
+    const dIndexVisible = this.data.window.dIndexFromTransform(
       transform,
       baseX.range() as [number, number],
     );
@@ -74,11 +79,14 @@ export class AxisManager {
       if (idxs.length === 0) {
         return;
       }
-      const { tree, scale: baseScaleRaw } = this.data.axisTransform(
-        i as 0 | 1,
-        dIndexVisible,
+      const { tree, scale: baseScaleRaw } =
+        this.data.axes[i]!.axisTransform(dIndexVisible);
+      a.updateFromData(
+        tree,
+        baseScaleRaw,
+        transform,
+        this.data.window.bIndexFull,
       );
-      a.updateFromData(tree, baseScaleRaw, transform, this.data.bIndexFull);
     });
   }
 }

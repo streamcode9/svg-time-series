@@ -1,4 +1,4 @@
-import type { IMinMax } from "./data.ts";
+import type { IMinMax } from "./axisData.ts";
 
 export function buildMinMax(
   fst: Readonly<IMinMax>,

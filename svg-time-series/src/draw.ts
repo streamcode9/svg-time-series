@@ -12,7 +12,8 @@ import type { ILegendController } from "./chart/legend.ts";
 import { ZoomState } from "./chart/zoomState.ts";
 import type { IZoomStateOptions } from "./chart/zoomState.ts";
 
-export type { IMinMax, IDataSource } from "./chart/data.ts";
+export type { IDataSource } from "./chart/data.ts";
+export type { IMinMax } from "./chart/axisData.ts";
 export type { ILegendController } from "./chart/legend.ts";
 export type { IZoomStateOptions } from "./chart/zoomState.ts";
 
