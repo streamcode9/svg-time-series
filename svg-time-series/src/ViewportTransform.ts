@@ -1,9 +1,6 @@
 import { scaleLinear, type ScaleLinear } from "d3-scale";
 import { zoomIdentity, type ZoomTransform } from "d3-zoom";
-import {
-  scalesToDomMatrix,
-  zoomTransformToDomMatrix,
-} from "./utils/domMatrix.ts";
+import { scalesToDomMatrix } from "./utils/domMatrix.ts";
 
 export class ViewportTransform {
   private baseScaleX = scaleLinear();
@@ -24,11 +21,7 @@ export class ViewportTransform {
   }
 
   private updateComposedMatrix() {
-    const baseMatrix = scalesToDomMatrix(this.baseScaleX, this.baseScaleY);
-    this.composedMatrix = zoomTransformToDomMatrix(
-      this.zoomTransform,
-      baseMatrix,
-    );
+    this.composedMatrix = scalesToDomMatrix(this.scaleX, this.scaleY);
   }
 
   public onViewPortResize(

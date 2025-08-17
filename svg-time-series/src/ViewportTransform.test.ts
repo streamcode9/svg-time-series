@@ -3,10 +3,7 @@ import { zoomIdentity } from "d3-zoom";
 import { scaleLinear } from "d3-scale";
 import { polyfillDom } from "./setupDom.ts";
 import type { ViewportTransform as ViewportTransformClass } from "./ViewportTransform.ts";
-import {
-  scalesToDomMatrix,
-  zoomTransformToDomMatrix,
-} from "./utils/domMatrix.ts";
+import { scalesToDomMatrix } from "./utils/domMatrix.ts";
 
 await polyfillDom();
 
@@ -35,7 +32,7 @@ describe("ViewportTransform", () => {
 
     const sx = scaleLinear().domain([0, 10]).range([0, 100]);
     const sy = scaleLinear().domain([0, 10]).range([0, 100]);
-    const expected = zoomTransformToDomMatrix(zoom, scalesToDomMatrix(sx, sy));
+    const expected = scalesToDomMatrix(zoom.rescaleX(sx), sy);
     expect(vt.matrix.a).toBeCloseTo(expected.a);
     expect(vt.matrix.e).toBeCloseTo(expected.e);
   });
