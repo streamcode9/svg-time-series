@@ -9,7 +9,7 @@ import {
   AxisData,
   type IMinMax,
   scaleY as scaleYAxis,
-  combinedAxisDp as combinedAxisDomain,
+  combinedAxisDomain as computeCombinedAxisDomain,
 } from "./axisData.ts";
 
 export interface IDataSource {
@@ -98,7 +98,7 @@ export class ChartData {
     return this.window.startIndex;
   }
 
-  get bIndexFull(): [number, number] {
+  get bIndexFull(): readonly [number, number] {
     return this.window.bIndexFull;
   }
 
@@ -172,11 +172,11 @@ export class ChartData {
     return this.axes[axisIdx as 0 | 1].axisTransform(dIndexVisible);
   }
 
-  combinedAxisDp(
+  combinedAxisDomain(
     bIndexVisible: readonly [number, number],
     tree0: SegmentTree<IMinMax>,
     tree1: SegmentTree<IMinMax>,
   ): ScaleLinear<number, number> {
-    return combinedAxisDomain(this.window, bIndexVisible, tree0, tree1);
+    return computeCombinedAxisDomain(this.window, bIndexVisible, tree0, tree1);
   }
 }

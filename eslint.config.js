@@ -26,7 +26,7 @@ export default config(
     ignores: [
       "**/dist/**",
       "samples/unused/**",
-      "samples/benchmarks/path-data-polyfill.js",
+      "samples/benchmarks/**",
       "samples/misc/demo2-bug-60/**",
     ],
   },

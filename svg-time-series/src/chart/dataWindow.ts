@@ -25,7 +25,7 @@ export class DataWindow {
    * avoid reconstructing the scale for every call.
    */
   private readonly indexScale: ScaleLinear<number, number>;
-  public readonly bIndexFull: [number, number];
+  public readonly bIndexFull: readonly [number, number];
 
   constructor(initialData: number[][], startTime: number, timeStep: number) {
     this.window = new SlidingWindow(initialData);

@@ -428,7 +428,7 @@ describe("ChartData", () => {
     );
     const tree0 = cd.buildAxisTree(0);
     const tree1 = cd.buildAxisTree(1);
-    const scale = cd.combinedAxisDp(cd.bIndexFull, tree0, tree1);
+    const scale = cd.combinedAxisDomain(cd.bIndexFull, tree0, tree1);
     expect(scale.domain()).toEqual([-3, 10]);
   });
 

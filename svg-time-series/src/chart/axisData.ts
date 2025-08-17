@@ -46,7 +46,7 @@ export class AxisData {
   private tree: SegmentTree<IMinMax> | undefined;
   constructor(
     private window: DataWindow,
-    private seriesIdxs: number[],
+    private readonly seriesIdxs: readonly number[],
   ) {}
 
   invalidate(): void {
@@ -79,7 +79,7 @@ export class AxisData {
   }
 }
 
-export function combinedAxisDp(
+export function combinedAxisDomain(
   window: DataWindow,
   bIndexVisible: readonly [number, number],
   tree0: SegmentTree<IMinMax>,
