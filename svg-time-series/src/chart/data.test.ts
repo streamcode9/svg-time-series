@@ -196,11 +196,11 @@ describe("ChartData", () => {
       ),
     );
     for (let i = 0; i < cd.length; i++) {
-      const t = cd.startTime + i * cd.timeStep;
+      const t = new Date(cd.startTime + i * cd.timeStep);
       const idx = cd.timeToIndex(t);
       expect(idx).toBeCloseTo(i);
-      const t2 = cd.startTime + idx * cd.timeStep;
-      expect(t2).toBeCloseTo(t);
+      const t2 = cd.indexToTime(idx);
+      expect(+t2).toBeCloseTo(+t);
     }
   });
 
@@ -215,13 +215,13 @@ describe("ChartData", () => {
         [0, 1],
       ),
     );
-    const earliest = cd.startTime;
-    const latest = cd.startTime + cd.timeStep * (cd.length - 1);
-    expect(cd.timeToIndex(earliest - 1000)).toBe(0);
-    expect(cd.timeToIndex(latest + 1000)).toBe(cd.length - 1);
-    expect(() => cd.timeToIndex(NaN)).toThrow(/time/);
-    expect(() => cd.timeToIndex(Infinity)).toThrow(/time/);
-    expect(() => cd.timeToIndex(-Infinity)).toThrow(/time/);
+    const earliest = new Date(cd.startTime);
+    const latest = new Date(cd.startTime + cd.timeStep * (cd.length - 1));
+    expect(cd.timeToIndex(new Date(+earliest - 1000))).toBe(0);
+    expect(cd.timeToIndex(new Date(+latest + 1000))).toBe(cd.length - 1);
+    expect(() => cd.timeToIndex(new Date(NaN))).toThrow(/time/);
+    expect(() => cd.timeToIndex(new Date(Infinity))).toThrow(/time/);
+    expect(() => cd.timeToIndex(new Date(-Infinity))).toThrow(/time/);
   });
 
   it("reflects latest window after multiple appends", () => {

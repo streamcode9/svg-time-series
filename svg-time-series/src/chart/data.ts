@@ -1,6 +1,11 @@
 import { SegmentTree } from "segment-tree-rmq";
 
-import { scaleLinear, type ScaleLinear } from "d3-scale";
+import {
+  scaleLinear,
+  scaleUtc,
+  type ScaleLinear,
+  type ScaleTime,
+} from "d3-scale";
 import { extent } from "d3-array";
 import type { ZoomTransform } from "d3-zoom";
 import type { Basis } from "../basis.ts";
@@ -60,7 +65,7 @@ export class ChartData {
    * Domain remains [0, 1] and the range shifts forward with the
    * sliding window to avoid recreating the scale on every query.
    */
-  public readonly indexToTime: ScaleLinear<number, number>;
+  public readonly indexToTime: ScaleTime<Date, Date>;
   /**
    * Persistent mapping from data index to screen range. The domain never
    * changes, and the range is updated on demand in `bIndexFromTransform` to
@@ -95,12 +100,12 @@ export class ChartData {
     // bIndexFull represents the full range of data indices and remains constant
     // since append() maintains a sliding window of fixed length
     this.bIndexFull = [0, this.window.length - 1];
-    this.indexToTime = scaleLinear<number, number>()
+    this.indexToTime = scaleUtc<Date, Date>()
       .clamp(true)
       .domain(this.bIndexFull)
       .range([
-        this.startTime,
-        this.startTime + (this.window.length - 1) * this.timeStep,
+        new Date(this.startTime),
+        new Date(this.startTime + (this.window.length - 1) * this.timeStep),
       ]);
     this.indexScale = scaleLinear<number, number>()
       .clamp(true)
@@ -111,8 +116,11 @@ export class ChartData {
 
   append(...values: number[]): void {
     this.window.append(...values);
-    const [r0, r1] = this.indexToTime.range() as [number, number];
-    this.indexToTime.range([r0 + this.timeStep, r1 + this.timeStep]);
+    const [r0, r1] = this.indexToTime.range() as [Date, Date];
+    this.indexToTime.range([
+      new Date(+r0 + this.timeStep),
+      new Date(+r1 + this.timeStep),
+    ]);
     this.axisTrees = [undefined, undefined];
   }
 
@@ -138,14 +146,14 @@ export class ChartData {
     };
   }
 
-  timeToIndex(time: number): number {
-    assertFiniteNumber(time, "ChartData.timeToIndex time");
-    return this.indexToTime.invert(time);
+  timeToIndex(time: Date): number {
+    assertFiniteNumber(+time, "ChartData.timeToIndex time");
+    return +this.indexToTime.invert(time);
   }
 
   timeDomainFull(): [Date, Date] {
     const toTime = this.indexToTime.copy().clamp(false);
-    return this.bIndexFull.map((i) => new Date(toTime(i))) as [Date, Date];
+    return this.bIndexFull.map((i) => toTime(i)) as [Date, Date];
   }
 
   bIndexFromTransform(
