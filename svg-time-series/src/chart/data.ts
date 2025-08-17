@@ -109,7 +109,7 @@ export class ChartData {
 
   indexToTime(idx: number): Date {
     assertFiniteNumber(idx, "ChartData.indexToTime idx");
-    return this.window.indexToTime(idx);
+    return new Date(this.window.indexToTime(idx));
   }
 
   timeToIndex(time: Date): number {

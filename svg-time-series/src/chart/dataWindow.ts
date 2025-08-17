@@ -1,4 +1,5 @@
-import { scaleLinear, scaleUtc, type ScaleTime } from "d3-scale";
+import { scaleLinear } from "d3-scale";
+import type { ScaleLinear } from "d3-scale";
 import type { ZoomTransform } from "d3-zoom";
 
 import { SlidingWindow } from "./slidingWindow.ts";
@@ -13,7 +14,7 @@ export class DataWindow {
    * Domain remains [0, 1] and the range shifts forward with the
    * sliding window to avoid recreating the scale on every query.
    */
-  public readonly indexToTime: ScaleTime<Date, Date>;
+  public readonly indexToTime: ScaleLinear<number, number>;
   public readonly bIndexFull: readonly [number, number];
 
   constructor(initialData: number[][], startTime: number, timeStep: number) {
@@ -21,22 +22,19 @@ export class DataWindow {
     this.startTime = startTime;
     this.timeStep = timeStep;
     this.bIndexFull = [0, this.window.length - 1];
-    this.indexToTime = scaleUtc<Date, Date>()
+    this.indexToTime = scaleLinear<number, number>()
       .clamp(true)
       .domain(this.bIndexFull)
       .range([
-        new Date(this.startTime),
-        new Date(this.startTime + (this.window.length - 1) * this.timeStep),
+        this.startTime,
+        this.startTime + (this.window.length - 1) * this.timeStep,
       ]);
   }
 
   append(...values: number[]): void {
     this.window.append(...values);
-    const [r0, r1] = this.indexToTime.range() as [Date, Date];
-    this.indexToTime.range([
-      new Date(+r0 + this.timeStep),
-      new Date(+r1 + this.timeStep),
-    ]);
+    const [r0, r1] = this.indexToTime.range() as [number, number];
+    this.indexToTime.range([r0 + this.timeStep, r1 + this.timeStep]);
   }
 
   get length(): number {
@@ -61,12 +59,12 @@ export class DataWindow {
   }
 
   timeToIndex(time: Date): number {
-    return +this.indexToTime.invert(time);
+    return this.indexToTime.invert(+time);
   }
 
   timeDomainFull(): [Date, Date] {
     const toTime = this.indexToTime.copy().clamp(false);
-    return this.bIndexFull.map((i) => toTime(i)) as [Date, Date];
+    return this.bIndexFull.map((i) => new Date(toTime(i))) as [Date, Date];
   }
 
   dIndexFromTransform(
