@@ -68,25 +68,30 @@ export class SegmentTree<T> {
    */
   query(start: number, endInclusive: number): T {
     this.assertValidRange(start, endInclusive);
+    // Move the indices to the leaf level. The right index is made exclusive
+    // by adding 1 so the loop can naturally terminate when `left === right`.
     let left = start + this.size;
-    let right = endInclusive + this.size;
+    let right = endInclusive + this.size + 1;
     let result = this.identity;
 
+    // Traverse the tree upwards, shrinking the interval [left, right) until
+    // there are no segments left to process.
     while (left < right) {
+      // If `left` is a right child, it represents a disjoint segment that
+      // should be included in the result. Move to the next segment after it.
       if (left & 1) {
         result = this.op(result, this.tree[left]!);
         left++;
       }
-      if (!(right & 1)) {
-        result = this.op(result, this.tree[right]!);
+      // If `right` is a right boundary, the segment to the immediate left is
+      // part of the range. Include it and shift the boundary left.
+      if (right & 1) {
         right--;
+        result = this.op(result, this.tree[right]!);
       }
+      // Move both indices to their parents to continue with the next level.
       left >>= 1;
       right >>= 1;
-    }
-
-    if (left === right) {
-      result = this.op(result, this.tree[left]!);
     }
 
     return result;

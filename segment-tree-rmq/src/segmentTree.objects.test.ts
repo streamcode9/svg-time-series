@@ -26,6 +26,7 @@ describe("SegmentTree with custom objects", () => {
 
     expect(tree.query(0, data.length - 1)).toEqual({ min: 1, max: 7 });
     expect(tree.query(1, 3)).toEqual({ min: 2, max: 6 });
+    expect(tree.query(2, 2)).toEqual({ min: 2, max: 5 });
 
     tree.update(2, { min: 0, max: 8 });
     expect(tree.query(0, data.length - 1)).toEqual({ min: 0, max: 8 });

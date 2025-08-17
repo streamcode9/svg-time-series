@@ -9,6 +9,7 @@ describe("Segment Tree Tests", () => {
     const tree = new SegmentTree(data, sumOperator, identity);
 
     expect(tree.query(0, 0)).toBe(1);
+    expect(tree.query(3, 3)).toBe(4);
     expect(tree.query(7, 7)).toBe(8);
   });
 
