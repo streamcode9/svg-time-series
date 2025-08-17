@@ -4,17 +4,18 @@
   "description": "Generic segment tree implementation for range queries",
   "license": "WTFPL",
   "files": [
-    "src/*"
+    "dist/*"
   ],
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.json",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit -p tsconfig.test.json",
     "bench": "npm run bench:segment-tree",
     "bench:segment-tree": "vitest bench bench/segmentTree.bench.ts --run",
-    "test": "vitest run --reporter=dot"
+    "test": "vitest run --reporter=dot",
+    "prepare": "npm run build"
   }
 }
