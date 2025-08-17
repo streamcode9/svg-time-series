@@ -11,7 +11,7 @@
   "files": [
     "dist/*"
   ],
-  "main": "src/draw.ts",
+  "main": "dist/draw.js",
   "type": "module",
   "dependencies": {
     "d3-brush": "^3.0.0",
@@ -36,7 +36,7 @@
   },
   "scripts": {
     "prepare": "npm run build",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit -p tsconfig.test.json",
     "preview": "vite preview",

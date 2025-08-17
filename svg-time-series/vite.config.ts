@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
     build: {
       lib: {
         entry: "src/draw.ts",
-        fileName: "index",
+        fileName: "draw",
         formats: ["es"],
       },
       rollupOptions: {
