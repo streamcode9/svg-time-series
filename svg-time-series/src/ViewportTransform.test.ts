@@ -5,7 +5,7 @@ import type { Basis } from "./basis.ts";
 import { toDirectProductBasis } from "./basis.ts";
 import type { ViewportTransform as ViewportTransformClass } from "./ViewportTransform.ts";
 
-polyfillDom();
+await polyfillDom();
 
 let ViewportTransform: typeof ViewportTransformClass;
 

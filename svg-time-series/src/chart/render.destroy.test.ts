@@ -8,7 +8,7 @@ import { polyfillDom } from "../setupDom.ts";
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
-polyfillDom();
+await polyfillDom();
 
 function createSvg(): Selection<SVGSVGElement, unknown, HTMLElement, unknown> {
   const parent = document.createElement("div");

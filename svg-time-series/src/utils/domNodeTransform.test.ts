@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { Matrix, polyfillDom } from "../setupDom.ts";
+import { polyfillDom } from "../setupDom.ts";
 import {
   updateNode,
   isSVGMatrix,
   domMatrixToSVGMatrix,
 } from "./domNodeTransform.ts";
-polyfillDom();
+await polyfillDom();
 
 class FakeSVGMatrix {
   constructor(
@@ -66,7 +66,7 @@ describe("updateNode", () => {
 
   it("converts DOMMatrix to SVGMatrix", () => {
     const node = createNode();
-    const domMatrix = new Matrix().translate(5, 6);
+    const domMatrix = new DOMMatrix().translate(5, 6);
     updateNode(node, domMatrix as unknown as DOMMatrix);
     const last = node.transform.baseVal.last as FakeSVGMatrix;
     expect(last).toBeInstanceOf(FakeSVGMatrix);
@@ -88,7 +88,7 @@ describe("domMatrixToSVGMatrix", () => {
 
   it("converts DOMMatrix to SVGMatrix", () => {
     const svg = new FakeSVGSVGElement();
-    const domMatrix = new Matrix().translate(5, 6);
+    const domMatrix = new DOMMatrix().translate(5, 6);
     const result = domMatrixToSVGMatrix(
       svg as unknown as SVGSVGElement,
       domMatrix as unknown as DOMMatrix,
@@ -113,7 +113,7 @@ describe("isSVGMatrix", () => {
 
   it("returns false for DOMMatrix", () => {
     const svg = new FakeSVGSVGElement();
-    const domMatrix = new Matrix();
+    const domMatrix = new DOMMatrix();
     expect(
       isSVGMatrix(
         domMatrix as unknown as DOMMatrix,

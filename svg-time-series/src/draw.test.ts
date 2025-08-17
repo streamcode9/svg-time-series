@@ -33,7 +33,7 @@ import { TimeSeriesChart } from "./draw.ts";
 import type { IDataSource } from "./draw.ts";
 import { clearBrushSelection } from "./draw/brushUtils.ts";
 import { polyfillDom } from "./setupDom.ts";
-polyfillDom();
+await polyfillDom();
 
 function createLegend() {
   return {

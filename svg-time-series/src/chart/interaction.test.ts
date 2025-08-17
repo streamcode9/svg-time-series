@@ -18,13 +18,13 @@ import type { Basis } from "../basis.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
-import { Matrix, polyfillDom } from "../setupDom.ts";
-polyfillDom();
+import { polyfillDom } from "../setupDom.ts";
+await polyfillDom();
 
-const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
+const nodeTransforms = new Map<SVGGraphicsElement, DOMMatrix>();
 let updateNodeCalls = 0;
 vi.mock("../utils/domNodeTransform.ts", () => ({
-  updateNode: (node: SVGGraphicsElement, matrix: Matrix) => {
+  updateNode: (node: SVGGraphicsElement, matrix: DOMMatrix) => {
     updateNodeCalls++;
     nodeTransforms.set(node, matrix);
   },
@@ -37,7 +37,7 @@ vi.mock("../ViewportTransform.ts", () => ({
     constructor() {
       transformInstances.push(this);
     }
-    matrix = new Matrix();
+    matrix = new DOMMatrix();
     onZoomPan = vi.fn();
     fromScreenToModelX = vi.fn((x: number) => x);
     fromScreenToModelBasisX = vi.fn(
@@ -158,8 +158,8 @@ beforeEach(() => {
   transformInstances.length = 0;
   axisInstances.length = 0;
   (
-    SVGSVGElement.prototype as unknown as { createSVGMatrix: () => Matrix }
-  ).createSVGMatrix = () => new Matrix();
+    SVGSVGElement.prototype as unknown as { createSVGMatrix: () => DOMMatrix }
+  ).createSVGMatrix = () => new DOMMatrix();
 });
 
 afterEach(() => {
@@ -225,10 +225,10 @@ describe("chart interaction", () => {
     const circles = svgEl.querySelectorAll("circle");
     const greenTransform = nodeTransforms.get(circles[0] as SVGCircleElement)!;
     const blueTransform = nodeTransforms.get(circles[1] as SVGCircleElement)!;
-    expect(greenTransform.tx).toBe(1);
-    expect(greenTransform.ty).toBe(30);
-    expect(blueTransform.tx).toBe(1);
-    expect(blueTransform.ty).toBe(40);
+    expect(greenTransform.e).toBe(1);
+    expect(greenTransform.f).toBe(30);
+    expect(blueTransform.e).toBe(1);
+    expect(blueTransform.f).toBe(40);
   });
 
   it("updates circles after appending data", () => {
@@ -255,10 +255,10 @@ describe("chart interaction", () => {
     const circles = svgEl.querySelectorAll("circle");
     const greenTransform = nodeTransforms.get(circles[0] as SVGCircleElement)!;
     const blueTransform = nodeTransforms.get(circles[1] as SVGCircleElement)!;
-    expect(greenTransform.tx).toBe(1);
-    expect(greenTransform.ty).toBe(50);
-    expect(blueTransform.tx).toBe(1);
-    expect(blueTransform.ty).toBe(60);
+    expect(greenTransform.e).toBe(1);
+    expect(greenTransform.f).toBe(50);
+    expect(blueTransform.e).toBe(1);
+    expect(blueTransform.f).toBe(60);
   });
 
   it("uses custom time formatter when provided", () => {
@@ -305,10 +305,10 @@ describe("chart interaction", () => {
     expect(legend.querySelector(".chart-legend__blue_value")!.textContent).toBe(
       "20",
     );
-    expect(greenTransform.tx).toBe(0);
-    expect(greenTransform.ty).toBe(10);
-    expect(blueTransform.tx).toBe(0);
-    expect(blueTransform.ty).toBe(20);
+    expect(greenTransform.e).toBe(0);
+    expect(greenTransform.f).toBe(10);
+    expect(blueTransform.e).toBe(0);
+    expect(blueTransform.f).toBe(20);
 
     onHover(100);
     vi.runAllTimers();
@@ -321,10 +321,10 @@ describe("chart interaction", () => {
     expect(legend.querySelector(".chart-legend__blue_value")!.textContent).toBe(
       "60",
     );
-    expect(greenTransform.tx).toBe(2);
-    expect(greenTransform.ty).toBe(50);
-    expect(blueTransform.tx).toBe(2);
-    expect(blueTransform.ty).toBe(60);
+    expect(greenTransform.e).toBe(2);
+    expect(greenTransform.f).toBe(50);
+    expect(blueTransform.e).toBe(2);
+    expect(blueTransform.f).toBe(60);
   });
 
   it("throws on zero-length dataset", () => {

@@ -8,7 +8,7 @@ import { select } from "d3-selection";
 import { zoomIdentity } from "d3-zoom";
 import * as domNode from "../utils/domNodeTransform.ts";
 import { polyfillDom } from "../setupDom.ts";
-polyfillDom();
+await polyfillDom();
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";

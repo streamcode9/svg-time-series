@@ -23,7 +23,7 @@ describe("setupDom", () => {
 
     vi.resetModules();
     const { polyfillDom } = await import("./setupDom.ts");
-    polyfillDom();
+    await polyfillDom();
 
     expect(globalObj.DOMMatrix).toBe(NativeMatrix);
     expect(globalObj.DOMPoint).toBe(NativePoint);

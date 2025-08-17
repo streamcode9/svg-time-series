@@ -15,7 +15,7 @@ import { polyfillDom } from "../test/setupDom.ts";
 
 import { LegendController } from "./LegendController.ts";
 
-polyfillDom();
+await polyfillDom();
 
 function createSvgAndLegend() {
   const dom = new JSDOM(

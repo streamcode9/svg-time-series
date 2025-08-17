@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { scaleLinear } from "d3-scale";
 import { scaleToDomMatrix } from "./utils/domMatrix.ts";
 import { updateNode } from "./utils/domNodeTransform.ts";
-import { Matrix, polyfillDom } from "./setupDom.ts";
-polyfillDom();
+import { polyfillDom } from "./setupDom.ts";
+await polyfillDom();
 
 describe("viewZoomTransform helpers", () => {
   it("applies scale transforms along X and Y axes", () => {
@@ -29,10 +29,10 @@ describe("viewZoomTransform helpers", () => {
     const node = {
       transform: { baseVal },
       ownerSVGElement: {
-        createSVGMatrix: () => new Matrix() as unknown as DOMMatrix,
+        createSVGMatrix: () => new DOMMatrix(),
       },
     } as unknown as SVGGraphicsElement;
-    const matrix = new Matrix(1, 0, 0, 1, 2, 3) as unknown as DOMMatrix;
+    const matrix = new DOMMatrix([1, 0, 0, 1, 2, 3]);
 
     updateNode(node, matrix);
     expect(calls[0]).toBe(matrix);

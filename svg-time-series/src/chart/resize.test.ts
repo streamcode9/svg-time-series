@@ -31,7 +31,7 @@ import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import { polyfillDom } from "../setupDom.ts";
 import { SeriesRenderer } from "./seriesRenderer.ts";
-polyfillDom();
+await polyfillDom();
 
 describe("TimeSeriesChart.resize", () => {
   it("updates axes and legend without redraw", () => {

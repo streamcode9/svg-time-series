@@ -4,7 +4,7 @@ import { zoomIdentity } from "d3-zoom";
 import { polyfillDom } from "../setupDom.ts";
 import { AxisManager } from "./axisManager.ts";
 import { ChartData } from "./data.ts";
-polyfillDom();
+await polyfillDom();
 
 const makeChartData = (): ChartData =>
   new ChartData({

@@ -22,7 +22,7 @@ vi.mock("../src/chart/zoomState.ts", () => {
 
 import { TimeSeriesChart, type IDataSource } from "../src/draw.ts";
 import { polyfillDom } from "../src/setupDom.ts";
-polyfillDom();
+await polyfillDom();
 
 function createLegend() {
   return {

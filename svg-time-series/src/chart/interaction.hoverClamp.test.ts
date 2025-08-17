@@ -8,12 +8,12 @@ import type * as d3Zoom from "d3-zoom";
 import type { Basis } from "../basis.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
-import { polyfillDom, type Matrix } from "../setupDom.ts";
-polyfillDom();
+import { polyfillDom } from "../setupDom.ts";
+await polyfillDom();
 import type { ILegendController, LegendContext } from "./legend.ts";
 
 vi.mock("../utils/domNodeTransform.ts", () => ({
-  updateNode: (_node: SVGGraphicsElement, _matrix: Matrix) => {},
+  updateNode: (_node: SVGGraphicsElement, _matrix: DOMMatrix) => {},
 }));
 
 let currentDataLength = 0;

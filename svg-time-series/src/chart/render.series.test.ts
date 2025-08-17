@@ -9,7 +9,7 @@ import { polyfillDom } from "../setupDom.ts";
 import { ChartData } from "./data.ts";
 import type { IDataSource } from "./data.ts";
 import { setupRender } from "./render.ts";
-polyfillDom();
+await polyfillDom();
 
 function createSvg() {
   const dom = new JSDOM(`<div id="c"><svg></svg></div>`, {

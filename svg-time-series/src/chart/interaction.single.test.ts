@@ -18,13 +18,13 @@ import type { Basis } from "../basis.ts";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
-import { Matrix, polyfillDom } from "../setupDom.ts";
-polyfillDom();
+import { polyfillDom } from "../setupDom.ts";
+await polyfillDom();
 
-const nodeTransforms = new Map<SVGGraphicsElement, Matrix>();
+const nodeTransforms = new Map<SVGGraphicsElement, DOMMatrix>();
 let updateNodeCalls = 0;
 vi.mock("../utils/domNodeTransform.ts", () => ({
-  updateNode: (node: SVGGraphicsElement, matrix: Matrix) => {
+  updateNode: (node: SVGGraphicsElement, matrix: DOMMatrix) => {
     updateNodeCalls++;
     nodeTransforms.set(node, matrix);
   },
@@ -37,7 +37,7 @@ vi.mock("../ViewportTransform.ts", () => ({
     constructor() {
       transformInstances.push(this);
     }
-    matrix = new Matrix();
+    matrix = new DOMMatrix();
     onZoomPan = vi.fn();
     fromScreenToModelX = vi.fn((x: number) => x);
     fromScreenToModelBasisX = vi.fn(
@@ -153,8 +153,8 @@ beforeEach(() => {
   transformInstances.length = 0;
   axisInstances.length = 0;
   (
-    SVGSVGElement.prototype as unknown as { createSVGMatrix: () => Matrix }
-  ).createSVGMatrix = () => new Matrix();
+    SVGSVGElement.prototype as unknown as { createSVGMatrix: () => DOMMatrix }
+  ).createSVGMatrix = () => new DOMMatrix();
 });
 
 afterEach(() => {
@@ -205,8 +205,8 @@ describe("chart interaction single-axis", () => {
 
     const circle = svgEl.querySelector<SVGCircleElement>("circle")!;
     const transform = nodeTransforms.get(circle)!;
-    expect(transform.tx).toBe(1);
-    expect(transform.ty).toBe(30);
+    expect(transform.e).toBe(1);
+    expect(transform.f).toBe(30);
   });
 
   it("updates circle after appending data", () => {
@@ -226,8 +226,8 @@ describe("chart interaction single-axis", () => {
 
     const circle = svgEl.querySelector<SVGCircleElement>("circle")!;
     const transform = nodeTransforms.get(circle)!;
-    expect(transform.tx).toBe(1);
-    expect(transform.ty).toBe(50);
+    expect(transform.e).toBe(1);
+    expect(transform.f).toBe(50);
   });
 
   it("throws when data contains Infinity", () => {
