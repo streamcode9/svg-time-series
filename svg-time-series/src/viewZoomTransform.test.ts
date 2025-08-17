@@ -24,6 +24,9 @@ describe("viewZoomTransform helpers", () => {
       setAttribute(_name: string, value: string) {
         calls.push(value);
       },
+      ownerSVGElement: new (globalThis.SVGSVGElement as unknown as {
+        new (): SVGSVGElement;
+      })(),
     } as unknown as SVGGraphicsElement;
     const matrix = new DOMMatrix([1, 0, 0, 1, 2, 3]);
 

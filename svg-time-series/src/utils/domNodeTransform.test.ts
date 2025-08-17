@@ -6,6 +6,9 @@ await polyfillDom();
 
 class FakeNode {
   attributes: Record<string, string> = {};
+  ownerSVGElement = new (globalThis.SVGSVGElement as unknown as {
+    new (): SVGSVGElement;
+  })();
 
   setAttribute(name: string, value: string) {
     this.attributes[name] = value;
