@@ -266,4 +266,17 @@ describe("TimeSeriesChart", () => {
     expect(clearBrushSelection).toHaveBeenCalled();
     expect(chart.getSelectedTimeWindow()).toBeNull();
   });
+
+  it("returns a cloned selected time window", () => {
+    const { chart } = createChart();
+    (
+      chart as unknown as { selectedTimeWindow: [number, number] }
+    ).selectedTimeWindow = [1, 2];
+    const window1 = chart.getSelectedTimeWindow();
+    expect(window1).toEqual([1, 2]);
+    if (window1) {
+      window1[0] = 100;
+    }
+    expect(chart.getSelectedTimeWindow()).toEqual([1, 2]);
+  });
 });

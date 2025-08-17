@@ -175,7 +175,9 @@ export class TimeSeriesChart {
   };
 
   public getSelectedTimeWindow = (): [number, number] | null => {
-    return this.selectedTimeWindow;
+    return this.selectedTimeWindow
+      ? ([...this.selectedTimeWindow] as [number, number])
+      : null;
   };
 
   public resize = (dimensions: { width: number; height: number }) => {
