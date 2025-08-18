@@ -40,6 +40,13 @@ export class ZoomScheduler {
     this.cancelRefresh = cancel;
   }
 
+  /*
+   * ZoomScheduler state transitions
+   *
+   *     [idle] -- user event/programmatic start --> [pending]
+   *     [pending] -- conflicting transform --------> [pending] (ignored)
+   *     [pending] -- finalize ---------------------> [idle]
+   */
   public zoom(
     transform: ZoomTransform,
     sourceEvent: unknown,
@@ -52,27 +59,43 @@ export class ZoomScheduler {
       this.callback = callback;
       this.callbackEvent = event ?? { transform };
     }
-    // 1. direct user interaction, wait for d3 to emit final transform
     if (sourceEvent) {
-      this.pendingZoomBehaviorTransform = true;
-      this.scheduleRefresh();
-      return true;
+      return this.handleUserEvent();
     }
 
-    // 2. first programmatic transform before d3 zoom behavior fires
     if (!this.pendingZoomBehaviorTransform) {
-      this.pendingZoomBehaviorTransform = true;
-      this.scheduleRefresh();
-      return true;
+      return this.handleProgrammaticStart();
     }
 
-    // 3. conflicting programmatic transform while waiting for refresh
     if (prevTransform !== null && !sameTransform(transform, prevTransform)) {
-      this.currentPanZoomTransformState = prevTransform;
-      return false;
+      return this.handleProgrammaticConflict(prevTransform);
     }
 
-    // 4. final refresh after d3 confirms transform
+    return this.finalizeTransform();
+  }
+
+  // idle -> pending (user interaction)
+  private handleUserEvent(): boolean {
+    this.pendingZoomBehaviorTransform = true;
+    this.scheduleRefresh();
+    return true;
+  }
+
+  // idle -> pending (programmatic start)
+  private handleProgrammaticStart(): boolean {
+    this.pendingZoomBehaviorTransform = true;
+    this.scheduleRefresh();
+    return true;
+  }
+
+  // pending -> pending (restore previous transform)
+  private handleProgrammaticConflict(prevTransform: ZoomTransform): boolean {
+    this.currentPanZoomTransformState = prevTransform;
+    return false;
+  }
+
+  // pending -> idle
+  private finalizeTransform(): boolean {
     this.pendingZoomBehaviorTransform = false;
     this.scheduleRefresh();
     this.currentPanZoomTransformState = null;

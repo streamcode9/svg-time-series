@@ -15,24 +15,31 @@ describe("ZoomScheduler", () => {
     vi.useRealTimers();
   });
 
-  it("applies pending transform and clears state", () => {
+  it("handles direct user events", () => {
     const apply = vi.fn();
     const refresh = vi.fn();
     const zs = new ZoomScheduler(apply, refresh);
 
     expect(zs.zoom({ x: 1, k: 2 } as unknown as ZoomTransform, {})).toBe(true);
+    expect(zs.isPending()).toBe(true);
     vi.runAllTimers();
     expect(apply).toHaveBeenCalledWith({ x: 1, k: 2 });
-    expect(zs.getCurrentTransform()).toBeNull();
-    expect(refresh).toHaveBeenCalledTimes(1);
-
-    zs.refresh();
-    vi.runAllTimers();
-    expect(refresh).toHaveBeenCalledTimes(2);
-    expect(apply).toHaveBeenCalledTimes(1);
   });
 
-  it("ignores unexpected transform while pending", () => {
+  it("starts programmatic transforms", () => {
+    const apply = vi.fn();
+    const refresh = vi.fn();
+    const zs = new ZoomScheduler(apply, refresh);
+
+    expect(zs.zoom({ x: 1, k: 2 } as unknown as ZoomTransform, null)).toBe(
+      true,
+    );
+    expect(zs.isPending()).toBe(true);
+    vi.runAllTimers();
+    expect(apply).toHaveBeenCalledWith({ x: 1, k: 2 });
+  });
+
+  it("rejects conflicting programmatic transforms", () => {
     const apply = vi.fn();
     const refresh = vi.fn();
     const zs = new ZoomScheduler(apply, refresh);
@@ -43,6 +50,23 @@ describe("ZoomScheduler", () => {
     expect(zs.zoom({ x: 5, k: 3 } as unknown as ZoomTransform, null)).toBe(
       false,
     );
+    vi.runAllTimers();
+    expect(apply).toHaveBeenCalledTimes(1);
+  });
+
+  it("finalizes transform after confirmation", () => {
+    const apply = vi.fn();
+    const refresh = vi.fn();
+    const zs = new ZoomScheduler(apply, refresh);
+    const t = { x: 1, k: 2 } as unknown as ZoomTransform;
+
+    expect(zs.zoom(t, null)).toBe(true);
+    vi.runAllTimers();
+    expect(apply).toHaveBeenCalledWith({ x: 1, k: 2 });
+    expect(zs.isPending()).toBe(true);
+
+    expect(zs.zoom(t, null)).toBe(true);
+    expect(zs.isPending()).toBe(false);
     vi.runAllTimers();
     expect(apply).toHaveBeenCalledTimes(1);
   });
