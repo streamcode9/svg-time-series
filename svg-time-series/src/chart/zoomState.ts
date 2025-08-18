@@ -76,8 +76,9 @@ export class ZoomState {
       const clampedK = Math.max(min, Math.min(max, current.k));
       if (clampedK !== current.k) {
         this.zoomBehavior.scaleTo(this.zoomArea, clampedK);
+      } else {
+        this.refreshChart();
       }
-      this.refreshChart();
     };
 
     this.updateExtents = (dimensions: { width: number; height: number }) => {
