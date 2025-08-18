@@ -113,9 +113,17 @@ describe("LegendController", () => {
       })),
     });
 
+    const updateSpy = vi.spyOn(domNode, "updateNode");
+    const circleCount = svg.selectAll("circle").size();
+
     expect(() => {
       lc.highlightIndex(1);
     }).not.toThrow();
+
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(svg.selectAll("circle").size()).toBe(circleCount);
+
+    updateSpy.mockRestore();
     lc.destroy();
   });
 
