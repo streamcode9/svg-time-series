@@ -92,15 +92,13 @@ export class AxisManager {
 
   setXAxis(scale: ScaleTime<number, number>): void {
     this.x = scale;
+    this.data.window.onViewPortResize(scale.range() as [number, number]);
   }
 
   updateScales(transform: ZoomTransform): void {
     this.data.assertAxisBounds(this.axes.length);
     const baseX = createBaseXScale(this.x, this.data.window);
-    const dIndexVisible = this.data.window.dIndexFromTransform(
-      transform,
-      baseX.range() as [number, number],
-    );
+    const dIndexVisible = this.data.window.dIndexFromTransform(transform);
     this.x = transform.rescaleX(baseX).copy();
     this.axes.forEach((a, i) => {
       updateAxisModel(a, i, this.data, transform, dIndexVisible);

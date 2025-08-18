@@ -15,6 +15,7 @@ export class DataWindow {
    * sliding window to avoid recreating the scale on every query.
    */
   public readonly indexToTime: ScaleLinear<number, number>;
+  private readonly indexToRange: ScaleLinear<number, number>;
   public readonly bIndexFull: readonly [number, number];
 
   constructor(initialData: number[][], startTime: number, timeStep: number) {
@@ -29,6 +30,9 @@ export class DataWindow {
         this.startTime,
         this.startTime + (this.window.length - 1) * this.timeStep,
       ]);
+    this.indexToRange = scaleLinear<number, number>()
+      .domain(this.bIndexFull)
+      .range([0, 1]);
   }
 
   append(...values: number[]): void {
@@ -67,14 +71,12 @@ export class DataWindow {
     return this.bIndexFull.map((i) => new Date(toTime(i))) as [Date, Date];
   }
 
-  dIndexFromTransform(
-    transform: ZoomTransform,
-    range: [number, number],
-  ): [number, number] {
-    const indexScale = scaleLinear<number, number>()
-      .domain(this.bIndexFull)
-      .range(range);
-    return transform.rescaleX(indexScale).domain() as [number, number];
+  onViewPortResize(range: [number, number]): void {
+    this.indexToRange.range(range);
+  }
+
+  dIndexFromTransform(transform: ZoomTransform): [number, number] {
+    return transform.rescaleX(this.indexToRange).domain() as [number, number];
   }
 
   /**

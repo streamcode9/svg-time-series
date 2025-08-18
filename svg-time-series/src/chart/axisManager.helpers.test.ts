@@ -39,10 +39,8 @@ describe("updateAxisModel", () => {
       .range([0, 100]);
     const baseX = createBaseXScale(x, data.window);
     const t = zoomIdentity.scale(2);
-    const dIndexVisible = data.dIndexFromTransform(
-      t,
-      baseX.range() as [number, number],
-    );
+    data.window.onViewPortResize(baseX.range() as [number, number]);
+    const dIndexVisible = data.dIndexFromTransform(t);
     updateAxisModel(axis, 0, data, t, dIndexVisible);
     const { scale: baseScaleRaw } = data.axisTransform(0, dIndexVisible);
     const expectedDomain = t

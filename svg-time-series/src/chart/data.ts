@@ -121,11 +121,8 @@ export class ChartData {
     return this.window.timeDomainFull();
   }
 
-  dIndexFromTransform(
-    transform: ZoomTransform,
-    range: [number, number],
-  ): [number, number] {
-    return this.window.dIndexFromTransform(transform, range);
+  dIndexFromTransform(transform: ZoomTransform): [number, number] {
+    return this.window.dIndexFromTransform(transform);
   }
 
   /**
