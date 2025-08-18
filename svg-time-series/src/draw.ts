@@ -3,6 +3,7 @@ import type { D3ZoomEvent } from "d3-zoom";
 import { zoomIdentity, zoomTransform } from "d3-zoom";
 import { brushX, type BrushBehavior, type D3BrushEvent } from "d3-brush";
 import { clearBrushSelection } from "./draw/brushUtils.ts";
+import { handleBrushEnd } from "./draw/brushController.ts";
 
 import { ChartData } from "./chart/data.ts";
 import type { IDataSource } from "./chart/data.ts";
@@ -273,33 +274,15 @@ export class TimeSeriesChart {
   }
 
   private onBrushEnd = (event: D3BrushEvent<unknown>) => {
-    if (!event.selection) {
-      return;
-    }
-    let [x0, x1] = event.selection as [number, number];
-    if (x0 === x1) {
-      this.clearBrush();
-      return;
-    }
-    if (x1 < x0) {
-      [x0, x1] = [x1, x0];
-    }
-    const m0 = this.data.clampIndex(this.state.screenToModelX(x0));
-    const m1 = this.data.clampIndex(this.state.screenToModelX(x1));
-    const sx0 = this.state.axes.x.scale(m0);
-    const sx1 = this.state.axes.x.scale(m1);
-    if (m0 === m1 || sx0 === sx1) {
-      this.clearBrush();
-      return;
-    }
-    const { width } = this.state.getDimensions();
-    const k = width / (sx1 - sx0);
-    const t = zoomIdentity.scale(k).translate(-sx0, 0);
-    this.zoomState.zoomBehavior.transform(this.zoomArea, t);
-    const t0 = +this.data.indexToTime(m0);
-    const t1 = +this.data.indexToTime(m1);
-    this.clearBrush();
-    this.selectedTimeWindow = [t0, t1];
+    const timeWindow = handleBrushEnd(
+      event,
+      this.data,
+      this.state,
+      this.zoomState,
+      this.zoomArea,
+    );
+    clearBrushSelection(this.brushBehavior, this.brushLayer);
+    this.selectedTimeWindow = timeWindow;
   };
 
   private clearBrush = () => {
