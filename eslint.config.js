@@ -9,17 +9,11 @@ import n from "eslint-plugin-n";
 
 const disableTypeChecked = configs.disableTypeChecked;
 const nRecommended = n.configs["flat/recommended"];
-const nodeOverride = {
-  ...disableTypeChecked,
-  languageOptions: { globals: globals.node },
-  rules: {
-    "import/no-unresolved": "off",
-    "import/order": "off",
-    "import/default": "off",
-    "import/no-named-as-default-member": "off",
-    "import/no-named-as-default": "off",
-  },
-};
+const [nodeOverride] = config(
+  importPlugin.flatConfigs.typescript,
+  disableTypeChecked,
+  { languageOptions: { globals: globals.node } },
+);
 
 export default config(
   {
