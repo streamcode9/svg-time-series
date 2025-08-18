@@ -44,6 +44,8 @@ export class AxisModel {
 export interface AxisRenderState {
   axis: MyAxis;
   g: Selection<SVGGElement, unknown, HTMLElement, unknown>;
+  lastDomain: [number | Date, number | Date];
+  lastRange: [number, number];
 }
 
 export function createBaseXScale(

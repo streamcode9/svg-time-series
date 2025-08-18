@@ -30,12 +30,7 @@ function createYAxis(
   return axis;
 }
 
-interface AxisData {
-  axis: MyAxis;
-  g?: Selection<SVGGElement, unknown, HTMLElement, unknown> | undefined;
-}
-
-interface AxisDataX extends AxisData {
+interface AxisDataX extends AxisRenderState {
   scale: ScaleTime<number, number>;
 }
 
@@ -76,10 +71,6 @@ export class RenderState {
   public dimensions: Dimensions;
   public series: Series[];
   public seriesRenderer: SeriesRenderer;
-  private xDomain: [number | Date, number | Date];
-  private xRange: [number, number];
-  private yDomains: [number | Date, number | Date][];
-  private yRanges: [number, number][];
 
   constructor(
     axisManager: AxisManager,
@@ -97,32 +88,13 @@ export class RenderState {
     this.dimensions = dimensions;
     this.series = series;
     this.seriesRenderer = seriesRenderer;
-    this.xDomain = axes.x.scale.domain().slice() as [
-      number | Date,
-      number | Date,
-    ];
-    this.xRange = axes.x.scale.range().slice() as [number, number];
-    this.yDomains = axes.y.map(
-      (a) => a.scale.domain().slice() as [number | Date, number | Date],
-    );
-    this.yRanges = axes.y.map(
-      (a) => a.scale.range().slice() as [number, number],
-    );
   }
 
-  private updateAxisIfChanged(
-    render: AxisRenderState,
-    model: AxisModel,
-    idx: number,
-  ): void {
+  private updateAxisIfChanged(render: AxisRenderState, model: AxisModel): void {
     const domain = model.scale.domain() as [number | Date, number | Date];
     const range = model.scale.range() as [number, number];
-    const prevDomain =
-      idx === -1
-        ? this.xDomain
-        : (this.yDomains[idx] as [number | Date, number | Date]);
-    const prevRange =
-      idx === -1 ? this.xRange : (this.yRanges[idx] as [number, number]);
+    const prevDomain = render.lastDomain;
+    const prevRange = render.lastRange;
     if (
       +domain[0] !== +prevDomain[0] ||
       +domain[1] !== +prevDomain[1] ||
@@ -131,13 +103,8 @@ export class RenderState {
     ) {
       render.axis.setScale(model.scale);
       render.axis.axisUp(render.g);
-      if (idx === -1) {
-        this.xDomain = domain.slice() as [number | Date, number | Date];
-        this.xRange = range.slice() as [number, number];
-      } else {
-        this.yDomains[idx] = domain.slice() as [number | Date, number | Date];
-        this.yRanges[idx] = range.slice() as [number, number];
-      }
+      render.lastDomain = domain.slice() as [number | Date, number | Date];
+      render.lastRange = range.slice() as [number, number];
     }
   }
 
@@ -157,14 +124,12 @@ export class RenderState {
     }
     this.axes.x.scale = this.axisManager.x;
     const axisX = this.axes.x;
-    this.updateAxisIfChanged(
-      axisX as unknown as AxisRenderState,
-      { scale: axisX.scale } as unknown as AxisModel,
-      -1,
-    );
+    this.updateAxisIfChanged(axisX, {
+      scale: axisX.scale,
+    } as unknown as AxisModel);
     this.axisRenders.forEach((r, i) => {
       const model = this.axisManager.axes[i]!;
-      this.updateAxisIfChanged(r, model, i);
+      this.updateAxisIfChanged(r, model);
     });
   }
 
@@ -176,10 +141,13 @@ export class RenderState {
     this.series.length = 0;
 
     const axisX = this.axes.x;
-    if (axisX.g) {
-      axisX.g.remove();
-      axisX.g = undefined;
-    }
+    axisX.g.remove();
+    axisX.g = undefined as unknown as Selection<
+      SVGGElement,
+      unknown,
+      HTMLElement,
+      unknown
+    >;
 
     for (const r of this.axisRenders) {
       r.g.remove();
@@ -288,6 +256,16 @@ export function setupRender(
   xAxis.setScale(axisManager.x);
   const xAxisGroup = svg.append("g").attr("class", "axis");
   xAxisGroup.call(xAxis.axis.bind(xAxis));
+  const axisX: AxisDataX = {
+    axis: xAxis,
+    g: xAxisGroup,
+    scale: axisManager.x,
+    lastDomain: axisManager.x.domain().slice() as [
+      number | Date,
+      number | Date,
+    ],
+    lastRange: axisManager.x.range().slice() as [number, number],
+  };
 
   // Build render state for each Y axis separately from the model.
   const axisRenders: AxisRenderState[] = yAxes.map((a, i) => {
@@ -295,11 +273,16 @@ export function setupRender(
     const axis = createYAxis(orientation, a.scale, width);
     const g = svg.append("g").attr("class", "axis");
     g.call(axis.axis.bind(axis));
-    return { axis, g };
+    return {
+      axis,
+      g,
+      lastDomain: a.scale.domain().slice() as [number | Date, number | Date],
+      lastRange: a.scale.range().slice() as [number, number],
+    };
   });
 
   const axes: Axes = {
-    x: { axis: xAxis, g: xAxisGroup, scale: axisManager.x },
+    x: axisX,
     y: yAxes,
   };
   const dimensions: Dimensions = { width, height };
