@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { select } from "d3-selection";
 import type { Selection } from "d3-selection";
 import { zoomIdentity } from "d3-zoom";
@@ -17,6 +17,10 @@ import { polyfillDom } from "../test/setupDom.ts";
 import { LegendController } from "./LegendController.ts";
 
 await polyfillDom();
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 function createSvgAndLegend() {
   const { dom } = createDiv(
@@ -239,22 +243,29 @@ describe("LegendController", () => {
 
     vi.runAllTimers();
 
-    lc.highlightIndexRaf(1);
-    vi.runAllTimers();
-    const updateCalls = updateSpy.mock.calls.length;
+    try {
+      lc.highlightIndexRaf(1);
+      vi.runAllTimers();
+      const updateCalls = updateSpy.mock.calls.length;
 
-    lc.highlightIndexRaf(1);
-    vi.runAllTimers();
+      lc.highlightIndexRaf(1);
+      vi.runAllTimers();
 
-    expect(updateSpy.mock.calls.length).toBe(updateCalls);
-    expect(timeSpy).toHaveBeenCalledTimes(1);
-    expect(greenSpy).toHaveBeenCalledTimes(1);
-    expect(blueSpy).toHaveBeenCalledTimes(1);
-    expect(greenDisplaySpy).toHaveBeenCalledTimes(1);
-    expect(blueDisplaySpy).toHaveBeenCalledTimes(1);
-
-    updateSpy.mockRestore();
-    vi.useRealTimers();
-    lc.destroy();
+      expect(updateSpy.mock.calls.length).toBe(updateCalls);
+      expect(timeSpy).toHaveBeenCalledTimes(1);
+      expect(greenSpy).toHaveBeenCalledTimes(1);
+      expect(blueSpy).toHaveBeenCalledTimes(1);
+      expect(greenDisplaySpy).toHaveBeenCalledTimes(1);
+      expect(blueDisplaySpy).toHaveBeenCalledTimes(1);
+    } finally {
+      updateSpy.mockRestore();
+      timeSpy.mockRestore();
+      greenSpy.mockRestore();
+      blueSpy.mockRestore();
+      greenDisplaySpy.mockRestore();
+      blueDisplaySpy.mockRestore();
+      vi.useRealTimers();
+      lc.destroy();
+    }
   });
 });
