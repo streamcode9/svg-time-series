@@ -28,23 +28,25 @@ vi.mock("../utils/domNodeTransform.ts", () => ({
     nodeTransforms.set(node, matrix);
   },
 }));
-
-let currentDataLength = 0;
 const transformInstances: Array<{ onZoomPan: Mock }> = [];
+
+class MockViewportTransform {
+  dataLength: number;
+  matrix = new DOMMatrix();
+  constructor(dataLength: number) {
+    this.dataLength = dataLength;
+  }
+  onZoomPan = vi.fn();
+  fromScreenToModelX = vi.fn((x: number) => x);
+  fromScreenToModelBasisX = vi.fn(function (this: MockViewportTransform) {
+    return [0, Math.max(this.dataLength - 1, 0)] as [number, number];
+  });
+  onViewPortResize = vi.fn();
+  onReferenceViewWindowResize = vi.fn();
+}
+const ViewportTransform = vi.hoisted(() => vi.fn());
 vi.mock("../ViewportTransform.ts", () => ({
-  ViewportTransform: class {
-    constructor() {
-      transformInstances.push(this);
-    }
-    matrix = new DOMMatrix();
-    onZoomPan = vi.fn();
-    fromScreenToModelX = vi.fn((x: number) => x);
-    fromScreenToModelBasisX = vi.fn(
-      () => [0, Math.max(currentDataLength - 1, 0)] as [number, number],
-    );
-    onViewPortResize = vi.fn();
-    onReferenceViewWindowResize = vi.fn();
-  },
+  ViewportTransform,
 }));
 
 const axisInstances: Array<{ axisUpCalls: number; axisUp: Mock }> = [];
@@ -111,9 +113,8 @@ function createChart(
   data: Array<[number, number]>,
   formatTime?: (timestamp: number) => string,
 ) {
-  currentDataLength = data.length;
   const parent = document.createElement("div");
-  const w = Math.max(currentDataLength - 1, 0);
+  const w = Math.max(data.length - 1, 0);
   Object.defineProperty(parent, "clientWidth", {
     value: w,
     configurable: true,
@@ -147,6 +148,11 @@ function createChart(
     >,
     formatTime,
   );
+  ViewportTransform.mockImplementation(() => {
+    const instance = new MockViewportTransform(data.length);
+    transformInstances.push(instance);
+    return instance;
+  });
   const chart = new TimeSeriesChart(
     select(svgEl) as unknown as Selection<
       SVGSVGElement,
@@ -178,6 +184,7 @@ beforeEach(() => {
   (
     SVGSVGElement.prototype as unknown as { createSVGMatrix: () => DOMMatrix }
   ).createSVGMatrix = () => new DOMMatrix();
+  ViewportTransform.mockReset();
 });
 
 afterEach(() => {
@@ -387,6 +394,11 @@ describe("chart interaction", () => {
         unknown
       >,
     );
+    ViewportTransform.mockImplementation(() => {
+      const instance = new MockViewportTransform(source.length);
+      transformInstances.push(instance);
+      return instance;
+    });
     const chart = new TimeSeriesChart(
       select(svgEl) as unknown as Selection<
         SVGSVGElement,
