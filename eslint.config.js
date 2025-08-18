@@ -74,22 +74,21 @@ export default config(
       "prefer-spread": "error",
     },
   },
-    config(
-      nRecommended,
-      disableTypeChecked,
-      {
-        files: ["scripts/**", "**/*.config.*"],
-        settings: {
-          node: { version: ">=20.11.0" },
-        },
-        rules: {
-          "n/no-extraneous-import": "off",
-          "n/no-process-exit": "off",
-          "n/process-exit-as-throw": "off",
-          "n/no-unsupported-features/node-builtins": "off",
-        },
+    {
+      files: ["scripts/**", "**/*.config.*"],
+      ...nRecommended,
+      ...disableTypeChecked,
+      settings: {
+        node: { version: ">=20.11.0" },
       },
-    ),
+      rules: {
+        ...disableTypeChecked.rules,
+        "n/no-extraneous-import": "off",
+        "n/no-process-exit": "off",
+        "n/process-exit-as-throw": "off",
+        "n/no-unsupported-features/node-builtins": "off",
+      },
+    },
     {
       files: ["**/*.cjs", "**/vite.config.ts"],
       ...nodeOverride,
