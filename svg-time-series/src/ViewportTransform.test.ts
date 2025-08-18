@@ -122,6 +122,20 @@ describe("ViewportTransform", () => {
     expect(() => vt.fromScreenToModelY(0)).toThrow(/degenerate/);
   });
 
+  it("throws when the y domain collapses", () => {
+    const vt = new ViewportTransform();
+    vt.onViewPortResize([0, 100], [0, 100]);
+    vt.onReferenceViewWindowResize([0, 10], [5, 5]);
+    expect(() => vt.toScreenFromModelY(5)).toThrow(/degenerate/);
+  });
+
+  it("throws when the y range collapses in toScreenFromModelY", () => {
+    const vt = new ViewportTransform();
+    vt.onViewPortResize([0, 100], [50, 50]);
+    vt.onReferenceViewWindowResize([0, 10], [0, 10]);
+    expect(() => vt.toScreenFromModelY(0)).toThrow(/degenerate/);
+  });
+
   it("throws a helpful error when scale is zero", () => {
     const vt = new ViewportTransform();
 
