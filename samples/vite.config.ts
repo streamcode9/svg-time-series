@@ -11,7 +11,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "svg-time-series": path.resolve(__dirname, "../svg-time-series/src"),
+      "svg-time-series": path.resolve(
+        __dirname,
+        "../svg-time-series/src/draw.ts",
+      ),
     },
   },
   build: {
