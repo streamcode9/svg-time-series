@@ -1,13 +1,15 @@
 // @ts-check
 
-import { config, configs } from "typescript-eslint";
+const {
+  config,
+  configs: { disableTypeChecked, strictTypeChecked },
+} = await import("typescript-eslint");
 import prettierConfig from "eslint-config-prettier";
 import vitest from "@vitest/eslint-plugin";
 import globals from "globals";
 import importPlugin from "eslint-plugin-import";
 import n from "eslint-plugin-n";
 
-const disableTypeChecked = configs.disableTypeChecked;
 const nRecommended = n.configs["flat/recommended"];
 const [nodeOverride] = config(
   importPlugin.flatConfigs.typescript,
@@ -47,7 +49,7 @@ export default config(
       },
     },
   },
-  ...configs.strictTypeChecked,
+  ...strictTypeChecked,
   importPlugin.flatConfigs.typescript,
   prettierConfig,
   {
