@@ -96,6 +96,7 @@ export class ViewportTransform {
   }
 
   public toScreenFromModelX(x: number) {
+    this.assertNonDegenerate(this.scaleX);
     return this.scaleX(x);
   }
 
@@ -106,6 +107,7 @@ export class ViewportTransform {
   public toScreenFromModelBasisX(
     b: readonly [number, number],
   ): [number, number] {
+    this.assertNonDegenerate(this.scaleX);
     return [this.scaleX(b[0]), this.scaleX(b[1])];
   }
 
