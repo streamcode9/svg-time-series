@@ -39,6 +39,8 @@ export class TimeSeriesChart {
   private brushLayer: Selection<SVGGElement, unknown, HTMLElement, unknown>;
   private brushBehavior: BrushBehavior<unknown>;
   private selectedTimeWindow: [number, number] | null = null;
+  private zoomHandler: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
+  private zoomOptions: IZoomStateOptions | undefined;
 
   constructor(
     svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
@@ -78,6 +80,8 @@ export class TimeSeriesChart {
       .call(this.brushBehavior);
 
     this.legendController = legendController;
+    this.zoomHandler = zoomHandler;
+    this.zoomOptions = zoomOptions;
 
     const context = this.state.createLegendContext(this.data);
     this.legendController.init(context);
@@ -106,10 +110,8 @@ export class TimeSeriesChart {
         this.state.refresh(this.data, t);
         this.legendController.refresh();
       },
-      (event) => {
-        zoomHandler(event);
-      },
-      zoomOptions,
+      this.zoomHandler,
+      this.zoomOptions,
     );
 
     this.refreshAll();
@@ -142,6 +144,34 @@ export class TimeSeriesChart {
     }
     this.data.append(...values);
     this.refreshAll();
+  }
+
+  public resetData(source: IDataSource): void {
+    this.data.replace(source);
+    this.state.destroy();
+    this.state = setupRender(this.svg, this.data);
+    const svgNode = this.svg.node();
+    if (svgNode) {
+      svgNode.appendChild(this.zoomArea.node()!);
+      svgNode.appendChild(this.brushLayer.node()!);
+    }
+    const context = this.state.createLegendContext(this.data);
+    this.legendController.init(context);
+    this.zoomState.destroy();
+    this.zoomState = new ZoomState(
+      this.zoomArea,
+      this.state,
+      () => {
+        const t = zoomTransform(this.zoomArea.node()!);
+        this.state.refresh(this.data, t);
+        this.legendController.refresh();
+      },
+      this.zoomHandler,
+      this.zoomOptions,
+    );
+    this.refreshAll();
+    const { width } = this.state.getDimensions();
+    this.onHover(width - 1);
   }
 
   public dispose() {

@@ -548,4 +548,41 @@ describe("ChartData", () => {
     const treeC = cd.buildAxisTree(0);
     expect(treeC).not.toBe(treeA);
   });
+
+  it("replaces data source and rebuilds internal state", () => {
+    const cd = new ChartData(
+      makeSource(
+        [
+          [1, 2],
+          [3, 4],
+        ],
+        [0, 1],
+      ),
+    );
+    const oldWindow = cd.window;
+    const oldAxis0 = cd.axes[0];
+    const oldAxis1 = cd.axes[1];
+    const source2 = makeSource(
+      [
+        [5, 6, 7],
+        [8, 9, 10],
+      ],
+      [1, 0, 1],
+    );
+    cd.replace(source2);
+    expect(cd.data).toEqual([
+      [5, 6, 7],
+      [8, 9, 10],
+    ]);
+    expect(cd.seriesAxes).toEqual([1, 0, 1]);
+    expect(cd.seriesCount).toBe(3);
+    expect(cd.seriesByAxis[0]).toEqual([1]);
+    expect(cd.seriesByAxis[1]).toEqual([0, 2]);
+    expect(cd.window).not.toBe(oldWindow);
+    expect(cd.axes[0]).not.toBe(oldAxis0);
+    expect(cd.axes[1]).not.toBe(oldAxis1);
+    expect(cd.startTime).toBe(0);
+    expect(cd.timeStep).toBe(1);
+    expect(cd.length).toBe(2);
+  });
 });
