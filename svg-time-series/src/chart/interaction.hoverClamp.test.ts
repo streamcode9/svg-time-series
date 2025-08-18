@@ -15,17 +15,22 @@ vi.mock("../utils/domNodeTransform.ts", () => ({
   updateNode: (_node: SVGGraphicsElement, _matrix: DOMMatrix) => {},
 }));
 
-let currentDataLength = 0;
+class MockViewportTransform {
+  dataLength: number;
+  constructor(dataLength: number) {
+    this.dataLength = dataLength;
+  }
+  onZoomPan = vi.fn();
+  fromScreenToModelX = vi.fn((x: number) => x);
+  fromScreenToModelBasisX = vi.fn(function (this: MockViewportTransform) {
+    return [0, Math.max(this.dataLength - 1, 0)] as [number, number];
+  });
+  onViewPortResize = vi.fn();
+  onReferenceViewWindowResize = vi.fn();
+}
+const ViewportTransform = vi.hoisted(() => vi.fn());
 vi.mock("../ViewportTransform.ts", () => ({
-  ViewportTransform: class {
-    onZoomPan = vi.fn();
-    fromScreenToModelX = vi.fn((x: number) => x);
-    fromScreenToModelBasisX = vi.fn(
-      () => [0, Math.max(currentDataLength - 1, 0)] as [number, number],
-    );
-    onViewPortResize = vi.fn();
-    onReferenceViewWindowResize = vi.fn();
-  },
+  ViewportTransform,
 }));
 
 vi.mock("../axis.ts", () => ({
@@ -90,9 +95,8 @@ class StubLegendController implements ILegendController {
 }
 
 function createChart(data: Array<[number]>) {
-  currentDataLength = data.length;
   const parent = document.createElement("div");
-  const w = Math.max(currentDataLength - 1, 0);
+  const w = Math.max(data.length - 1, 0);
   Object.defineProperty(parent, "clientWidth", {
     value: w,
     configurable: true,
@@ -113,6 +117,10 @@ function createChart(data: Array<[number]>) {
   };
   const legendController = new StubLegendController();
 
+  ViewportTransform.mockImplementation(
+    () => new MockViewportTransform(data.length),
+  );
+
   const chart = new TimeSeriesChart(
     select(svgEl) as unknown as Selection<
       SVGSVGElement,
@@ -131,6 +139,7 @@ function createChart(data: Array<[number]>) {
 
 beforeEach(() => {
   vi.useFakeTimers();
+  ViewportTransform.mockReset();
 });
 
 afterEach(() => {
