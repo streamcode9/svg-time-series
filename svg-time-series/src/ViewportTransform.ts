@@ -50,43 +50,48 @@ export class ViewportTransform {
     return this;
   }
 
-  private assertInvertible(scale: ScaleLinear<number, number>) {
-    const k = this.zoomTransform.k;
+  private assertNonDegenerate(scale: ScaleLinear<number, number>) {
+    const m = this.composedMatrix;
+    const det = m.a * m.d - m.b * m.c;
     const [d0, d1] = scale.domain() as [number, number];
+    const [r0, r1] = scale.range() as [number, number];
     if (
-      !Number.isFinite(k) ||
-      Math.abs(k) < ViewportTransform.DET_EPSILON ||
+      !Number.isFinite(det) ||
+      Math.abs(det) < ViewportTransform.DET_EPSILON ||
       !Number.isFinite(d0) ||
       !Number.isFinite(d1) ||
-      Math.abs(d1 - d0) < ViewportTransform.DET_EPSILON
+      Math.abs(d1 - d0) < ViewportTransform.DET_EPSILON ||
+      !Number.isFinite(r0) ||
+      !Number.isFinite(r1) ||
+      Math.abs(r1 - r0) < ViewportTransform.DET_EPSILON
     ) {
       throw new Error(
-        "ViewportTransform: composed matrix is not invertible (determinant is zero)",
+        "ViewportTransform: transformation is degenerate (determinant is zero)",
       );
     }
   }
 
   public fromScreenToModelX(x: number) {
-    this.assertInvertible(this.scaleX);
+    this.assertNonDegenerate(this.scaleX);
     return this.scaleX.invert(x);
   }
 
   public fromScreenToModelY(y: number) {
-    this.assertInvertible(this.scaleY);
+    this.assertNonDegenerate(this.scaleY);
     return this.scaleY.invert(y);
   }
 
   public fromScreenToModelBasisX(
     b: readonly [number, number],
   ): [number, number] {
-    this.assertInvertible(this.scaleX);
+    this.assertNonDegenerate(this.scaleX);
     return [this.scaleX.invert(b[0]), this.scaleX.invert(b[1])];
   }
 
   public fromScreenToModelBasisY(
     b: readonly [number, number],
   ): [number, number] {
-    this.assertInvertible(this.scaleY);
+    this.assertNonDegenerate(this.scaleY);
     return [this.scaleY.invert(b[0]), this.scaleY.invert(b[1])];
   }
 
@@ -107,7 +112,7 @@ export class ViewportTransform {
   public toScreenFromModelBasisY(
     b: readonly [number, number],
   ): [number, number] {
-    this.assertInvertible(this.scaleY);
+    this.assertNonDegenerate(this.scaleY);
     return [this.scaleY(b[0]), this.scaleY(b[1])];
   }
 

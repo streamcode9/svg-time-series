@@ -108,6 +108,20 @@ describe("ViewportTransform", () => {
     expect(t2).toBeCloseTo(50);
   });
 
+  it("throws when the x range collapses", () => {
+    const vt = new ViewportTransform();
+    vt.onViewPortResize([0, 0], [0, 100]);
+    vt.onReferenceViewWindowResize([0, 10], [0, 10]);
+    expect(() => vt.fromScreenToModelX(0)).toThrow(/degenerate/);
+  });
+
+  it("throws when the y range collapses", () => {
+    const vt = new ViewportTransform();
+    vt.onViewPortResize([0, 100], [50, 50]);
+    vt.onReferenceViewWindowResize([0, 10], [0, 10]);
+    expect(() => vt.fromScreenToModelY(0)).toThrow(/degenerate/);
+  });
+
   it("throws a helpful error when scale is zero", () => {
     const vt = new ViewportTransform();
 
@@ -115,7 +129,7 @@ describe("ViewportTransform", () => {
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
 
     vt.onZoomPan(zoomIdentity.scale(0));
-    expect(() => vt.fromScreenToModelX(10)).toThrow(/not invertible/);
+    expect(() => vt.fromScreenToModelX(10)).toThrow(/degenerate/);
   });
 
   it("throws a helpful error when scale is near zero", () => {
@@ -125,6 +139,6 @@ describe("ViewportTransform", () => {
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
 
     vt.onZoomPan(zoomIdentity.scale(1e-15));
-    expect(() => vt.fromScreenToModelX(10)).toThrow(/not invertible/);
+    expect(() => vt.fromScreenToModelX(10)).toThrow(/degenerate/);
   });
 });
