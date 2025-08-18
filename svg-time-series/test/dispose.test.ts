@@ -26,10 +26,10 @@ await polyfillDom();
 
 function createLegend() {
   return {
-    init: vi.fn(),
-    highlightIndex: vi.fn(),
-    refresh: vi.fn(),
-    clearHighlight: vi.fn(),
+    init() {},
+    highlightIndex() {},
+    refresh() {},
+    clearHighlight() {},
     destroy: vi.fn(),
   };
 }
@@ -62,12 +62,12 @@ function createChart() {
     legend,
   );
 
-  return { chart, svgEl };
+  return { chart, svgEl, legend };
 }
 
 describe("TimeSeriesChart dispose", () => {
   it("removes zoom and brush elements", () => {
-    const { chart, svgEl } = createChart();
+    const { chart, svgEl, legend } = createChart();
 
     expect(svgEl.querySelector(".zoom-overlay")).not.toBeNull();
     expect(svgEl.querySelector(".brush-layer")).not.toBeNull();
@@ -76,5 +76,6 @@ describe("TimeSeriesChart dispose", () => {
 
     expect(svgEl.querySelector(".zoom-overlay")).toBeNull();
     expect(svgEl.querySelector(".brush-layer")).toBeNull();
+    expect(legend.destroy).toHaveBeenCalled();
   });
 });
