@@ -223,6 +223,37 @@ describe("RenderState.refresh", () => {
     });
   });
 
+  it("updates axis DOM when scales change", () => {
+    const svg = createSvg();
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: 3,
+      seriesAxes: [0],
+      getSeries: (i) => [1, 2, 3][i]!,
+    };
+    const data = new ChartData(source);
+    const state = setupRender(svg, data);
+
+    state.refresh(data, zoomIdentity);
+    vi.clearAllMocks();
+
+    state.refresh(data, zoomIdentity.scale(2));
+
+    const xAxis = state.axes.x.axis as unknown as {
+      setScale: Mock;
+      axisUp: Mock;
+    };
+    expect(xAxis.setScale).toHaveBeenCalledTimes(1);
+    expect(xAxis.axisUp).toHaveBeenCalledTimes(1);
+
+    state.axisRenders.forEach((r) => {
+      const axis = r.axis as unknown as { setScale: Mock; axisUp: Mock };
+      expect(axis.setScale).toHaveBeenCalledTimes(1);
+      expect(axis.axisUp).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it("throws when series is all Infinity", () => {
     const source: IDataSource = {
       startTime: 0,

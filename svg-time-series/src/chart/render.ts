@@ -110,6 +110,37 @@ export class RenderState {
     );
   }
 
+  private updateAxisIfChanged(
+    render: AxisRenderState,
+    model: AxisModel,
+    idx: number,
+  ): void {
+    const domain = model.scale.domain() as [number | Date, number | Date];
+    const range = model.scale.range() as [number, number];
+    const prevDomain =
+      idx === -1
+        ? this.xDomain
+        : (this.yDomains[idx] as [number | Date, number | Date]);
+    const prevRange =
+      idx === -1 ? this.xRange : (this.yRanges[idx] as [number, number]);
+    if (
+      +domain[0] !== +prevDomain[0] ||
+      +domain[1] !== +prevDomain[1] ||
+      range[0] !== prevRange[0] ||
+      range[1] !== prevRange[1]
+    ) {
+      render.axis.setScale(model.scale);
+      render.axis.axisUp(render.g);
+      if (idx === -1) {
+        this.xDomain = domain.slice() as [number | Date, number | Date];
+        this.xRange = range.slice() as [number, number];
+      } else {
+        this.yDomains[idx] = domain.slice() as [number | Date, number | Date];
+        this.yRanges[idx] = range.slice() as [number, number];
+      }
+    }
+  }
+
   public refresh(data: ChartData, transform: ZoomTransform): void {
     this.xTransform.onReferenceViewWindowResize(data.bIndexFull, [0, 1]);
 
@@ -126,34 +157,14 @@ export class RenderState {
     }
     this.axes.x.scale = this.axisManager.x;
     const axisX = this.axes.x;
-    const xDomain = axisX.scale.domain() as [number | Date, number | Date];
-    const xRange = axisX.scale.range() as [number, number];
-    if (
-      +xDomain[0] !== +this.xDomain[0] ||
-      +xDomain[1] !== +this.xDomain[1] ||
-      xRange[0] !== this.xRange[0] ||
-      xRange[1] !== this.xRange[1]
-    ) {
-      axisX.axis.setScale(axisX.scale);
-      axisX.axis.axisUp(axisX.g!);
-      this.xDomain = xDomain.slice() as [number | Date, number | Date];
-      this.xRange = xRange.slice() as [number, number];
-    }
+    this.updateAxisIfChanged(
+      axisX as unknown as AxisRenderState,
+      { scale: axisX.scale } as unknown as AxisModel,
+      -1,
+    );
     this.axisRenders.forEach((r, i) => {
       const model = this.axisManager.axes[i]!;
-      const domain = model.scale.domain() as [number | Date, number | Date];
-      const range = model.scale.range() as [number, number];
-      if (
-        +domain[0] !== +this.yDomains[i]![0] ||
-        +domain[1] !== +this.yDomains[i]![1] ||
-        range[0] !== this.yRanges[i]![0] ||
-        range[1] !== this.yRanges[i]![1]
-      ) {
-        r.axis.setScale(model.scale);
-        r.axis.axisUp(r.g);
-        this.yDomains[i] = domain.slice() as [number | Date, number | Date];
-        this.yRanges[i] = range.slice() as [number, number];
-      }
+      this.updateAxisIfChanged(r, model, i);
     });
   }
 
