@@ -32,6 +32,7 @@ vi.mock("./draw/brushUtils.ts", () => ({
 import { TimeSeriesChart } from "./draw.ts";
 import type { IDataSource } from "./draw.ts";
 import { clearBrushSelection } from "./draw/brushUtils.ts";
+import { SeriesRenderer } from "./chart/seriesRenderer.ts";
 import { polyfillDom } from "./setupDom.ts";
 await polyfillDom();
 
@@ -311,5 +312,44 @@ describe("TimeSeriesChart", () => {
       window1[0] = 100;
     }
     expect(chart.getSelectedTimeWindow()).toEqual([1, 2]);
+  });
+
+  it("resets data without recreating the svg container", () => {
+    const legend = createLegend();
+    const { chart, svgEl } = createChart({ legend });
+    const internal = chart as unknown as {
+      data: { replace: ReturnType<typeof vi.fn>; data: number[][] };
+      state: { destroy: ReturnType<typeof vi.fn> };
+      zoomState: { destroy: ReturnType<typeof vi.fn> };
+      svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
+    };
+    const oldState = internal.state;
+    const replaceSpy = vi.spyOn(internal.data, "replace");
+    const destroySpy = vi.spyOn(internal.state, "destroy");
+    const zoomDestroySpy = vi.spyOn(internal.zoomState, "destroy");
+    legend.init.mockClear();
+    legend.refresh.mockClear();
+    const drawSpy = vi.spyOn(SeriesRenderer.prototype, "draw");
+    drawSpy.mockClear();
+
+    const rows = [[10], [20]];
+    const source: IDataSource = {
+      startTime: 0,
+      timeStep: 1,
+      length: rows.length,
+      seriesAxes: [0],
+      getSeries: (i, j) => rows[i]![j]!,
+    };
+
+    chart.resetData(source);
+
+    expect(replaceSpy).toHaveBeenCalledWith(source);
+    expect(destroySpy).toHaveBeenCalledTimes(1);
+    expect(zoomDestroySpy).toHaveBeenCalledTimes(1);
+    expect((chart as unknown as { state: unknown }).state).not.toBe(oldState);
+    expect(internal.svg.node()).toBe(svgEl);
+    expect(legend.init).toHaveBeenCalledTimes(1);
+    expect(legend.refresh).toHaveBeenCalledTimes(1);
+    expect(drawSpy).toHaveBeenCalledWith(internal.data.data);
   });
 });
