@@ -70,10 +70,7 @@ describe("AxisManager", () => {
 
     const t = zoomIdentity.scale(2);
     axisManager.updateScales(t);
-    const dIndexVisible = data.dIndexFromTransform(
-      t,
-      axisManager.x.range() as [number, number],
-    );
+    const dIndexVisible = data.dIndexFromTransform(t);
     const { scale: baseScaleRaw } = data.axisTransform(0, dIndexVisible);
     const baseScale = baseScaleRaw.range(
       axisManager.axes[0]!.scale.range() as [number, number],
