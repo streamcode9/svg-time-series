@@ -200,6 +200,10 @@ export class TimeSeriesChart {
     let idx = Math.round(this.state.screenToModelX(x));
     idx = this.data.clampIndex(idx);
     const legend = this.legendController;
+    if (!Number.isFinite(idx)) {
+      legend.clearHighlight();
+      return;
+    }
     if (legend.highlightIndexRaf) {
       legend.highlightIndexRaf(idx);
     } else {
