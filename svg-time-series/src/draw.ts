@@ -25,6 +25,7 @@ export interface IPublicInteraction {
   setScaleExtent: (extent: [number, number]) => void;
   enableBrush: () => void;
   disableBrush: () => void;
+  zoomToTimeWindow: (start: Date | number, end: Date | number) => void;
   getSelectedTimeWindow: () => [number, number] | null;
 }
 
@@ -123,6 +124,7 @@ export class TimeSeriesChart {
       setScaleExtent: this.setScaleExtent,
       enableBrush: this.enableBrush,
       disableBrush: this.disableBrush,
+      zoomToTimeWindow: this.zoomToTimeWindow,
       getSelectedTimeWindow: this.getSelectedTimeWindow,
     };
   }
@@ -175,6 +177,30 @@ export class TimeSeriesChart {
   public disableBrush = () => {
     this.brushLayer.style("display", "none");
     this.clearBrush();
+  };
+
+  public zoomToTimeWindow = (start: Date | number, end: Date | number) => {
+    const startDate = typeof start === "number" ? new Date(start) : start;
+    const endDate = typeof end === "number" ? new Date(end) : end;
+    let m0 = this.data.timeToIndex(startDate);
+    let m1 = this.data.timeToIndex(endDate);
+    m0 = this.data.clampIndex(m0);
+    m1 = this.data.clampIndex(m1);
+    if (m1 < m0) {
+      [m0, m1] = [m1, m0];
+    }
+    const sx0 = this.state.axes.x.scale(m0);
+    const sx1 = this.state.axes.x.scale(m1);
+    if (m0 === m1 || sx0 === sx1) {
+      return;
+    }
+    const { width } = this.state.getDimensions();
+    const k = width / (sx1 - sx0);
+    const t = zoomIdentity.scale(k).translate(-sx0, 0);
+    this.zoomState.zoomBehavior.transform(this.zoomArea, t);
+    const t0 = +this.data.indexToTime(m0);
+    const t1 = +this.data.indexToTime(m1);
+    this.selectedTimeWindow = [t0, t1];
   };
 
   public getSelectedTimeWindow = (): [number, number] | null => {
