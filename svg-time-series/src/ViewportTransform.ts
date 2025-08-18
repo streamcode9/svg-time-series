@@ -101,6 +101,7 @@ export class ViewportTransform {
   }
 
   public toScreenFromModelY(y: number) {
+    this.assertNonDegenerate(this.scaleY);
     return this.scaleY(y);
   }
 
