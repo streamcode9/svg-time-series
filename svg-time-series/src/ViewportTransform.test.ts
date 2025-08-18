@@ -146,13 +146,13 @@ describe("ViewportTransform", () => {
     expect(() => vt.fromScreenToModelX(10)).toThrow(/degenerate/);
   });
 
-  it("throws a helpful error when scale is near zero", () => {
+  it("handles scale near zero without treating it as degenerate", () => {
     const vt = new ViewportTransform();
 
     vt.onViewPortResize([0, 100], [0, 100]);
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
 
     vt.onZoomPan(zoomIdentity.scale(1e-15));
-    expect(() => vt.fromScreenToModelX(10)).toThrow(/degenerate/);
+    expect(() => vt.fromScreenToModelX(10)).not.toThrow();
   });
 });

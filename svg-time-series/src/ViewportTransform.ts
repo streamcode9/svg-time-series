@@ -10,7 +10,7 @@ export class ViewportTransform {
   private zoomTransform: ZoomTransform = zoomIdentity;
   private composedMatrix: DOMMatrix = new DOMMatrix();
 
-  private static readonly DET_EPSILON = 1e-12;
+  private static readonly EPSILON = 1e-12;
 
   private updateScales() {
     this.scaleX = this.zoomTransform.rescaleX(this.baseScaleX);
@@ -51,23 +51,17 @@ export class ViewportTransform {
   }
 
   private assertNonDegenerate(scale: ScaleLinear<number, number>) {
-    const m = this.composedMatrix;
-    const det = m.a * m.d - m.b * m.c;
     const [d0, d1] = scale.domain() as [number, number];
     const [r0, r1] = scale.range() as [number, number];
     if (
-      !Number.isFinite(det) ||
-      Math.abs(det) < ViewportTransform.DET_EPSILON ||
       !Number.isFinite(d0) ||
       !Number.isFinite(d1) ||
-      Math.abs(d1 - d0) < ViewportTransform.DET_EPSILON ||
+      Math.abs(d1 - d0) < ViewportTransform.EPSILON ||
       !Number.isFinite(r0) ||
       !Number.isFinite(r1) ||
-      Math.abs(r1 - r0) < ViewportTransform.DET_EPSILON
+      Math.abs(r1 - r0) < ViewportTransform.EPSILON
     ) {
-      throw new Error(
-        "ViewportTransform: transformation is degenerate (determinant is zero)",
-      );
+      throw new Error("ViewportTransform: scale is degenerate");
     }
   }
 
