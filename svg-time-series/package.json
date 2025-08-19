@@ -12,6 +12,7 @@
     "dist/*"
   ],
   "main": "dist/draw.js",
+  "types": "dist/draw.d.ts",
   "type": "module",
   "dependencies": {
     "d3-brush": "^3.0.0",
