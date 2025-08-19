@@ -150,16 +150,19 @@ export async function initDemo(
       c.interaction.onHover(0);
     });
     const resetButton = document.getElementById("reset-zoom");
-    resetButton?.addEventListener("click", () => {
+    let resetHandler: (() => void) | null = null;
+    resetHandler = () => {
       charts.forEach((c) => {
         c.interaction.resetZoom();
       });
-    });
+    };
+    resetButton?.addEventListener("click", resetHandler);
 
     const brushButton = document.getElementById("toggle-brush");
+    let brushHandler: (() => void) | null = null;
     if (brushButton) {
       let brushEnabled = false;
-      brushButton.addEventListener("click", () => {
+      brushHandler = () => {
         brushEnabled = !brushEnabled;
         charts.forEach((c) => {
           if (brushEnabled) {
@@ -171,7 +174,8 @@ export async function initDemo(
         brushButton.textContent = brushEnabled
           ? "Disable Brush"
           : "Enable Brush";
-      });
+      };
+      brushButton.addEventListener("click", brushHandler);
     }
 
     let disposed = false;
@@ -185,6 +189,14 @@ export async function initDemo(
         if (resizeListener) {
           window.removeEventListener("resize", resizeListener);
           resizeListener = null;
+        }
+        if (resetButton && resetHandler) {
+          resetButton.removeEventListener("click", resetHandler);
+          resetHandler = null;
+        }
+        if (brushButton && brushHandler) {
+          brushButton.removeEventListener("click", brushHandler);
+          brushHandler = null;
         }
       }
     };
