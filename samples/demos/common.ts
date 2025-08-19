@@ -82,19 +82,21 @@ export function drawCharts(
   return charts;
 }
 
-export function onCsv(f: (csv: [number, number][]) => void): void {
-  csv("./ny-vs-sf.csv")
-    .row((d: { NY: string; SF: string }) => [
-      parseFloat(d.NY.split(";")[0]),
-      parseFloat(d.SF.split(";")[0]),
-    ])
-    .get((error: Error | null, data: [number, number][]) => {
-      if (error != null) {
-        alert("Data can't be downloaded or parsed");
-        return;
-      }
-      f(data);
-    });
+export function onCsv(): Promise<[number, number][]> {
+  return new Promise((resolve, reject) => {
+    csv("./ny-vs-sf.csv")
+      .row((d: { NY: string; SF: string }) => [
+        parseFloat(d.NY.split(";")[0]),
+        parseFloat(d.SF.split(";")[0]),
+      ])
+      .get((error: Error | null, data: [number, number][]) => {
+        if (error != null) {
+          reject(error);
+          return;
+        }
+        resolve(data);
+      });
+  });
 }
 
 interface Resize {
@@ -106,32 +108,32 @@ interface Resize {
 
 const resize: Resize = { interval: 60, request: null, timer: null, eval: null };
 
-export function loadAndDraw(
+export async function loadAndDraw(
   seriesAxes: number[] = [0, 0],
 ): Promise<TimeSeriesChart[]> {
-  return new Promise((resolve) => {
-    onCsv((data: [number, number][]) => {
-      let charts = drawCharts(data, seriesAxes);
+  const data = await onCsv();
+  let charts = drawCharts(data, seriesAxes);
 
-      resize.request = function () {
-        if (resize.timer) clearTimeout(resize.timer);
-        resize.timer = setTimeout(() => {
-          resize.eval?.();
-        }, resize.interval);
-      };
-      resize.eval = function () {
-        selectAll("svg").remove();
-        selectAll(".chart-drawing").append("svg");
-        charts = drawCharts(data, seriesAxes);
-      };
+  resize.request = function () {
+    if (resize.timer) clearTimeout(resize.timer);
+    resize.timer = setTimeout(() => {
+      resize.eval?.();
+    }, resize.interval);
+  };
+  resize.eval = function () {
+    selectAll("svg").remove();
+    selectAll(".chart-drawing").append("svg");
+    charts = drawCharts(data, seriesAxes);
+  };
 
-      resolve(charts);
-    });
-  });
+  return charts;
 }
 
-export function initDemo(seriesAxes: number[]): Promise<TimeSeriesChart[]> {
-  return loadAndDraw(seriesAxes).then((charts) => {
+export async function initDemo(
+  seriesAxes: number[],
+): Promise<TimeSeriesChart[] | undefined> {
+  try {
+    const charts = await loadAndDraw(seriesAxes);
     charts.forEach((c) => {
       c.interaction.onHover(0);
     });
@@ -161,5 +163,8 @@ export function initDemo(seriesAxes: number[]): Promise<TimeSeriesChart[]> {
     }
 
     return charts;
-  });
+  } catch {
+    alert("Data can't be downloaded or parsed");
+    return undefined;
+  }
 }

@@ -1,3 +1,7 @@
 import { initDemo } from "./common.ts";
 
-void initDemo([0, 1]);
+async function init(): Promise<void> {
+  await initDemo([0, 1]);
+}
+
+void init();
