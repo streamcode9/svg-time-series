@@ -130,6 +130,38 @@ describe("ChartData", () => {
     expect(cd.getPoint(1).timestamp).toBe(2);
   });
 
+  describe("append validation", () => {
+    const makeCd = () => new ChartData(makeSource([[0, 0]], [0, 1]));
+
+    it("accepts values matching series count", () => {
+      const cd = makeCd();
+      expect(() => {
+        cd.append(1, 2);
+      }).not.toThrow();
+      expect(cd.data).toEqual([[1, 2]]);
+    });
+
+    it("throws when value count does not match series count", () => {
+      const cd = makeCd();
+      expect(() => {
+        cd.append(1);
+      }).toThrow(/expected 2 values; received 1/);
+      expect(() => {
+        cd.append(1, 2, 3);
+      }).toThrow(/expected 2 values; received 3/);
+    });
+
+    it("throws when values are not finite numbers", () => {
+      const cd = makeCd();
+      expect(() => {
+        cd.append(1, NaN);
+      }).toThrow(/values\[1\]/);
+      expect(() => {
+        cd.append(Infinity, 1);
+      }).toThrow(/values\[0\]/);
+    });
+  });
+
   it("provides clamped point data and timestamp", () => {
     const cd = new ChartData(
       makeSource(
@@ -255,7 +287,7 @@ describe("ChartData", () => {
     const cd = new ChartData(source);
     expect(() => {
       cd.append(undefined as unknown as number, 2);
-    }).toThrow(/series 0/);
+    }).toThrow(/values\[0\]/);
   });
 
   it("throws when sf is invalid", () => {
@@ -269,7 +301,7 @@ describe("ChartData", () => {
     const cd = new ChartData(source);
     expect(() => {
       cd.append(2, undefined as unknown as number);
-    }).toThrow(/series 1/);
+    }).toThrow(/values\[1\]/);
   });
 
   it("computes visible temperature bounds", () => {

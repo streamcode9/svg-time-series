@@ -109,6 +109,14 @@ export class ChartData {
   }
 
   append(...values: number[]): void {
+    if (values.length !== this.seriesCount) {
+      throw new Error(
+        `ChartData.append expected ${String(this.seriesCount)} values; received ${String(values.length)}`,
+      );
+    }
+    values.forEach((v, i) => {
+      assertFiniteNumber(v, `ChartData.append values[${String(i)}]`);
+    });
     this.window.append(...values);
     this.axes.forEach((a) => {
       a.invalidate();
