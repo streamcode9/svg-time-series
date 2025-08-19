@@ -114,6 +114,22 @@ chart.interaction.setScaleExtent([1, 80]);
 To remove event listeners and DOM nodes when the chart is no longer needed,
 call `chart.interaction.dispose()`.
 
+### Listening to interactions
+
+You can react to zoom and brush events without using the lower-level event
+emitter. Assign callbacks directly on the interaction API and query the current
+zoom state when needed:
+
+```ts
+chart.interaction.onZoom = () => {
+  console.log(chart.interaction.getZoomTransform());
+};
+
+chart.interaction.onBrushEnd = (range) => {
+  console.log("Brushed range", range);
+};
+```
+
 ## Secrets of Speed
 
 - No legacy

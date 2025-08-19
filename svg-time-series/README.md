@@ -63,6 +63,21 @@ the length of `seriesAxes` determines how many series are available.
 The third argument lets you supply a custom legend controller. See
 `samples/LegendController.ts` for a reference implementation.
 
+### Interaction callbacks
+
+Register optional hooks to respond to zooming or brush selection. The current
+zoom transform can be queried via `getZoomTransform`.
+
+```ts
+chart.interaction.onZoom = () => {
+  console.log(chart.interaction.getZoomTransform());
+};
+
+chart.interaction.onBrushEnd = (range) => {
+  console.log("Selected range", range);
+};
+```
+
 ## Demos
 
 To explore complete examples with zooming and real-time updates, run the demos in [`samples`](../samples).
