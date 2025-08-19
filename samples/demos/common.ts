@@ -57,12 +57,20 @@ export function drawCharts(
       svg,
       source,
       legendController,
-      (event: D3ZoomEvent<SVGRectElement, unknown>) => {
-        onZoom(chart, event);
-      },
+      undefined,
       onMouseMove,
     );
     charts.push(chart);
+    chart.interaction.onZoom = (
+      event: D3ZoomEvent<SVGRectElement, unknown>,
+    ) => {
+      onZoom(chart, event);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      console.log("Zoom transform:", chart.interaction.getZoomTransform());
+    };
+    chart.interaction.onBrushEnd = (timeWindow) => {
+      console.log("Brushed window:", timeWindow);
+    };
   };
 
   selectAll(".chart").each(onSelectChart);

@@ -1,5 +1,5 @@
 import type { Selection } from "d3-selection";
-import type { D3ZoomEvent } from "d3-zoom";
+import type { D3ZoomEvent, ZoomTransform } from "d3-zoom";
 import { zoomIdentity, zoomTransform } from "d3-zoom";
 import { brushX, type BrushBehavior, type D3BrushEvent } from "d3-brush";
 import { clearBrushSelection } from "./draw/brushUtils.ts";
@@ -31,6 +31,9 @@ export interface IPublicInteraction {
   disableBrush: () => void;
   zoomToTimeWindow: (start: Date | number, end: Date | number) => boolean;
   getSelectedTimeWindow: () => [number, number] | null;
+  getZoomTransform: () => ZoomTransform;
+  onZoom?: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
+  onBrushEnd?: (timeWindow: [number, number] | null) => void;
   dispose: () => void;
   on: (eventName: ChartEvent, handler: ChartEventHandler) => void;
   off: (eventName: ChartEvent, handler: ChartEventHandler) => void;
@@ -121,6 +124,7 @@ export class TimeSeriesChart {
       },
       (e) => {
         this.zoomHandler(e);
+        this.publicInteraction.onZoom?.(e);
         this.emit("zoom", e);
       },
       this.zoomOptions,
@@ -138,6 +142,7 @@ export class TimeSeriesChart {
       disableBrush: this.disableBrush,
       zoomToTimeWindow: this.zoomToTimeWindow,
       getSelectedTimeWindow: this.getSelectedTimeWindow,
+      getZoomTransform: this.getZoomTransform,
       dispose: this.dispose,
       on: this.on,
       off: this.off,
@@ -280,6 +285,10 @@ export class TimeSeriesChart {
       : null;
   };
 
+  public getZoomTransform = (): ZoomTransform => {
+    return zoomTransform(this.zoomArea.node()!);
+  };
+
   public resize = (dimensions: { width: number; height: number }) => {
     const { width, height } = dimensions;
     this.svg.attr("width", width).attr("height", height);
@@ -323,6 +332,7 @@ export class TimeSeriesChart {
     );
     clearBrushSelection(this.brushBehavior, this.brushLayer);
     this.selectedTimeWindow = timeWindow;
+    this.publicInteraction.onBrushEnd?.(timeWindow);
     this.emit("brushEnd", timeWindow);
   };
 
