@@ -51,6 +51,9 @@ const chart = new TimeSeriesChart(
 );
 ```
 
+When the chart is no longer needed, release its resources by calling
+`chart.interaction.dispose()`.
+
 `getSeries` returns a value for the requested series index. Any number of
 series may be provided, but each must be assigned to either the left or right Y
 axis by specifying 0 or 1 in `seriesAxes`. Axis index `0` corresponds to the

@@ -72,7 +72,7 @@ describe("TimeSeriesChart dispose", () => {
     expect(svgEl.querySelector(".zoom-overlay")).not.toBeNull();
     expect(svgEl.querySelector(".brush-layer")).not.toBeNull();
 
-    chart.dispose();
+    chart.interaction.dispose();
 
     expect(svgEl.querySelector(".zoom-overlay")).toBeNull();
     expect(svgEl.querySelector(".brush-layer")).toBeNull();
