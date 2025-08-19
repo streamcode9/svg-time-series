@@ -57,7 +57,7 @@ describe("interaction.zoomToTimeWindow", () => {
     const chart = createChart();
     const interaction = chart.interaction;
 
-    interaction.zoomToTimeWindow(1, 3);
+    const ok = interaction.zoomToTimeWindow(1, 3);
 
     const internal = chart as unknown as {
       data: { timeToIndex: (d: Date) => number };
@@ -75,8 +75,21 @@ describe("interaction.zoomToTimeWindow", () => {
     const k = width / (sx1 - sx0);
     const expected = zoomIdentity.scale(k).translate(-sx0, 0);
     const t = zoomTransform(internal.zoomArea.node()!);
+    expect(ok).toBe(true);
     expect(t.k).toBeCloseTo(expected.k);
     expect(t.x).toBeCloseTo(expected.x);
     expect(interaction.getSelectedTimeWindow()).toEqual([1, 3]);
+  });
+
+  it("returns false and clears selection for invalid window", () => {
+    const chart = createChart();
+    const interaction = chart.interaction;
+
+    expect(interaction.zoomToTimeWindow(1, 3)).toBe(true);
+    expect(interaction.getSelectedTimeWindow()).toEqual([1, 3]);
+
+    const ok = interaction.zoomToTimeWindow(1, 1);
+    expect(ok).toBe(false);
+    expect(interaction.getSelectedTimeWindow()).toBeNull();
   });
 });
