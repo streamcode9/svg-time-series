@@ -1,4 +1,4 @@
-import { csv } from "d3-request";
+import { csv } from "d3-fetch";
 
 import { line } from "d3-shape";
 import { select, selectAll, type Selection } from "d3-selection";
@@ -6,17 +6,11 @@ import * as draw from "./draw.ts";
 import * as drawModelCS from "./drawModelCS.ts";
 
 const startDate = new Date();
-csv("../../demos/ny-vs-sf.csv")
-  .row((d: { NY: string; SF: string }) => [
-    parseFloat(d.NY.split(";")[0]),
-    parseFloat(d.SF.split(";")[0]),
-  ])
-  .get((error: Error | null, data: number[][]) => {
-    if (error != null) {
-      console.error("Data can't be downloaded or parsed");
-      return;
-    }
-
+csv("../../demos/ny-vs-sf.csv", (d: { NY: string; SF: string }) => [
+  parseFloat(d.NY.split(";")[0]),
+  parseFloat(d.SF.split(";")[0]),
+])
+  .then((data: number[][]) => {
     const onPath = (
       path: Selection<SVGPathElement, number[], SVGGElement, unknown>,
     ) => {
@@ -54,6 +48,9 @@ csv("../../demos/ny-vs-sf.csv")
         data.length,
       );
     });
+  })
+  .catch(() => {
+    console.error("Data can't be downloaded or parsed");
   });
 
 function calcDate(index: number, offset: Date, step: number) {
