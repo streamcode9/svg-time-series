@@ -21,17 +21,10 @@ function scaleYRange(
   const startIdx = Math.floor(Math.min(i0, i1));
   const endIdx = Math.ceil(Math.max(i0, i1));
   const { min, max } = tree.query(startIdx, endIdx);
-  let y0 = Math.min(min, max);
-  let y1 = Math.max(min, max);
-  if (!Number.isFinite(y0) || !Number.isFinite(y1)) {
-    y0 = 0;
-    y1 = 1;
-  } else if (y0 === y1) {
-    const epsilon = 0.5;
-    y0 -= epsilon;
-    y1 += epsilon;
-  }
-  return [y0, y1];
+  const [y0, y1] = extent([min, max]);
+  return Number.isFinite(y0 ?? NaN) && Number.isFinite(y1 ?? NaN)
+    ? ([y0!, y1!] as [number, number])
+    : [0, 0];
 }
 
 export function scaleY(
@@ -39,8 +32,9 @@ export function scaleY(
   bIndexVisible: readonly [number, number],
   tree: SegmentTree<IMinMax>,
 ): ScaleLinear<number, number> {
-  const [y0, y1] = scaleYRange(window, bIndexVisible, tree);
-  return scaleLinear<number, number>().domain([y0, y1]).nice();
+  return scaleLinear<number, number>()
+    .domain(scaleYRange(window, bIndexVisible, tree))
+    .nice();
 }
 
 export class AxisData {
