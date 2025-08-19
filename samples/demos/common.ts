@@ -1,4 +1,4 @@
-import { csv } from "d3-request";
+import { csv } from "d3-fetch";
 import type { ValueFn } from "d3-selection";
 import { select, selectAll, pointer } from "d3-selection";
 import type { D3ZoomEvent } from "d3-zoom";
@@ -73,21 +73,16 @@ export function drawCharts(
   return charts;
 }
 
-export function onCsv(): Promise<[number, number][]> {
-  return new Promise((resolve, reject) => {
-    csv("./ny-vs-sf.csv")
-      .row((d: { NY: string; SF: string }) => [
-        parseFloat(d.NY.split(";")[0]),
-        parseFloat(d.SF.split(";")[0]),
-      ])
-      .get((error: Error | null, data: [number, number][]) => {
-        if (error != null) {
-          reject(error);
-          return;
-        }
-        resolve(data);
-      });
-  });
+export async function onCsv(): Promise<[number, number][]> {
+  try {
+    const rows = (await csv("./ny-vs-sf.csv")) as { NY: string; SF: string }[];
+    return rows.map(({ NY, SF }) => [
+      parseFloat(NY.split(";")[0]),
+      parseFloat(SF.split(";")[0]),
+    ]);
+  } catch (error) {
+    throw error instanceof Error ? error : new Error(String(error));
+  }
 }
 
 interface Resize {

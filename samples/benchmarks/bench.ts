@@ -1,20 +1,18 @@
-import { csv } from "d3-request";
+import { csv } from "d3-fetch";
 import { timer as runTimer } from "d3-timer";
 
 export { measure, measureOnce } from "../measure.ts";
 
 export function onCsv(f: (csv: number[][]) => void): void {
-  csv("../../demos/ny-vs-sf.csv")
-    .row((d: { NY: string; SF: string }) => [
-      parseFloat(d.NY.split(";")[0]),
-      parseFloat(d.SF.split(";")[0]),
-    ])
-    .get((error: Error | null, data: number[][]) => {
-      if (error != null) {
-        console.error("Data can't be downloaded or parsed");
-        return;
-      }
+  csv("../../demos/ny-vs-sf.csv", (d: { NY: string; SF: string }) => [
+    parseFloat(d.NY.split(";")[0]),
+    parseFloat(d.SF.split(";")[0]),
+  ])
+    .then((data: number[][]) => {
       f(data);
+    })
+    .catch(() => {
+      console.error("Data can't be downloaded or parsed");
     });
 }
 

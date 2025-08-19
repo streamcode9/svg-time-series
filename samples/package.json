@@ -14,14 +14,14 @@
   "description": "",
   "dependencies": {
     "buffer": "^6.0.3",
-    "d3-request": "^1.0.6",
+    "d3-fetch": "^3.0.1",
     "plotly.js": "^3.1.0"
   },
   "devDependencies": {
     "@types/d3-array": "^3.2.1",
     "@types/d3-axis": "^3.0.6",
     "@types/d3-dsv": "^3.0.7",
-    "@types/d3-request": "^1.0.1",
+    "@types/d3-fetch": "^3.0.7",
     "@types/plotly.js": "^3.0.3"
   }
 }
