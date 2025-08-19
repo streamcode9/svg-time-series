@@ -21,10 +21,11 @@ function scaleYRange(
   const startIdx = Math.floor(Math.min(i0, i1));
   const endIdx = Math.ceil(Math.max(i0, i1));
   const { min, max } = tree.query(startIdx, endIdx);
-  const [y0, y1] = extent([min, max]);
-  return Number.isFinite(y0 ?? NaN) && Number.isFinite(y1 ?? NaN)
-    ? ([y0!, y1!] as [number, number])
-    : [0, 0];
+  const [y0 = NaN, y1 = NaN] = extent([min, max]);
+  if (!Number.isFinite(y0) || !Number.isFinite(y1)) {
+    return [0, 0];
+  }
+  return y0 === y1 ? [y0 - 0.5, y1 + 0.5] : [y0, y1];
 }
 
 export function scaleY(
