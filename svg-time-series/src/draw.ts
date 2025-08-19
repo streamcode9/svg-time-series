@@ -191,6 +191,7 @@ export class TimeSeriesChart {
       },
       (e) => {
         this.zoomHandler(e);
+        this.publicInteraction.onZoom?.(e);
         this.emit("zoom", e);
       },
       this.zoomOptions,
