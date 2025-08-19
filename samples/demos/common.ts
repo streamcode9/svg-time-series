@@ -65,7 +65,6 @@ export function drawCharts(
       event: D3ZoomEvent<SVGRectElement, unknown>,
     ) => {
       onZoom(chart, event);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       console.log("Zoom transform:", chart.interaction.getZoomTransform());
     };
     chart.interaction.onBrushEnd = (timeWindow) => {
