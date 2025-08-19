@@ -422,7 +422,7 @@ describe("chart interaction", () => {
     zoomRect.dispatchEvent(new MouseEvent("mousemove"));
     expect(mouseMoveHandler).toHaveBeenCalledTimes(1);
 
-    chart.dispose();
+    chart.interaction.dispose();
 
     expect(destroySpy).toHaveBeenCalled();
 

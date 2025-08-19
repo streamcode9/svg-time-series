@@ -28,6 +28,7 @@ export interface IPublicInteraction {
   disableBrush: () => void;
   zoomToTimeWindow: (start: Date | number, end: Date | number) => void;
   getSelectedTimeWindow: () => [number, number] | null;
+  dispose: () => void;
 }
 
 export class TimeSeriesChart {
@@ -42,6 +43,7 @@ export class TimeSeriesChart {
   private selectedTimeWindow: [number, number] | null = null;
   private zoomHandler: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
   private zoomOptions: IZoomStateOptions | undefined;
+  private readonly publicInteraction: IPublicInteraction;
 
   constructor(
     svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
@@ -117,10 +119,8 @@ export class TimeSeriesChart {
 
     this.refreshAll();
     this.onHover(width - 1);
-  }
 
-  public get interaction(): IPublicInteraction {
-    return {
+    this.publicInteraction = {
       zoom: this.zoom,
       onHover: this.onHover,
       resetZoom: this.resetZoom,
@@ -129,7 +129,12 @@ export class TimeSeriesChart {
       disableBrush: this.disableBrush,
       zoomToTimeWindow: this.zoomToTimeWindow,
       getSelectedTimeWindow: this.getSelectedTimeWindow,
+      dispose: this.dispose,
     };
+  }
+
+  public get interaction(): IPublicInteraction {
+    return this.publicInteraction;
   }
 
   public updateChartWithNewData(values: number[]): void {
@@ -175,7 +180,7 @@ export class TimeSeriesChart {
     this.onHover(width - 1);
   }
 
-  public dispose() {
+  public dispose = () => {
     this.zoomState.destroy();
     this.zoomArea
       .on("mousemove", null)
@@ -186,7 +191,7 @@ export class TimeSeriesChart {
     this.state.destroy();
     this.zoomArea.remove();
     this.legendController.destroy();
-  }
+  };
 
   public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
     this.zoomState.zoom(event);

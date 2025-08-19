@@ -111,6 +111,9 @@ You can change the allowed zoom range at runtime by calling
 chart.interaction.setScaleExtent([1, 80]);
 ```
 
+To remove event listeners and DOM nodes when the chart is no longer needed,
+call `chart.interaction.dispose()`.
+
 ## Secrets of Speed
 
 - No legacy

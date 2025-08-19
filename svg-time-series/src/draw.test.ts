@@ -235,7 +235,7 @@ describe("TimeSeriesChart", () => {
     expect(mouseMove).toHaveBeenCalled();
 
     mouseMove.mockClear();
-    chart.dispose();
+    chart.interaction.dispose();
     rectNode.dispatchEvent(new MouseEvent("mousemove"));
 
     expect(mouseMove).not.toHaveBeenCalled();
