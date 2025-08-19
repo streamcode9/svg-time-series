@@ -617,4 +617,41 @@ describe("ChartData", () => {
     expect(cd.timeStep).toBe(1);
     expect(cd.length).toBe(2);
   });
+
+  it("matches new instance state after replace", () => {
+    const source1 = makeSource(
+      [
+        [1, 2],
+        [3, 4],
+      ],
+      [0, 1],
+    );
+    const source2 = makeSource(
+      [
+        [5, 6, 7],
+        [8, 9, 10],
+      ],
+      [1, 0, 1],
+    );
+    const cd = new ChartData(source1);
+    cd.replace(source2);
+    const expected = new ChartData(source2);
+    expect(cd.seriesAxes).toEqual(expected.seriesAxes);
+    expect(cd.seriesByAxis).toEqual(expected.seriesByAxis);
+    expect(cd.seriesCount).toBe(expected.seriesCount);
+    expect(cd.startTime).toBe(expected.startTime);
+    expect(cd.timeStep).toBe(expected.timeStep);
+    expect(cd.data).toEqual(expected.data);
+    expect(cd.length).toBe(expected.length);
+    const tree0 = cd.buildAxisTree(0);
+    const tree0Expected = expected.buildAxisTree(0);
+    expect(tree0.query(0, cd.length - 1)).toEqual(
+      tree0Expected.query(0, expected.length - 1),
+    );
+    const tree1 = cd.buildAxisTree(1);
+    const tree1Expected = expected.buildAxisTree(1);
+    expect(tree1.query(0, cd.length - 1)).toEqual(
+      tree1Expected.query(0, expected.length - 1),
+    );
+  });
 });

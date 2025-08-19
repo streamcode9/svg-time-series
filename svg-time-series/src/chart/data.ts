@@ -47,43 +47,25 @@ export class ChartData {
   }
 
   public readonly seriesByAxis: [number[], number[]] = [[], []];
-  public seriesAxes: number[];
-  public seriesCount: number;
-  public startTime: number;
-  public timeStep: number;
-  public window: DataWindow;
-  public axes: [AxisData, AxisData];
+  public seriesAxes!: number[];
+  public seriesCount!: number;
+  public startTime!: number;
+  public timeStep!: number;
+  public window!: DataWindow;
+  public axes!: [AxisData, AxisData];
 
   constructor(source: IDataSource) {
     ChartData.validateSource(source);
-    this.seriesAxes = source.seriesAxes;
-    this.seriesCount = this.seriesAxes.length;
-    this.seriesAxes.forEach((axis, axisIdx) =>
-      this.seriesByAxis[axis as 0 | 1].push(axisIdx),
-    );
-    const initialData = Array.from({ length: source.length }).map((_, i) =>
-      Array.from({ length: this.seriesCount }).map((_, j) =>
-        source.getSeries(i, j),
-      ),
-    );
-    this.window = new DataWindow(
-      initialData,
-      source.startTime,
-      source.timeStep,
-    );
-    this.startTime = this.window.startTime;
-    this.timeStep = this.window.timeStep;
-    this.axes = [
-      new AxisData(this.window, this.seriesByAxis[0]),
-      new AxisData(this.window, this.seriesByAxis[1]),
-    ];
+    this.initializeFromSource(source);
   }
 
   replace(source: IDataSource): void {
     ChartData.validateSource(source);
+    this.initializeFromSource(source);
+  }
 
-    this.seriesAxes.length = 0;
-    this.seriesAxes.push(...source.seriesAxes);
+  private initializeFromSource(source: IDataSource): void {
+    this.seriesAxes = [...source.seriesAxes];
     this.seriesCount = this.seriesAxes.length;
 
     this.seriesByAxis[0].length = 0;
@@ -104,8 +86,10 @@ export class ChartData {
     );
     this.startTime = this.window.startTime;
     this.timeStep = this.window.timeStep;
-    this.axes[0] = new AxisData(this.window, this.seriesByAxis[0]);
-    this.axes[1] = new AxisData(this.window, this.seriesByAxis[1]);
+    this.axes = [
+      new AxisData(this.window, this.seriesByAxis[0]),
+      new AxisData(this.window, this.seriesByAxis[1]),
+    ];
   }
 
   append(...values: number[]): void {
