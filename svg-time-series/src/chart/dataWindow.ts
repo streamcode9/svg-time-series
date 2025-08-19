@@ -1,5 +1,5 @@
-import { scaleLinear } from "d3-scale";
-import type { ScaleLinear } from "d3-scale";
+import { scaleUtc } from "d3-scale";
+import type { ScaleTime } from "d3-scale";
 import type { ZoomTransform } from "d3-zoom";
 
 import { SlidingWindow } from "./slidingWindow.ts";
@@ -10,12 +10,12 @@ export class DataWindow {
   public readonly startTime: number;
   public readonly timeStep: number;
   /**
-   * Persistent mapping from window-relative index to timestamp.
-   * Domain remains [0, 1] and the range shifts forward with the
+   * Persistent mapping between timestamps and indices.
+   * Domain represents the time range and shifts forward with the
    * sliding window to avoid recreating the scale on every query.
    */
-  public readonly indexToTime: ScaleLinear<number, number>;
-  private readonly indexToRange: ScaleLinear<number, number>;
+  private readonly timeScale: ScaleTime<number, number>;
+  private timeRange: [number, number];
   public readonly bIndexFull: readonly [number, number];
 
   constructor(initialData: number[][], startTime: number, timeStep: number) {
@@ -23,22 +23,23 @@ export class DataWindow {
     this.startTime = startTime;
     this.timeStep = timeStep;
     this.bIndexFull = [0, this.window.length - 1];
-    this.indexToTime = scaleLinear<number, number>()
+    this.timeScale = scaleUtc<number, number>()
       .clamp(true)
-      .domain(this.bIndexFull)
-      .range([
-        this.startTime,
-        this.startTime + (this.window.length - 1) * this.timeStep,
-      ]);
-    this.indexToRange = scaleLinear<number, number>()
-      .domain(this.bIndexFull)
-      .range([0, 1]);
+      .domain([
+        new Date(this.startTime),
+        new Date(this.startTime + (this.window.length - 1) * this.timeStep),
+      ])
+      .range(this.bIndexFull);
+    this.timeRange = [0, 1];
   }
 
   append(...values: number[]): void {
     this.window.append(...values);
-    const [r0, r1] = this.indexToTime.range() as [number, number];
-    this.indexToTime.range([r0 + this.timeStep, r1 + this.timeStep]);
+    const [d0, d1] = this.timeScale.domain() as [Date, Date];
+    this.timeScale.domain([
+      new Date(+d0 + this.timeStep),
+      new Date(+d1 + this.timeStep),
+    ]);
   }
 
   get length(): number {
@@ -62,21 +63,28 @@ export class DataWindow {
     };
   }
 
+  indexToTime(idx: number): Date {
+    return new Date(this.timeScale.invert(idx));
+  }
+
   timeToIndex(time: Date): number {
-    return this.indexToTime.invert(+time);
+    return this.timeScale(time);
   }
 
   timeDomainFull(): [Date, Date] {
-    const toTime = this.indexToTime.copy().clamp(false);
-    return this.bIndexFull.map((i) => new Date(toTime(i))) as [Date, Date];
+    return this.timeScale.domain().map((d) => new Date(d)) as [Date, Date];
   }
 
   onViewPortResize(range: [number, number]): void {
-    this.indexToRange.range(range);
+    this.timeRange = range;
   }
 
   dIndexFromTransform(transform: ZoomTransform): [number, number] {
-    return transform.rescaleX(this.indexToRange).domain() as [number, number];
+    const base = scaleUtc<number, number>()
+      .domain(this.timeScale.domain())
+      .range(this.timeRange);
+    const [t0, t1] = transform.rescaleX(base).domain() as [Date, Date];
+    return [this.timeScale(t0), this.timeScale(t1)];
   }
 
   /**
