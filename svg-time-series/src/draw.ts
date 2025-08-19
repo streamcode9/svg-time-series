@@ -19,6 +19,9 @@ export type { IMinMax } from "./chart/axisData.ts";
 export type { ILegendController } from "./chart/legend.ts";
 export type { IZoomStateOptions } from "./chart/zoomState.ts";
 
+export type ChartEvent = "zoom" | "brushEnd" | "dataUpdate";
+export type ChartEventHandler = (payload: unknown) => void;
+
 export interface IPublicInteraction {
   zoom: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
   onHover: (x: number) => void;
@@ -29,6 +32,8 @@ export interface IPublicInteraction {
   zoomToTimeWindow: (start: Date | number, end: Date | number) => void;
   getSelectedTimeWindow: () => [number, number] | null;
   dispose: () => void;
+  on: (eventName: ChartEvent, handler: ChartEventHandler) => void;
+  off: (eventName: ChartEvent, handler: ChartEventHandler) => void;
 }
 
 export class TimeSeriesChart {
@@ -44,6 +49,7 @@ export class TimeSeriesChart {
   private zoomHandler: (event: D3ZoomEvent<SVGRectElement, unknown>) => void;
   private zoomOptions: IZoomStateOptions | undefined;
   private readonly publicInteraction: IPublicInteraction;
+  private listeners = new Map<ChartEvent, Set<ChartEventHandler>>();
 
   constructor(
     svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
@@ -113,7 +119,10 @@ export class TimeSeriesChart {
         this.state.refresh(this.data, t);
         this.legendController.refresh();
       },
-      this.zoomHandler,
+      (e) => {
+        this.zoomHandler(e);
+        this.emit("zoom", e);
+      },
       this.zoomOptions,
     );
 
@@ -130,6 +139,8 @@ export class TimeSeriesChart {
       zoomToTimeWindow: this.zoomToTimeWindow,
       getSelectedTimeWindow: this.getSelectedTimeWindow,
       dispose: this.dispose,
+      on: this.on,
+      off: this.off,
     };
   }
 
@@ -150,6 +161,7 @@ export class TimeSeriesChart {
     }
     this.data.append(...values);
     this.refreshAll();
+    this.emit("dataUpdate", values);
   }
 
   public resetData(source: IDataSource): void {
@@ -172,15 +184,20 @@ export class TimeSeriesChart {
         this.state.refresh(this.data, t);
         this.legendController.refresh();
       },
-      this.zoomHandler,
+      (e) => {
+        this.zoomHandler(e);
+        this.emit("zoom", e);
+      },
       this.zoomOptions,
     );
     this.refreshAll();
     const { width } = this.state.getDimensions();
     this.onHover(width - 1);
+    this.emit("dataUpdate", undefined);
   }
 
   public dispose = () => {
+    this.listeners.clear();
     this.zoomState.destroy();
     this.zoomArea
       .on("mousemove", null)
@@ -195,6 +212,19 @@ export class TimeSeriesChart {
 
   public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
     this.zoomState.zoom(event);
+  };
+
+  public on = (eventName: ChartEvent, handler: ChartEventHandler): void => {
+    const set = this.listeners.get(eventName);
+    if (set) {
+      set.add(handler);
+    } else {
+      this.listeners.set(eventName, new Set([handler]));
+    }
+  };
+
+  public off = (eventName: ChartEvent, handler: ChartEventHandler): void => {
+    this.listeners.get(eventName)?.delete(handler);
   };
 
   public resetZoom = () => {
@@ -288,10 +318,21 @@ export class TimeSeriesChart {
     );
     clearBrushSelection(this.brushBehavior, this.brushLayer);
     this.selectedTimeWindow = timeWindow;
+    this.emit("brushEnd", timeWindow);
   };
 
   private clearBrush = () => {
     clearBrushSelection(this.brushBehavior, this.brushLayer);
     this.selectedTimeWindow = null;
   };
+
+  private emit(eventName: ChartEvent, payload: unknown): void {
+    const handlers = this.listeners.get(eventName);
+    if (!handlers) {
+      return;
+    }
+    handlers.forEach((h) => {
+      h(payload);
+    });
+  }
 }
