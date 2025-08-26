@@ -5,23 +5,23 @@ import { scalesToDomMatrix } from "./utils/domMatrix.ts";
 export class ViewportTransform {
   private baseScaleX = scaleLinear();
   private baseScaleY = scaleLinear();
-  private scaleX = this.baseScaleX;
-  private scaleY = this.baseScaleY;
+  private _scaleX = this.baseScaleX;
+  private _scaleY = this.baseScaleY;
   private zoomTransform: ZoomTransform = zoomIdentity;
   private composedMatrix: DOMMatrix = new DOMMatrix();
 
   private static readonly EPSILON = 1e-12;
 
   private updateScales() {
-    this.scaleX = this.zoomTransform.rescaleX(this.baseScaleX);
+    this._scaleX = this.zoomTransform.rescaleX(this.baseScaleX);
     // Ignore the zoom transform for the Y axis so that it always fits the data
     // based on its current domain.
-    this.scaleY = this.baseScaleY.copy();
+    this._scaleY = this.baseScaleY.copy();
     this.updateComposedMatrix();
   }
 
   private updateComposedMatrix() {
-    this.composedMatrix = scalesToDomMatrix(this.scaleX, this.scaleY);
+    this.composedMatrix = scalesToDomMatrix(this._scaleX, this._scaleY);
   }
 
   public onViewPortResize(
@@ -65,52 +65,14 @@ export class ViewportTransform {
     }
   }
 
-  public fromScreenToModelX(x: number) {
-    this.assertNonDegenerate(this.scaleX);
-    return this.scaleX.invert(x);
+  public get scaleX(): ScaleLinear<number, number> {
+    this.assertNonDegenerate(this._scaleX);
+    return this._scaleX;
   }
 
-  public fromScreenToModelY(y: number) {
-    this.assertNonDegenerate(this.scaleY);
-    return this.scaleY.invert(y);
-  }
-
-  public fromScreenToModelBasisX(
-    b: readonly [number, number],
-  ): [number, number] {
-    this.assertNonDegenerate(this.scaleX);
-    return [this.scaleX.invert(b[0]), this.scaleX.invert(b[1])];
-  }
-
-  public fromScreenToModelBasisY(
-    b: readonly [number, number],
-  ): [number, number] {
-    this.assertNonDegenerate(this.scaleY);
-    return [this.scaleY.invert(b[0]), this.scaleY.invert(b[1])];
-  }
-
-  public toScreenFromModelX(x: number) {
-    this.assertNonDegenerate(this.scaleX);
-    return this.scaleX(x);
-  }
-
-  public toScreenFromModelY(y: number) {
-    this.assertNonDegenerate(this.scaleY);
-    return this.scaleY(y);
-  }
-
-  public toScreenFromModelBasisX(
-    b: readonly [number, number],
-  ): [number, number] {
-    this.assertNonDegenerate(this.scaleX);
-    return [this.scaleX(b[0]), this.scaleX(b[1])];
-  }
-
-  public toScreenFromModelBasisY(
-    b: readonly [number, number],
-  ): [number, number] {
-    this.assertNonDegenerate(this.scaleY);
-    return [this.scaleY(b[0]), this.scaleY(b[1])];
+  public get scaleY(): ScaleLinear<number, number> {
+    this.assertNonDegenerate(this._scaleY);
+    return this._scaleY;
   }
 
   public get matrix(): DOMMatrix {

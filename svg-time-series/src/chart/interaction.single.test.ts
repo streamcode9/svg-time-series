@@ -14,6 +14,7 @@ import {
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import type * as d3Zoom from "d3-zoom";
+import { scaleLinear, type ScaleLinear } from "d3-scale";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
@@ -29,7 +30,6 @@ vi.mock("../utils/domNodeTransform.ts", () => ({
   },
 }));
 
-let currentDataLength = 0;
 const transformInstances: Array<{ onZoomPan: Mock }> = [];
 vi.mock("../ViewportTransform.ts", () => ({
   ViewportTransform: class {
@@ -38,10 +38,8 @@ vi.mock("../ViewportTransform.ts", () => ({
     }
     matrix = new DOMMatrix();
     onZoomPan = vi.fn();
-    fromScreenToModelX = vi.fn((x: number) => x);
-    fromScreenToModelBasisX = vi.fn(
-      () => [0, Math.max(currentDataLength - 1, 0)] as [number, number],
-    );
+    scaleX: ScaleLinear<number, number> = scaleLinear();
+    scaleY: ScaleLinear<number, number> = scaleLinear();
     onViewPortResize = vi.fn();
     onReferenceViewWindowResize = vi.fn();
   },
@@ -108,9 +106,8 @@ vi.mock("d3-zoom", async () => {
 });
 
 function createChart(data: Array<[number]>) {
-  currentDataLength = data.length;
   const parent = document.createElement("div");
-  const w = Math.max(currentDataLength - 1, 0);
+  const w = Math.max(data.length - 1, 0);
   Object.defineProperty(parent, "clientWidth", {
     value: w,
     configurable: true,
