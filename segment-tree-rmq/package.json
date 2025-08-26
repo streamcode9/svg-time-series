@@ -19,8 +19,7 @@
     "build": "tsc -p tsconfig.json",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit -p tsconfig.test.json",
-    "bench": "npm run bench:segment-tree",
-    "bench:segment-tree": "vitest bench bench/segmentTree.bench.ts --run",
+    "bench": "vitest bench bench/*.bench.ts --run",
     "test": "vitest run --reporter=dot",
     "prepare": "npm run build"
   }
