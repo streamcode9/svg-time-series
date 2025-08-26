@@ -70,12 +70,7 @@ describe("AxisManager", () => {
 
     const t = zoomIdentity.scale(2);
     axisManager.updateScales(t);
-    const dIndexVisible = data.dIndexFromTransform(t);
-    const { scale: baseScaleRaw } = data.axisTransform(0, dIndexVisible);
-    const baseScale = baseScaleRaw.range(
-      axisManager.axes[0]!.scale.range() as [number, number],
-    );
-    const expectedDomain = t.rescaleY(baseScale).domain();
+    const expectedDomain = t.rescaleY(axisManager.axes[0]!.baseScale).domain();
     expect(axisManager.axes[0]!.scale.domain()).toEqual(expectedDomain);
   });
 });
