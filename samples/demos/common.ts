@@ -61,15 +61,16 @@ export function drawCharts(
       onMouseMove,
     );
     charts.push(chart);
-    chart.interaction.onZoom = (
-      event: D3ZoomEvent<SVGRectElement, unknown>,
-    ) => {
-      onZoom(chart, event);
-      console.log("Zoom transform:", chart.interaction.getZoomTransform());
-    };
-    chart.interaction.onBrushEnd = (timeWindow) => {
+    chart.interaction.on(
+      "afterZoom",
+      (event: D3ZoomEvent<SVGRectElement, unknown>) => {
+        onZoom(chart, event);
+        console.log("Zoom transform:", chart.interaction.getZoomTransform());
+      },
+    );
+    chart.interaction.on("brushEnd", (timeWindow) => {
       console.log("Brushed window:", timeWindow);
-    };
+    });
   };
 
   selectAll(".chart").each(onSelectChart);
