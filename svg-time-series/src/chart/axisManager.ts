@@ -13,12 +13,14 @@ import { buildMinMax, minMaxIdentity } from "./minMax.ts";
 
 export class AxisModel {
   transform: ViewportTransform;
+  baseScale: ScaleLinear<number, number>;
   scale: ScaleLinear<number, number>;
   tree: SegmentTree<IMinMax>;
 
   constructor() {
     this.transform = new ViewportTransform();
-    this.scale = scaleLinear<number, number>().domain([0, 1]);
+    this.baseScale = scaleLinear<number, number>().domain([0, 1]);
+    this.scale = this.baseScale.copy();
 
     this.tree = new SegmentTree([minMaxIdentity], buildMinMax, minMaxIdentity);
   }
@@ -26,18 +28,15 @@ export class AxisModel {
   updateFromData(
     tree: SegmentTree<IMinMax>,
     baseScaleRaw: ScaleLinear<number, number>,
-    transform: ZoomTransform,
     fullIndex: readonly [number, number],
   ): void {
     this.tree = tree;
-    const baseScale = baseScaleRaw
-      .copy()
-      .range(this.scale.range() as [number, number]);
+    this.baseScale.domain(baseScaleRaw.domain() as [number, number]);
+    this.baseScale.range(this.scale.range() as [number, number]);
     this.transform.onReferenceViewWindowResize(
       fullIndex,
-      baseScale.domain() as [number, number],
+      this.baseScale.domain() as [number, number],
     );
-    this.scale = transform.rescaleY(baseScale).copy();
   }
 }
 
@@ -53,27 +52,6 @@ export function createBaseXScale(
   window: DataWindow,
 ): ScaleTime<number, number> {
   return x.copy().domain(window.timeDomainFull()).nice();
-}
-
-export function updateAxisModel(
-  axisModel: AxisModel,
-  axisIdx: number,
-  data: ChartData,
-  transform: ZoomTransform,
-  dIndexVisible: [number, number],
-): void {
-  const idxs = data.seriesByAxis[axisIdx] ?? [];
-  if (idxs.length === 0) {
-    return;
-  }
-  const { tree, scale: baseScaleRaw } =
-    data.axes[axisIdx]!.axisTransform(dIndexVisible);
-  axisModel.updateFromData(
-    tree,
-    baseScaleRaw,
-    transform,
-    data.window.bIndexFull,
-  );
 }
 
 export class AxisManager {
@@ -100,8 +78,15 @@ export class AxisManager {
     const baseX = createBaseXScale(this.x, this.data.window);
     const dIndexVisible = this.data.window.dIndexFromTransform(transform);
     this.x = transform.rescaleX(baseX).copy();
-    this.axes.forEach((a, i) => {
-      updateAxisModel(a, i, this.data, transform, dIndexVisible);
+    this.axes.forEach((model, i) => {
+      const idxs = this.data.seriesByAxis[i] ?? [];
+      if (idxs.length === 0) {
+        return;
+      }
+      const { tree, scale: baseScaleRaw } =
+        this.data.axes[i]!.axisTransform(dIndexVisible);
+      model.updateFromData(tree, baseScaleRaw, this.data.window.bIndexFull);
+      model.scale = transform.rescaleY(model.baseScale).copy();
     });
   }
 }
