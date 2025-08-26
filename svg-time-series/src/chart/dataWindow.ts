@@ -80,10 +80,9 @@ export class DataWindow {
   }
 
   dIndexFromTransform(transform: ZoomTransform): [number, number] {
-    const base = scaleUtc<number, number>()
-      .domain(this.timeScale.domain())
-      .range(this.timeRange);
-    const [t0, t1] = transform.rescaleX(base).domain() as [Date, Date];
+    const [t0, t1] = transform
+      .rescaleX(this.timeScale.copy().range(this.timeRange))
+      .domain() as [Date, Date];
     return [this.timeScale(t0), this.timeScale(t1)];
   }
 
