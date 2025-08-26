@@ -28,7 +28,7 @@ This monorepo is organized into several workspaces:
 - `segment-tree-rmq/` – generic segment tree implementation used for range queries. Its unit tests live in `segment-tree-rmq/src`.
 - `samples/` – Vite-powered demos and sample code showcasing the library.
 
-For an overview of the chart's SVG element hierarchy and how to select or style nodes with D3, see [docs/dom-structure.md](docs/dom-structure.md).
+For a guide to the chart's SVG element hierarchy—views, axes, and interaction layers—and examples of selecting or styling nodes with D3, see [docs/dom-structure.md](docs/dom-structure.md).
 
 Run tests and benchmarks from the repository root:
 
