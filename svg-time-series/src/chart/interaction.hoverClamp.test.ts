@@ -5,6 +5,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import type * as d3Zoom from "d3-zoom";
+import { scaleLinear, type ScaleLinear } from "d3-scale";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import { polyfillDom } from "../setupDom.ts";
@@ -21,10 +22,9 @@ class MockViewportTransform {
     this.dataLength = dataLength;
   }
   onZoomPan = vi.fn();
-  fromScreenToModelX = vi.fn((x: number) => x);
-  fromScreenToModelBasisX = vi.fn(function (this: MockViewportTransform) {
-    return [0, Math.max(this.dataLength - 1, 0)] as [number, number];
-  });
+  scaleX: ScaleLinear<number, number> = scaleLinear();
+  scaleY: ScaleLinear<number, number> = scaleLinear();
+  matrix = new DOMMatrix();
   onViewPortResize = vi.fn();
   onReferenceViewWindowResize = vi.fn();
 }

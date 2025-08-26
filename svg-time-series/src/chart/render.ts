@@ -203,7 +203,7 @@ export class RenderState {
   }
 
   public screenToModelX(x: number): number {
-    return this.xTransform.fromScreenToModelX(x);
+    return this.xTransform.scaleX.invert(x);
   }
 
   public createLegendContext(data: ChartData): LegendContext {

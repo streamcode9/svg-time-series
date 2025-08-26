@@ -14,6 +14,7 @@ import {
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import type { D3ZoomEvent } from "d3-zoom";
+import { scaleLinear, type ScaleLinear } from "d3-scale";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
@@ -33,14 +34,12 @@ const transformInstances: Array<{ onZoomPan: Mock }> = [];
 class MockViewportTransform {
   dataLength: number;
   matrix = new DOMMatrix();
+  scaleX: ScaleLinear<number, number> = scaleLinear();
+  scaleY: ScaleLinear<number, number> = scaleLinear();
   constructor(dataLength: number) {
     this.dataLength = dataLength;
   }
   onZoomPan = vi.fn();
-  fromScreenToModelX = vi.fn((x: number) => x);
-  fromScreenToModelBasisX = vi.fn(function (this: MockViewportTransform) {
-    return [0, Math.max(this.dataLength - 1, 0)] as [number, number];
-  });
   onViewPortResize = vi.fn();
   onReferenceViewWindowResize = vi.fn();
 }

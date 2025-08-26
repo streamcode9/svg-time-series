@@ -16,11 +16,12 @@ describe("ViewportTransform performance", () => {
     vt.onZoomPan(t);
   });
 
-  bench("fromScreenToModelX", () => {
-    vt.fromScreenToModelX(50);
+  bench("scaleX.invert", () => {
+    vt.scaleX.invert(50);
   });
 
-  bench("fromScreenToModelBasisX", () => {
-    vt.fromScreenToModelBasisX([20, 40]);
+  bench("scaleX.invert basis", () => {
+    vt.scaleX.invert(20);
+    vt.scaleX.invert(40);
   });
 });

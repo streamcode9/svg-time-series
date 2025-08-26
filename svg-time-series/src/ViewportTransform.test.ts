@@ -21,14 +21,14 @@ describe("ViewportTransform", () => {
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
 
     // without zoom
-    expect(vt.fromScreenToModelX(50)).toBeCloseTo(5);
-    expect(vt.fromScreenToModelY(20)).toBeCloseTo(2);
+    expect(vt.scaleX.invert(50)).toBeCloseTo(5);
+    expect(vt.scaleY.invert(20)).toBeCloseTo(2);
 
     // apply zoom: translate 10 and scale 2
     const zoom = zoomIdentity.translate(10, 0).scale(2);
     vt.onZoomPan(zoom);
-    expect(vt.fromScreenToModelX(70)).toBeCloseTo(3);
-    expect(vt.fromScreenToModelY(20)).toBeCloseTo(2);
+    expect(vt.scaleX.invert(70)).toBeCloseTo(3);
+    expect(vt.scaleY.invert(20)).toBeCloseTo(2);
 
     const sx = scaleLinear().domain([0, 10]).range([0, 100]);
     const sy = scaleLinear().domain([0, 10]).range([0, 100]);
@@ -44,12 +44,18 @@ describe("ViewportTransform", () => {
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
     vt.onZoomPan(zoomIdentity.translate(10, 0).scale(2));
 
-    const basisX = vt.fromScreenToModelBasisX([20, 40]);
+    const basisX: [number, number] = [
+      vt.scaleX.invert(20),
+      vt.scaleX.invert(40),
+    ];
     const [x1, x2] = basisX;
     expect(x1).toBeCloseTo(0.5);
     expect(x2).toBeCloseTo(1.5);
 
-    const basisY = vt.fromScreenToModelBasisY([20, 40]);
+    const basisY: [number, number] = [
+      vt.scaleY.invert(20),
+      vt.scaleY.invert(40),
+    ];
     const [y1, y2] = basisY;
     expect(y1).toBeCloseTo(2);
     expect(y2).toBeCloseTo(4);
@@ -62,8 +68,8 @@ describe("ViewportTransform", () => {
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
     vt.onZoomPan(zoomIdentity.translate(10, 0).scale(2));
 
-    const x = vt.fromScreenToModelX(70);
-    const y = vt.fromScreenToModelY(20);
+    const x = vt.scaleX.invert(70);
+    const y = vt.scaleY.invert(20);
     expect(x).toBeCloseTo(3);
     expect(y).toBeCloseTo(2);
   });
@@ -76,23 +82,35 @@ describe("ViewportTransform", () => {
     vt.onZoomPan(zoomIdentity.translate(10, 0).scale(2));
 
     const xScreen = 70;
-    const xModel = vt.fromScreenToModelX(xScreen);
-    expect(vt.toScreenFromModelX(xModel)).toBeCloseTo(xScreen);
+    const xModel = vt.scaleX.invert(xScreen);
+    expect(vt.scaleX(xModel)).toBeCloseTo(xScreen);
 
     const yScreen = 20;
-    const yModel = vt.fromScreenToModelY(yScreen);
-    expect(vt.toScreenFromModelY(yModel)).toBeCloseTo(yScreen);
+    const yModel = vt.scaleY.invert(yScreen);
+    expect(vt.scaleY(yModel)).toBeCloseTo(yScreen);
 
     const basisScreenX: [number, number] = [20, 40];
-    const basisModelX = vt.fromScreenToModelBasisX(basisScreenX);
-    const roundTripX = vt.toScreenFromModelBasisX(basisModelX);
+    const basisModelX: [number, number] = [
+      vt.scaleX.invert(basisScreenX[0]),
+      vt.scaleX.invert(basisScreenX[1]),
+    ];
+    const roundTripX: [number, number] = [
+      vt.scaleX(basisModelX[0]),
+      vt.scaleX(basisModelX[1]),
+    ];
     const [x1, x2] = roundTripX;
     expect(x1).toBeCloseTo(20);
     expect(x2).toBeCloseTo(40);
 
     const basisScreenY: [number, number] = [20, 40];
-    const basisModelY = vt.fromScreenToModelBasisY(basisScreenY);
-    const roundTripY = vt.toScreenFromModelBasisY(basisModelY);
+    const basisModelY: [number, number] = [
+      vt.scaleY.invert(basisScreenY[0]),
+      vt.scaleY.invert(basisScreenY[1]),
+    ];
+    const roundTripY: [number, number] = [
+      vt.scaleY(basisModelY[0]),
+      vt.scaleY(basisModelY[1]),
+    ];
     const [y1, y2] = roundTripY;
     expect(y1).toBeCloseTo(20);
     expect(y2).toBeCloseTo(40);
@@ -112,28 +130,28 @@ describe("ViewportTransform", () => {
     const vt = new ViewportTransform();
     vt.onViewPortResize([0, 0], [0, 100]);
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
-    expect(() => vt.fromScreenToModelX(0)).toThrow(/degenerate/);
+    expect(() => vt.scaleX.invert(0)).toThrow(/degenerate/);
   });
 
   it("throws when the y range collapses", () => {
     const vt = new ViewportTransform();
     vt.onViewPortResize([0, 100], [50, 50]);
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
-    expect(() => vt.fromScreenToModelY(0)).toThrow(/degenerate/);
+    expect(() => vt.scaleY.invert(0)).toThrow(/degenerate/);
   });
 
   it("throws when the y domain collapses", () => {
     const vt = new ViewportTransform();
     vt.onViewPortResize([0, 100], [0, 100]);
     vt.onReferenceViewWindowResize([0, 10], [5, 5]);
-    expect(() => vt.toScreenFromModelY(5)).toThrow(/degenerate/);
+    expect(() => vt.scaleY(5)).toThrow(/degenerate/);
   });
 
   it("throws when the y range collapses in toScreenFromModelY", () => {
     const vt = new ViewportTransform();
     vt.onViewPortResize([0, 100], [50, 50]);
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
-    expect(() => vt.toScreenFromModelY(0)).toThrow(/degenerate/);
+    expect(() => vt.scaleY(0)).toThrow(/degenerate/);
   });
 
   it("throws a helpful error when scale is zero", () => {
@@ -143,7 +161,7 @@ describe("ViewportTransform", () => {
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
 
     vt.onZoomPan(zoomIdentity.scale(0));
-    expect(() => vt.fromScreenToModelX(10)).toThrow(/degenerate/);
+    expect(() => vt.scaleX.invert(10)).toThrow(/degenerate/);
   });
 
   it("handles scale near zero without treating it as degenerate", () => {
@@ -153,6 +171,6 @@ describe("ViewportTransform", () => {
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
 
     vt.onZoomPan(zoomIdentity.scale(1e-15));
-    expect(() => vt.fromScreenToModelX(10)).not.toThrow();
+    expect(() => vt.scaleX.invert(10)).not.toThrow();
   });
 });

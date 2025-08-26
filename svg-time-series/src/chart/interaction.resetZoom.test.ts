@@ -13,6 +13,7 @@ import {
 import type { Selection } from "d3-selection";
 import { select } from "d3-selection";
 import type { D3BrushEvent } from "d3-brush";
+import { scaleLinear, type ScaleLinear } from "d3-scale";
 import { TimeSeriesChart } from "../draw.ts";
 import type { IDataSource, IZoomStateOptions } from "../draw.ts";
 import { LegendController } from "../../../samples/LegendController.ts";
@@ -26,7 +27,6 @@ vi.mock("../utils/domNodeTransform.ts", () => ({
   },
 }));
 
-let currentDataLength = 0;
 const transformInstances: Array<{ onZoomPan: Mock }> = [];
 vi.mock("../ViewportTransform.ts", () => ({
   ViewportTransform: class {
@@ -34,10 +34,9 @@ vi.mock("../ViewportTransform.ts", () => ({
       transformInstances.push(this);
     }
     onZoomPan = vi.fn();
-    fromScreenToModelX = vi.fn((x: number) => x);
-    fromScreenToModelBasisX = vi.fn(
-      () => [0, Math.max(currentDataLength - 1, 0)] as [number, number],
-    );
+    scaleX: ScaleLinear<number, number> = scaleLinear();
+    scaleY: ScaleLinear<number, number> = scaleLinear();
+    matrix = new DOMMatrix();
     onViewPortResize = vi.fn();
     onReferenceViewWindowResize = vi.fn();
   },
@@ -122,9 +121,8 @@ function createChart(
   data: Array<[number, number]>,
   options?: IZoomStateOptions,
 ) {
-  currentDataLength = data.length;
   const parent = document.createElement("div");
-  const w = Math.max(currentDataLength - 1, 0);
+  const w = Math.max(data.length - 1, 0);
   Object.defineProperty(parent, "clientWidth", {
     value: w,
     configurable: true,

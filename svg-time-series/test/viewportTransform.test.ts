@@ -10,8 +10,8 @@ describe("ViewportTransform degeneracy", () => {
     vt.onViewPortResize([0, 100], [0, 100]);
     vt.onReferenceViewWindowResize([0, 0], [0, 10]);
 
-    expect(() => vt.fromScreenToModelY(50)).not.toThrow();
-    expect(() => vt.fromScreenToModelX(50)).toThrow();
+    expect(() => vt.scaleY.invert(50)).not.toThrow();
+    expect(() => vt.scaleX.invert(50)).toThrow();
   });
 
   it("throws only for degenerate Y domain", () => {
@@ -19,8 +19,8 @@ describe("ViewportTransform degeneracy", () => {
     vt.onViewPortResize([0, 100], [0, 100]);
     vt.onReferenceViewWindowResize([0, 10], [0, 0]);
 
-    expect(() => vt.fromScreenToModelX(50)).not.toThrow();
-    expect(() => vt.fromScreenToModelY(50)).toThrow();
+    expect(() => vt.scaleX.invert(50)).not.toThrow();
+    expect(() => vt.scaleY.invert(50)).toThrow();
   });
 
   it("throws only for degenerate X range", () => {
@@ -28,8 +28,8 @@ describe("ViewportTransform degeneracy", () => {
     vt.onViewPortResize([0, 0], [0, 100]);
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
 
-    expect(() => vt.fromScreenToModelY(50)).not.toThrow();
-    expect(() => vt.toScreenFromModelX(5)).toThrow();
+    expect(() => vt.scaleY.invert(50)).not.toThrow();
+    expect(() => vt.scaleX(5)).toThrow();
   });
 
   it("throws only for degenerate Y range", () => {
@@ -37,7 +37,7 @@ describe("ViewportTransform degeneracy", () => {
     vt.onViewPortResize([0, 100], [0, 0]);
     vt.onReferenceViewWindowResize([0, 10], [0, 10]);
 
-    expect(() => vt.fromScreenToModelX(5)).not.toThrow();
-    expect(() => vt.fromScreenToModelY(50)).toThrow();
+    expect(() => vt.scaleX.invert(5)).not.toThrow();
+    expect(() => vt.scaleY.invert(50)).toThrow();
   });
 });
