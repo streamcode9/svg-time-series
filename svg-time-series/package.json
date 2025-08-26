@@ -16,6 +16,7 @@
   "type": "module",
   "dependencies": {
     "d3-brush": "^3.0.0",
+    "d3-dispatch": "^3.0.1",
     "d3-scale": "^4.0.2",
     "d3-selection": "^3.0.0",
     "d3-shape": "^3.2.0",
@@ -33,7 +34,8 @@
     "@types/d3-zoom": "^3.0.8",
     "rollup-plugin-node-externals": "^8.0.1",
     "vite": "^7.1.2",
-    "vite-plugin-dts": "^4.5.4"
+    "vite-plugin-dts": "^4.5.4",
+    "@types/d3-dispatch": "^3.0.7"
   },
   "scripts": {
     "prepare": "npm run build",
