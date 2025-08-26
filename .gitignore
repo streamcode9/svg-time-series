@@ -298,3 +298,6 @@ dist/
 # dotenv
 .env
 .aider*
+
+# npm package tarballs
+*.tgz
