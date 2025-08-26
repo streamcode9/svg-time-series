@@ -41,3 +41,23 @@ jobs:
           cache-dependency-path: "package-lock.json"
       - run: npm ci
       - run: npm test
+
+  pack:
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+      - run: npm ci
+      - run: mkdir -p tarballs
+      - run: npm pack --workspace segment-tree-rmq --workspace svg-time-series --pack-destination=tarballs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-packages
+          path: tarballs/*.tgz
