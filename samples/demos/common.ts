@@ -93,34 +93,23 @@ export async function onCsv(): Promise<[number, number][]> {
   }
 }
 
-let intervalId: ReturnType<typeof setInterval> | null = null;
-let resizeObservers: ResizeObserver[] = [];
-
-function setupResizeObservers(charts: TimeSeriesChart[]): void {
-  resizeObservers.forEach((o) => {
-    o.disconnect();
-  });
-  resizeObservers = [];
-  selectAll<HTMLElement, unknown>(".chart-drawing").each(function (
-    this: HTMLElement,
-    _,
-    i,
-  ) {
-    const chart = charts[i]!;
-    const observer = new ResizeObserver((entries) => {
-      const { width, height } = entries[0]!.contentRect;
-      chart.resize({ width, height });
-    });
-    observer.observe(this);
-    resizeObservers.push(observer);
-  });
+interface Resize {
+  interval: number;
+  request: (() => void) | null;
+  timer: ReturnType<typeof setTimeout> | null;
+  eval: (() => void) | null;
 }
+
+const resize: Resize = { interval: 60, request: null, timer: null, eval: null };
+
+let intervalId: ReturnType<typeof setInterval> | null = null;
+let resizeListener: (() => void) | null = null;
 
 export async function loadAndDraw(
   seriesAxes: number[] = [0, 0],
 ): Promise<TimeSeriesChart[]> {
   const data = await onCsv();
-  const charts = drawCharts(data, seriesAxes);
+  let charts = drawCharts(data, seriesAxes);
 
   if (intervalId) {
     clearInterval(intervalId);
@@ -134,7 +123,23 @@ export async function loadAndDraw(
     j++;
   }, 5000);
 
-  setupResizeObservers(charts);
+  resize.request = function () {
+    if (resize.timer) clearTimeout(resize.timer);
+    resize.timer = setTimeout(() => {
+      resize.eval?.();
+    }, resize.interval);
+  };
+  resize.eval = function () {
+    selectAll("svg").remove();
+    selectAll(".chart-drawing").append("svg");
+    charts = drawCharts(data, seriesAxes);
+  };
+
+  if (resizeListener) {
+    window.removeEventListener("resize", resizeListener);
+  }
+  resizeListener = () => resize.request?.();
+  window.addEventListener("resize", resizeListener);
 
   return charts;
 }
@@ -184,10 +189,10 @@ export async function initDemo(
           clearInterval(intervalId);
           intervalId = null;
         }
-        resizeObservers.forEach((o) => {
-          o.disconnect();
-        });
-        resizeObservers = [];
+        if (resizeListener) {
+          window.removeEventListener("resize", resizeListener);
+          resizeListener = null;
+        }
         if (resetButton && resetHandler) {
           resetButton.removeEventListener("click", resetHandler);
           resetHandler = null;
