@@ -139,11 +139,11 @@ describe("TimeSeriesChart", () => {
     }).toThrow(/values\[0\] must be a finite number or NaN/);
   });
 
-  it("throws when values contain NaN", () => {
+  it("accepts NaN values", () => {
     const { chart } = createChart();
     expect(() => {
       chart.updateChartWithNewData([NaN]);
-    }).toThrow(/values\[0\]/);
+    }).not.toThrow();
   });
 
   it("resizes svg and refreshes render state", () => {
