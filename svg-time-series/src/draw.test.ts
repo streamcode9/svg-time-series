@@ -294,6 +294,7 @@ describe("TimeSeriesChart", () => {
 
     internal.onBrushEnd({
       selection: [0, 10],
+      sourceEvent: {},
     } as unknown as D3BrushEvent<unknown>);
 
     expect(transformSpy).not.toHaveBeenCalled();
