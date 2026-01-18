@@ -73,6 +73,7 @@ describe("TimeSeriesChart event emitter", () => {
 
     const brushEvent = {
       selection: [0, 100],
+      sourceEvent: {},
     } as unknown as D3BrushEvent<unknown>;
     (
       chart as unknown as { onBrushEnd: (e: D3BrushEvent<unknown>) => void }

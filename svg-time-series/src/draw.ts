@@ -383,6 +383,9 @@ export class TimeSeriesChart {
   }
 
   private onBrushEnd = (event: D3BrushEvent<unknown>) => {
+    // Ignore programmatic brush clears to avoid infinite recursion
+    if (!event.sourceEvent) return;
+
     const timeWindow = handleBrushEnd(
       event,
       this.data,

@@ -227,6 +227,7 @@ describe("interaction.enableBrush", () => {
     ) => x;
     internal.onBrushEnd({
       selection: [0, 10],
+      sourceEvent: {},
     } as unknown as D3BrushEvent<unknown>);
     expect(interaction.getSelectedTimeWindow()).not.toBeNull();
 
@@ -261,6 +262,7 @@ describe("interaction.disableBrush", () => {
     ) => x;
     internal.onBrushEnd({
       selection: [0, 10],
+      sourceEvent: {},
     } as unknown as D3BrushEvent<unknown>);
     expect(interaction.getSelectedTimeWindow()).not.toBeNull();
     interaction.disableBrush();
