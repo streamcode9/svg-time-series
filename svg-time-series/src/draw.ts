@@ -127,33 +127,7 @@ export class TimeSeriesChart {
           .classed("cursor-grab", true);
       });
 
-    this.zoomState = new ZoomState(
-      this.zoomArea,
-      this.state,
-      () => {
-        this.dispatch.call("beforeRender", this);
-        const t = zoomTransform(this.zoomArea.node()!);
-        this.state.refresh(this.data, t);
-        this.legendController.refresh();
-        this.dispatch.call("afterRender", this);
-      },
-      (e) => {
-        this.zoomHandler(e);
-        this.dispatch.call("afterZoom", this, e);
-      },
-      this.zoomOptions,
-    );
-    const zoomBehavior1 = (
-      this.zoomState as unknown as {
-        zoomBehavior?: { on?: (type: string, cb: unknown) => unknown };
-      }
-    ).zoomBehavior;
-    if (typeof zoomBehavior1?.on === "function") {
-      zoomBehavior1.on("zoom", (e: D3ZoomEvent<SVGRectElement, unknown>) => {
-        this.dispatch.call("beforeZoom", this, e);
-        this.zoomState.zoom(e);
-      });
-    }
+    this.zoomState = this.initializeZoomState();
 
     this.refreshAll();
     this.onHover(width - 1);
@@ -206,33 +180,7 @@ export class TimeSeriesChart {
     const context = this.state.createLegendContext(this.data);
     this.legendController.init(context);
     this.zoomState.destroy();
-    this.zoomState = new ZoomState(
-      this.zoomArea,
-      this.state,
-      () => {
-        this.dispatch.call("beforeRender", this);
-        const t = zoomTransform(this.zoomArea.node()!);
-        this.state.refresh(this.data, t);
-        this.legendController.refresh();
-        this.dispatch.call("afterRender", this);
-      },
-      (e) => {
-        this.zoomHandler(e);
-        this.dispatch.call("afterZoom", this, e);
-      },
-      this.zoomOptions,
-    );
-    const zoomBehavior2 = (
-      this.zoomState as unknown as {
-        zoomBehavior?: { on?: (type: string, cb: unknown) => unknown };
-      }
-    ).zoomBehavior;
-    if (typeof zoomBehavior2?.on === "function") {
-      zoomBehavior2.on("zoom", (e: D3ZoomEvent<SVGRectElement, unknown>) => {
-        this.dispatch.call("beforeZoom", this, e);
-        this.zoomState.zoom(e);
-      });
-    }
+    this.zoomState = this.initializeZoomState();
     this.refreshAll();
     const { width } = this.state.getDimensions();
     this.onHover(width - 1);
@@ -380,6 +328,37 @@ export class TimeSeriesChart {
     this.state.seriesRenderer.draw(this.data.data);
     this.zoomState.refresh();
     this.dispatch.call("afterRender", this);
+  }
+
+  private initializeZoomState(): ZoomState {
+    const zoomState = new ZoomState(
+      this.zoomArea,
+      this.state,
+      () => {
+        this.dispatch.call("beforeRender", this);
+        const t = zoomTransform(this.zoomArea.node()!);
+        this.state.refresh(this.data, t);
+        this.legendController.refresh();
+        this.dispatch.call("afterRender", this);
+      },
+      (e) => {
+        this.zoomHandler(e);
+        this.dispatch.call("afterZoom", this, e);
+      },
+      this.zoomOptions,
+    );
+    const zoomBehavior = (
+      zoomState as unknown as {
+        zoomBehavior?: { on?: (type: string, cb: unknown) => unknown };
+      }
+    ).zoomBehavior;
+    if (typeof zoomBehavior?.on === "function") {
+      zoomBehavior.on("zoom", (e: D3ZoomEvent<SVGRectElement, unknown>) => {
+        this.dispatch.call("beforeZoom", this, e);
+        zoomState.zoom(e);
+      });
+    }
+    return zoomState;
   }
 
   private onBrushEnd = (event: D3BrushEvent<unknown>) => {
