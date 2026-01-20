@@ -28,11 +28,24 @@ export function handleBrushEnd(
   if (x1 < x0) {
     [x0, x1] = [x1, x0];
   }
-  const m0 = data.clampIndex(state.screenToModelX(x0));
-  const m1 = data.clampIndex(state.screenToModelX(x1));
-  const sx0 = state.axes.x.scale(m0);
-  const sx1 = state.axes.x.scale(m1);
-  if (m0 === m1 || sx0 === sx1) {
+  // Preferred mapping: map pixel -> time using the X time scale (the same
+  // scale used for axis rendering), then map that time -> index. This makes
+  // the brush selection align with the axis ticks and user expectation.
+  const invTimeAtSel0 = state.axes.x.scale.invert(x0);
+  const invTimeAtSel1 = state.axes.x.scale.invert(x1);
+  const rawM0 = data.timeToIndex(invTimeAtSel0);
+  const rawM1 = data.timeToIndex(invTimeAtSel1);
+  // Clamp indices to valid data range.
+  const m0 = data.clampIndex(rawM0);
+  const m1 = data.clampIndex(rawM1);
+  // Now derive canonical times from the clamped indices.
+  const time0 = data.indexToTime(m0);
+  const time1 = data.indexToTime(m1);
+  const sx0 = state.axes.x.scale(time0);
+  const sx1 = state.axes.x.scale(time1);
+  // Treat nearly-equal screen positions as collapsed selection using an
+  // epsilon to account for floating-point imprecision.
+  if (m0 === m1 || Math.abs(sx1 - sx0) < 1e-6) {
     return null;
   }
   const { width } = state.getDimensions();
