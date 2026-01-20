@@ -51,7 +51,7 @@ export function createBaseXScale(
   x: ScaleTime<number, number>,
   window: DataWindow,
 ): ScaleTime<number, number> {
-  return x.copy().domain(window.timeDomainFull()).nice();
+  return x.copy().domain(window.timeDomainFull());
 }
 
 export class AxisManager {
