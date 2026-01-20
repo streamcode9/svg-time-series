@@ -222,9 +222,12 @@ describe("interaction.enableBrush", () => {
     };
     internal.zoomState.zoomBehavior = { transform: vi.fn() };
     internal.state.screenToModelX = (x: number) => x;
-    (internal.state.axes.x as { scale: (x: number) => number }).scale = (
-      x: number,
-    ) => x;
+    (
+      internal.state.axes.x as unknown as { scale: ScaleLinear<number, number> }
+    ).scale = Object.assign(
+      ((x: number) => x) as unknown as ScaleLinear<number, number>,
+      { invert: (x: number) => x } as unknown,
+    );
     internal.onBrushEnd({
       selection: [0, 10],
       sourceEvent: {},
@@ -257,9 +260,12 @@ describe("interaction.disableBrush", () => {
     };
     internal.zoomState.zoomBehavior = { transform: vi.fn() };
     internal.state.screenToModelX = (x: number) => x;
-    (internal.state.axes.x as { scale: (x: number) => number }).scale = (
-      x: number,
-    ) => x;
+    (
+      internal.state.axes.x as unknown as { scale: ScaleLinear<number, number> }
+    ).scale = Object.assign(
+      ((x: number) => x) as unknown as ScaleLinear<number, number>,
+      { invert: (x: number) => x } as unknown,
+    );
     internal.onBrushEnd({
       selection: [0, 10],
       sourceEvent: {},
