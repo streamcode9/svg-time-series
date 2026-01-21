@@ -1,5 +1,6 @@
 import path, { resolve } from "path";
 import { defineConfig } from "vite";
+import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig({
   root: ".",
@@ -114,5 +115,14 @@ export default defineConfig({
       },
     },
   },
-  plugins: [],
+  plugins: [
+    viteStaticCopy({
+      targets: [
+        {
+          src: "demos/ny-vs-sf.csv",
+          dest: "demos",
+        },
+      ],
+    }),
+  ],
 });
