@@ -12,7 +12,7 @@ Demo 2 shows 60 FPS on desktops, about 24 FPS on iPhone and about 3 FPS on old a
 
 In comparison, [dygraphs.org](http://dygraphs.org) library basically never reaches 60 fps. Try to pan their demo at the home page by holding `shift`. Note that the demos above use the same NY vs SF temperature dataset.
 
-D3.js seem slow: [stock D3 panning][d3stock]. But it turns out the SVG rasterization is not the bottleneck. Only 2 issues had to be fixed in that demo to reach 60 fps:
+D3.js seem slow: [stock D3 panning](https://observablehq.com/@d3/pan-zoom-axes). But it turns out the SVG rasterization is not the bottleneck. Only 2 issues had to be fixed in that demo to reach 60 fps:
 
 - avoid extra attribute setting on SVG lines of the grid during pan and zoom (partially already in HEAD of d3-axis)
 - draw in `d3.timeout()` instead of `d3.zoom()`, that is, avoid drawing more often than screen refreshes
