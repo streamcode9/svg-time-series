@@ -6,4 +6,4 @@
 - Keep code formatted with `npm run format`.
 - Git pre-commit hooks automatically run `npm run lint`, `npm run typecheck`, and `npm test`, so you don't need to run these commands separately. Commit your changes and ensure the hooks pass.
 - Place new code and tests under appropriate workspaces.
-- Use descriptive commit messages.
+- Use descriptive commit messages in conventional format, e.g., "fix: update broken link" or "feat: add new feature".
