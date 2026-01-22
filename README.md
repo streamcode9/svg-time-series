@@ -10,7 +10,7 @@ D3.js-based SVG time series charts done right to reach 60 FPS. Much much faster 
 Demo 1 reaches 60 FPS on desktops, recent iPhones and top Android phones.
 Demo 2 shows 60 FPS on desktops, about 24 FPS on iPhone and about 3 FPS on old and slow LG D90.
 
-In comparison, [dygraphs.org](http://dygraphs.org) library basically never reaches 60 fps. Try to pan their demo at the home page by holding `shift`. Note that the demos above use the same NY vs SF temperature dataset.
+In comparison, [dygraphs.com](http://dygraphs.com) library basically never reaches 60 fps. Try to pan their demo at the home page by holding `shift`. Note that the demos above use the same NY vs SF temperature dataset.
 
 D3.js seem slow: [stock D3 panning](https://observablehq.com/@d3/pan-zoom-axes). But it turns out the SVG rasterization is not the bottleneck. Only 2 issues had to be fixed in that demo to reach 60 fps:
 
