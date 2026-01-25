@@ -190,6 +190,6 @@ Stock d3 phyllotaxis pan-zoom example plus:
 
 This project is licensed under the [MIT License](LICENSE).
 
-[d1]: https://bl.ocks.org/streamcode9/raw/0ad51c8422d1b0238f0f8ecce03eea60/
-[d2]: https://bl.ocks.org/streamcode9/raw/9fc767e29414c2d90f77da4799b9fdf0/
+[d1]: https://endearing-pothos-ca88dc.netlify.app/demos/demo1
+[d2]: https://endearing-pothos-ca88dc.netlify.app/demos/demo2
 [d3stock]: http://bl.ocks.org/mbostock/db6b4335bf1662b413e7968910104f0f
