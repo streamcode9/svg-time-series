@@ -1,0 +1,302 @@
+/**
+ * @vitest-environment jsdom
+ */
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type Mock,
+} from "vitest";
+import type { Selection } from "d3-selection";
+import { select } from "d3-selection";
+import type { D3BrushEvent } from "d3-brush";
+import { scaleLinear, type ScaleLinear } from "d3-scale";
+import { TimeSeriesChart } from "../../src/draw.ts";
+import type { IDataSource, IZoomStateOptions } from "../../src/draw.ts";
+import { LegendController } from "../../../samples/LegendController.ts";
+import { polyfillDom } from "../../src/setupDom.ts";
+await polyfillDom();
+
+const nodeTransforms = new Map<SVGGraphicsElement, DOMMatrix>();
+vi.mock("../../src/utils/domNodeTransform.ts", () => ({
+  updateNode: (node: SVGGraphicsElement, matrix: DOMMatrix) => {
+    nodeTransforms.set(node, matrix);
+  },
+}));
+
+const transformInstances: Array<{ onZoomPan: Mock }> = [];
+vi.mock("../../src/ViewportTransform.ts", () => ({
+  ViewportTransform: class {
+    constructor() {
+      transformInstances.push(this);
+    }
+    onZoomPan = vi.fn();
+    scaleX: ScaleLinear<number, number> = scaleLinear();
+    scaleY: ScaleLinear<number, number> = scaleLinear();
+    matrix = new DOMMatrix();
+    onViewPortResize = vi.fn();
+    onReferenceViewWindowResize = vi.fn();
+  },
+}));
+
+vi.mock("../../src/axis.ts", () => ({
+  Orientation: { Bottom: 0, Right: 1 },
+  MyAxis: class {
+    setScale = vi.fn(() => this);
+    axis = vi.fn();
+    axisUp = vi.fn();
+    ticks = vi.fn(() => this);
+    setTickSize = vi.fn(() => this);
+    setTickPadding = vi.fn(() => this);
+  },
+}));
+
+vi.mock("../../src/draw/brushUtils.ts", () => ({
+  clearBrushSelection: vi.fn(),
+}));
+
+import { clearBrushSelection } from "../../src/draw/brushUtils.ts";
+
+let zoomReset: Mock;
+let legendRefresh: Mock;
+let zoomOptions: unknown;
+let zoomSetScaleExtent: Mock;
+vi.mock("../../../samples/LegendController.ts", () => ({
+  LegendController: class {
+    refresh = vi.fn();
+    highlightIndex = vi.fn();
+    clearHighlight = vi.fn();
+    destroy = vi.fn();
+    init = vi.fn();
+    constructor() {
+      legendRefresh = this.refresh;
+    }
+  },
+}));
+vi.mock("../../src/chart/zoomState.ts", () => ({
+  ZoomState: class {
+    private state: {
+      axes: { y: Array<{ transform: { onZoomPan: (t: unknown) => void } }> };
+      xTransform: { onZoomPan: (t: unknown) => void };
+    };
+    private refreshChart: () => void;
+    private zoomCallback: (e: unknown) => void;
+    reset = vi.fn(() => {
+      const identity = { x: 0, k: 1 };
+      this.state.xTransform.onZoomPan(identity);
+      this.state.axes.y.forEach((a) => {
+        a.transform.onZoomPan(identity);
+      });
+      this.refreshChart();
+      this.zoomCallback({ transform: identity, sourceEvent: null });
+    });
+    refresh = vi.fn();
+    destroy = vi.fn();
+    zoom = vi.fn();
+    setScaleExtent = vi.fn();
+    constructor(
+      _zoomArea: unknown,
+      state: {
+        axes: { y: Array<{ transform: { onZoomPan: (t: unknown) => void } }> };
+        xTransform: { onZoomPan: (t: unknown) => void };
+      },
+      refreshChart: () => void,
+      zoomCallback: (e: unknown) => void,
+      options?: unknown,
+    ) {
+      this.state = state;
+      this.refreshChart = refreshChart;
+      this.zoomCallback = zoomCallback;
+      zoomReset = this.reset;
+      zoomOptions = options;
+      zoomSetScaleExtent = this.setScaleExtent;
+    }
+  },
+}));
+
+function createChart(
+  data: Array<[number, number]>,
+  options?: IZoomStateOptions,
+) {
+  const parent = document.createElement("div");
+  const w = Math.max(data.length - 1, 0);
+  Object.defineProperty(parent, "clientWidth", {
+    value: w,
+    configurable: true,
+  });
+  Object.defineProperty(parent, "clientHeight", {
+    value: 50,
+    configurable: true,
+  });
+  const svgEl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  parent.appendChild(svgEl);
+
+  const legend = document.createElement("div");
+  legend.innerHTML =
+    '<span class="chart-legend__time"></span>' +
+    '<span class="chart-legend__green_value"></span>' +
+    '<span class="chart-legend__blue_value"></span>';
+
+  const source: IDataSource = {
+    startTime: 0,
+    timeStep: 1,
+    length: data.length,
+    seriesAxes: [0, 1],
+    getSeries: (i, seriesIdx) => data[i]![seriesIdx]!,
+  };
+  const legendController = new LegendController(
+    select(legend) as unknown as Selection<
+      HTMLElement,
+      unknown,
+      HTMLElement,
+      unknown
+    >,
+  );
+  const chart = new TimeSeriesChart(
+    select(svgEl) as unknown as Selection<
+      SVGSVGElement,
+      unknown,
+      HTMLElement,
+      unknown
+    >,
+    source,
+    legendController,
+    () => {},
+    () => {},
+    options,
+  );
+
+  return { interaction: chart.interaction, chart };
+}
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  nodeTransforms.clear();
+  transformInstances.length = 0;
+  zoomOptions = undefined;
+});
+
+afterEach(() => {
+  vi.runAllTimers();
+  vi.useRealTimers();
+});
+
+describe("interaction.resetZoom", () => {
+  it("resets transform and refreshes legend", () => {
+    const { interaction } = createChart([
+      [10, 20],
+      [30, 40],
+    ]);
+    vi.runAllTimers();
+    legendRefresh.mockClear();
+    const transform = transformInstances[0]!;
+    transform.onZoomPan.mockClear();
+
+    interaction.resetZoom();
+    vi.runAllTimers();
+
+    expect(zoomReset).toHaveBeenCalled();
+    expect(transform.onZoomPan).toHaveBeenCalledWith({ x: 0, k: 1 });
+    expect(legendRefresh).toHaveBeenCalled();
+  });
+});
+
+describe("interaction.enableBrush", () => {
+  it("clears selected time window", () => {
+    const { interaction, chart } = createChart([
+      [10, 20],
+      [30, 40],
+    ]);
+    const internal = chart as unknown as {
+      onBrushEnd: (e: D3BrushEvent<unknown>) => void;
+      state: {
+        screenToModelX: (x: number) => number;
+        axes: { x: { scale: (x: number) => number } };
+      };
+      zoomState: {
+        zoomBehavior: { transform: (n: unknown, t: unknown) => void };
+      };
+    };
+    internal.zoomState.zoomBehavior = { transform: vi.fn() };
+    internal.state.screenToModelX = (x: number) => x;
+    (
+      internal.state.axes.x as unknown as { scale: ScaleLinear<number, number> }
+    ).scale = Object.assign(
+      ((x: number) => x) as unknown as ScaleLinear<number, number>,
+      { invert: (x: number) => x } as unknown,
+    );
+    internal.onBrushEnd({
+      selection: [0, 10],
+      sourceEvent: {},
+    } as unknown as D3BrushEvent<unknown>);
+    expect(interaction.getSelectedTimeWindow()).not.toBeNull();
+
+    (clearBrushSelection as Mock).mockClear();
+    interaction.enableBrush();
+
+    expect(clearBrushSelection).toHaveBeenCalled();
+    expect(interaction.getSelectedTimeWindow()).toBeNull();
+  });
+});
+
+describe("interaction.disableBrush", () => {
+  it("clears selected time window", () => {
+    const { interaction, chart } = createChart([
+      [10, 20],
+      [30, 40],
+    ]);
+    const internal = chart as unknown as {
+      onBrushEnd: (e: D3BrushEvent<unknown>) => void;
+      state: {
+        screenToModelX: (x: number) => number;
+        axes: { x: { scale: (x: number) => number } };
+      };
+      zoomState: {
+        zoomBehavior: { transform: (n: unknown, t: unknown) => void };
+      };
+    };
+    internal.zoomState.zoomBehavior = { transform: vi.fn() };
+    internal.state.screenToModelX = (x: number) => x;
+    (
+      internal.state.axes.x as unknown as { scale: ScaleLinear<number, number> }
+    ).scale = Object.assign(
+      ((x: number) => x) as unknown as ScaleLinear<number, number>,
+      { invert: (x: number) => x } as unknown,
+    );
+    internal.onBrushEnd({
+      selection: [0, 10],
+      sourceEvent: {},
+    } as unknown as D3BrushEvent<unknown>);
+    expect(interaction.getSelectedTimeWindow()).not.toBeNull();
+    interaction.disableBrush();
+    expect(interaction.getSelectedTimeWindow()).toBeNull();
+  });
+});
+
+describe("interaction.setScaleExtent", () => {
+  it("forwards extent to ZoomState", () => {
+    const { interaction } = createChart([
+      [10, 20],
+      [30, 40],
+    ]);
+    const extent: [number, number] = [1, 100];
+    interaction.setScaleExtent(extent);
+    expect(zoomSetScaleExtent).toHaveBeenCalledWith(extent);
+  });
+});
+
+describe("TimeSeriesChart zoom options", () => {
+  it("forwards custom scale extents to ZoomState", () => {
+    createChart(
+      [
+        [10, 20],
+        [30, 40],
+      ],
+      { scaleExtent: [2, 80] },
+    );
+    expect(zoomOptions).toEqual({ scaleExtent: [2, 80] });
+  });
+});
