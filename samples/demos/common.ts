@@ -152,20 +152,16 @@ export async function initDemo(
     charts.forEach((c) => {
       c.interaction.onHover(0);
     });
-    const resetButton = document.getElementById("reset-zoom");
-    let resetHandler: (() => void) | null = null;
-    resetHandler = () => {
+    select("#reset-zoom").on("click.resetZoom", () => {
       charts.forEach((c) => {
         c.interaction.resetZoom();
       });
-    };
-    resetButton?.addEventListener("click", resetHandler);
+    });
 
-    const brushButton = document.getElementById("toggle-brush");
-    let brushHandler: (() => void) | null = null;
-    if (brushButton) {
+    const brushButton = select<HTMLButtonElement, unknown>("#toggle-brush");
+    if (!brushButton.empty()) {
       let brushEnabled = false;
-      brushHandler = () => {
+      brushButton.on("click.toggleBrush", () => {
         brushEnabled = !brushEnabled;
         charts.forEach((c) => {
           if (brushEnabled) {
@@ -174,11 +170,8 @@ export async function initDemo(
             c.interaction.disableBrush();
           }
         });
-        brushButton.textContent = brushEnabled
-          ? "Disable Brush"
-          : "Enable Brush";
-      };
-      brushButton.addEventListener("click", brushHandler);
+        brushButton.text(brushEnabled ? "Disable Brush" : "Enable Brush");
+      });
     }
 
     let disposed = false;
@@ -193,14 +186,8 @@ export async function initDemo(
           window.removeEventListener("resize", resizeListener);
           resizeListener = null;
         }
-        if (resetButton && resetHandler) {
-          resetButton.removeEventListener("click", resetHandler);
-          resetHandler = null;
-        }
-        if (brushButton && brushHandler) {
-          brushButton.removeEventListener("click", brushHandler);
-          brushHandler = null;
-        }
+        select("#reset-zoom").on("click.resetZoom", null);
+        select("#toggle-brush").on("click.toggleBrush", null);
       }
     };
     charts.forEach((c) => {
