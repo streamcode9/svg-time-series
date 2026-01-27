@@ -68,7 +68,7 @@ describe("TimeSeriesChart event emitter", () => {
     chart.updateChartWithNewData([5]);
     expect(dataCb).toHaveBeenCalledWith([5]);
 
-    interaction.off("dataUpdate", dataCb);
+    interaction.off("dataUpdate");
     chart.updateChartWithNewData([6]);
     expect(dataCb).toHaveBeenCalledTimes(1);
     interaction.on("dataUpdate", dataCb);
