@@ -40,8 +40,11 @@ export interface IPublicInteraction {
   getSelectedTimeWindow: () => [number, number] | null;
   getZoomTransform: () => ZoomTransform;
   dispose: () => void;
-  on: (eventName: ChartEvent, handler: ChartEventHandler) => void;
-  off: (eventName: ChartEvent, handler: ChartEventHandler) => void;
+  on: (
+    eventName: ChartEvent | `${ChartEvent}.${string}`,
+    handler: ChartEventHandler,
+  ) => void;
+  off: (eventName: ChartEvent | `${ChartEvent}.${string}`) => void;
 }
 
 export class TimeSeriesChart {
@@ -65,7 +68,6 @@ export class TimeSeriesChart {
     "brushEnd",
     "dataUpdate",
   );
-  private handlerIds = new Map<ChartEvent, Map<ChartEventHandler, string>>();
 
   constructor(
     svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
@@ -188,7 +190,6 @@ export class TimeSeriesChart {
   }
 
   public dispose = () => {
-    this.handlerIds.clear();
     (
       [
         "beforeRender",
@@ -216,26 +217,15 @@ export class TimeSeriesChart {
     this.zoomState.zoom(event);
   };
 
-  public on = (eventName: ChartEvent, handler: ChartEventHandler): void => {
-    let map = this.handlerIds.get(eventName);
-    if (!map) {
-      map = new Map();
-      this.handlerIds.set(eventName, map);
-    }
-    const id = Math.random().toString(36).slice(2);
-    map.set(handler, id);
-    this.dispatch.on(`${eventName}.${id}`, (payload) => {
-      handler(payload);
-    });
+  public on = (
+    eventName: ChartEvent | `${ChartEvent}.${string}`,
+    handler: ChartEventHandler,
+  ): void => {
+    this.dispatch.on(eventName, handler);
   };
 
-  public off = (eventName: ChartEvent, handler: ChartEventHandler): void => {
-    const map = this.handlerIds.get(eventName);
-    const id = map?.get(handler);
-    if (map && id) {
-      this.dispatch.on(`${eventName}.${id}`, null);
-      map.delete(handler);
-    }
+  public off = (eventName: ChartEvent | `${ChartEvent}.${string}`): void => {
+    this.dispatch.on(eventName, null);
   };
 
   public resetZoom = () => {
