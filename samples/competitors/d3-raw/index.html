@@ -84,61 +84,6 @@
     </div>
 
     <script>
-      // Segment Tree implementation for range min/max queries
-      class SegmentTree {
-        constructor(arr) {
-          this.n = arr.length;
-          this.tree = new Array(4 * this.n);
-          this.build(arr, 0, 0, this.n - 1);
-        }
-
-        build(arr, node, start, end) {
-          if (start === end) {
-            this.tree[node] = { min: arr[start], max: arr[start] };
-          } else {
-            const mid = Math.floor((start + end) / 2);
-            this.build(arr, 2 * node + 1, start, mid);
-            this.build(arr, 2 * node + 2, mid + 1, end);
-
-            const left = this.tree[2 * node + 1];
-            const right = this.tree[2 * node + 2];
-            this.tree[node] = {
-              min: Math.min(left.min, right.min),
-              max: Math.max(left.max, right.max),
-            };
-          }
-        }
-
-        query(node, start, end, l, r) {
-          if (r < start || end < l) {
-            return { min: Infinity, max: -Infinity };
-          }
-          if (l <= start && end <= r) {
-            return this.tree[node];
-          }
-
-          const mid = Math.floor((start + end) / 2);
-          const left = this.query(2 * node + 1, start, mid, l, r);
-          const right = this.query(2 * node + 2, mid + 1, end, l, r);
-
-          return {
-            min: Math.min(left.min, right.min),
-            max: Math.max(left.max, right.max),
-          };
-        }
-
-        getExtent() {
-          const result = this.tree[0];
-          return [result.min, result.max];
-        }
-
-        getRangeExtent(l, r) {
-          if (l > r || l < 0 || r >= this.n) return [0, 0];
-          const result = this.query(0, 0, this.n - 1, l, r);
-          return [result.min, result.max];
-        }
-      }
-
       // Generate random walk data
       function generateRandomWalk(numPoints, startValue = 0, volatility = 1) {
         const values = [startValue];
