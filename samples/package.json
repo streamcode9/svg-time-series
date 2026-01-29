@@ -20,8 +20,13 @@
   "devDependencies": {
     "@types/d3-array": "^3.2.1",
     "@types/d3-axis": "^3.0.6",
+    "@types/d3-brush": "^3.0.6",
     "@types/d3-dsv": "^3.0.7",
     "@types/d3-fetch": "^3.0.7",
+    "@types/d3-scale": "^4.0.9",
+    "@types/d3-shape": "^3.1.8",
+    "@types/d3-time-format": "^4.0.3",
+    "@types/d3-zoom": "^3.0.8",
     "@types/plotly.js": "^3.0.3",
     "vite-plugin-static-copy": "^3.1.5"
   }
