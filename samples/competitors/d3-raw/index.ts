@@ -140,7 +140,7 @@ async function initChart(): Promise<void> {
     // Add new data point to each series
     chartControls.addDataPoint(newDate, [newNyValue, newSfValue]);
     j++;
-  }, 5000);
+  }, 100);
 
   // Setup resize handling
   resize.request = function () {
@@ -206,7 +206,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
   ];
 
   // Time domain from dates
-  const originTime = dates[0]!;
+  let originTime = dates[0]!;
   let endTime = dates[dates.length - 1]!;
 
   // Calculate slot interval in milliseconds (average time between data points)
@@ -672,19 +672,25 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     .getElementById("toggle-brush")
     ?.addEventListener("click", toggleBrush);
 
-  // Function to add new data point dynamically
+  // Function to add new data point dynamically (sliding window - removes first, adds last)
   function addDataPoint(date: Date, values: number[]): void {
-    // Add date to the dates array
+    // Remove oldest data point (sliding window behavior, matching demo1)
+    dates.shift();
+    series.forEach((s) => {
+      s.values.shift();
+    });
+    jointMinMaxData.shift();
+
+    // Add date to the dates array (series share this reference, so only push once)
     dates.push(date);
 
-    // Add values to each series
+    // Add values to each series (don't push to s.dates since it's the same array as dates)
     series.forEach((s, i) => {
       const value = values[i] ?? NaN;
       s.values.push(value);
-      s.dates.push(date);
     });
 
-    // Update number of data points
+    // Number of data points stays the same (sliding window)
     numDataPoints = dates.length;
 
     // Calculate new min/max for the new data point
@@ -701,7 +707,8 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
       minMaxIdentity,
     );
 
-    // Update time domain
+    // Update time domain (sliding window - origin moves forward)
+    originTime = dates[0]!;
     endTime = date;
     slotInterval =
       (endTime.getTime() - originTime.getTime()) / (numDataPoints - 1);
