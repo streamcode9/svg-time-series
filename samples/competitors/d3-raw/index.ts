@@ -1,4 +1,4 @@
-import { select } from "d3-selection";
+import { select, pointer } from "d3-selection";
 import { scaleTime, scaleLinear } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { line, curveLinear } from "d3-shape";
@@ -9,6 +9,7 @@ import type { D3BrushEvent } from "d3-brush";
 import { timeFormat, timeParse } from "d3-time-format";
 import { csv } from "d3-fetch";
 import { SegmentTree } from "segment-tree-rmq";
+import { bisector } from "d3-array";
 
 interface IMinMax {
   readonly min: number;
@@ -372,6 +373,102 @@ async function initChart(): Promise<void> {
       .text(s.name);
   });
 
+  // Interactive legend setup
+  const legendTimeEl = select(".chart-legend__time");
+  const legendNyEl = select(".chart-legend__ny");
+  const legendSfEl = select(".chart-legend__sf");
+  const formatLegendDate = timeFormat("%b %d, %Y");
+
+  // Create highlight dots for hover
+  const highlightDots = series.map((s) => {
+    return linesContainer
+      .append("circle")
+      .attr("class", "highlight-dot")
+      .attr("r", 4)
+      .attr("fill", s.color)
+      .attr("stroke", "white")
+      .attr("stroke-width", 1.5)
+      .style("display", "none");
+  });
+
+  // Bisector for finding nearest data point by date
+  const dateBisector = bisector<Date, Date>((d) => d);
+
+  // Function to interpolate value between two data points
+  function interpolateValue(
+    seriesData: Series,
+    targetDate: Date,
+  ): number | null {
+    const targetTime = targetDate.getTime();
+    const idx = dateBisector.left(seriesData.dates, targetDate, 1);
+
+    if (idx === 0) {
+      const val = seriesData.values[0];
+      return val !== undefined && Number.isFinite(val) ? val : null;
+    }
+    if (idx >= seriesData.dates.length) {
+      const val = seriesData.values[seriesData.dates.length - 1];
+      return val !== undefined && Number.isFinite(val) ? val : null;
+    }
+
+    const d0 = seriesData.dates[idx - 1]!;
+    const d1 = seriesData.dates[idx]!;
+    const v0 = seriesData.values[idx - 1]!;
+    const v1 = seriesData.values[idx]!;
+
+    if (!Number.isFinite(v0) || !Number.isFinite(v1)) {
+      // Return the nearest finite value
+      if (Number.isFinite(v0)) return v0;
+      if (Number.isFinite(v1)) return v1;
+      return null;
+    }
+
+    // Linear interpolation
+    const t = (targetTime - d0.getTime()) / (d1.getTime() - d0.getTime());
+    return v0 + t * (v1 - v0);
+  }
+
+  // Function to update legend with hover values
+  function updateLegend(mouseX: number): void {
+    // Convert screen X to date
+    const hoverDate = xScale.invert(mouseX);
+
+    // Clamp to data range
+    if (hoverDate < currentXDomain[0] || hoverDate > currentXDomain[1]) {
+      clearLegend();
+      return;
+    }
+
+    // Update time display
+    legendTimeEl.text(formatLegendDate(hoverDate));
+
+    // Update values and dots for each series
+    series.forEach((s, i) => {
+      const value = interpolateValue(s, hoverDate);
+      const legendEl = i === 0 ? legendNyEl : legendSfEl;
+      const dot = highlightDots[i]!;
+
+      if (value !== null) {
+        legendEl.text(`${value.toFixed(1)}°F`);
+        dot
+          .attr("cx", xScale(hoverDate))
+          .attr("cy", yScale(value))
+          .style("display", null);
+      } else {
+        legendEl.text("—");
+        dot.style("display", "none");
+      }
+    });
+  }
+
+  // Function to clear legend
+  function clearLegend(): void {
+    legendTimeEl.text("");
+    legendNyEl.text("");
+    legendSfEl.text("");
+    highlightDots.forEach((dot) => dot.style("display", "none"));
+  }
+
   // Create zoom behavior with constrained extent
   const zoomBehavior = zoom<SVGRectElement, unknown>()
     .scaleExtent([1, 50])
@@ -499,7 +596,14 @@ async function initChart(): Promise<void> {
     .attr("height", height)
     .style("fill", "none")
     .style("pointer-events", "all")
-    .call(zoomBehavior);
+    .call(zoomBehavior)
+    .on("mousemove", (event: MouseEvent) => {
+      const [x] = pointer(event, event.currentTarget as Element);
+      updateLegend(x);
+    })
+    .on("mouseleave", function () {
+      clearLegend();
+    });
 
   // Add brush group (initially hidden)
   const brushGroup = g

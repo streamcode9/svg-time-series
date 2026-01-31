@@ -65,6 +65,41 @@
         background: #ccc;
         cursor: not-allowed;
       }
+      .chart-legend {
+        display: flex;
+        gap: 20px;
+        margin-top: 10px;
+        padding: 10px;
+        background: #fafafa;
+        border-radius: 4px;
+        font-size: 13px;
+        min-height: 24px;
+      }
+      .chart-legend__time {
+        color: #333;
+        font-weight: 500;
+        min-width: 120px;
+      }
+      .chart-legend__series {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .chart-legend__color {
+        width: 12px;
+        height: 3px;
+        border-radius: 1px;
+      }
+      .chart-legend__name {
+        color: #666;
+      }
+      .chart-legend__value {
+        font-weight: 600;
+        min-width: 50px;
+      }
+      .highlight-dot {
+        pointer-events: none;
+      }
     </style>
   </head>
   <body>
@@ -80,6 +115,19 @@
         ></span>
       </div>
       <svg id="chart"></svg>
+      <div class="chart-legend">
+        <span class="chart-legend__time"></span>
+        <div class="chart-legend__series">
+          <span class="chart-legend__color" style="background: #2E86AB"></span>
+          <span class="chart-legend__name">NY:</span>
+          <span class="chart-legend__value chart-legend__ny"></span>
+        </div>
+        <div class="chart-legend__series">
+          <span class="chart-legend__color" style="background: #A23B72"></span>
+          <span class="chart-legend__name">SF:</span>
+          <span class="chart-legend__value chart-legend__sf"></span>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="index.ts"></script>
