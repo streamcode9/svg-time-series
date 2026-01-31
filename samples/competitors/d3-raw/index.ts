@@ -22,6 +22,7 @@ interface Resize {
 
 const resize: Resize = { interval: 60, request: null, timer: null, eval: null };
 let resizeListener: (() => void) | null = null;
+let intervalId: ReturnType<typeof setInterval> | null = null;
 
 interface IMinMax {
   readonly min: number;
@@ -119,7 +120,27 @@ async function loadData(): Promise<{
 // Initialize chart with loaded data
 async function initChart(): Promise<void> {
   const { series, dates } = await loadData();
-  drawChart(series, dates);
+  const chartControls = drawChart(series, dates);
+
+  // Dynamic data update - cycle through loaded data and append new points every 5 seconds
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
+  let j = 0;
+  const originalData = { series, dates };
+  intervalId = setInterval(function () {
+    const dataIndex = j % originalData.dates.length;
+    const newDate = new Date(
+      dates[dates.length - 1]!.getTime() +
+        (dates[1]!.getTime() - dates[0]!.getTime()),
+    );
+    const newNyValue = originalData.series[0]!.values[dataIndex]!;
+    const newSfValue = originalData.series[1]!.values[dataIndex]!;
+
+    // Add new data point to each series
+    chartControls.addDataPoint(newDate, [newNyValue, newSfValue]);
+    j++;
+  }, 5000);
 
   // Setup resize handling
   resize.request = function () {
@@ -141,11 +162,16 @@ async function initChart(): Promise<void> {
   window.addEventListener("resize", resizeListener);
 }
 
+// Chart control interface
+interface ChartControls {
+  addDataPoint: (date: Date, values: number[]) => void;
+}
+
 // Draw chart with series data
-function drawChart(series: Series[], dates: Date[]): void {
+function drawChart(series: Series[], dates: Date[]): ChartControls {
   const { containerWidth, containerHeight, width, height } =
     getContainerDimensions();
-  const numDataPoints = dates.length;
+  let numDataPoints = dates.length;
   const numSeries = series.length;
 
   // Build joint min/max data for all series at each time slot
@@ -160,31 +186,31 @@ function drawChart(series: Series[], dates: Date[]): void {
   }
 
   // Create segment tree using the same pattern as demo1
-  const jointSegmentTree = new SegmentTree(
+  let jointSegmentTree = new SegmentTree(
     jointMinMaxData,
     buildMinMax,
     minMaxIdentity,
   );
 
   // Get global extent from the tree root
-  const yExtent = (() => {
+  let yExtent = (() => {
     const result = jointSegmentTree.query(0, numDataPoints - 1);
     return [result.min, result.max] as [number, number];
   })();
 
   // Add some padding to y extent
-  const yPadding = (yExtent[1] - yExtent[0]) * 0.1;
-  const yDomain: [number, number] = [
+  let yPadding = (yExtent[1] - yExtent[0]) * 0.1;
+  let yDomain: [number, number] = [
     yExtent[0] - yPadding,
     yExtent[1] + yPadding,
   ];
 
   // Time domain from dates
   const originTime = dates[0]!;
-  const endTime = dates[dates.length - 1]!;
+  let endTime = dates[dates.length - 1]!;
 
   // Calculate slot interval in milliseconds (average time between data points)
-  const slotInterval =
+  let slotInterval =
     (endTime.getTime() - originTime.getTime()) / (numDataPoints - 1);
 
   // Function to calculate visible range extent using segment tree
@@ -233,9 +259,9 @@ function drawChart(series: Series[], dates: Date[]): void {
 
   const yScale = scaleLinear().domain(yDomain).range([height, 0]);
 
-  // Store original domains for reset functionality
-  const originalXDomain = xScale.domain() as [Date, Date];
-  const originalYDomain = yScale.domain() as [number, number];
+  // Store original domains for reset functionality (mutable for dynamic data updates)
+  let originalXDomain = xScale.domain() as [Date, Date];
+  let originalYDomain = yScale.domain() as [number, number];
 
   // Current visible range (for calculating normalized coordinates)
   let currentXDomain: [Date, Date] = [...originalXDomain];
@@ -646,6 +672,66 @@ function drawChart(series: Series[], dates: Date[]): void {
     .getElementById("toggle-brush")
     ?.addEventListener("click", toggleBrush);
 
+  // Function to add new data point dynamically
+  function addDataPoint(date: Date, values: number[]): void {
+    // Add date to the dates array
+    dates.push(date);
+
+    // Add values to each series
+    series.forEach((s, i) => {
+      const value = values[i] ?? NaN;
+      s.values.push(value);
+      s.dates.push(date);
+    });
+
+    // Update number of data points
+    numDataPoints = dates.length;
+
+    // Calculate new min/max for the new data point
+    const minMaxValues: IMinMax[] = values.map((v) =>
+      Number.isFinite(v) ? { min: v, max: v } : minMaxIdentity,
+    );
+    const newMinMax = minMaxValues.reduce(buildMinMax, minMaxIdentity);
+    jointMinMaxData.push(newMinMax);
+
+    // Rebuild segment tree with new data
+    jointSegmentTree = new SegmentTree(
+      jointMinMaxData,
+      buildMinMax,
+      minMaxIdentity,
+    );
+
+    // Update time domain
+    endTime = date;
+    slotInterval =
+      (endTime.getTime() - originTime.getTime()) / (numDataPoints - 1);
+
+    // Recalculate y extent
+    yExtent = (() => {
+      const result = jointSegmentTree.query(0, numDataPoints - 1);
+      return [result.min, result.max] as [number, number];
+    })();
+
+    yPadding = (yExtent[1] - yExtent[0]) * 0.1;
+    yDomain = [yExtent[0] - yPadding, yExtent[1] + yPadding];
+
+    // Update original domains
+    originalXDomain = [originTime, endTime];
+    originalYDomain = yDomain;
+
+    // Update current domains and scales
+    currentXDomain = [...originalXDomain];
+    currentYDomain = [...originalYDomain];
+    xScale.domain(currentXDomain);
+    yScale.domain(currentYDomain);
+
+    // Re-render
+    updateAxes();
+    updateLines();
+
+    console.log(`Added new data point: ${date.toISOString().slice(0, 10)}`);
+  }
+
   console.log("Chart loaded with NY vs SF temperature data:");
   console.log(`- ${String(numDataPoints)} data points`);
   console.log(`- ${String(numSeries)} series (New York, San Francisco)`);
@@ -663,6 +749,11 @@ function drawChart(series: Series[], dates: Date[]): void {
       fpsElement.textContent = fps.toFixed(2);
     }
   });
+
+  // Return chart controls
+  return {
+    addDataPoint,
+  };
 }
 
 // Initialize the chart
