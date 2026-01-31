@@ -11,6 +11,17 @@ import { csv } from "d3-fetch";
 import { SegmentTree } from "segment-tree-rmq";
 import { bisector } from "d3-array";
 
+// Resize handling
+interface Resize {
+  interval: number;
+  request: (() => void) | null;
+  timer: ReturnType<typeof setTimeout> | null;
+  eval: (() => void) | null;
+}
+
+const resize: Resize = { interval: 60, request: null, timer: null, eval: null };
+let resizeListener: (() => void) | null = null;
+
 interface IMinMax {
   readonly min: number;
   readonly max: number;
@@ -30,10 +41,21 @@ function buildMinMax(fst: Readonly<IMinMax>, snd: Readonly<IMinMax>): IMinMax {
 
 // Chart configuration
 const margin = { top: 40, right: 30, bottom: 60, left: 60 };
-const containerWidth = 800;
-const containerHeight = 550;
-const width = containerWidth - margin.left - margin.right;
-const height = containerHeight - margin.top - margin.bottom;
+
+// Dynamic sizing based on container
+function getContainerDimensions(): {
+  containerWidth: number;
+  containerHeight: number;
+  width: number;
+  height: number;
+} {
+  const container = document.getElementById("chart");
+  const containerWidth = container?.clientWidth ?? 800;
+  const containerHeight = container?.clientHeight ?? 550;
+  const width = containerWidth - margin.left - margin.right;
+  const height = containerHeight - margin.top - margin.bottom;
+  return { containerWidth, containerHeight, width, height };
+}
 
 // Parse CSV temperature value - takes middle value from "min;mid;max" format
 function parseTemp(value: string | undefined): number {
@@ -96,6 +118,32 @@ async function loadData(): Promise<{
 // Initialize chart with loaded data
 async function initChart(): Promise<void> {
   const { series, dates } = await loadData();
+  drawChart(series, dates);
+
+  // Setup resize handling
+  resize.request = function () {
+    if (resize.timer) clearTimeout(resize.timer);
+    resize.timer = setTimeout(() => {
+      resize.eval?.();
+    }, resize.interval);
+  };
+  resize.eval = function () {
+    // Clear existing chart and redraw
+    select("#chart").selectAll("*").remove();
+    drawChart(series, dates);
+  };
+
+  if (resizeListener) {
+    window.removeEventListener("resize", resizeListener);
+  }
+  resizeListener = () => resize.request?.();
+  window.addEventListener("resize", resizeListener);
+}
+
+// Draw chart with series data
+function drawChart(series: Series[], dates: Date[]): void {
+  const { containerWidth, containerHeight, width, height } =
+    getContainerDimensions();
   const numDataPoints = dates.length;
   const numSeries = series.length;
 
