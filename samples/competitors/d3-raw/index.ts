@@ -41,7 +41,7 @@ function buildMinMax(fst: Readonly<IMinMax>, snd: Readonly<IMinMax>): IMinMax {
 }
 
 // Chart configuration
-const margin = { top: 40, right: 30, bottom: 60, left: 60 };
+const margin = { top: 20, right: 20, bottom: 30, left: 40 };
 
 // Dynamic sizing based on container
 function getContainerDimensions(): {
@@ -50,9 +50,9 @@ function getContainerDimensions(): {
   width: number;
   height: number;
 } {
-  const container = document.getElementById("chart");
+  const container = document.querySelector(".chart-drawing");
   const containerWidth = container?.clientWidth ?? 800;
-  const containerHeight = container?.clientHeight ?? 550;
+  const containerHeight = container?.clientHeight ?? 400;
   const width = containerWidth - margin.left - margin.right;
   const height = containerHeight - margin.top - margin.bottom;
   return { containerWidth, containerHeight, width, height };
@@ -101,7 +101,7 @@ async function loadData(): Promise<{
     }
   }
 
-  const colors = ["#2E86AB", "#A23B72"];
+  const colors = ["rgb(136, 204, 91)", "rgb(96, 77, 196)"];
   const seriesData: Series[] = [
     { id: 0, name: "New York", values: nyValues, dates, color: colors[0]! },
     {
@@ -295,30 +295,6 @@ function drawChart(series: Series[], dates: Date[]): void {
   // Initial render of axes and grid
   updateAxes();
 
-  // Add axis labels
-  g.append("text")
-    .attr("class", "axis-label")
-    .attr("text-anchor", "middle")
-    .attr("x", width / 2)
-    .attr("y", height + 50)
-    .text("Date");
-
-  g.append("text")
-    .attr("class", "axis-label")
-    .attr("text-anchor", "middle")
-    .attr("transform", "rotate(-90)")
-    .attr("x", -height / 2)
-    .attr("y", -40)
-    .text("Temperature (°F)");
-
-  // Add chart title
-  svg
-    .append("text")
-    .attr("class", "chart-title")
-    .attr("x", containerWidth / 2)
-    .attr("y", 25)
-    .text("NY vs SF Temperature Comparison");
-
   // Create line generator without x/y accessors
   const lineFn = line().curve(curveLinear);
 
@@ -393,39 +369,10 @@ function drawChart(series: Series[], dates: Date[]): void {
   // Initial render of lines
   updateLines();
 
-  // Add legend
-  const legend = g
-    .append("g")
-    .attr("class", "legend")
-    .attr("transform", `translate(${String(width - 120)}, 20)`);
-
-  series.forEach((s, i) => {
-    const legendItem = legend
-      .append("g")
-      .attr("transform", `translate(0, ${String(i * 20)})`);
-
-    legendItem
-      .append("line")
-      .attr("x1", 0)
-      .attr("x2", 15)
-      .attr("y1", 0)
-      .attr("y2", 0)
-      .attr("stroke", s.color)
-      .attr("stroke-width", 2);
-
-    legendItem
-      .append("text")
-      .attr("x", 20)
-      .attr("y", 0)
-      .attr("dy", "0.35em")
-      .attr("font-size", "12px")
-      .text(s.name);
-  });
-
-  // Interactive legend setup
+  // Interactive legend setup (using sidebar legend like demo1)
   const legendTimeEl = select(".chart-legend__time");
-  const legendNyEl = select(".chart-legend__ny");
-  const legendSfEl = select(".chart-legend__sf");
+  const legendNyEl = select(".chart-legend__green_value");
+  const legendSfEl = select(".chart-legend__blue_value");
   const formatLegendDate = timeFormat("%b %d, %Y");
 
   // Create highlight dots for hover
@@ -611,12 +558,11 @@ function drawChart(series: Series[], dates: Date[]): void {
         return;
       }
 
-      // Update selection info
+      // Log selection info
       const formatDateFull = timeFormat("%b %d, %Y");
       const startTimeStr = formatDateFull(constrainedTimeRange[0]);
       const endTimeStr = formatDateFull(constrainedTimeRange[1]);
-      document.getElementById("selectionInfo")!.textContent =
-        `Selection: ${startTimeStr} - ${endTimeStr}`;
+      console.log(`Selection: ${startTimeStr} - ${endTimeStr}`);
 
       // Calculate Y extent for the constrained range using segment tree
       const newXDomain = constrainedTimeRange;
@@ -677,14 +623,11 @@ function drawChart(series: Series[], dates: Date[]): void {
     svg
       .select<SVGRectElement>(".zoom-overlay")
       .call(zoomBehavior.transform.bind(zoomBehavior), zoomIdentity);
-
-    // Clear selection info
-    document.getElementById("selectionInfo")!.textContent = "";
   }
 
   function toggleBrush(): void {
     brushEnabled = !brushEnabled;
-    const button = document.getElementById("brushToggle")!;
+    const button = document.getElementById("toggle-brush")!;
 
     if (brushEnabled) {
       brushGroup.style("display", null);
@@ -694,13 +637,14 @@ function drawChart(series: Series[], dates: Date[]): void {
       brushGroup.style("display", "none");
       zoomOverlay.style("pointer-events", "all").style("cursor", "grab");
       button.textContent = "Enable Brush";
-      document.getElementById("selectionInfo")!.textContent = "";
     }
   }
 
-  // Export functions for button handlers
-  (window as unknown as { resetZoom: () => void }).resetZoom = resetZoom;
-  (window as unknown as { toggleBrush: () => void }).toggleBrush = toggleBrush;
+  // Attach event listeners to buttons
+  document.getElementById("reset-zoom")?.addEventListener("click", resetZoom);
+  document
+    .getElementById("toggle-brush")
+    ?.addEventListener("click", toggleBrush);
 
   console.log("Chart loaded with NY vs SF temperature data:");
   console.log(`- ${String(numDataPoints)} data points`);
