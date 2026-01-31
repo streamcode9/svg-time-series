@@ -10,6 +10,7 @@ import { timeFormat, timeParse } from "d3-time-format";
 import { csv } from "d3-fetch";
 import { SegmentTree } from "segment-tree-rmq";
 import { bisector } from "d3-array";
+import { measure } from "../../measure.ts";
 
 // Resize handling
 interface Resize {
@@ -710,6 +711,14 @@ function drawChart(series: Series[], dates: Date[]): void {
   console.log(
     `- Date range: ${originTime.toISOString().slice(0, 10)} to ${endTime.toISOString().slice(0, 10)}`,
   );
+
+  // Start FPS monitoring
+  measure(3, ({ fps }) => {
+    const fpsElement = document.getElementById("fps");
+    if (fpsElement) {
+      fpsElement.textContent = fps.toFixed(2);
+    }
+  });
 }
 
 // Initialize the chart
