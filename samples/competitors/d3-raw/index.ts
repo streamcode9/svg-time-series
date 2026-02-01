@@ -140,7 +140,7 @@ async function initChart(): Promise<void> {
     // Add new data point to each series
     chartControls.addDataPoint(newDate, [newNyValue, newSfValue]);
     j++;
-  }, 100);
+  }, 5000);
 
   // Setup resize handling
   resize.request = function () {
@@ -603,6 +603,24 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
       updateAxes();
       updateLines();
 
+      // Sync zoom transform to match the new domain so pan/zoom works correctly
+      // Calculate the scale factor and translation for the zoom transform
+      const fullRange =
+        originalXDomain[1].getTime() - originalXDomain[0].getTime();
+      const newRange = newXDomain[1].getTime() - newXDomain[0].getTime();
+      const k = fullRange / newRange;
+      const tx =
+        -(
+          (newXDomain[0].getTime() - originalXDomain[0].getTime()) /
+          fullRange
+        ) *
+        width *
+        k;
+      const newTransform = zoomIdentity.translate(tx, 0).scale(k);
+
+      // Apply the transform to the zoom overlay without triggering the zoom event
+      zoomOverlay.call(zoomBehavior.transform.bind(zoomBehavior), newTransform);
+
       // Clear brush
       brushGroup.call(brush.clear.bind(brush));
     });
@@ -674,6 +692,9 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
 
   // Function to add new data point dynamically (sliding window - removes first, adds last)
   function addDataPoint(date: Date, values: number[]): void {
+    // Capture old origin time before modifying data
+    const oldOriginTime = originTime;
+
     // Remove oldest data point (sliding window behavior, matching demo1)
     dates.shift();
     series.forEach((s) => {
@@ -713,6 +734,9 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     slotInterval =
       (endTime.getTime() - originTime.getTime()) / (numDataPoints - 1);
 
+    // Calculate how much time has shifted (one data point removed from start, one added at end)
+    const timeShift = originTime.getTime() - oldOriginTime.getTime();
+
     // Recalculate y extent
     yExtent = (() => {
       const result = jointSegmentTree.query(0, numDataPoints - 1);
@@ -722,13 +746,51 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     yPadding = (yExtent[1] - yExtent[0]) * 0.1;
     yDomain = [yExtent[0] - yPadding, yExtent[1] + yPadding];
 
-    // Update original domains
+    // Update original domains to reflect new full data range
     originalXDomain = [originTime, endTime];
     originalYDomain = yDomain;
 
-    // Update current domains and scales
-    currentXDomain = [...originalXDomain];
-    currentYDomain = [...originalYDomain];
+    // Preserve zoom/pan state by shifting the current view window by the same amount
+    // This keeps the user looking at the same relative portion of data
+    const wasAtOriginalDomain =
+      currentXDomain[0].getTime() === oldOriginTime.getTime() &&
+      currentXDomain[1].getTime() === endTime.getTime() - slotInterval;
+
+    if (wasAtOriginalDomain) {
+      // If user was viewing the full domain, keep viewing the full domain
+      currentXDomain = [...originalXDomain];
+    } else {
+      // Shift the current view window forward by the time shift to maintain relative position
+      currentXDomain = [
+        new Date(currentXDomain[0].getTime() + timeShift),
+        new Date(currentXDomain[1].getTime() + timeShift),
+      ];
+
+      // Clamp to data boundaries
+      if (currentXDomain[0] < originalXDomain[0]) {
+        const adjustment =
+          originalXDomain[0].getTime() - currentXDomain[0].getTime();
+        currentXDomain[0] = originalXDomain[0];
+        currentXDomain[1] = new Date(currentXDomain[1].getTime() + adjustment);
+      }
+      if (currentXDomain[1] > originalXDomain[1]) {
+        const adjustment =
+          currentXDomain[1].getTime() - originalXDomain[1].getTime();
+        currentXDomain[1] = originalXDomain[1];
+        currentXDomain[0] = new Date(currentXDomain[0].getTime() - adjustment);
+      }
+      // Final clamp
+      if (currentXDomain[0] < originalXDomain[0]) {
+        currentXDomain[0] = originalXDomain[0];
+      }
+      if (currentXDomain[1] > originalXDomain[1]) {
+        currentXDomain[1] = originalXDomain[1];
+      }
+    }
+
+    // Recalculate Y domain for the current visible X range
+    currentYDomain = getVisibleYExtent(currentXDomain);
+
     xScale.domain(currentXDomain);
     yScale.domain(currentYDomain);
 
