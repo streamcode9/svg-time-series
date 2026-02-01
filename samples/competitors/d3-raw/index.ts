@@ -409,10 +409,9 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     return linesContainer
       .append("circle")
       .attr("class", "highlight-dot")
-      .attr("r", 4)
+      .attr("r", 2)
       .attr("fill", s.color)
-      .attr("stroke", "white")
-      .attr("stroke-width", 1.5)
+      .attr("stroke", s.color)
       .style("display", "none");
   });
 
