@@ -6,7 +6,7 @@ import { zoom, zoomIdentity } from "d3-zoom";
 import type { D3ZoomEvent } from "d3-zoom";
 import { brushX } from "d3-brush";
 import type { D3BrushEvent } from "d3-brush";
-import { timeFormat, timeParse } from "d3-time-format";
+import { timeFormat } from "d3-time-format";
 import { csv } from "d3-fetch";
 import { SegmentTree } from "segment-tree-rmq";
 import { bisector } from "d3-array";
@@ -82,24 +82,23 @@ async function loadData(): Promise<{
   series: Series[];
   dates: Date[];
 }> {
-  const parseDate = timeParse("%Y-%m-%d");
   const rows = (await csv("../../demos/ny-vs-sf.csv")) as {
-    Date: string;
     NY: string;
     SF: string;
   }[];
+
+  const startTime = Date.now();
+  const timeStep = 86400000; // 1 day in milliseconds
 
   const dates: Date[] = [];
   const nyValues: number[] = [];
   const sfValues: number[] = [];
 
-  for (const row of rows) {
-    const date = parseDate(row.Date);
-    if (date) {
-      dates.push(date);
-      nyValues.push(parseTemp(row.NY));
-      sfValues.push(parseTemp(row.SF));
-    }
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i]!;
+    dates.push(new Date(startTime + i * timeStep));
+    nyValues.push(parseTemp(row.NY));
+    sfValues.push(parseTemp(row.SF));
   }
 
   const colors = ["rgb(136, 204, 91)", "rgb(96, 77, 196)"];
