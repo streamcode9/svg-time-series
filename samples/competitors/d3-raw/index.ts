@@ -378,7 +378,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
       )
       .append("path")
       .attr("fill", "none")
-      .attr("stroke-width", 2)
+      .attr("stroke-width", 1)
       .attr("vector-effect", "non-scaling-stroke");
 
     // Update all line groups
