@@ -416,6 +416,10 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
   // Bisector for finding nearest data point by date
   const dateBisector = bisector<Date, Date>((d) => d);
 
+  // Track mouse position for updating legend after data changes
+  let lastMouseX: number | null = null;
+  let isHovering = false;
+
   // Function to interpolate value between two data points
   function interpolateValue(
     seriesData: Series,
@@ -638,9 +642,13 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     .call(zoomBehavior)
     .on("mousemove", (event: MouseEvent) => {
       const [x] = pointer(event, event.currentTarget as Element);
+      lastMouseX = x;
+      isHovering = true;
       updateLegend(x);
     })
     .on("mouseleave", function () {
+      isHovering = false;
+      lastMouseX = null;
       clearLegend();
     });
 
@@ -797,6 +805,11 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     // Re-render
     updateAxes();
     updateLines();
+
+    // Update legend if mouse is hovering over the chart
+    if (isHovering && lastMouseX !== null) {
+      updateLegend(lastMouseX);
+    }
 
     console.log(`Added new data point: ${date.toISOString().slice(0, 10)}`);
   }
