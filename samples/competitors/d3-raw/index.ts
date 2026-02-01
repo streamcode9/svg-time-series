@@ -321,7 +321,10 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
   updateAxes();
 
   // Create line generator without x/y accessors
-  const lineFn = line().curve(curveLinear);
+  // Use .defined() to skip null values and create gaps for missing data (like demo1)
+  const lineFn = line<[number, number] | null>()
+    .defined((d) => d !== null)
+    .curve(curveLinear);
 
   // Create clipping path
   svg
@@ -339,19 +342,20 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     .attr("clip-path", "url(#chart-clip)");
 
   // Function to get normalized coordinates for current domain
-  function getNormalizedCoordinates(seriesData: Series): [number, number][] {
-    return seriesData.values
-      .map((value, index) => {
-        if (!Number.isFinite(value)) return null;
-        const timeValue = seriesData.dates[index]!.getTime();
-        const normalizedX =
-          (timeValue - currentXDomain[0].getTime()) /
-          (currentXDomain[1].getTime() - currentXDomain[0].getTime());
-        const normalizedY =
-          (value - currentYDomain[0]) / (currentYDomain[1] - currentYDomain[0]);
-        return [normalizedX, normalizedY] as [number, number];
-      })
-      .filter((p): p is [number, number] => p !== null);
+  // Keep null values to create gaps in the line (like demo1)
+  function getNormalizedCoordinates(
+    seriesData: Series,
+  ): ([number, number] | null)[] {
+    return seriesData.values.map((value, index) => {
+      if (!Number.isFinite(value)) return null;
+      const timeValue = seriesData.dates[index]!.getTime();
+      const normalizedX =
+        (timeValue - currentXDomain[0].getTime()) /
+        (currentXDomain[1].getTime() - currentXDomain[0].getTime());
+      const normalizedY =
+        (value - currentYDomain[0]) / (currentYDomain[1] - currentYDomain[0]);
+      return [normalizedX, normalizedY] as [number, number];
+    });
   }
 
   // Function to update lines based on current domain
