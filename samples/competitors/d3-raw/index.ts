@@ -314,6 +314,10 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
   function updateAxes(): void {
     xAxisGroup.call(xAxis);
     yAxisGroup.call(yAxis);
+    yAxisGroup
+      .selectAll(".tick text")
+      .attr("text-anchor", "start")
+      .attr("x", 9);
     updateGrid();
   }
 
