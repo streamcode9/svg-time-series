@@ -41,8 +41,7 @@ function buildMinMax(fst: Readonly<IMinMax>, snd: Readonly<IMinMax>): IMinMax {
   } as const;
 }
 
-// Chart configuration
-const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+// Chart configuration - no internal margins (drawing uses full SVG)
 
 // Dynamic sizing based on container
 function getContainerDimensions(): {
@@ -54,8 +53,9 @@ function getContainerDimensions(): {
   const container = document.querySelector(".chart-drawing");
   const containerWidth = container?.clientWidth ?? 800;
   const containerHeight = container?.clientHeight ?? 400;
-  const width = containerWidth - margin.left - margin.right;
-  const height = containerHeight - margin.top - margin.bottom;
+  // Use the full container dimensions so the chart fills the entire SVG
+  const width = containerWidth;
+  const height = containerHeight;
   return { containerWidth, containerHeight, width, height };
 }
 
@@ -246,12 +246,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     .style("max-width", "100%")
     .style("height", "auto");
 
-  const g = svg
-    .append("g")
-    .attr(
-      "transform",
-      `translate(${String(margin.left)},${String(margin.top)})`,
-    );
+  const g = svg.append("g").attr("transform", `translate(0,0)`);
 
   // Create scales
   const xScale = scaleTime().domain([originTime, endTime]).range([0, width]);
