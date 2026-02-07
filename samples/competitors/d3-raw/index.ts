@@ -1,6 +1,6 @@
 import { select, pointer } from "d3-selection";
 import { scaleTime, scaleLinear } from "d3-scale";
-import { axisBottom, axisLeft } from "d3-axis";
+import { axisRight, axisBottom } from "d3-axis";
 import { line, curveLinear } from "d3-shape";
 import { zoom, zoomIdentity } from "d3-zoom";
 import type { D3ZoomEvent } from "d3-zoom";
@@ -270,13 +270,10 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
   const formatDate = timeFormat("%b %d");
   const xAxis = axisBottom(xScale).tickFormat((d) => formatDate(d as Date));
 
-  const yAxis = axisLeft(yScale);
+  const yAxis = axisRight(yScale);
 
   // Create axis groups
-  const xAxisGroup = g
-    .append("g")
-    .attr("class", "axis")
-    .attr("transform", `translate(0,${String(height)})`);
+  const xAxisGroup = g.append("g").attr("class", "axis");
 
   const yAxisGroup = g.append("g").attr("class", "axis");
 
@@ -314,10 +311,6 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
   function updateAxes(): void {
     xAxisGroup.call(xAxis);
     yAxisGroup.call(yAxis);
-    yAxisGroup
-      .selectAll(".tick text")
-      .attr("text-anchor", "start")
-      .attr("x", 9);
     updateGrid();
   }
 
