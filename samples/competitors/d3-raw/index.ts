@@ -59,13 +59,13 @@ function getContainerDimensions(): {
   return { containerWidth, containerHeight, width, height };
 }
 
-// Parse CSV temperature value - takes middle value from "min;mid;max" format
+// Parse CSV temperature value - takes first value from "min;mid;max" format
 function parseTemp(value: string | undefined): number {
   if (!value || value.trim() === "") return NaN;
   const parts = value.split(";");
-  // Use middle temperature value
-  const midValue = parts.length >= 2 ? parts[1] : parts[0];
-  return parseFloat(midValue ?? "");
+  // Use first temperature value
+  const firstValue = parts[0];
+  return parseFloat(firstValue ?? "");
 }
 
 // Series interface
@@ -402,7 +402,6 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
   const legendTimeEl = select(".chart-legend__time");
   const legendNyEl = select(".chart-legend__green_value");
   const legendSfEl = select(".chart-legend__blue_value");
-  const formatLegendDate = timeFormat("%b %d, %Y");
 
   // Create highlight dots for hover
   const highlightDots = series.map((s) => {
@@ -468,7 +467,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     }
 
     // Update time display
-    legendTimeEl.text(formatLegendDate(hoverDate));
+    legendTimeEl.text(hoverDate.toLocaleString());
 
     // Update values and dots for each series
     series.forEach((s, i) => {
@@ -477,13 +476,13 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
       const dot = highlightDots[i]!;
 
       if (value !== null) {
-        legendEl.text(`${value.toFixed(1)}°F`);
+        legendEl.text(Math.round(value).toString());
         dot
           .attr("cx", xScale(hoverDate))
           .attr("cy", yScale(value))
           .style("display", null);
       } else {
-        legendEl.text("—");
+        legendEl.text(" ");
         dot.style("display", "none");
       }
     });
