@@ -266,9 +266,12 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
   let currentXDomain: [Date, Date] = [...originalXDomain];
   let currentYDomain: [number, number] = [...originalYDomain];
 
-  // Create axes
-  const formatDate = timeFormat("%b %d");
-  const xAxis = axisBottom(xScale).tickFormat((d) => formatDate(d as Date));
+  // Create axes — use adaptive tick formatting like demo1 (target 4 ticks)
+  const tickCount = 4;
+  const xTickFormat = xScale.tickFormat(tickCount);
+  const xAxis = axisBottom(xScale)
+    .ticks(tickCount)
+    .tickFormat((d) => xTickFormat(d as Date));
 
   const yAxis = axisRight(yScale);
 
@@ -297,7 +300,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
 
     gridGroup
       .selectAll(".grid-line.vertical")
-      .data(xScale.ticks(10))
+      .data(xScale.ticks(tickCount))
       .enter()
       .append("line")
       .attr("class", "grid-line vertical")
