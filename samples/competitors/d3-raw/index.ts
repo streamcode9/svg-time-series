@@ -288,7 +288,10 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     .ticks(tickCount)
     .tickFormat((d) => xTickFormat(d as Date));
 
-  const yAxis = axisRight(yScale);
+  const yTickFormat = yScale.tickFormat(tickCount);
+  const yAxis = axisRight(yScale)
+    .ticks(tickCount)
+    .tickFormat((d) => yTickFormat(d as number));
 
   // Create axis groups
   const xAxisGroup = g.append("g").attr("class", "axis");
