@@ -304,7 +304,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
 
     gridGroup
       .selectAll(".grid-line.horizontal")
-      .data(yScale.ticks(10))
+      .data(yScale.ticks(tickCount))
       .enter()
       .append("line")
       .attr("class", "grid-line horizontal")
