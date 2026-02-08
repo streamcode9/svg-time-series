@@ -9,7 +9,7 @@ import type { D3BrushEvent } from "d3-brush";
 import { timeFormat } from "d3-time-format";
 import { csv } from "d3-fetch";
 import { SegmentTree } from "segment-tree-rmq";
-import { bisector } from "d3-array";
+import { bisector, extent } from "d3-array";
 import { measure } from "../../measure.ts";
 
 // Resize handling
@@ -191,18 +191,28 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     minMaxIdentity,
   );
 
-  // Get global extent from the tree root
+  // Get global extent from the tree root (use same domain logic as demo1)
   let yExtent = (() => {
     const result = jointSegmentTree.query(0, numDataPoints - 1);
     return [result.min, result.max] as [number, number];
   })();
 
-  // Add some padding to y extent
-  let yPadding = (yExtent[1] - yExtent[0]) * 0.1;
-  let yDomain: [number, number] = [
-    yExtent[0] - yPadding,
-    yExtent[1] + yPadding,
+  // Build domain using extent semantics and identical-value handling (no manual 10% padding)
+  const rawGlobal = extent([yExtent[0], yExtent[1]]) as [
+    number | undefined,
+    number | undefined,
   ];
+  let yDomain: [number, number];
+  if (
+    !Number.isFinite(rawGlobal[0] as number) ||
+    !Number.isFinite(rawGlobal[1] as number)
+  ) {
+    yDomain = [0, 0];
+  } else if (rawGlobal[0] === rawGlobal[1]) {
+    yDomain = [rawGlobal[0]! - 0.5, rawGlobal[1]! + 0.5];
+  } else {
+    yDomain = [rawGlobal[0]!, rawGlobal[1]!];
+  }
 
   // Time domain from dates
   let originTime = dates[0]!;
@@ -232,11 +242,21 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     // Query segment tree for the visible range
     const result = jointSegmentTree.query(startIndex, endIndex);
 
-    // Add padding to the visible extent
-    const range = result.max - result.min;
-    const padding = range * 0.1;
-
-    return [result.min - padding, result.max + padding];
+    // Use extent semantics + identical-value handling (like demo1)
+    const raw = extent([result.min, result.max]) as [
+      number | undefined,
+      number | undefined,
+    ];
+    if (
+      !Number.isFinite(raw[0] as number) ||
+      !Number.isFinite(raw[1] as number)
+    ) {
+      return [0, 0];
+    }
+    if (raw[0] === raw[1]) {
+      return [raw[0]! - 0.5, raw[1]! + 0.5];
+    }
+    return [raw[0]!, raw[1]!];
   }
 
   // Create SVG with proper sizing
@@ -251,7 +271,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
   // Create scales
   const xScale = scaleTime().domain([originTime, endTime]).range([0, width]);
 
-  const yScale = scaleLinear().domain(yDomain).range([height, 0]);
+  const yScale = scaleLinear().domain(yDomain).nice().range([height, 0]);
 
   // Store original domains for reset functionality (mutable for dynamic data updates)
   let originalXDomain = xScale.domain() as [Date, Date];
@@ -550,7 +570,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
 
       // Update scales
       xScale.domain(constrainedXDomain);
-      yScale.domain(newYDomain);
+      yScale.domain(newYDomain).nice();
 
       // Re-render everything
       updateAxes();
@@ -598,7 +618,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
       currentXDomain = newXDomain;
       currentYDomain = newYDomain;
       xScale.domain(newXDomain);
-      yScale.domain(newYDomain);
+      yScale.domain(newYDomain).nice();
 
       updateAxes();
       updateLines();
@@ -741,18 +761,32 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     // Calculate how much time has shifted (one data point removed from start, one added at end)
     const timeShift = originTime.getTime() - oldOriginTime.getTime();
 
-    // Recalculate y extent
+    // Recalculate y extent (use demo1-style domain logic)
     yExtent = (() => {
       const result = jointSegmentTree.query(0, numDataPoints - 1);
       return [result.min, result.max] as [number, number];
     })();
 
-    yPadding = (yExtent[1] - yExtent[0]) * 0.1;
-    yDomain = [yExtent[0] - yPadding, yExtent[1] + yPadding];
+    const rawGlobal2 = extent([yExtent[0], yExtent[1]]) as [
+      number | undefined,
+      number | undefined,
+    ];
+    if (
+      !Number.isFinite(rawGlobal2[0] as number) ||
+      !Number.isFinite(rawGlobal2[1] as number)
+    ) {
+      yDomain = [0, 0];
+    } else if (rawGlobal2[0] === rawGlobal2[1]) {
+      yDomain = [rawGlobal2[0]! - 0.5, rawGlobal2[1]! + 0.5];
+    } else {
+      yDomain = [rawGlobal2[0]!, rawGlobal2[1]!];
+    }
 
     // Update original domains to reflect new full data range
     originalXDomain = [originTime, endTime];
-    originalYDomain = yDomain;
+    // Apply to scale and read back the nice domain
+    yScale.domain(yDomain).nice();
+    originalYDomain = yScale.domain() as [number, number];
 
     // Preserve zoom/pan state by shifting the current view window by the same amount
     // This keeps the user looking at the same relative portion of data
@@ -796,7 +830,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
     currentYDomain = getVisibleYExtent(currentXDomain);
 
     xScale.domain(currentXDomain);
-    yScale.domain(currentYDomain);
+    yScale.domain(currentYDomain).nice();
 
     // Re-render
     updateAxes();
