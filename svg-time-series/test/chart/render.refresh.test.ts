@@ -33,6 +33,7 @@ function createSvg() {
   const dom = new JSDOM(`<div id="c"><svg></svg></div>`, {
     pretendToBeVisual: true,
     contentType: "text/html",
+    url: "http://localhost",
   });
   (
     globalThis as unknown as { HTMLElement: typeof dom.window.HTMLElement }
@@ -72,7 +73,11 @@ describe("RenderState.refresh", () => {
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
     state.series.forEach((s, i) => {
       const t = state.axes.y[s.axisIdx]!.transform;
-      expect(updateNodeMock).toHaveBeenNthCalledWith(i + 1, s.view, t.matrix);
+      expect(updateNodeMock).toHaveBeenNthCalledWith(
+        i + 1,
+        s.view.node(),
+        t.matrix,
+      );
     });
   });
 
@@ -101,7 +106,11 @@ describe("RenderState.refresh", () => {
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
     state.series.forEach((s, i) => {
       const t = state.axes.y[s.axisIdx]!.transform;
-      expect(updateNodeMock).toHaveBeenNthCalledWith(i + 1, s.view, t.matrix);
+      expect(updateNodeMock).toHaveBeenNthCalledWith(
+        i + 1,
+        s.view.node(),
+        t.matrix,
+      );
     });
   });
 
