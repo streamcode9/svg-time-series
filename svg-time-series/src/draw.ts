@@ -174,11 +174,8 @@ export class TimeSeriesChart {
     this.data.replace(source);
     this.state.destroy();
     this.state = setupRender(this.svg, this.data);
-    const svgNode = this.svg.node();
-    if (svgNode) {
-      svgNode.appendChild(this.zoomArea.node()!);
-      svgNode.appendChild(this.brushLayer.node()!);
-    }
+    this.zoomArea.raise();
+    this.brushLayer.raise();
     const context = this.state.createLegendContext(this.data);
     this.legendController.init(context);
     this.zoomState.destroy();
