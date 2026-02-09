@@ -46,8 +46,8 @@ interface Dimensions {
 
 export interface Series {
   axisIdx: number;
-  view: SVGGElement;
-  path: SVGPathElement;
+  view: Selection<SVGGElement, unknown, null, unknown>;
+  path: Selection<SVGPathElement, unknown, null, unknown>;
   line: Line<number[]>;
   lastMatrix?: DOMMatrix;
 }
@@ -118,7 +118,10 @@ export class RenderState {
       const t = this.axes.y[s.axisIdx]!.transform;
       const m = t.matrix;
       if (!s.lastMatrix || !matricesEqual(m, s.lastMatrix)) {
-        updateNode(s.view, m);
+        const viewNode = s.view.node();
+        if (viewNode) {
+          updateNode(viewNode, m);
+        }
         s.lastMatrix = m;
       }
     }
@@ -135,7 +138,6 @@ export class RenderState {
 
   public destroy(): void {
     for (const s of this.series) {
-      s.path.remove();
       s.view.remove();
     }
     this.series.length = 0;
@@ -197,7 +199,7 @@ export class RenderState {
 
   public getLegendSeriesInfo(): readonly LegendSeriesInfo[] {
     return this.series.map((s) => ({
-      path: s.path,
+      path: s.path.node() as SVGPathElement,
       transform: this.axes.y[s.axisIdx]!.transform,
     }));
   }

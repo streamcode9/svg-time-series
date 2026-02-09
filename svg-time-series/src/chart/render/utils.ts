@@ -27,11 +27,14 @@ export function createDimensions(
 
 export function createSeriesNodes(
   svg: Selection<SVGSVGElement, unknown, HTMLElement, unknown>,
-): { view: SVGGElement; path: SVGPathElement } {
+): {
+  view: Selection<SVGGElement, unknown, null, unknown>;
+  path: Selection<SVGPathElement, unknown, null, unknown>;
+} {
   const view = svg.append("g").attr("class", "view");
   const path = view.append<SVGPathElement>("path");
   return {
-    view: view.node() as SVGGElement,
-    path: path.node() as SVGPathElement,
+    view: view as unknown as Selection<SVGGElement, unknown, null, unknown>,
+    path: path as unknown as Selection<SVGPathElement, unknown, null, unknown>,
   };
 }
