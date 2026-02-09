@@ -29,6 +29,7 @@ cd samples; npx vite       # Alternative way to start dev server
 
 ```bash
 npm test                    # Run all unit tests with Vitest (uses --reporter=dot)
+npx vitest run svg-time-series/test/chart/render.test.ts  # Run a single test file
 npm run typecheck           # Run TypeScript type checking across all workspaces
 ```
 
@@ -131,30 +132,24 @@ See docs/dom-structure.md for D3 selection examples and styling patterns.
 
 ## Testing Conventions
 
-- Test files use `.test.ts` suffix and live alongside source files
+- Test files use `.test.ts` suffix and live in `test/` directories within each workspace (e.g., `svg-time-series/test/chart/`)
 - Benchmark files use `.bench.ts` suffix in `bench/` directories
-- Tests use Vitest with JSDOM for DOM simulation
+- Tests use Vitest with JSDOM (`// @vitest-environment jsdom` directive in test files)
 - Use `test/setupDom.ts` for DOM polyfills in tests (exports `polyfillDom()`)
+- Use `test/domUtils.ts` for test helpers (`createSvg()`, `createDiv()`)
 - Test file organization mirrors implementation: component tests like `zoomState.test.ts`, `zoomState.methods.test.ts`, `zoomState.destroy.test.ts` split by concern
 
 ## Code Style Notes
 
-- TypeScript with strict mode enabled (`noImplicitAny`, `strictNullChecks`, `noUncheckedIndexedAccess`, etc.)
+- TypeScript with strict mode enabled (`noImplicitAny`, `strictNullChecks`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, etc.)
 - ES modules with `.ts` extensions in imports (`import { foo } from "./bar.ts"`)
+- Use `import type` for type-only imports (enforced by `@typescript-eslint/consistent-type-imports`)
 - Target ES2022 with `bundler` module resolution
-- D3.js version 3.x (d3-zoom, d3-scale, d3-selection, d3-shape, d3-brush)
-- Use `geometry-polyfill` for DOMMatrix/DOMPoint support
+- D3.js v3.x packages (d3-zoom, d3-scale, d3-selection, d3-shape, d3-brush, d3-dispatch, d3-timer)
+- `geometry-polyfill` for DOMMatrix/DOMPoint support in tests
+- ESLint uses flat config with `strictTypeChecked`; `no-explicit-any` is an error, `no-non-null-assertion` is allowed
+- Prettier uses default settings
 
 ## Commits
 
-This project uses Conventional Commits with commitlint:
-
-- feat: New features
-- fix: Bug fixes
-- chore: Build/config changes
-- docs: Documentation
-- refactor: Code refactoring
-- test: Test changes
-- perf: Performance improvements
-
-Commits use Husky pre-commit hooks for lint-staged.
+This project uses Conventional Commits with commitlint. Husky pre-commit hooks run lint-staged (ESLint + Prettier) automatically, plus `npm run lint`, `npm run typecheck`, and `npm test`.
