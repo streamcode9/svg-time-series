@@ -73,9 +73,11 @@ describe("RenderState.refresh integration", () => {
 
     expect(updateNodeSpy).toHaveBeenCalledTimes(state.series.length);
     for (const s of state.series) {
-      expect(updateNodeSpy.mock.calls.some((call) => call[0] === s.view)).toBe(
-        true,
-      );
+      expect(
+        updateNodeSpy.mock.calls.some(
+          (call) => call[0] === s.viewSelection.node(),
+        ),
+      ).toBe(true);
     }
 
     updateNodeSpy.mockRestore();

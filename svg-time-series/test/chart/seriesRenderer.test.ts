@@ -2,6 +2,8 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi } from "vitest";
+import { select } from "d3-selection";
+import type { Selection } from "d3-selection";
 
 import type { Line } from "d3-shape";
 import { SeriesRenderer } from "../../src/chart/seriesRenderer.ts";
@@ -25,7 +27,23 @@ describe("SeriesRenderer", () => {
         `${id}:${arr.map((p) => p.join(",")).join(";")}`) as unknown as Line<
         number[]
       >;
-      return { axisIdx: 0, path, view, line };
+      return {
+        id,
+        axisIdx: 0,
+        pathSelection: select(path) as unknown as Selection<
+          SVGPathElement,
+          unknown,
+          HTMLElement,
+          unknown
+        >,
+        viewSelection: select(view) as unknown as Selection<
+          SVGGElement,
+          unknown,
+          HTMLElement,
+          unknown
+        >,
+        line,
+      };
     };
 
     const series = [makeSeries("a"), makeSeries("b")];
@@ -33,8 +51,8 @@ describe("SeriesRenderer", () => {
 
     renderer.draw(data);
 
-    expect(series[0]!.path.getAttribute("d")).toBe("a:0,1;2,3");
-    expect(series[1]!.path.getAttribute("d")).toBe("b:0,1;2,3");
+    expect(series[0]!.pathSelection.attr("d")).toBe("a:0,1;2,3");
+    expect(series[1]!.pathSelection.attr("d")).toBe("b:0,1;2,3");
   });
 
   it("falls back to empty string for empty data", () => {
@@ -44,12 +62,28 @@ describe("SeriesRenderer", () => {
     const line = ((arr: number[][]) =>
       arr.length ? "filled" : undefined) as unknown as Line<number[]>;
 
-    const series: Series = { axisIdx: 0, path, view, line };
+    const series: Series = {
+      id: "test",
+      axisIdx: 0,
+      pathSelection: select(path) as unknown as Selection<
+        SVGPathElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
+      viewSelection: select(view) as unknown as Selection<
+        SVGGElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
+      line,
+    };
     renderer.series = [series];
 
     renderer.draw([]);
 
-    expect(path.getAttribute("d")).toBe("");
+    expect(series.pathSelection.attr("d")).toBe("");
   });
 
   it("skips DOM updates when data is unchanged", () => {
@@ -63,10 +97,26 @@ describe("SeriesRenderer", () => {
     const view = document.createElementNS("http://www.w3.org/2000/svg", "g");
     const line = (() => "same") as unknown as Line<number[]>;
 
-    const series: Series = { axisIdx: 0, path, view, line };
+    const series: Series = {
+      id: "test",
+      axisIdx: 0,
+      pathSelection: select(path) as unknown as Selection<
+        SVGPathElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
+      viewSelection: select(view) as unknown as Selection<
+        SVGGElement,
+        unknown,
+        HTMLElement,
+        unknown
+      >,
+      line,
+    };
     renderer.series = [series];
 
-    const spy = vi.spyOn(path, "setAttribute");
+    const spy = vi.spyOn(series.pathSelection, "attr");
 
     renderer.draw(data);
     renderer.draw(data);

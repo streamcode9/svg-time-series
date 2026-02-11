@@ -11,7 +11,7 @@ export class SeriesRenderer {
     for (const s of this.series) {
       const d = s.line(dataArr) ?? "";
       if (this.lastD.get(s) !== d) {
-        s.path.setAttribute("d", d);
+        s.pathSelection.attr("d", d);
         this.lastD.set(s, d);
       }
     }

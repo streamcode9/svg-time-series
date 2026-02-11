@@ -50,16 +50,13 @@ describe("LegendController", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
-    select<SVGPathElement, unknown>(state.series[0]!.path).attr(
-      "stroke",
-      "green",
-    );
+    state.series[0]!.pathSelection.attr("stroke", "green");
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
       getLength: () => data.length,
       series: state.series.map((s) => ({
-        path: s.path,
+        pathSelection: s.pathSelection,
         transform: state.axes.y[s.axisIdx]!.transform,
       })),
     });
@@ -104,16 +101,13 @@ describe("LegendController", () => {
       return { timestamp } as { timestamp: number } & Record<string, unknown>;
     }) as unknown as typeof data.getPoint;
     const state = setupRender(svg, data);
-    select<SVGPathElement, unknown>(state.series[0]!.path).attr(
-      "stroke",
-      "green",
-    );
+    state.series[0]!.pathSelection.attr("stroke", "green");
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
       getLength: () => data.length,
       series: state.series.map((s) => ({
-        path: s.path,
+        pathSelection: s.pathSelection,
         transform: state.axes.y[s.axisIdx]!.transform,
       })),
     });
@@ -143,16 +137,13 @@ describe("LegendController", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
-    select<SVGPathElement, unknown>(state.series[0]!.path).attr(
-      "stroke",
-      "green",
-    );
+    state.series[0]!.pathSelection.attr("stroke", "green");
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
       getLength: () => data.length,
       series: state.series.map((s) => ({
-        path: s.path,
+        pathSelection: s.pathSelection,
         transform: state.axes.y[s.axisIdx]!.transform,
       })),
     });
@@ -203,20 +194,14 @@ describe("LegendController", () => {
     };
     const data = new ChartData(source);
     const state = setupRender(svg, data);
-    select<SVGPathElement, unknown>(state.series[0]!.path).attr(
-      "stroke",
-      "green",
-    );
-    select<SVGPathElement, unknown>(state.series[1]!.path).attr(
-      "stroke",
-      "blue",
-    );
+    state.series[0]!.pathSelection.attr("stroke", "green");
+    state.series[1]!.pathSelection.attr("stroke", "blue");
     const lc = new LegendController(legendDiv);
     lc.init({
       getPoint: data.getPoint.bind(data),
       getLength: () => data.length,
       series: state.series.map((s) => ({
-        path: s.path,
+        pathSelection: s.pathSelection,
         transform: state.axes.y[s.axisIdx]!.transform,
       })),
     });
