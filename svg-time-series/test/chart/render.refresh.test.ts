@@ -72,7 +72,11 @@ describe("RenderState.refresh", () => {
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
     state.series.forEach((s, i) => {
       const t = state.axes.y[s.axisIdx]!.transform;
-      expect(updateNodeMock).toHaveBeenNthCalledWith(i + 1, s.view, t.matrix);
+      expect(updateNodeMock).toHaveBeenNthCalledWith(
+        i + 1,
+        s.viewSelection.node(),
+        t.matrix,
+      );
     });
   });
 
@@ -101,7 +105,11 @@ describe("RenderState.refresh", () => {
     expect(updateNodeMock).toHaveBeenCalledTimes(state.series.length);
     state.series.forEach((s, i) => {
       const t = state.axes.y[s.axisIdx]!.transform;
-      expect(updateNodeMock).toHaveBeenNthCalledWith(i + 1, s.view, t.matrix);
+      expect(updateNodeMock).toHaveBeenNthCalledWith(
+        i + 1,
+        s.viewSelection.node(),
+        t.matrix,
+      );
     });
   });
 

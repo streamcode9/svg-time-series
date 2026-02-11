@@ -29,7 +29,7 @@ describe("SeriesRenderer", () => {
 
       renderer.draw(data);
 
-      const d = select(renderer.series[0]!.path).attr("d");
+      const d = renderer.series[0]!.pathSelection.attr("d");
       expect(d).not.toContain("NaN");
       expect(d.match(/M/g)?.length).toBe(2);
     });
@@ -42,13 +42,12 @@ describe("SeriesRenderer", () => {
       const seriesList = createSeries(svgSelection, [0]);
       const [series] = seriesList;
       renderer.series = seriesList;
-      const pathNode = series!.path;
-      const spy = vi.spyOn(pathNode, "setAttribute");
+      const spy = vi.spyOn(series!.pathSelection, "attr");
 
       renderer.draw([[0], [1]]);
 
-      expect(spy).toHaveBeenCalledTimes(renderer.series.length);
-      expect(pathNode.getAttribute("d")).not.toBe("");
+      expect(spy).toHaveBeenCalledWith("d", expect.any(String));
+      expect(series!.pathSelection.attr("d")).not.toBe("");
       expect(svgSelection.selectAll("path").nodes().length).toBe(1);
 
       spy.mockRestore();
@@ -63,7 +62,9 @@ describe("createSeries", () => {
     ) as unknown as Selection<SVGSVGElement, unknown, HTMLElement, unknown>;
     const [series] = createSeries(svgSelection, [0]);
 
-    expect(series!.view.tagName).toBe("g");
-    expect(series!.path.tagName).toBe("path");
+    expect(series!.viewSelection.node()?.tagName).toBe("g");
+    expect(series!.pathSelection.node()?.tagName).toBe("path");
+    expect(series!.id).toBe("series-0");
+    expect(series!.axisIdx).toBe(0);
   });
 });

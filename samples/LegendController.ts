@@ -53,7 +53,11 @@ export class LegendController implements ILegendController {
     if (!firstSeries) {
       throw new Error("No series available");
     }
-    const svg = firstSeries.path.ownerSVGElement;
+    const firstPathNode = firstSeries.pathSelection.node();
+    if (!firstPathNode) {
+      throw new Error("Path element not found");
+    }
+    const svg = firstPathNode.ownerSVGElement;
     if (!svg) {
       throw new Error("SVG element not found");
     }
@@ -69,10 +73,9 @@ export class LegendController implements ILegendController {
         .attr("stroke", color)
         .node() as SVGCircleElement;
     };
-    this.highlightedGreenDot = makeDot(firstSeries.path);
-    this.highlightedBlueDot = makeDot(
-      context.series[1]?.path ?? firstSeries.path,
-    );
+    this.highlightedGreenDot = makeDot(firstPathNode);
+    const secondPathNode = context.series[1]?.pathSelection.node();
+    this.highlightedBlueDot = makeDot(secondPathNode ?? firstPathNode);
     if (!context.series[1]) {
       this.highlightedBlueDot.style.display = "none";
     }

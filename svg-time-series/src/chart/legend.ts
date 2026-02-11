@@ -1,7 +1,8 @@
+import type { Selection } from "d3-selection";
 import type { ViewportTransform } from "../ViewportTransform.ts";
 
 export interface LegendSeriesInfo {
-  path: SVGPathElement;
+  pathSelection: Selection<SVGPathElement, unknown, HTMLElement, unknown>;
   transform: ViewportTransform;
 }
 
