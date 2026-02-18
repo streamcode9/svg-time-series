@@ -21,13 +21,9 @@ function createYAxis(
   scale: ScaleLinear<number, number>,
   width: number,
 ): MyAxis {
-  // For Orientation.Left (k = -1), negate the tick size so that the grid
-  // lines extend rightward into the chart (k * -width = width) and the
-  // text labels land at x ≈ width (the right edge) instead of x = -2.
-  const size = orientation === Orientation.Left ? -width : width;
   const axis = new MyAxis(orientation, scale)
     .ticks(4, "s")
-    .setTickSize(size)
+    .setTickSize(width)
     .setTickPadding(2 - width);
 
   axis.setScale(scale);
