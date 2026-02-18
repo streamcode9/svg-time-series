@@ -42,6 +42,7 @@ export class MyAxis {
   private orient: Orientation;
   private scale1: ScaleType;
   private scale2: ScaleType | undefined;
+  private drawTickLines: boolean;
 
   constructor(orient: Orientation, scale1: ScaleType, scale2?: ScaleType) {
     this.orient = orient;
@@ -52,6 +53,7 @@ export class MyAxis {
     this.tickFormat = null;
     this.tickSizeInner = 6;
     this.tickPadding = 3;
+    this.drawTickLines = true;
   }
 
   private primaryTickValue<T>(d: T | [T, number]): T {
@@ -161,9 +163,11 @@ export class MyAxis {
         : ((x = "y"), "x");
 
     tick = tick.merge(tickEnter);
-    line = line.merge(
-      tickEnter.append("line").attr(x + "2", k * this.tickSizeInner),
-    );
+    if (this.drawTickLines) {
+      line = line.merge(
+        tickEnter.append("line").attr(x + "2", k * this.tickSizeInner),
+      );
+    }
 
     text = text.merge(tickEnter.append("text").attr(x, k * spacing));
 
@@ -171,10 +175,12 @@ export class MyAxis {
 
     tick.attr("transform", this.tickTransformFn(transform, positions));
 
-    line
-      .attr(x + "2", k * this.tickSizeInner)
-      .attr(y + "1", 0.5)
-      .attr(y + "2", 0.5);
+    if (this.drawTickLines) {
+      line
+        .attr(x + "2", k * this.tickSizeInner)
+        .attr(y + "1", 0.5)
+        .attr(y + "2", 0.5);
+    }
 
     text
       .attr(x, k * spacing)
@@ -246,9 +252,11 @@ export class MyAxis {
         : ((x = "y"), "x");
 
     tick = tick.merge(tickEnter);
-    line = line.merge(
-      tickEnter.append("line").attr(x + "2", k * this.tickSizeInner),
-    );
+    if (this.drawTickLines) {
+      line = line.merge(
+        tickEnter.append("line").attr(x + "2", k * this.tickSizeInner),
+      );
+    }
 
     text = text.merge(tickEnter.append("text").attr(x, k * spacing));
 
@@ -256,10 +264,12 @@ export class MyAxis {
 
     tick.attr("transform", this.tickTransformFn(transform, positions));
 
-    line
-      .attr(x + "2", k * this.tickSizeInner)
-      .attr(y + "1", 0.5)
-      .attr(y + "2", 0.5);
+    if (this.drawTickLines) {
+      line
+        .attr(x + "2", k * this.tickSizeInner)
+        .attr(y + "1", 0.5)
+        .attr(y + "2", 0.5);
+    }
 
     text
       .attr(x, k * spacing)
@@ -314,6 +324,11 @@ export class MyAxis {
 
   setTickPadding(padding: number): this {
     this.tickPadding = padding;
+    return this;
+  }
+
+  setDrawTickLines(draw: boolean): this {
+    this.drawTickLines = draw;
     return this;
   }
 }
