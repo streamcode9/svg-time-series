@@ -17,6 +17,7 @@ vi.mock("../../src/axis.ts", () => {
       setTickSize = vi.fn().mockReturnThis();
       setTickPadding = vi.fn().mockReturnThis();
       setScale = vi.fn().mockReturnThis();
+      setDrawTickLines = vi.fn().mockReturnThis();
       constructor() {
         axisInstances.push(this);
       }

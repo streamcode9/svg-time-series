@@ -51,6 +51,7 @@ vi.mock("../../src/axis.ts", () => ({
     ticks = vi.fn(() => this);
     setTickSize = vi.fn(() => this);
     setTickPadding = vi.fn(() => this);
+    setDrawTickLines = vi.fn(() => this);
   },
 }));
 

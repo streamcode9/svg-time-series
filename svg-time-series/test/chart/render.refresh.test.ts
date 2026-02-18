@@ -13,6 +13,7 @@ vi.mock("../../src/axis.ts", () => {
       setTickSize = vi.fn().mockReturnThis();
       setTickPadding = vi.fn().mockReturnThis();
       setScale = vi.fn().mockReturnThis();
+      setDrawTickLines = vi.fn().mockReturnThis();
     },
     Orientation: { Top: 0, Right: 1, Bottom: 2, Left: 3 },
   };

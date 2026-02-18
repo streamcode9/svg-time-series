@@ -174,6 +174,13 @@ export class RenderState {
     this.axes.x.axis.setScale(this.axes.x.scale);
     this.axisManager.setXAxis(this.axes.x.scale);
 
+    // Update Y-axis positions on resize
+    this.axisRenders.forEach((r, i) => {
+      const orientation = i === 0 ? Orientation.Right : Orientation.Left;
+      const xPosition = orientation === Orientation.Left ? width : 0;
+      r.g.attr("transform", `translate(${xPosition},0)`);
+    });
+
     const xRange = this.axes.x.scale.range() as [number, number];
     for (const a of this.axes.y) {
       a.scale.range([height, 0]);
@@ -275,7 +282,13 @@ export function setupRender(
   const axisRenders: AxisRenderState[] = yAxes.map((a, i) => {
     const orientation = i === 0 ? Orientation.Right : Orientation.Left;
     const axis = createYAxis(orientation, a.scale, width);
+    // Only the first axis (Right) should draw tick lines
+    if (i !== 0) {
+      axis.setDrawTickLines(false);
+    }
     const g = svg.append("g").attr("class", "axis");
+    const xPosition = orientation === Orientation.Left ? width : 0;
+    g.attr("transform", `translate(${xPosition},0)`);
     g.call(axis.axis.bind(axis));
     return {
       axis,
