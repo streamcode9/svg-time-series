@@ -178,7 +178,7 @@ export class RenderState {
     this.axisRenders.forEach((r, i) => {
       const orientation = i === 0 ? Orientation.Right : Orientation.Left;
       const xPosition = orientation === Orientation.Left ? width : 0;
-      r.g.attr("transform", `translate(${xPosition},0)`);
+      r.g.attr("transform", `translate(${String(xPosition)},0)`);
     });
 
     const xRange = this.axes.x.scale.range() as [number, number];
@@ -288,7 +288,7 @@ export function setupRender(
     }
     const g = svg.append("g").attr("class", "axis");
     const xPosition = orientation === Orientation.Left ? width : 0;
-    g.attr("transform", `translate(${xPosition},0)`);
+    g.attr("transform", `translate(${String(xPosition)},0)`);
     g.call(axis.axis.bind(axis));
     return {
       axis,
