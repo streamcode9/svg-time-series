@@ -1,5 +1,6 @@
 ## svg-time-series
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/57e7446f-7b82-4270-b84f-d537f36f253f/deploy-status)](https://app.netlify.com/projects/endearing-pothos-ca88dc/deploys)
 [![CI](https://github.com/streamcode9/svg-time-series/actions/workflows/ci.yml/badge.svg)](https://github.com/streamcode9/svg-time-series/actions/workflows/ci.yml)
 [![Dependabot Updates](https://github.com/streamcode9/svg-time-series/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/streamcode9/svg-time-series/actions/workflows/dependabot/dependabot-updates)
 [![Join the chat at https://gitter.im/streamcode9/svg-time-series](https://badges.gitter.im/streamcode9/svg-time-series.svg)](https://gitter.im/streamcode9/svg-time-series?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
