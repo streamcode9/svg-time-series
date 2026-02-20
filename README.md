@@ -1,7 +1,7 @@
 ## svg-time-series
 
 [![CI](https://github.com/streamcode9/svg-time-series/actions/workflows/ci.yml/badge.svg)](https://github.com/streamcode9/svg-time-series/actions/workflows/ci.yml)
-
+[![Dependabot Updates](https://github.com/streamcode9/svg-time-series/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/streamcode9/svg-time-series/actions/workflows/dependabot/dependabot-updates)
 [![Join the chat at https://gitter.im/streamcode9/svg-time-series](https://badges.gitter.im/streamcode9/svg-time-series.svg)](https://gitter.im/streamcode9/svg-time-series?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 D3.js-based SVG time series charts done right to reach 60 FPS. Much much faster pan and zoom than other charts, whether canvas- or SVG-based.
