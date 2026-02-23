@@ -167,7 +167,7 @@ describe("ZoomState", () => {
       sourceEvent?: unknown;
     };
     expect(internalEvent).toMatchObject({ transform: { x: 5, k: 2 } });
-    expect(internalEvent.sourceEvent).toBeUndefined();
+    expect(internalEvent.sourceEvent).toBe(event.sourceEvent);
   });
 
   it("forwards programmatic transform to zoom behavior", () => {

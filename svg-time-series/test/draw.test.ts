@@ -12,6 +12,9 @@ vi.mock("../src/chart/zoomState.ts", () => {
     ZoomState: vi.fn().mockImplementation((...args: unknown[]) => {
       const refreshChart = args[2] as () => void;
       return {
+        withNextSourceEventOverride: vi.fn(
+          (_sourceEvent: unknown, fn: () => unknown) => fn(),
+        ),
         refresh: vi.fn(() => {
           refreshChart();
         }),

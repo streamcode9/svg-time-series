@@ -7,6 +7,16 @@ import { validateScaleExtent } from "./zoomUtils.ts";
 
 export { sameTransform };
 
+interface D3ZoomEventWithSource {
+  transform: ZoomTransform;
+  sourceEvent?: unknown;
+}
+
+interface SchedulerEvent {
+  transform: ZoomTransform;
+  sourceEvent?: unknown;
+}
+
 export interface IZoomStateOptions {
   scaleExtent: [number, number];
 }
@@ -17,6 +27,7 @@ export class ZoomState {
   private scaleExtent: [number, number];
   private destroyed = false;
   private zoomAreaNode: SVGRectElement;
+  private nextSourceEventOverride: { sourceEvent: unknown } | null = null;
   private readonly constrain = (
     transform: ZoomTransform,
     extent: [[number, number], [number, number]],
@@ -97,11 +108,58 @@ export class ZoomState {
     }, this.refreshChart);
   }
 
+  /**
+   * Temporarily overrides the next d3-zoom event's `sourceEvent` when it would
+   * otherwise be `null`/`undefined` (e.g. a programmatic zoom transform
+   * triggered from a user-driven brush selection).
+   */
+  public withNextSourceEventOverride<T>(sourceEvent: unknown, fn: () => T): T {
+    this.nextSourceEventOverride = { sourceEvent };
+    return fn();
+  }
+
   public zoom = (event: D3ZoomEvent<SVGRectElement, unknown>) => {
     this.state.applyZoomTransform(event.transform);
-    this.zoomScheduler.zoom(event.transform, event.sourceEvent, event, (e) => {
-      this.zoomCallback(e as D3ZoomEvent<SVGRectElement, unknown>);
-    });
+
+    // Capture and clear override immediately for thread safety
+    const override = this.nextSourceEventOverride;
+    this.nextSourceEventOverride = null;
+
+    const rawSourceEvent = (event as unknown as D3ZoomEventWithSource)
+      .sourceEvent;
+
+    // d3-zoom sets `sourceEvent` for user interactions, but it is `null` for
+    // programmatic transforms. When a programmatic transform is initiated from
+    // a user-driven interaction (e.g. brushing), callers can provide a one-shot
+    // override.
+    const overrideUsed = rawSourceEvent == null && override !== null;
+    const sourceEvent: unknown = overrideUsed
+      ? override.sourceEvent
+      : rawSourceEvent;
+
+    const schedulerEvent: SchedulerEvent = {
+      transform: event.transform,
+      sourceEvent,
+    };
+
+    // When the scheduler applies a transform, d3-zoom will emit a follow-up
+    // event with `sourceEvent == null` while we are still pending. That
+    // follow-up event finalizes internal state but should not overwrite the
+    // callback event established by the initiating interaction.
+    const shouldUpdateCallback = !(
+      rawSourceEvent == null && this.zoomScheduler.isPending()
+    );
+
+    this.zoomScheduler.zoom(
+      event.transform,
+      sourceEvent,
+      schedulerEvent,
+      shouldUpdateCallback
+        ? (e) => {
+            this.zoomCallback(e as D3ZoomEvent<SVGRectElement, unknown>);
+          }
+        : undefined,
+    );
   };
 
   public refresh = () => {

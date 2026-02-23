@@ -94,6 +94,9 @@ vi.mock("../../src/chart/zoomState.ts", () => ({
       this.refreshChart();
       this.zoomCallback({ transform: identity, sourceEvent: null });
     });
+    withNextSourceEventOverride = vi.fn(
+      (_sourceEvent: unknown, fn: () => unknown) => fn(),
+    );
     refresh = vi.fn();
     destroy = vi.fn();
     zoom = vi.fn();

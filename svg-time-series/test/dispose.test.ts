@@ -9,6 +9,9 @@ vi.mock("../src/utils/domNodeTransform.ts", () => ({ updateNode: vi.fn() }));
 vi.mock("../src/chart/zoomState.ts", () => {
   return {
     ZoomState: vi.fn().mockImplementation(() => ({
+      withNextSourceEventOverride: vi.fn(
+        (_sourceEvent: unknown, fn: () => unknown) => fn(),
+      ),
       refresh: vi.fn(),
       destroy: vi.fn(),
       setScaleExtent: vi.fn(),

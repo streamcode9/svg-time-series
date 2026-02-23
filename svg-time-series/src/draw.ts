@@ -352,12 +352,16 @@ export class TimeSeriesChart {
     // Ignore programmatic brush clears to avoid infinite recursion
     if (!event.sourceEvent) return;
 
-    const timeWindow = handleBrushEnd(
-      event,
-      this.data,
-      this.state,
-      this.zoomState,
-      this.zoomArea,
+    const timeWindow = this.zoomState.withNextSourceEventOverride(
+      event.sourceEvent,
+      () =>
+        handleBrushEnd(
+          event,
+          this.data,
+          this.state,
+          this.zoomState,
+          this.zoomArea,
+        ),
     );
     clearBrushSelection(this.brushBehavior, this.brushLayer);
     this.selectedTimeWindow = timeWindow;
