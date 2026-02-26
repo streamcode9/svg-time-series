@@ -39,7 +39,7 @@ describe("ZoomScheduler", () => {
     expect(apply).toHaveBeenCalledWith({ x: 1, k: 2 });
   });
 
-  it("rejects conflicting programmatic transforms", () => {
+  it("accepts newer programmatic transforms while pending", () => {
     const apply = vi.fn();
     const refresh = vi.fn();
     const zs = new ZoomScheduler(apply, refresh);
@@ -51,7 +51,9 @@ describe("ZoomScheduler", () => {
       false,
     );
     vi.runAllTimers();
+    // The newer transform should be applied, not the first one
     expect(apply).toHaveBeenCalledTimes(1);
+    expect(apply).toHaveBeenCalledWith({ x: 5, k: 3 });
   });
 
   it("finalizes transform after confirmation", () => {

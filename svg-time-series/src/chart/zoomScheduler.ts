@@ -44,7 +44,7 @@ export class ZoomScheduler {
    * ZoomScheduler state transitions
    *
    *     [idle] -- user event/programmatic start --> [pending]
-   *     [pending] -- conflicting transform --------> [pending] (ignored)
+   *     [pending] -- conflicting transform --------> [pending] (updated)
    *     [pending] -- finalize ---------------------> [idle]
    */
   public zoom(
@@ -88,9 +88,13 @@ export class ZoomScheduler {
     return true;
   }
 
-  // pending -> pending (restore previous transform)
-  private handleProgrammaticConflict(prevTransform: ZoomTransform): boolean {
-    this.currentPanZoomTransformState = prevTransform;
+  // pending -> pending (accept newer transform so followers stay up-to-date)
+  private handleProgrammaticConflict(_prevTransform: ZoomTransform): boolean {
+    // Keep the newer transform (already stored in
+    // currentPanZoomTransformState) instead of reverting to the previous
+    // one.  During rapid scrolling the leader chart may fire several
+    // programmatic zooms before the follower's RAF runs; reverting would
+    // cause the follower to render with a stale transform.
     return false;
   }
 
