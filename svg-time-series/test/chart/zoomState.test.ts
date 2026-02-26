@@ -258,8 +258,10 @@ describe("ZoomState", () => {
     expect(applyZoomTransform).toHaveBeenCalledTimes(3);
     expect(applyZoomTransform).toHaveBeenLastCalledWith({ x: 2, k: 3 });
     expect(refresh).toHaveBeenCalledTimes(2);
-    expect(zoomCb).toHaveBeenCalledTimes(1);
-    const cbEvent = zoomCb.mock.calls[0]![0] as {
+    // User events fire the callback eagerly (synchronously) so that
+    // follower charts can schedule their refresh in the same frame.
+    expect(zoomCb).toHaveBeenCalledTimes(2);
+    const cbEvent = zoomCb.mock.calls[1]![0] as {
       transform: { x: number; k: number };
     };
     expect(cbEvent.transform).toMatchObject({ x: 2, k: 3 });

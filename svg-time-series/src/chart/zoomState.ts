@@ -150,11 +150,21 @@ export class ZoomState {
       rawSourceEvent == null && this.zoomScheduler.isPending()
     );
 
+    // Fire the callback immediately for user-initiated events so that
+    // follower charts (multi-chart sync) can schedule their own RAF in the
+    // same event-handler turn.  This ensures all charts render in the same
+    // animation frame instead of the follower lagging one frame behind.
+    if (sourceEvent && shouldUpdateCallback) {
+      this.zoomCallback(schedulerEvent as D3ZoomEvent<SVGRectElement, unknown>);
+    }
+
     this.zoomScheduler.zoom(
       event.transform,
       sourceEvent,
       schedulerEvent,
-      shouldUpdateCallback
+      // Only defer the callback for programmatic (forwarded) zooms; user
+      // events already fired it synchronously above.
+      shouldUpdateCallback && !sourceEvent
         ? (e) => {
             this.zoomCallback(e as D3ZoomEvent<SVGRectElement, unknown>);
           }
