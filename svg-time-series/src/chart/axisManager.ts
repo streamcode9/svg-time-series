@@ -86,7 +86,7 @@ export class AxisManager {
       const { tree, scale: baseScaleRaw } =
         this.data.axes[i]!.axisTransform(dIndexVisible);
       model.updateFromData(tree, baseScaleRaw, this.data.window.bIndexFull);
-      model.scale = transform.rescaleY(model.baseScale).copy();
+      model.scale = model.baseScale.copy();
     });
   }
 }
