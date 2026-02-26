@@ -45,8 +45,10 @@ export function drawCharts(
   const onSelectChart: ValueFn<HTMLElement, unknown, void> = function () {
     const svg = select(this).select<SVGSVGElement>("svg");
     const legend = select(this).select<HTMLElement>(".chart-legend");
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
     const source: IDataSource = {
-      startTime: Date.now(),
+      startTime: startOfDay.getTime(),
       timeStep: 86400000,
       length: data.length,
       seriesAxes,
