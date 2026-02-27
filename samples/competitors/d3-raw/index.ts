@@ -126,15 +126,18 @@ async function initChart(): Promise<void> {
     clearInterval(intervalId);
   }
   let j = 0;
-  const originalData = { series, dates };
+  // Snapshot the original values so the cycling source is immune to addDataPoint mutations
+  const originalNyValues = [...series[0]!.values];
+  const originalSfValues = [...series[1]!.values];
+  const originalLength = dates.length;
   intervalId = setInterval(function () {
-    const dataIndex = j % originalData.dates.length;
+    const dataIndex = j % originalLength;
     const newDate = new Date(
       dates[dates.length - 1]!.getTime() +
         (dates[1]!.getTime() - dates[0]!.getTime()),
     );
-    const newNyValue = originalData.series[0]!.values[dataIndex]!;
-    const newSfValue = originalData.series[1]!.values[dataIndex]!;
+    const newNyValue = originalNyValues[dataIndex]!;
+    const newSfValue = originalSfValues[dataIndex]!;
 
     // Add new data point to each series
     chartControls.addDataPoint(newDate, [newNyValue, newSfValue]);
