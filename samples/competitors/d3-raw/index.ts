@@ -577,6 +577,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
       // Update scales
       xScale.domain(constrainedXDomain);
       yScale.domain(newYDomain).nice();
+      currentYDomain = yScale.domain() as [number, number];
 
       // Re-render everything
       updateAxes();
@@ -625,6 +626,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
       currentYDomain = newYDomain;
       xScale.domain(newXDomain);
       yScale.domain(newYDomain).nice();
+      currentYDomain = yScale.domain() as [number, number];
 
       updateAxes();
       updateLines();
@@ -837,6 +839,7 @@ function drawChart(series: Series[], dates: Date[]): ChartControls {
 
     xScale.domain(currentXDomain);
     yScale.domain(currentYDomain).nice();
+    currentYDomain = yScale.domain() as [number, number];
 
     // Re-render
     updateAxes();
