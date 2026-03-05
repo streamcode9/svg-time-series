@@ -64,4 +64,5 @@ export function scaleDataset(
 }
 
 /** Predefined dataset sizes used in the benchmark suite. */
-export const DATA_SIZES = [10_000, 100_000, 1_000_000] as const;
+//export const DATA_SIZES = [10_000, 100_000, 1_000_000] as const;
+export const DATA_SIZES = [100, 1_000, 10_000] as const;
