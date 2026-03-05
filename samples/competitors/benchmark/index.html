@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Competitor Benchmarks – Dashboard</title>
+    <link rel="stylesheet" href="bench.css" />
+  </head>
+  <body>
+    <h1>Competitor Benchmark Dashboard</h1>
+
+    <p>
+      Compare <strong>svg-time-series</strong> against
+      <strong>Dygraphs</strong> and <strong>D3 (raw)</strong> across three
+      dataset sizes (10 k, 100 k, 1 M points).
+    </p>
+
+    <div class="metrics-info">
+      <dl>
+        <dt>Initial Render</dt>
+        <dd>
+          Time from chart construction to first browser paint (double-rAF).
+        </dd>
+        <dt>Zoom Re-render</dt>
+        <dd>Time to programmatically zoom in and repaint.</dd>
+        <dt>Pan Re-render</dt>
+        <dd>Time to programmatically pan the viewport and repaint.</dd>
+      </dl>
+      <p>
+        Each metric is the <strong>median</strong> of 5 measured iterations
+        (after 1 warm-up pass). Dataset is <code>ny-vs-sf.csv</code> tiled to
+        the target size.
+      </p>
+    </div>
+
+    <h2>Run Individual Benchmarks</h2>
+    <div class="bench-links">
+      <a href="bench-svg-time-series.html">svg-time-series</a>
+      <a href="bench-dygraphs.html">Dygraphs</a>
+      <a href="bench-d3.html">D3 (raw)</a>
+    </div>
+
+    <h2>Aggregate Results</h2>
+    <p id="agg-status">
+      Run each benchmark individually first, then return here to view combined
+      results. (Aggregate runner coming soon.)
+    </p>
+    <div id="agg-results"></div>
+  </body>
+</html>

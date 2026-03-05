@@ -22,6 +22,7 @@
     "d3-shape": "^3.2.0",
     "d3-time-format": "^4.1.0",
     "d3-zoom": "^3.0.0",
+    "dygraphs": "^2.2.1",
     "plotly.js": "^3.1.0"
   },
   "devDependencies": {

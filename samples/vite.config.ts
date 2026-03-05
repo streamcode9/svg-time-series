@@ -77,6 +77,23 @@ export default defineConfig({
           __dirname,
           "competitors/d3-raw/index.html",
         ),
+        // competitor benchmarks
+        "competitors-benchmark-index": resolve(
+          __dirname,
+          "competitors/benchmark/index.html",
+        ),
+        "competitors-benchmark-svg-time-series": resolve(
+          __dirname,
+          "competitors/benchmark/bench-svg-time-series.html",
+        ),
+        "competitors-benchmark-dygraphs": resolve(
+          __dirname,
+          "competitors/benchmark/bench-dygraphs.html",
+        ),
+        "competitors-benchmark-d3": resolve(
+          __dirname,
+          "competitors/benchmark/bench-d3.html",
+        ),
         // demos
         "demos-demo1": resolve(__dirname, "demos/demo1.html"),
         "demos-demo2": resolve(__dirname, "demos/demo2.html"),
